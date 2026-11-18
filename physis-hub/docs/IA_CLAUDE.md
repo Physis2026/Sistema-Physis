@@ -17,7 +17,7 @@ prontas por regras). Nada quebra sem o Claude.
 - **Ordem de quem responde:** Claude (se tiver chave) → servidor de IA local (Fase 2, se `PHYSIS_IA_URL` existir)
   → respostas prontas por regras.
 - **Robôs que usam o Claude:** Suporte (melhora a resposta citando a documentação), Preços das propostas (explica
-  o que está fora da faixa), Editais (resumo e encaixe com a Physis) e Instituto (melhora o roteiro de projeto).
+  o que está fora da faixa), Editais (resumo e encaixe com a Physis) e Projetos (melhora o roteiro de projeto).
   Marketing e Pluviômetro continuam só com regras.
 - **Chave só no servidor:** lida de arquivo ou variável de ambiente; nunca no código, nunca no log, nunca vai ao
   navegador (a resposta do robô leva só o nome do modelo e o custo).
@@ -33,7 +33,7 @@ prontas por regras). Nada quebra sem o Claude.
   `revisao_humana: true`. Preço de proposta e encaixe de edital continuam só sugestão (`dados.sugestao: true`), e
   documento feito com IA só sai depois de aprovado (docs/DOCUMENTOS_AUTOMATICOS.md).
 - **Teto por robô, além do teto total:** cada robô tem o seu teto do mês (padrões: suporte US$ 12, preços 6,
-  editais 6, instituto 3, documentos 6; outro robô 3 — sugestão, [DECIDIR] com a direção). Quando um robô chega no
+  editais 6, projetos 3, documentos 6; outro robô 3 — sugestão, [DECIDIR] com a direção). Quando um robô chega no
   teto dele, **só ele** volta às respostas prontas; os outros seguem até o teto total.
 - **Aviso por e-mail** ao passar de 80% e de 100% do teto total: uma vez por mês por limite, pela fila de e-mail e
   pelo correio da Physis (`correio.py`). Vai para `PHYSIS_CLAUDE_AVISO_EMAIL` (sem ele, o e-mail de suporte da instalação).
@@ -120,7 +120,7 @@ Se vazou: desativar a chave na hora (passo 4 primeiro); os robôs seguem por reg
 ### 5. Ajustar o teto
 
 - `PHYSIS_CLAUDE_TETO_USD=25` no `hub.env` e reiniciar. `0` desliga o Claude.
-- Teto de cada robô: `PHYSIS_CLAUDE_TETOS_ROBO={"suporte": 12, "precos": 6, "editais": 6, "instituto": 3, "documentos": 6}`
+- Teto de cada robô: `PHYSIS_CLAUDE_TETOS_ROBO={"suporte": 12, "precos": 6, "editais": 6, "projetos": 3, "documentos": 6}`
   (JSON numa linha); robô fora da lista usa `PHYSIS_CLAUDE_TETO_ROBO_USD` (padrão 3).
 - Aviso por e-mail: `PHYSIS_CLAUDE_AVISO_EMAIL=direcao@...` e, se quiser outros limites, `PHYSIS_CLAUDE_AVISOS=0.5,0.8,1`.
   Precisa do servidor de e-mail da Physis (`PHYSIS_SMTP_*`); sem ele, o aviso fica na fila de e-mails da Gestão.
@@ -151,7 +151,7 @@ Premissas (suposições nossas, a medir no 1º mês pelo contador):
 | Suporte | 2.000 | 1.000 | 300 | 0,008 + 0,020 = US$ 0,028 | US$ 8,40 |
 | Preços das propostas | 3.000 | 1.500 | 100 | 0,012 + 0,030 = US$ 0,042 | US$ 4,20 |
 | Editais (resumo e encaixe) | 6.000 | 2.000 | 60 | 0,024 + 0,040 = US$ 0,064 | US$ 3,84 |
-| Instituto (roteiro) | 3.000 | 3.000 | 20 | 0,012 + 0,060 = US$ 0,072 | US$ 1,44 |
+| Projetos (roteiro) | 3.000 | 3.000 | 20 | 0,012 + 0,060 = US$ 0,072 | US$ 1,44 |
 | Documentos (adaptar da biblioteca) | 20.000 | 6.000 | 10 | 0,080 + 0,120 = US$ 0,200 | US$ 2,00 |
 | **Total** | | | **490** | | **≈ US$ 19,88/mês** |
 

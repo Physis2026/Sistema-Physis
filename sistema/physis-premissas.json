@@ -727,151 +727,6 @@
       "nota": "Correção do ganho mensal no fluxo do investimento."
     },
     {
-      "id": "impressao3d.material.rpetg",
-      "grandeza": "Perfil de impressão do rPET/PETG reciclado (densidade, temperaturas e contração)",
-      "valor_padrao": {
-        "nome": "rPET / PETG reciclado",
-        "densidade_g_cm3": 1.27,
-        "bico_c": 240,
-        "bico_faixa_c": [
-          230,
-          250
-        ],
-        "mesa_c": 75,
-        "mesa_faixa_c": [
-          70,
-          85
-        ],
-        "contracao_pct": 0.4,
-        "contracao_faixa_pct": [
-          0.2,
-          0.6
-        ],
-        "diametro_mm": 1.75
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "opcoes": [],
-      "fonte": "[CONFERIR] valores típicos de literatura e de fabricantes para PETG virgem; PET de garrafa tem densidade maior (cerca de 1,33 a 1,38 g/cm³). Trocar pela folha de dados do filamento reciclado usado.",
-      "status": "conferir",
-      "nota": "Reciclado de garrafa (PET) seca mal e cristaliza; secar antes de imprimir. Contração é de ordem de grandeza: medir no cubo de calibração."
-    },
-    {
-      "id": "impressao3d.material.rpp",
-      "grandeza": "Perfil de impressão do rPP (polipropileno reciclado)",
-      "valor_padrao": {
-        "nome": "rPP (polipropileno reciclado)",
-        "densidade_g_cm3": 0.9,
-        "bico_c": 230,
-        "bico_faixa_c": [
-          210,
-          250
-        ],
-        "mesa_c": 90,
-        "mesa_faixa_c": [
-          80,
-          100
-        ],
-        "contracao_pct": 1.8,
-        "contracao_faixa_pct": [
-          1.0,
-          2.5
-        ],
-        "diametro_mm": 1.75
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "opcoes": [],
-      "fonte": "[CONFERIR] valores típicos de literatura para PP virgem (densidade 0,89 a 0,91 g/cm³; contração de moldagem de 1 a 2,5 %). Trocar pela folha de dados do filamento reciclado usado.",
-      "status": "conferir",
-      "nota": "PP adere mal à maioria das mesas e empena muito: mesa com fita de PP ou adesivo próprio; câmara fechada ajuda."
-    },
-    {
-      "id": "impressao3d.material.rhdpe",
-      "grandeza": "Perfil de impressão do rHDPE (polietileno de alta densidade reciclado)",
-      "valor_padrao": {
-        "nome": "rHDPE (PEAD reciclado)",
-        "densidade_g_cm3": 0.95,
-        "bico_c": 240,
-        "bico_faixa_c": [
-          220,
-          260
-        ],
-        "mesa_c": 100,
-        "mesa_faixa_c": [
-          90,
-          110
-        ],
-        "contracao_pct": 2.5,
-        "contracao_faixa_pct": [
-          1.5,
-          4.0
-        ],
-        "diametro_mm": 1.75
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "opcoes": [],
-      "fonte": "[CONFERIR] valores típicos de literatura para PEAD virgem (densidade 0,94 a 0,97 g/cm³; contração de moldagem de 1,5 a 4 %). Poucos dados publicados para impressão FDM. Trocar pelo ensaio da oficina.",
-      "status": "conferir",
-      "nota": "O mais difícil dos cinco: empenamento forte. Peças pequenas, borda (brim) larga e mesa de PP/PE."
-    },
-    {
-      "id": "impressao3d.material.rabs",
-      "grandeza": "Perfil de impressão do rABS (ABS reciclado)",
-      "valor_padrao": {
-        "nome": "rABS (ABS reciclado)",
-        "densidade_g_cm3": 1.04,
-        "bico_c": 240,
-        "bico_faixa_c": [
-          230,
-          255
-        ],
-        "mesa_c": 100,
-        "mesa_faixa_c": [
-          95,
-          110
-        ],
-        "contracao_pct": 0.6,
-        "contracao_faixa_pct": [
-          0.4,
-          0.8
-        ],
-        "diametro_mm": 1.75
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "opcoes": [],
-      "fonte": "[CONFERIR] valores típicos de literatura e de fabricantes para ABS virgem (densidade 1,03 a 1,06 g/cm³). Trocar pela folha de dados do filamento reciclado usado.",
-      "status": "conferir",
-      "nota": "Solta vapores (estireno): imprimir com ventilação ou exaustão. Câmara fechada reduz a separação de camadas."
-    },
-    {
-      "id": "impressao3d.material.rpla",
-      "grandeza": "Perfil de impressão do PLA reciclado",
-      "valor_padrao": {
-        "nome": "PLA reciclado",
-        "densidade_g_cm3": 1.24,
-        "bico_c": 205,
-        "bico_faixa_c": [
-          190,
-          220
-        ],
-        "mesa_c": 60,
-        "mesa_faixa_c": [
-          50,
-          65
-        ],
-        "contracao_pct": 0.3,
-        "contracao_faixa_pct": [
-          0.2,
-          0.5
-        ],
-        "diametro_mm": 1.75
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "opcoes": [],
-      "fonte": "[CONFERIR] valores típicos de literatura e de fabricantes para PLA virgem (densidade 1,21 a 1,25 g/cm³). PLA reciclado perde massa molar a cada ciclo: a faixa de bico costuma cair. Trocar pela folha de dados do filamento reciclado usado.",
-      "status": "conferir",
-      "nota": "Mais fácil de imprimir; PLA não é reciclável junto com PET na coleta comum."
-    },
-    {
       "id": "solar.arranjo_afastamento_borda",
       "grandeza": "Afastamento dos módulos até a borda do telhado ou do terreno",
       "valor_padrao": null,
@@ -941,7 +796,7 @@
       "opcoes": [],
       "fonte": "correlação de McAdams para superfície ao vento (literatura de transferência de calor) [CONFERIR]",
       "status": "conferir",
-      "nota": "Só para quem precisa separar convecção de radiação (peça impressa, câmara do Secador). Paredes usam Rse."
+      "nota": "Só para quem precisa separar convecção de radiação (câmara do Secador). Paredes usam Rse."
     },
     {
       "id": "sim.termica.emissividade",
@@ -988,27 +843,11 @@
           "fy_Pa": null,
           "nu": null,
           "densidade": 700
-        },
-        "rpla": {
-          "nome": "PLA reciclado impresso",
-          "E_Pa": null,
-          "G_Pa": null,
-          "fy_Pa": null,
-          "nu": null,
-          "densidade": 1240
-        },
-        "rpetg": {
-          "nome": "rPET/PETG reciclado impresso",
-          "E_Pa": null,
-          "G_Pa": null,
-          "fy_Pa": null,
-          "nu": null,
-          "densidade": 1270
         }
       },
       "unidade": "Pa; kg/m³",
       "opcoes": [],
-      "fonte": "aço: valores usuais de aço estrutural (fy do aço ASTM A36 / MR250) [CONFERIR NA NORMA ABNT NBR 8800]; alumínio: E usual, fy depende da liga e da têmpera [MARCADOR]; madeira: classe de resistência da ABNT NBR 7190 ou ensaio [MARCADOR]; bambu: ensaio (ISO 22156 / ABNT NBR 16828) [MARCADOR]; filamentos: ensaio da oficina [MARCADOR]. Densidades de sistema/physis-materiais.json e de physis-3d-premissas.json.",
+      "fonte": "aço: valores usuais de aço estrutural (fy do aço ASTM A36 / MR250) [CONFERIR NA NORMA ABNT NBR 8800]; alumínio: E usual, fy depende da liga e da têmpera [MARCADOR]; madeira: classe de resistência da ABNT NBR 7190 ou ensaio [MARCADOR]; bambu: ensaio (ISO 22156 / ABNT NBR 16828) [MARCADOR]. Densidades de sistema/physis-materiais.json.",
       "status": "conferir",
       "nota": "null = a conta pede o valor ([MARCADOR]). Bambu e madeira variam muito de peça para peça."
     },

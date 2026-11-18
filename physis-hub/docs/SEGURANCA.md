@@ -42,7 +42,10 @@ o pedido veio por HTTPS.
 | `PHYSIS_CONSENTIMENTO_ESTRITO` | vazio | `1` = sem o aceite da versão atual dos termos, só as rotas da própria conta funcionam (403 `{"consentimento": true}`). **Ligue depois que as telas tiverem o aviso de aceite.** |
 | `PHYSIS_SEGURANCA_CONTATO` | vazio | Contato do `/.well-known/security.txt` (e-mail ou https; padrão: e-mail de suporte). |
 | `PHYSIS_SAUDE_V6` | `1` | Linhas `MED`/`PUL` (Saúde) pelo receptor, `/api/v6/linha` e MQTT vão para a Saúde (nunca para `medicao`). `0` = recusadas (`tipo_desconhecido`); `/api/saude/linha` segue aceitando. |
-| `PHYSIS_INSTANCIA` | `instancia.json` ao lado de `physis_hub/` | Outro arquivo de configuração. Serve para rodar o servidor do Instituto Physis do mesmo código (`docs/INSTITUTO.md`); o `"banco"` dele fica na pasta dele. |
+| `PHYSIS_INSTANCIA` | `instancia.json` ao lado de `physis_hub/` | Outro arquivo de configuração (por exemplo, uma segunda instalação do mesmo código; use também `PHYSIS_BANCO` próprio). |
+| `PHYSIS_INTERCAMBIO_CHAVES` | `intercambio-chaves.json` ao lado do banco | Chaves combinadas com as plataformas parceiras (`docs/INTERCAMBIO.md`). Só neste arquivo (permissão 600), nunca no código nem no banco. |
+| `PHYSIS_INTERCAMBIO_ID` | o `org` da instalação | Identificador desta plataforma no intercâmbio. |
+| `PHYSIS_INTERCAMBIO_LIMITE` | `120/600` | Pedidos de cada parceiro por janela (segundos); `0` desliga. |
 
 Rotas novas de 15/11/2026 (mesmas regras): `GET /api/cliente/estado`, `GET|PUT /api/cliente/estado/<chave>` e
 `GET /api/cliente/perfil` exigem sessão (cliente ou acima) **sempre**, mesmo em instalação sem login; o PUT passa pelo

@@ -28,7 +28,6 @@ EXTRA = {  # palavras que também apontam para o módulo (além do nome do kit)
     "certificacoes": ["certifica", "leed", "edge", "iso 14001"],
     "monitoramento": ["monitoramento", "sensor", "caixinha"],
     "servidor": ["servidor", "vpn", "contêiner", "conteiner", "docker", "backup"],
-    "impressao3d": ["3d", "fatiador", "impressão"],
     "mapeamento": ["mapeamento", "camada", "hidrografia", "planta solar"],
 }
 

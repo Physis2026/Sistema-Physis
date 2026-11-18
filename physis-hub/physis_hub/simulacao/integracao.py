@@ -37,13 +37,13 @@ V = [
     calc("sim.inercia_termica", "Atraso térmico e fator de amortecimento da parede", "Wall time lag and decrement factor", "h; adimensional",
          "simulacao", "diferenças finitas 1D, método θ, regime periódico", "termica.transiente_1d", "transiente1d",
          [c("avac", "Carga térmica · envoltória"), c("planejador", "bioconstrução")], ["sim.termica.resistencias_superficiais"], ["sim.u_envoltoria"]),
-    calc("sim.ponte_termica", "Fluxo de calor no corte 2D (ponte térmica, peça impressa)", "2D section heat flow (thermal bridge, printed part)",
+    calc("sim.ponte_termica", "Fluxo de calor no corte 2D (ponte térmica)", "2D section heat flow (thermal bridge)",
          "W/m; °C", "simulacao", "diferenças finitas 2D, SOR", "termica.placa_2d", "placa2d",
-         [c("avac", "Carga térmica"), c("impressao3d", "peça · corte")], [], ["sim.u_envoltoria"]),
+         [c("avac", "Carga térmica")], [], ["sim.u_envoltoria"]),
     calc("sim.estrutura", "Deslocamentos, esforços, tensões e utilização (treliça, pórtico, chapa CST)",
          "Displacements, internal forces, stresses and utilisation", "m; N; N·m; Pa; adimensional", "simulacao",
          "K·u = F (barra + viga de Euler-Bernoulli; CST); σ ≤ fy/FS; |N| ≤ Pcr/FS", "estrutura.portico", "portico",
-         [c("solar", "suporte das placas"), c("turbinas", "torre"), c("planejador", "pérgola, bambu e madeira"), c("sbn", "viveiro e estufa"), c("impressao3d", "peça impressa")],
+         [c("solar", "suporte das placas"), c("turbinas", "torre"), c("planejador", "pérgola, bambu e madeira"), c("sbn", "viveiro e estufa")],
          ["sim.estrutura.materiais", "sim.estrutura.k_flambagem", "sim.estrutura.fs_tensao", "sim.estrutura.fs_flambagem", "sim.vento.pressao_dinamica", "sim.turbinas.ct_empuxo"], []),
     calc("sim.ventilacao_natural", "Vazão por ventilação natural (chaminé e vento)", "Natural ventilation flow (stack and wind)", "m³/s; trocas/h",
          "simulacao", "Q = Cd·A*·√(2gh·ΔT/T); Q = Cd·A*·v·√ΔCp", "fluidos.ventilacao_natural", "ventilacaoNatural",
@@ -66,7 +66,7 @@ V = [
          [c("carbono", "inventário"), c("solar", "geração"), c("gestao", "retorno do investimento"), c("circular", "biodigestor")], ["sim.mc.amostras", "sim.mc.semente"], []),
     calc("sim.qubo", "Solução de otimização em QUBO (clássica) e exportação para a trilha quântica", "QUBO optimisation result (classical) and quantum-track export",
          "adimensional", "simulacao", "min xᵀQx; exato (Gray) ou recozimento", "qubo.paineis", "qPaineis",
-         [c("solar", "posições das placas"), c("agua", "traçado de tubo"), c("impressao3d", "topologia grossa")], ["sim.qubo.penalidade_fator", "sim.qubo.limite_exato"], [],
+         [c("solar", "posições das placas"), c("agua", "traçado de tubo")], ["sim.qubo.penalidade_fator", "sim.qubo.limite_exato"], [],
          "Quântico é P&D: nunca em relatório nem certificação."),
     {**calc("bio.substratos", "Substratos do biodigestor (tipo e kg/dia)", "Digester feedstocks (type and kg/day)", "kg/dia", "circular",
             None, "biogas.simular", "biogasSimular", [c("circular", "biodigestor", True, "automatico")], ["sim.biogas.substratos"], ["rc.plano"]),
@@ -108,7 +108,7 @@ fluxos = [
     {"de": "externo", "para": "circular", "variavel": "gis.temperatura_mensal", "modo": "automatico", "necessario": True, "tela": "biodigestor sem aquecimento"},
 ]
 def variaveis_patch() -> dict:
-    return {"modulos_ja_existentes": ["simulacao", "impressao3d"], "variaveis_acrescentar": V, "fluxos_acrescentar": fluxos,
+    return {"modulos_ja_existentes": ["simulacao"], "variaveis_acrescentar": V, "fluxos_acrescentar": fluxos,
             "rc.biogas_produtores_acrescentar": ["simulacao (physis_hub.simulacao.biogas → physis-calc-biogas)"]}
 
 

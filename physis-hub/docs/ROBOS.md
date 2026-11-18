@@ -21,7 +21,7 @@ pelo mesmo gancho, sem mudar as telas.
 | `precos` | `{"itens": [{"descricao","preco"}], "referencias"?: [{"descricao","min","max"}], "historico"?: [{"descricao","preco"}]}` | Cada item com `situacao` (`ok`, `acima`, `abaixo`, `sem_referencia`), `faixa`, `mediana`, `desvio_pct` e as referências achadas (semelhança ≥ 0,35). Faixa: min/max informados; senão Tukey (Q1 − 1,5·IQR a Q3 + 1,5·IQR) com 4+ preços; senão −30 %/+40 % da mediana. Também usa os preços do catálogo da loja do hub | Completo; fica melhor com o histórico de propostas da Gestão |
 | `editais` | `{"editais"?: [...], "aceitos"?: [{"titulo","resumo"}], "hoje"?}` (sem `editais`, usa a lista guardada pelo coletor) | Ranking com nota 0–100 = 60 % semelhança (perfil Physis e editais aprovados antes) + 40 % regra de `editais.relevancia`; prazo vencido = 0; `motivos` em texto | Completo por regras |
 | `marketing` | `{"temas": [...como na Gestão], "metricas": [{"tema_id" ou "tema" ou "area", "impressoes", "engajamentos" ou curtidas/comentarios/...}]}` | Taxa de engajamento esperada por tema (Beta-Binomial: começa na média geral com peso de 100 impressões; métricas de outros temas da mesma área contam 30 %), intervalo de 90 %, "pouco testado", e `nota_final` = metade a nota da Gestão (`nota()`), metade a aprendida | Completo; a redação dos posts é da IA local |
-| `instituto` | `{"edital": {"titulo","resumo","prazo"?,"valor_max"?,"duracao_meses"?}}` | Esqueleto do projeto em 11 seções (objetivos, metodologia Mapear/Modelar/Checar/Documentar, metas e indicadores por área, cronograma, orçamento por rubrica, riscos), com `[A PREENCHER]` e `pendencias`. Sempre `revisao_humana` | Esqueleto completo; o texto corrido é da IA local |
+| `projetos` | `{"edital": {"titulo","resumo","prazo"?,"valor_max"?,"duracao_meses"?}}` | Esqueleto do projeto em 11 seções (objetivos, metodologia Mapear/Modelar/Checar/Documentar, metas e indicadores por área, cronograma, orçamento por rubrica, riscos), com `[A PREENCHER]` e `pendencias`. Sempre `revisao_humana` | Esqueleto completo; o texto corrido é da IA local |
 | `pluviometro` | `{"dados": {"no","lat","lon","municipio","uf","pino","placa"?,"mm_por_pulso"?,"intervalo_s"?,"hub_url"?,"nome"?}}` | YAML do ESPHome (`dados.yaml`), `secrets.yaml` de exemplo, cadastro no hub e avisos de ligação. Recusa pinos de boot/flash/serial; avisa pull-up externo nos GPIO 34–39 | Gera o arquivo; **precisa do hardware e da mudança TIPO:PLUV abaixo** |
 | `auto` | `{"pergunta"}` | Escolhe o robô pelas regras de intenção (preço, pluviômetro, edital, marketing, projeto; senão suporte) | — |
 
@@ -43,7 +43,7 @@ são trocados por `[e-mail]`, `[pessoa]` etc. antes de sair; o log e `REGISTRO_I
 tempo e ok; se a IA falhar ou demorar, vale a resposta por regras (`ia.usada = false`).
 
 Hoje a IA é usada (quando ligada) para: redigir a resposta do **suporte** a partir dos trechos achados e
-redigir o roteiro do **instituto**. Os outros robôs devolvem números e não dependem dela.
+redigir o roteiro do **projetos** (esboço de projeto). Os outros robôs devolvem números e não dependem dela.
 
 ## 4. Rotas (colar em `servidor.py`)
 
@@ -89,7 +89,7 @@ No topo: `from . import robos as robos_mod`. Em `criar_manipulador`, depois de `
 | precos | Gestão → **Propostas** (cada proposta) | Botão "Conferir preços": envia os itens da proposta + `historico` = itens das propostas aceitas; pinta a linha (acima = vermelho, abaixo = âmbar, sem referência = cinza) com a faixa no `title` |
 | editais | Gestão → **Editais** | Coluna "Nota Physis" e ordenação por ela; `motivos` no detalhe. `aceitos` = editais marcados como aprovados |
 | marketing | Gestão → **Marketing → Temas** | Coluna "Engaja ~x %" e "nota final"; selo "pouco testado". As métricas vêm da aba de métricas que a Gestão já tem |
-| instituto | Gestão → **Editais** (botão "Esboçar projeto" no edital) | Abre o esqueleto em seções editáveis, com as `pendencias` como lista de conferência; selo de revisão sempre |
+| projetos | Gestão → **Editais** (botão "Esboçar projeto" no edital) | Abre o esqueleto em seções editáveis, com as `pendencias` como lista de conferência; selo de revisão sempre |
 | pluviometro | Painel → **Monitoramento verde → Acrescentar pluviômetro** (e Gestão → Manutenção) | Formulário (nó, pino, placa, lugar já preenchido) → botões "Baixar YAML" e "Baixar secrets de exemplo" + avisos |
 
 ## 6. TIPO:PLUV (pluviômetro de báscula) — feito no hub em 15/11/2026

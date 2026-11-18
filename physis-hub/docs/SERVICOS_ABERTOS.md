@@ -14,7 +14,6 @@ hospedado pela Physis (regra 11 do `CLAUDE.md`). Testes estáticos: `tests/test_
 | `bi` | PostGIS 16-3.4 + instantâneo + exportador | Dados do hub para BI e mapas | GPL-2 (PostGIS) / Physis |
 | `geoserver` | GeoServer 2.25 | Camadas IBGE, MapBiomas, SINIR e do hub (WMS/WFS/GeoJSON) | GPL-2 |
 | `series` | TimescaleDB 2.15 | Leituras de alto volume (opcional) | Apache-2.0 (edição TSL p/ compressão) |
-| `fatiador` | PrusaSlicer 2.x (CLI) + API Physis | G-code do Physis 3D | AGPL-3.0 (processo separado) |
 | `calc` | Physis Calc (pvlib, windpowerlib, EnergyPlus, EPANET/wntr, SWMM/pyswmm) | Motores de cálculo | BSD/MIT/domínio público |
 | `documentos` | LibreOffice headless + veraPDF 1.26 (Java 17) | ODT/ODS → PDF/A-2b e validação PDF/A | MPL-2.0 / GPLv3+ ou MPLv2+ |
 | `ia` / `ia-vllm` | Ollama 0.3 / vLLM 0.6 | IA local (lista do Eric, parte G) | MIT / Apache-2.0 |

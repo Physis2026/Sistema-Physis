@@ -59,21 +59,6 @@
       "gestao_interna": true,
       "pesquisa": true,
       "confirmar": "Instalação de pesquisa: mostra também o que está em desenvolvimento, sempre marcado como tal."
-    },
-    {
-      "org": "instituto-physis",
-      "nome": "Instituto Physis",
-      "lugar": "sede-instituto",
-      "projeto": "Gêmeo do servidor da Physis para o Instituto Physis: pesquisa, cursos, projetos sociais e o Physis 3D (filamento reciclado e produtos impressos, totalmente do Instituto, decisão de 18/11/2026). Mesmo código, estrutura separada: banco, marca, suporte e catálogo próprios (docs/INSTITUTO.md).",
-      "instalacao": "instituto",
-      "banco": "physis-instituto.db",
-      "modulos": ["gestao", "cursos", "sbn", "resiliencia", "carbono", "certificacoes", "impressao3d"],
-      "pesquisa": true,
-      "marca": {"nome": "Instituto Physis", "logo_texto": "Instituto Physis",
-                "cores": {"primaria": "#2C5A6E", "acao": "#1C3550", "fundo": "#F4F6F1", "superficie": "#FFFFFF", "texto": "#1C2B21", "linha": "#C9D2C4"}},
-      "suporte": {"email": "[MARCADOR: e-mail de suporte do Instituto Physis]", "whatsapp": "[MARCADOR: WhatsApp do Instituto Physis]",
-                  "_leia": "Canais próprios do Instituto. Enquanto forem [MARCADOR], o suporte não envia e-mail (o servidor recusa endereço inválido)."},
-      "confirmar": "Confirmar com a Physis: nome jurídico do Instituto, cores da marca (hoje azuis da PALETA.md, a aprovar), e-mail e WhatsApp de suporte, endereço público e se a Gestão do Instituto é a mesma Gestão interna da Physis (hoje não: o pacote não leva gestao-interna-physis.html)."
     }
   ]
 }

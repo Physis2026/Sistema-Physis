@@ -189,11 +189,6 @@
       "aba": "servidor-verde",
       "classe": "sem_contrato"
     },
-    "impressao3d": {
-      "nome": "Physis 3D (em desenvolvimento)",
-      "aba": "impressao3d",
-      "classe": "pesquisa"
-    },
     "simulacao": {
       "nome": "Simulação (em desenvolvimento)",
       "aba": "simulacao",
@@ -41983,261 +41978,6 @@
       "entradas": []
     },
     {
-      "id": "premissa.impressao3d.material.rpetg",
-      "nome": {
-        "pt": "Perfil de impressão do rPET/PETG reciclado (densidade, temperaturas e contração)",
-        "en": "Perfil de impressão do rPET/PETG reciclado (densidade, temperaturas e contração) [EN: a traduzir]"
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "tipo": "premissa",
-      "modulo": "bases",
-      "produtores": [
-        "bases"
-      ],
-      "origem": {
-        "base": "sistema/physis-premissas.json",
-        "id": "impressao3d.material.rpetg"
-      },
-      "formula": null,
-      "onde": [
-        {
-          "arquivo": "sistema/physis-premissas.json",
-          "linha": 0,
-          "simbolo": "\"impressao3d.material.rpetg\""
-        }
-      ],
-      "consumidores": [
-        {
-          "modulo": "impressao3d",
-          "tela": "Physis 3D · Fatiamento",
-          "necessario": false,
-          "modo": "automatico"
-        }
-      ],
-      "armazenamento": [
-        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
-      ],
-      "frequencia": "versionada (atualizado 2026-11-15)",
-      "agregacao": "valor padrão; o projeto pode trocar com motivo",
-      "faixa": {
-        "min": null,
-        "max": null,
-        "fonte": "opções da base"
-      },
-      "qualidade": [
-        "status 'conferir'"
-      ],
-      "lote": "nao",
-      "premissas": [
-        "impressao3d.material.rpetg"
-      ],
-      "entradas": []
-    },
-    {
-      "id": "premissa.impressao3d.material.rpp",
-      "nome": {
-        "pt": "Perfil de impressão do rPP (polipropileno reciclado)",
-        "en": "Perfil de impressão do rPP (polipropileno reciclado) [EN: a traduzir]"
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "tipo": "premissa",
-      "modulo": "bases",
-      "produtores": [
-        "bases"
-      ],
-      "origem": {
-        "base": "sistema/physis-premissas.json",
-        "id": "impressao3d.material.rpp"
-      },
-      "formula": null,
-      "onde": [
-        {
-          "arquivo": "sistema/physis-premissas.json",
-          "linha": 0,
-          "simbolo": "\"impressao3d.material.rpp\""
-        }
-      ],
-      "consumidores": [
-        {
-          "modulo": "impressao3d",
-          "tela": "Physis 3D · Fatiamento",
-          "necessario": false,
-          "modo": "automatico"
-        }
-      ],
-      "armazenamento": [
-        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
-      ],
-      "frequencia": "versionada (atualizado 2026-11-15)",
-      "agregacao": "valor padrão; o projeto pode trocar com motivo",
-      "faixa": {
-        "min": null,
-        "max": null,
-        "fonte": "opções da base"
-      },
-      "qualidade": [
-        "status 'conferir'"
-      ],
-      "lote": "nao",
-      "premissas": [
-        "impressao3d.material.rpp"
-      ],
-      "entradas": []
-    },
-    {
-      "id": "premissa.impressao3d.material.rhdpe",
-      "nome": {
-        "pt": "Perfil de impressão do rHDPE (polietileno de alta densidade reciclado)",
-        "en": "Perfil de impressão do rHDPE (polietileno de alta densidade reciclado) [EN: a traduzir]"
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "tipo": "premissa",
-      "modulo": "bases",
-      "produtores": [
-        "bases"
-      ],
-      "origem": {
-        "base": "sistema/physis-premissas.json",
-        "id": "impressao3d.material.rhdpe"
-      },
-      "formula": null,
-      "onde": [
-        {
-          "arquivo": "sistema/physis-premissas.json",
-          "linha": 0,
-          "simbolo": "\"impressao3d.material.rhdpe\""
-        }
-      ],
-      "consumidores": [
-        {
-          "modulo": "impressao3d",
-          "tela": "Physis 3D · Fatiamento",
-          "necessario": false,
-          "modo": "automatico"
-        }
-      ],
-      "armazenamento": [
-        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
-      ],
-      "frequencia": "versionada (atualizado 2026-11-15)",
-      "agregacao": "valor padrão; o projeto pode trocar com motivo",
-      "faixa": {
-        "min": null,
-        "max": null,
-        "fonte": "opções da base"
-      },
-      "qualidade": [
-        "status 'conferir'"
-      ],
-      "lote": "nao",
-      "premissas": [
-        "impressao3d.material.rhdpe"
-      ],
-      "entradas": []
-    },
-    {
-      "id": "premissa.impressao3d.material.rabs",
-      "nome": {
-        "pt": "Perfil de impressão do rABS (ABS reciclado)",
-        "en": "Perfil de impressão do rABS (ABS reciclado) [EN: a traduzir]"
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "tipo": "premissa",
-      "modulo": "bases",
-      "produtores": [
-        "bases"
-      ],
-      "origem": {
-        "base": "sistema/physis-premissas.json",
-        "id": "impressao3d.material.rabs"
-      },
-      "formula": null,
-      "onde": [
-        {
-          "arquivo": "sistema/physis-premissas.json",
-          "linha": 0,
-          "simbolo": "\"impressao3d.material.rabs\""
-        }
-      ],
-      "consumidores": [
-        {
-          "modulo": "impressao3d",
-          "tela": "Physis 3D · Fatiamento",
-          "necessario": false,
-          "modo": "automatico"
-        }
-      ],
-      "armazenamento": [
-        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
-      ],
-      "frequencia": "versionada (atualizado 2026-11-15)",
-      "agregacao": "valor padrão; o projeto pode trocar com motivo",
-      "faixa": {
-        "min": null,
-        "max": null,
-        "fonte": "opções da base"
-      },
-      "qualidade": [
-        "status 'conferir'"
-      ],
-      "lote": "nao",
-      "premissas": [
-        "impressao3d.material.rabs"
-      ],
-      "entradas": []
-    },
-    {
-      "id": "premissa.impressao3d.material.rpla",
-      "nome": {
-        "pt": "Perfil de impressão do PLA reciclado",
-        "en": "Perfil de impressão do PLA reciclado [EN: a traduzir]"
-      },
-      "unidade": "g/cm³; °C; % de contração linear; mm",
-      "tipo": "premissa",
-      "modulo": "bases",
-      "produtores": [
-        "bases"
-      ],
-      "origem": {
-        "base": "sistema/physis-premissas.json",
-        "id": "impressao3d.material.rpla"
-      },
-      "formula": null,
-      "onde": [
-        {
-          "arquivo": "sistema/physis-premissas.json",
-          "linha": 0,
-          "simbolo": "\"impressao3d.material.rpla\""
-        }
-      ],
-      "consumidores": [
-        {
-          "modulo": "impressao3d",
-          "tela": "Physis 3D · Fatiamento",
-          "necessario": false,
-          "modo": "automatico"
-        }
-      ],
-      "armazenamento": [
-        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
-      ],
-      "frequencia": "versionada (atualizado 2026-11-15)",
-      "agregacao": "valor padrão; o projeto pode trocar com motivo",
-      "faixa": {
-        "min": null,
-        "max": null,
-        "fonte": "opções da base"
-      },
-      "qualidade": [
-        "status 'conferir'"
-      ],
-      "lote": "nao",
-      "premissas": [
-        "impressao3d.material.rpla"
-      ],
-      "entradas": []
-    },
-    {
       "id": "premissa.solar.arranjo_afastamento_borda",
       "nome": {
         "pt": "Afastamento dos módulos até a borda do telhado ou do terreno",
@@ -42862,8 +42602,8 @@
     {
       "id": "sim.ponte_termica",
       "nome": {
-        "pt": "Fluxo de calor no corte 2D (ponte térmica, peça impressa)",
-        "en": "2D section heat flow (thermal bridge, printed part)"
+        "pt": "Fluxo de calor no corte 2D (ponte térmica)",
+        "en": "2D section heat flow (thermal bridge)"
       },
       "unidade": "W/m; °C",
       "tipo": "calculated",
@@ -42891,12 +42631,6 @@
         {
           "modulo": "avac",
           "tela": "Carga térmica",
-          "necessario": false,
-          "modo": "sugestao"
-        },
-        {
-          "modulo": "impressao3d",
-          "tela": "peça · corte",
           "necessario": false,
           "modo": "sugestao"
         }
@@ -42972,12 +42706,6 @@
         {
           "modulo": "sbn",
           "tela": "viveiro e estufa",
-          "necessario": false,
-          "modo": "sugestao"
-        },
-        {
-          "modulo": "impressao3d",
-          "tela": "peça impressa",
           "necessario": false,
           "modo": "sugestao"
         }
@@ -43524,12 +43252,6 @@
         {
           "modulo": "agua",
           "tela": "traçado de tubo",
-          "necessario": false,
-          "modo": "sugestao"
-        },
-        {
-          "modulo": "impressao3d",
-          "tela": "topologia grossa",
           "necessario": false,
           "modo": "sugestao"
         }

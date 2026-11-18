@@ -102,16 +102,10 @@ class Calor(unittest.TestCase):
         self.assertAlmostEqual(r["T"][5 * N + 10], termica.placa_analitica(10.5 / N, 1 - 5.5 / N, 1, 1, 100), delta=0.6)
         self.assertAlmostEqual(sum(r["fluxos_w_por_m"].values()), 0.0, delta=1e-5)
 
-    def test_corte_de_peca_vira_mascara(self):
+    def test_poligono_vira_mascara(self):
         quad = [[0, 0], [0.04, 0], [0.04, 0.02], [0, 0.02]]
         M = termica.mascara_de_segmentos(termica.poligonos_para_segmentos([quad]), 0, 0, 4, 2, 0.01, 0.01)
         self.assertEqual(M, [1] * 8)
-        from physis_hub import impressao3d
-        if hasattr(impressao3d, "_corte"):
-            v = [[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0], [0, 0, 10], [10, 0, 10], [10, 10, 10], [0, 10, 10]]
-            f = [(0, 2, 1), (0, 3, 2), (4, 5, 6), (4, 6, 7), (0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5), (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7)]
-            s = termica.secao_da_malha([[v[a], v[b], v[c]] for a, b, c in f], 5.0, 1.0)
-            self.assertEqual(sum(s["mascara"]), 100)
 
 
 class Estrutura(unittest.TestCase):

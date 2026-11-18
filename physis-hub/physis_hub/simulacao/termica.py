@@ -397,10 +397,10 @@ def placa_analitica(x: float, y: float, a: float, b: float, t_topo: float, termo
     return s
 
 
-# ── corte de peça (Physis 3D) e polígonos → máscara ──
+# ── polígonos → máscara ──
 def mascara_de_segmentos(segmentos: list, x0: float, y0: float, nx: int, ny: int, dx: float, dy: float) -> list:
     """Célula dentro quando o raio horizontal a partir do centro cruza um número ímpar de segmentos (par-ímpar).
-    Funciona com a 'sopa' de segmentos do fatiador, sem montar contornos. Linha 0 = topo (y maior)."""
+    Funciona com uma 'sopa' de segmentos, sem montar contornos. Linha 0 = topo (y maior)."""
     M = [0] * (nx * ny)
     for i in range(ny):
         yc = y0 + (ny - i - 0.5) * dy
@@ -425,21 +425,3 @@ def poligonos_para_segmentos(poligonos: list) -> list:
         for k in range(len(pol)):
             seg.append((tuple(pol[k]), tuple(pol[(k + 1) % len(pol)])))
     return seg
-
-
-def secao_da_malha(tris: list, z: float, dx: float) -> dict:
-    """Corte horizontal de uma malha (Physis 3D, impressao3d) em z: máscara da seção para placa_2d e cst."""
-    from .. import impressao3d
-    seg = []
-    for t in tris:
-        s = impressao3d._corte(t, z)
-        if s:
-            seg.append((tuple(s[0]), tuple(s[1])))
-    if not seg:
-        raise FaltaDado("o plano não corta a peça")
-    xs = [p[0] for s in seg for p in s]
-    ys = [p[1] for s in seg for p in s]
-    x0, y0 = min(xs), min(ys)
-    nx, ny = max(1, int(math.ceil((max(xs) - x0) / dx))), max(1, int(math.ceil((max(ys) - y0) / dx)))
-    return {"nx": nx, "ny": ny, "dx": dx, "dy": dx, "x0": x0, "y0": y0,
-            "mascara": mascara_de_segmentos(seg, x0, y0, nx, ny, dx, dx), "segmentos": len(seg)}

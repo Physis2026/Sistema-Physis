@@ -74,8 +74,6 @@ services:
       PHYSIS_MQTT_PORTA: "1883"
       PHYSIS_MQTT_USUARIO: physis-hub
       PHYSIS_CALC_URL: http://calc:8710
-      PHYSIS_FATIADOR_URL: http://fatiador:8730
-      PHYSIS_3D_PASTA: /dados/impressao3d
       PHYSIS_DOC_URL: http://documentos:8720
       PHYSIS_IA_URL: http://ia:11434
       PHYSIS_IA_TIPO: ollama
@@ -283,24 +281,6 @@ services:
     security_opt: ["no-new-privileges:true"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8710/saude', timeout=4)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  # Fatiador do Physis 3D (em desenvolvimento): PrusaSlicer em linha de comando (AGPL-3.0, processo separado)
-  fatiador:
-    build: ./fatiador
-    image: physis/fatiador:local
-    profiles: ["fatiador"]
-    restart: unless-stopped
-    env_file: [env/fatiador.env]
-    networks: [motores]
-    read_only: true
-    tmpfs: ["/tmp:size=1g"]
-    cap_drop: [ALL]
-    security_opt: ["no-new-privileges:true"]
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8730/saude', timeout=4)"]
       interval: 30s
       timeout: 5s
       retries: 3

@@ -863,8 +863,7 @@
     }
    ],
    "referencia": [
-    "physis-hub/docs/APRENDIZADO.md",
-    "physis-hub/docs/INSTITUTO.md"
+    "physis-hub/docs/APRENDIZADO.md"
    ],
    "conferir": [
     {
@@ -1072,61 +1071,6 @@
     "test_metodologia"
    ],
    "aba": "resumo"
-  },
-  {
-   "id": "impressao3d",
-   "nome": "Physis 3D (peças impressas com plástico reciclado)",
-   "tipo": "modulo",
-   "responsaveis": [
-    "Rafael",
-    "Arthur",
-    "Ryan",
-    "Laura",
-    "Rafaella",
-    "Eric Oliveira",
-    "Erick Lopes",
-    "Emerson",
-    "Marzia",
-    "Leonardo Macedo"
-   ],
-   "metodologia": null,
-   "doc17_secao": null,
-   "o_que_revisar": "Em desenvolvimento. Perfis dos cinco plásticos reciclados (todos conferir), contas de medida e de estimativa de filamento, massa e tempo, regras da biblioteca (LGPD, licenças abertas, curadoria e moderação), avisos aprendidos e textos da aba. Valor sem fonte fica [CONFERIR].",
-   "editaveis": [
-    {
-     "arquivo": "sistema/physis-3d-premissas.json",
-     "partes": [
-      [
-       "premissas"
-      ]
-     ]
-    },
-    {
-     "arquivo": "sistema/physis-i18n-modulos.json",
-     "i18n_de": "referencia"
-    }
-   ],
-   "referencia": [
-    "physis-hub/docs/PHYSIS_3D.md",
-    "physis-hub/physis_hub/impressao3d.py",
-    "sistema/physis-3d.js",
-    "servicos/fatiador/physis_fatiador/servidor.py",
-    "physis-hub/tests/test_impressao3d.py"
-   ],
-   "conferir": [
-    {
-     "arquivo": "physis-hub/web/painel.html",
-     "como": "Abra a plataforma da Casa Physis (pesquisa) e vá à aba Physis 3D."
-    },
-    {
-     "arquivo": "ferramentas/testes-navegador/teste-physis-3d.html",
-     "como": "Abra no navegador (servido por http): tem de mostrar TUDO OK."
-    }
-   ],
-   "testes": [
-    "test_impressao3d"
-   ],
-   "aba": "impressao3d"
   },
   {
    "id": "hw-lora",
@@ -1358,7 +1302,7 @@
    ],
    "metodologia": null,
    "doc17_secao": null,
-   "o_que_revisar": "Máquina, domínio e HTTPS, e-mail de saída, serviços (docker compose), itens [CONFERIR], servidor de IA, cópias de segurança, monitoramento, Instituto, repositório próprio (documento 18, seções 1 e 2).",
+   "o_que_revisar": "Máquina, domínio e HTTPS, e-mail de saída, serviços (docker compose), itens [CONFERIR], servidor de IA, cópias de segurança, monitoramento, intercâmbio com plataformas parceiras, repositório próprio (documento 18, seções 1 e 2).",
    "editaveis": [
     {
      "arquivo": "servicos/.env.exemplo",
@@ -1373,7 +1317,6 @@
     "physis-hub/docs/IMPLANTACAO.md",
     "physis-hub/docs/SERVICOS_ABERTOS.md",
     "physis-hub/docs/SEGURANCA.md",
-    "physis-hub/docs/INSTITUTO.md",
     "servicos/docker-compose.yml",
     "servicos/preparar.sh",
     "implantacao/instalar.sh",
@@ -1381,12 +1324,15 @@
     "implantacao/backup.sh",
     "implantacao/restaurar.sh",
     "physis-hub/tests/test_implantacao.py",
-    "physis-hub/tests/test_seguranca.py"
+    "physis-hub/tests/test_seguranca.py",
+    "physis-hub/docs/INTERCAMBIO.md",
+    "physis-hub/physis_hub/intercambio.py"
    ],
    "conferir": [],
    "testes": [
     "test_implantacao",
-    "test_seguranca"
+    "test_seguranca",
+    "test_intercambio"
    ],
    "aba": "resumo"
   },

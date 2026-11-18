@@ -51,7 +51,7 @@ class Arquivos(unittest.TestCase):
     def test_exemplos_pedidos_existem_e_sao_ficticios(self):
         d = json.loads(self.j)
         ids = {c["id"] for c in d["casos"]}
-        for pedido in ("ex_parede_taipa_u", "ex_parede_taipa_transiente", "ex_rack_solar", "ex_suporte_3d", "ex_torre_turbina",
+        for pedido in ("ex_parede_taipa_u", "ex_parede_taipa_transiente", "ex_rack_solar", "ex_torre_turbina",
                        "ex_terreno_d8", "ex_terreno_scs", "ex_ventilacao_secador", "ex_lbm", "ex_monte_carlo_solar",
                        "ex_qubo_paineis", "ex_biogas_bovino", "ex_biogas_ambiente"):
             self.assertIn(pedido, ids)

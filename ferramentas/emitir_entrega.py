@@ -188,7 +188,7 @@ def main():
             for f in (rep / "demos").glob("*.html"):
                 shutil.copy2(f, dm / f.name)
 
-        # 04 pacotes de instalação de cada cliente e do servidor da Physis/Instituto (montar_clientes)
+        # 04 pacotes de instalação de cada cliente e do servidor da Physis (montar_clientes)
         pc = P("04_Pacotes_instalacao")
         rodar([PY, "montar_clientes.py", "--saida", str(tmp / "pacotes")], cwd=rep / "physis-hub")
         for z in (tmp / "pacotes").glob("*.zip"):
@@ -231,7 +231,7 @@ def main():
         bases.mkdir(exist_ok=True)
         for rel in ("sistema/physis-metodologia.json", "sistema/physis-premissas.json", "sistema/physis-variaveis.json",
                     "sistema/physis-fatores-emissao.json", "sistema/physis-certificacoes.json", "sistema/physis-simulacao-premissas.json",
-                    "sistema/physis-3d-premissas.json", "sistema/loja-catalogo-inicial.json"):
+                    "sistema/loja-catalogo-inicial.json"):
             if (rep / rel).is_file():
                 shutil.copy2(rep / rel, bases / Path(rel).name)
         for rel, nome in (("sistema/simulacao-exemplos", "exemplos_simulacao"), ("modulos/mapeamento/exemplos", "exemplos_mapeamento")):
@@ -555,7 +555,7 @@ Uma cópia desta pasta inteira em ZIP fica em `_backup_arquivos/`.
 | 01_Documentos | Documentos iniciais (00 a 2x) e memos da Fase 2 (um por bloco e "Quem faz o quê") | Equipe toda. Só a lista do Eric (10) sai para fora. |
 | 02_Paginas_completas | Site com loja e plataforma, consultoria, Gestão interna, SCADA, SustainKit, Planejador, painel municipal, documento para comentários, página do app | Equipe (Gestão interna: só uso interno) |
 | 03_Demos_site | Versões reduzidas para o site, com "Demonstração · dados simulados" | Site público |
-| 04_Pacotes_instalacao | Pacote de cada cliente, do servidor da Physis e do Instituto Physis | Eric (instalação) |
+| 04_Pacotes_instalacao | Pacote de cada cliente e do servidor da Physis | Eric (instalação) |
 | 05_Modulos | Código, dados, manuais e testes de cada módulo, só leitura | Responsáveis dos módulos |
 | 06_Kits_revisao | {nkits} kits para revisar e devolver (LEIA-ME, editáveis, prévia, ficha) | Cada responsável; o Eric valida e aplica |
 | 07_Implantacao_e_servicos | Instalador do Raspberry Pi e mini PC, backup, serviços abertos | Eric |

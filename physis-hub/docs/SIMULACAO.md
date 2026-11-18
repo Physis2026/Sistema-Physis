@@ -22,15 +22,15 @@ Atualizar os casos depois de mudar uma conta: `cd physis-hub; python -m physis_h
 ### 1. Calor
 - **U de parede ou cobertura** (`termica.u_valor`, `u_composicao`): soma das resistências das camadas, com Rsi e Rse de premissa (iguais às da base de materiais). Também dá capacidade térmica, massa e carbono por m². Propriedades sempre da `physis-materiais.json`. Usos: Bioconstrução (taipa, adobe, BTC, cob, pau a pique, fardo de palha, cânhamo-cal, telhado verde), AVAC (a envoltória entra na carga: `perda_envoltoria`), Secador (câmara), SbN (telhado verde).
 - **Parede ao longo do dia** (`transiente_1d`): diferenças finitas com passo implícito, explícito ou Crank-Nicolson. Com sol senoidal dá o **atraso térmico** e o **amortecimento**. Teste: decaimento contra a solução exata.
-- **Corte 2D** (`placa_2d`): ponte térmica (pilar na parede) e corte de peça impressa (Physis 3D: `secao_da_malha` corta a malha e vira máscara). Teste: placa quadrada contra a série de Fourier.
+- **Corte 2D** (`placa_2d`): ponte térmica (pilar na parede); um polígono vira máscara com `mascara_de_segmentos`. Teste: placa quadrada contra a série de Fourier.
 - **Convecção e radiação** por coeficientes de premissa (`h_conveccao_vento`, `h_radiacao`, `sol_ar`).
 
 ### 2. Estrutura (linear)
 - **Treliça e pórtico 2D e 3D** (`estrutura.portico`): barra e viga de Euler-Bernoulli, apoios, cargas nos nós, carga distribuída, peso próprio. Saídas: deslocamentos, reações, normal, cortante, momento, torção e tensão.
 - **Flambagem de Euler** (`euler`), **verificação** (`verificar`: tensão ≤ fy/FS e compressão ≤ Pcr/FS; sem fy vira `[MARCADOR]`).
-- **Chapa 2D com triângulos CST** (`cst`, `malha_de_mascara`) para peças impressas.
+- **Chapa 2D com triângulos CST** (`cst`, `malha_de_mascara`) para chapas e cortes de peças.
 - **Vento**: só o método da pressão dinâmica é nomeado (ABNT NBR 6123); V0, S1, S2, S3 e Cf são digitados `[CONFERIR NA NORMA]`. **Rotor**: empuxo pelo disco atuador.
-- Usos: suporte das placas (Solar), pérgolas e estruturas de bambu e madeira (Bioconstrução, com E de ensaio), torre e pá em balanço (Turbinas), viveiro e estufa (SbN), peças impressas (Physis 3D).
+- Usos: suporte das placas (Solar), pérgolas e estruturas de bambu e madeira (Bioconstrução, com E de ensaio), torre e pá em balanço (Turbinas) e viveiro e estufa (SbN).
 
 ### 3. Fluidos simplificados
 - **Redes de tubos e dutos: não duplicadas.** Tubos: `vento.perda_darcy`/`perda_hazen` (Turbinas); dutos: aba AVAC; calhas: `PhysisCalc.calhas`.
@@ -117,7 +117,6 @@ O módulo lê sozinho `base-materiais`, `base-fatores-emissao`, `window.PhysisCa
 | Resiliência | `"enxurrada"`, `"erosao"` | idem |
 | Turbinas · eólica | `"eolica"`, `"estrutura"` (torre) | série de vento; torre como no exemplo `ex_torre_turbina` |
 | Energia solar | `"estrutura"` (suporte), `"paineis"` (QUBO), `"incerteza"` modelo `solar` | |
-| Physis 3D | `"peca"` | `SIMULACAO.termica.secaoDaMalha(ui.p3d.T, z, dx)` → `SIMULACAO.estrutura.malhaDeMascara` |
 | Carbono | `"incerteza"` modelo `carbono` | atividades e fatores com desvio |
 
 **Rotas** (`servidor.py`, no `do_POST`, junto das outras com sessão):

@@ -66,7 +66,7 @@ PRECOS_USD_POR_MILHAO = {
 PRECO_DESCONHECIDO = max(PRECOS_USD_POR_MILHAO.values())
 
 # Teto por robô (US$/mês). Sugestão a partir da estimativa de docs/IA_CLAUDE.md com folga: [DECIDIR] com a direção.
-TETOS_ROBO_PADRAO = {"suporte": 12.0, "precos": 6.0, "editais": 6.0, "instituto": 3.0, "documentos": 6.0}
+TETOS_ROBO_PADRAO = {"suporte": 12.0, "precos": 6.0, "editais": 6.0, "projetos": 3.0, "documentos": 6.0}
 HISTORICO_MESES = 24
 
 AVISO_IA = ("Texto gerado com IA (Claude). É sugestão: precisa de revisão humana antes de ir a um cliente "

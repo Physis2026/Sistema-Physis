@@ -8,7 +8,7 @@ Protege:
 4. Materiais da base com quantidade e carbono; texto com acento codificado em \\X2\\.
 5. Planta solar: arranjo com módulos agregados e o conjunto de propriedades (contagem, kWp, inclinação, azimute, passo,
    inversor, fator de potência) volta pelo leitor.
-6. Ponte com o Physis 3D: componente BIM → pedido de peça; peça impressa → proxy BIM com memorial.
+6. Memorial: elemento com memorial vira IfcDocumentReference ligado ao elemento.
 """
 import math
 import re
@@ -139,23 +139,14 @@ class Escrita(unittest.TestCase):
             ifc.ler(b"nada disso")
 
 
-class Ponte3D(unittest.TestCase):
-    def test_componente_para_3d_e_peca_para_bim(self):
+class Memorial(unittest.TestCase):
+    def test_elemento_com_memorial_vira_referencia_de_documento(self):
         el = {"id": "rack1", "tipo": "rack", "nome": "Suporte da placa", "caixa": {"dx": 0.12, "dy": 0.05, "dz": 0.08},
-              "posicao": {"x": 1, "y": 2, "z": 3}, "materiais": [{"id": "aluminio"}]}
-        p = ifc.componente_para_3d(el)
-        self.assertEqual((p["esquema"], p["de"], p["caixa_mm"]["dx"], p["material"]["id"]), (ifc.ESQUEMA_PONTE, "bim", 120.0, "aluminio"))
-        self.assertTrue(ifc.GUID_RX.match(p["guid"]))
-        volta = {"esquema": ifc.ESQUEMA_PONTE, "de": "3d", "id": "abc", "nome": "Abraçadeira", "caixa_mm": {"dx": 40, "dy": 20, "dz": 10},
-                 "material": "PET reciclado", "massa_g": 12.5, "para": "rack1", "memorial": {"id": "MEM-3D-001", "uri": "memoriais/MEM-3D-001.odt"}}
-        b = ifc.peca_3d_para_bim(volta)
-        self.assertEqual((b["tipo"], b["caixa"]["dx"]), ("peca3d", 0.04))
-        txt = ifc.escrever(projeto(elementos=[b]))
-        self.assertIn("IFCDOCUMENTREFERENCE('memoriais/MEM-3D-001.odt','MEM-3D-001'", txt)
+              "posicao": {"x": 1, "y": 2, "z": 3}, "memorial": {"id": "MEM-001", "uri": "memoriais/MEM-001.odt"}}
+        txt = ifc.escrever(projeto(elementos=[el]))
+        self.assertIn("IFCDOCUMENTREFERENCE('memoriais/MEM-001.odt','MEM-001'", txt)
         self.assertIn("IFCRELASSOCIATESDOCUMENT(", txt)
         self.assertEqual(ifc.ler(txt.encode())["elementos_por_tipo"], {"IFCBUILDINGELEMENTPROXY": 1})
-        with self.assertRaises(ValueError):
-            ifc.peca_3d_para_bim(dict(volta, memorial={}))
 
 
 if __name__ == "__main__":

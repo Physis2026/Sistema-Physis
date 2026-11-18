@@ -187,7 +187,7 @@ def premissa_dias(dados=None) -> tuple[int, str]:
 
 
 def pasta_padrao(banco: str | os.PathLike) -> Path:
-    """PHYSIS_FORNECEDORES_PASTA ou a pasta do banco + /fornecedores-arquivos (mesmo padrão do Physis 3D)."""
+    """PHYSIS_FORNECEDORES_PASTA ou a pasta do banco + /fornecedores-arquivos."""
     return Path(os.environ.get("PHYSIS_FORNECEDORES_PASTA") or (Path(banco).resolve().parent / "fornecedores-arquivos"))
 
 

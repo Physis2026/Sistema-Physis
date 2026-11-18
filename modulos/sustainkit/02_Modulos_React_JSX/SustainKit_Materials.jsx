@@ -13,7 +13,7 @@ const MATERIAIS = [
   {nome:"Hempcrete (cânhamo + cal)",cat:"Vedação",u:"0,22 W/m²K",co2:"−0,4 (negativo)",custo:"R$150–250/m²",cert:"LEED · LBC",nota:"Regulação higroscópica excepcional. CO₂ negativo"},
   {nome:"Adobe (terra + palha)",cat:"Vedação",u:"1,00 W/m²K",co2:"0,01",custo:"R$35–60/m²",cert:"PBQP-H Bioconstrução",nota:"Inércia térmica máxima. Autoconstrução possível"},
   {nome:"Bambu Guadua (estrutural)",cat:"Estrutura",u:"—",co2:"−0,8 (negativo)",custo:"R$80–140/colmo",cert:"NBR 16828 · LEED MR",nota:"Resistência 280 MPa tração. Tratamento obrigatório"},
-  {nome:"Lã de PET Reciclado",cat:"Isolamento",u:"λ=0,038 W/mK",co2:"0,03–0,06",custo:"R$35–55/m²",cert:"LEED MR · EDGE",nota:"Sem formaldeído. Conexão projeto Physis 3D PET"},
+  {nome:"Lã de PET Reciclado",cat:"Isolamento",u:"λ=0,038 W/mK",co2:"0,03–0,06",custo:"R$35–55/m²",cert:"LEED MR · EDGE",nota:"Sem formaldeído."},
   {nome:"Lã de Rocha Mineral",cat:"Isolamento",u:"λ=0,034 W/mK",co2:"0,50–0,80",custo:"R$25–45/m²",cert:"NBR 15575 · LEED",nota:"Incombustível A1. Obrigatória em cobertura de madeira"},
   {nome:"Aerogel (painel 10mm)",cat:"Isolamento",u:"λ=0,015 W/mK",co2:"2,50–4,00",custo:"R$480–960/m²",cert:"Passivhaus · LEED",nota:"Melhor isolante do mercado. 10mm = 50mm lã rocha"},
   {nome:"Vidro duplo câmara ar",cat:"Esquadria",u:"1,20–1,80 W/m²K",co2:"1,20–1,60",custo:"R$180–320/m²",cert:"LEED EQ · RTQ-R",nota:"Reduz perda de calor 4× vs. simples"},

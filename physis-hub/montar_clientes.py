@@ -50,14 +50,12 @@ def main() -> None:
         if a.so and f["org"] != a.so:
             continue
         gestao = RAIZ / "sistema" / "gestao-interna-physis.html" if f.get("gestao_interna") else None
-        # o Instituto Physis (e qualquer ficha com "instalacao") tem suporte, marca e banco próprios
         pacote = montar(f["org"], f.get("lugar", "lugar01"), f["modulos"], a.saida, PROGRAMAS["sustainkit"],
                         LICENCA_PADRAO, PROGRAMAS["supervisao"], gestao, PROGRAMAS["planejador"],
                         bool(f.get("pesquisa")), f.get("nome", ""), f.get("cursos"), f.get("suporte") or suporte,
-                        f.get("instalacao", "physis"), f.get("marca"), f.get("banco", ""),
                         pegada=f.get("pegada_servidor") or PEGADA_PADRAO.get(f["org"]))
         print(f"{f['nome']}: {pacote.name} ({pacote.stat().st_size // 1024} kB) · módulos: {', '.join(f['modulos'])} · manual (rascunho)"
-              + (" · pesquisa" if f.get("pesquisa") else "") + (f" · instalação {f['instalacao']}" if f.get("instalacao") else ""))
+              + (" · pesquisa" if f.get("pesquisa") else ""))
 
 
 if __name__ == "__main__":

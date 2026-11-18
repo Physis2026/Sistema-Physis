@@ -7,7 +7,7 @@ Protege:
 3. Preços: item fora da faixa do histórico/catálogo é apontado; sem referência, pede revisão.
 4. Editais: o alinhado à Physis e parecido com um aprovado vem primeiro; prazo vencido vai para o fim.
 5. Marketing: o tema que engaja mais sobe (Beta-Binomial) e a nota da regra é a mesma da Gestão.
-6. Instituto: esqueleto completo, com cronograma e orçamento, sempre com revisão humana.
+6. Projetos: esqueleto completo, com cronograma e orçamento, sempre com revisão humana.
 7. Pluviômetro: YAML do ESPHome com o pino certo; pino proibido e lugar fora do Brasil são recusados.
 """
 import json
@@ -270,24 +270,6 @@ class TestMarketing(unittest.TestCase):
         self.assertEqual(robos.nota_regra_tema({"tendencia": 8, "interesse": 6, "votos": 3, "usadoEm": "2026-10-01"}, "2026-11-15"), 6.8)
 
 
-class TestInstituto(unittest.TestCase):
-    def test_esqueleto(self):
-        r = robos.Instituto({}, robos.IALocal("")).responder({"edital": {
-            "titulo": "Chamada para reúso de água e saneamento rural", "resumo": "Inscrições até 10/02/2027",
-            "valor_max": 200000, "duracao_meses": 12}})
-        d = r["dados"]
-        self.assertIn("agua", d["areas"])
-        self.assertEqual(len(d["secoes"]), 11)
-        self.assertEqual(d["prazo"], "2027-02-10")
-        crono = next(s for s in d["secoes"] if s["titulo"].startswith("7."))["itens"]
-        self.assertTrue(crono[0].startswith("Mapear: meses 1"))
-        self.assertTrue(crono[-1].endswith("12"))
-        orc = next(s for s in d["secoes"] if s["titulo"].startswith("8."))["itens"]
-        self.assertIn("90,000.00", orc[0])
-        self.assertTrue(r["revisao_humana"])
-        self.assertNotIn("GIZ", r["resposta"])
-
-
 class TestPluviometro(unittest.TestCase):
     BASE = {"no": 31, "lat": -22.505, "lon": -43.183, "municipio": "Petrópolis", "uf": "RJ", "pino": "GPIO27",
             "hub_url": "http://192.168.0.10:8700", "nome": "Pluviômetro Horta"}
@@ -311,6 +293,24 @@ class TestPluviometro(unittest.TestCase):
         self.assertFalse(p.responder({"dados": dict(self.BASE, pino=6)})["ok"])
         self.assertFalse(p.responder({"dados": dict(self.BASE, lat=40.7, lon=-74.0)})["ok"])
         self.assertFalse(p.responder({"dados": dict(self.BASE, no=120)})["ok"])
+
+
+class TestProjetos(unittest.TestCase):
+    def test_esqueleto(self):
+        r = robos.Projetos({}, robos.IALocal("")).responder({"edital": {
+            "titulo": "Chamada para reúso de água e saneamento rural", "resumo": "Inscrições até 10/02/2027",
+            "valor_max": 200000, "duracao_meses": 12}})
+        d = r["dados"]
+        self.assertIn("agua", d["areas"])
+        self.assertEqual(len(d["secoes"]), 11)
+        self.assertEqual(d["prazo"], "2027-02-10")
+        crono = next(s for s in d["secoes"] if s["titulo"].startswith("7."))["itens"]
+        self.assertTrue(crono[0].startswith("Mapear: meses 1"))
+        self.assertTrue(crono[-1].endswith("12"))
+        orc = next(s for s in d["secoes"] if s["titulo"].startswith("8."))["itens"]
+        self.assertIn("90,000.00", orc[0])
+        self.assertTrue(r["revisao_humana"])
+        self.assertNotIn("GIZ", r["resposta"])
 
 
 class TestRoteamento(unittest.TestCase):

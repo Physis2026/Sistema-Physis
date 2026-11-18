@@ -43,7 +43,7 @@
 <script>
 "use strict";
 const EX = "../../modulos/mapeamento/exemplos/";
-const CHAVES = ["physis.terreno.v1", "physis-mapeamento", "physis-calc-incidencia", "physis-calc-planta-solar", "physis-bim-elementos", "physis-geometria-lugar", "physis-ponte-3d"];
+const CHAVES = ["physis.terreno.v1", "physis-mapeamento", "physis-calc-incidencia", "physis-calc-planta-solar", "physis-bim-elementos", "physis-geometria-lugar"];
 const guardado = {}; CHAVES.forEach(k => { try { guardado[k] = localStorage.getItem(k); } catch (e) {} });
 window.addEventListener("pagehide", () => CHAVES.forEach(k => { try { guardado[k] == null ? localStorage.removeItem(k) : localStorage.setItem(k, guardado[k]); } catch (e) {} }));
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));

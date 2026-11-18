@@ -32,9 +32,6 @@ AREAS = OrderedDict([
     ("circular", ("Economia circular", ["rafael", "rafaella"], "mapa")),
     ("resiliencia", ("Resiliência", ["arthur", "rafaella"], "mapa")),
     ("cursos", ("Cursos", ["laura", "marzia", "ryan", "leonardomacedo", "rafaella"], "mapa")),
-    ("impressao3d", ("Physis 3D (impressão 3D)", ["rafael", "arthur", "ryan", "laura", "rafaella", "erickoliveira", "ericklopes",
-                                                  "emerson", "marzia", "leonardomacedo"], "mapa")),
-    ("instituto", ("Instituto Physis", ["erickoliveira", "rafaella", "ericklopes", "laura", "marzia"], "mapa")),
     ("servidor", ("Servidor (inclui IA local)", ["erickoliveira"], "mapa")),
     ("instalacao", ("Instalação para clientes", ["erickoliveira", "ericklopes", "arthur", "rafael"], "mapa")),
     ("servidor_verde", ("Servidor verde", ["erickoliveira"], "mapa")),
@@ -76,7 +73,7 @@ KITS = {
     "saude": ["saude"], "scada": ["scada"], "cursos": ["cursos"], "secador": ["secador"], "servidor-verde": ["servidor_verde"],
     "acessibilidade": ["acessibilidade", "ingles"], "hw-lora": ["lora"], "hw-caixinha": ["caixinha_fw"],
     "hw-coleira": ["coleira"], "hw-pluviometro": ["pluviometro"], "hw-remedios": ["remedios"], "hw-pulseira": ["pulseira"],
-    "servidor": ["servidor"], "impressao3d": ["impressao3d"], "mapeamento": ["planejador"],
+    "servidor": ["servidor"], "mapeamento": ["planejador"],
 }
 
 

@@ -41,8 +41,6 @@ RESPONSAVEIS = {
     "frota": ["Ryan", "Arthur"],                            # provisório (18/11/2026): a direção confirma
     "servidor-verde": ["Eric Oliveira"],
     "acessibilidade": ["Rafaella", "Arthur", "Emerson", "Leonardo Macedo", "Laura", "Marzia"],
-    "impressao3d": ["Rafael", "Arthur", "Ryan", "Laura", "Rafaella", "Eric Oliveira", "Erick Lopes", "Emerson", "Marzia",
-                    "Leonardo Macedo"],
     "mapeamento": ["Rafaella", "Eric Oliveira", "Erick Lopes", "Arthur", "Rafael", "Emerson", "Ryan", "Laura", "Marzia",
                    "Leonardo Macedo"],                      # os do Planejador (principal: Rafaella)
     "hw-lora": ["Arthur"], "hw-caixinha": ["Erick Lopes", "Arthur", "Rafael", "Emerson", "Laura"],

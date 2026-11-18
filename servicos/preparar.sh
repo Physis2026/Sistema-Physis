@@ -27,7 +27,6 @@ COMPARTILHADOS = {  # (arquivo, chave) -> nome canônico do segredo
     ("postgis", "EXPORTADOR_SENHA"): "EXPORTADOR_SENHA", ("timescale", "SERIES_SENHA"): "SERIES_SENHA",
     ("postgis", "GEOSERVER_LEITOR_SENHA"): "GEOSERVER_LEITOR_SENHA",
     ("hub", "PHYSIS_CALC_CHAVE"): "CALC_CHAVE", ("calc", "PHYSIS_CALC_CHAVE"): "CALC_CHAVE",
-    ("hub", "PHYSIS_FATIADOR_CHAVE"): "FATIADOR_CHAVE", ("fatiador", "PHYSIS_FATIADOR_CHAVE"): "FATIADOR_CHAVE",
     ("hub", "PHYSIS_DOC_CHAVE"): "DOC_CHAVE", ("documentos", "PHYSIS_DOC_CHAVE"): "DOC_CHAVE",
     ("hub", "PHYSIS_IA_CHAVE"): "IA_CHAVE", ("ia-vllm", "VLLM_API_KEY"): "IA_CHAVE",
 }

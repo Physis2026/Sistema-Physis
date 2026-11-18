@@ -12,7 +12,7 @@ cliente, com a localização) e do **lote do Planejador**. Ele junta mapas abert
 - a **planta solar** (onde vão as placas, quantas, a curva do dia, a energia, strings e fator de potência);
 - o **modelo BIM aberto** (IFC4) com o que os módulos dimensionaram.
 
-Quem lê: Planejador, AVAC, Solar, SbN, Água, Resiliência, Carbono e Physis 3D. Os módulos mandam de volta o que
+Quem lê: Planejador, AVAC, Solar, SbN, Água, Resiliência e Carbono. Os módulos mandam de volta o que
 dimensionaram, e isso aparece no BIM.
 
 ## Arquivos
@@ -20,7 +20,7 @@ dimensionaram, e isso aparece no BIM.
 | Arquivo | O que faz |
 |---|---|
 | `physis-hub/physis_hub/mapeamento.py` | Catálogo de camadas, recorte, arquivos do cliente, contexto, sol, planta solar, rotas |
-| `physis-hub/physis_hub/ifc.py` | Escreve e lê IFC4 (só biblioteca padrão); ponte com o Physis 3D |
+| `physis-hub/physis_hub/ifc.py` | Escreve e lê IFC4 (só biblioteca padrão) |
 | `sistema/physis-mapeamento.js` | A tela (pt/en, acessível, claro e escuro); espelho das contas do sol |
 | `modulos/mapeamento/exemplos/` | Pacote de **exemplo com dados fictícios** e o gerador `gerar_exemplos.py` |
 | `ferramentas/testes-navegador/conferir-modelos.html` | Abre o exemplo nos visualizadores e mostra a lista de conferência |
@@ -70,19 +70,14 @@ dimensionaram, e isso aparece no BIM.
      sombra do horizonte); temperatura da célula e perdas também da aba Solar (`tCelula`, `fTemp`, `PERDAS_PADRAO`);
    - elétrica: inversor da base, strings pela função da aba Solar (`SOLAR.strings`), e sempre o fator de potência com
      P, Q e S (`PhysisCalc.potencias`, premissa `eletrica.fator_potencia_padrao`);
-   - saída: `physis-calc-planta-solar` para a aba Solar, elementos para o BIM e pedido de suporte ao Physis 3D.
+   - saída: `physis-calc-planta-solar` para a aba Solar e elementos para o BIM.
 7. **BIM aberto (IFC4)**: IfcProject, IfcSite com latitude e longitude, IfcBuilding, IfcBuildingStorey e os sistemas:
    arranjo FV (IfcSolarDevice, com os módulos agregados), inversor (IfcTransformer .INVERTER.), cisterna (IfcTank),
    calhas e condutores (IfcPipeSegment), AVAC (IfcUnitaryEquipment), quadro (IfcElectricDistributionBoard), turbinas
-   (IfcElectricGenerator), biodigestor, canteiros, peças 3D e suportes (IfcBuildingElementProxy). Propriedades com
+   (IfcElectricGenerator), biodigestor, canteiros e suportes (IfcBuildingElementProxy). Propriedades com
    unidade; materiais da base com quantidade e carbono; **todo equipamento elétrico leva fator de potência, P, Q e S**.
    Leitor básico (sem núcleo de geometria): esquema, terreno, edificações, pavimentos, contagem por tipo e tamanho.
-8. **Ponte com o Physis 3D** (contrato JSON, sem mexer nos arquivos do 3D), esquema `physis-ponte-3d/1`:
-   - BIM → 3D: `{esquema, de:"bim", id, guid, tipo, tipo_ifc, nome, caixa_mm:{dx,dy,dz}, posicao_m:{x,y,z}, material:{id}, propriedades}`;
-     a tela grava os pedidos em `physis-ponte-3d` (localStorage).
-   - 3D → BIM: `{esquema, de:"3d", id, nome, caixa_mm, material, massa_g, para, memorial:{id, uri}}` vira um
-     IfcBuildingElementProxy com IfcDocumentReference para o memorial (`ifc.peca_3d_para_bim`).
-9. **Contrato com o motor de simulação** (outro agente, `physis_hub/simulacao`), esquema `physis-geometria-lugar/1`
+8. **Contrato com o motor de simulação** (outro agente, `physis_hub/simulacao`), esquema `physis-geometria-lugar/1`
    (`mapeamento.geometria_para_simulacao`; na tela, `physis-geometria-lugar`): terreno em grade (x leste, y norte, Z),
    caixas das edificações, superfícies com orientação e irradiação, e os materiais de cada elemento BIM com densidade,
    condutividade, calor específico e carbono. Só dados: o Mapeamento não faz essas simulações.
@@ -91,7 +86,7 @@ dimensionaram, e isso aparece no BIM.
 
 Cada módulo grava, com `MAPEAMENTO.enviarParaBim(modulo, elementos)`, uma lista no formato do `ifc.escrever`:
 `{id, tipo, nome, pavimento, posicao:{x,y,z}, caixa:{dx,dy,dz}, propriedades:{chave: valor ou {valor, unidade}}, materiais:[{id, quantidade, unidade}], memorial}`.
-Tipos: `pv, inversor, cisterna, calha, condutor, avac, quadro, turbina, biodigestor, canteiro, peca3d, rack`.
+Tipos: `pv, inversor, cisterna, calha, condutor, avac, quadro, turbina, biodigestor, canteiro, rack`.
 
 ### Rotas
 
@@ -151,7 +146,6 @@ trocar `PHYSIS_CEP_PROVEDOR` para `nominatim` e preencher `PHYSIS_NOMINATIM_URL`
 - Luz natural com Ladybug Tools e Radiance (anual e por ambiente).
 - EnergyPlus multizona a partir do BIM (zonas e materiais do IFC).
 - Escoamento de ar com OpenFOAM (vento em volta dos prédios, ventilação natural).
-- Simulações clássicas e quânticas compartilhadas com o Physis 3D (pelo motor de simulação).
 - Visualizador IFC completo (geometria): web-ifc com three.js, já guardados em `vendor/` (web-ifc: MPL-2.0; three.js:
   MIT [CONFERIR]) ou That Open Engine (MIT [CONFERIR]); IfcOpenShell (LGPL-3.0 [CONFERIR]) no servidor.
 - Fator de visão do céu anisotrópico (Perez) e sombra por módulo na curva do dia.

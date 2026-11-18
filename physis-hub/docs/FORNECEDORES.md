@@ -93,7 +93,7 @@ for _k, _v in fornecedores_mod.ESQUEMAS.items():
     seg.ESQUEMAS.setdefault(_k, _v)
 # em modulo(nome), no dicionário
 "fornecedores": lambda: fornecedores_mod.Fornecedores(hub, pasta=fornecedores_mod.pasta_padrao(banco_da_instancia(instancia))),
-# GET (junto de /api/3d/ e /api/parceiros, antes de qualquer _barrado)
+# GET (junto de /api/parceiros, antes de qualquer _barrado)
 if p.startswith("/api/fornecedores"):
     qf = self._exigir(seg.CLIENTE)          # o módulo decide: cliente só /regiao e arquivo público; resto equipe
     if qf:

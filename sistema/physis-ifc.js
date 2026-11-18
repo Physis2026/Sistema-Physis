@@ -58,7 +58,6 @@ const TIPOS = {
   turbina: ["IFCELECTRICGENERATOR", "USERDEFINED", "Microturbina hidráulica", "Physis_Turbina", true],
   biodigestor: ["IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Biodigestor", "Physis_Biodigestor", false],
   canteiro: ["IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Canteiro de viveiro", "Physis_Viveiro", false],
-  peca3d: ["IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Peça impressa em 3D", "Physis_Impressao3D", false],
   rack: ["IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Estrutura de fixação (rack)", "Physis_Estrutura", false] };
 const UNIDADES = { kwp: "kWp", potencia_kw: "kW", potencia_ca_kw: "kW", volume_m3: "m³", volume_l: "L", secao_mm: "mm", diametro_mm: "mm", largura_mm: "mm", lamina_mm: "mm",
   btu_h: "BTU/h", incl_graus: "°", azim_graus: "°", passo_fileiras_m: "m", area_m2: "m²", vazao_l_min: "L/min", vazao_m3_h: "m³/h", circuitos: "un", modulos: "un",

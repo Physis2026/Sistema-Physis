@@ -9,7 +9,6 @@
    Saídas para os outros módulos (localStorage, mesmo formato "physis-calc-*" do Planejador, fonte "Mapeamento"):
    physis-contexto-lugar, physis-calc-incidencia (Solar e AVAC) e physis-calc-planta-solar (Solar). Entradas de BIM:
    physis-bim-elementos ({modulo: [elementos no formato do ifc.py]}), que cada módulo grava com MAPEAMENTO.enviarParaBim.
-   Ponte com o Physis 3D: physis-ponte-3d (pedidos no esquema physis-ponte-3d/1; docs/MAPEAMENTO.md).
    Módulo EM DESENVOLVIMENTO: mostra o selo até a plataforma marcar window.MAPEAMENTO_PRONTO = true. */
 (function () {
 "use strict";
@@ -192,16 +191,13 @@ function dimensoesModulo(id) { try { const s = document.getElementById("base-equ
   const x = j && (j.itens || []).find(i => i.id === id), m = x && String(x.descricao || "").match(/([\d]+[,.][\d]+)\s*×\s*([\d]+[,.][\d]+)\s*m/);
   if (m) return { comprimento_m: +m[1].replace(",", "."), largura_m: +m[2].replace(",", "."), fonte: "base de equipamentos (" + id + ")" }; } catch (e) {} return null; }
 
-/* ════════ BIM: o que os módulos mandaram de volta e a ponte com o Physis 3D ════════ */
+/* ════════ BIM: o que os módulos mandaram de volta ════════ */
 function enviarParaBim(modulo, elementos) { const o = lerLS("physis-bim-elementos") || {}; o[modulo] = (elementos || []).map(e => Object.assign({ origem: modulo }, e)); return gravarLS("physis-bim-elementos", o); }
 function elementosBim() { const o = lerLS("physis-bim-elementos") || {}, out = [];
   Object.keys(o).forEach(k => (o[k] || []).forEach(e => out.push(e)));
   const bio = lerLS("physis-calc-biogas"); if (bio && bio.biodigestor_m3 > 0 && !out.some(e => e.tipo === "biodigestor"))
     out.push({ id: "biodigestor", tipo: "biodigestor", origem: "Planejador", propriedades: { volume_m3: bio.biodigestor_m3, biogas_m3_dia: bio.biogas_m3_dia } });
   return out; }
-function pedidoPara3d(el) { const cx = el.caixa || {}, mats = el.materiais || [];
-  return { esquema: "physis-ponte-3d/1", de: "bim", id: String(el.id || ""), tipo: el.tipo, nome: el.nome, caixa_mm: { dx: cx.dx ? cx.dx * 1000 : null, dy: cx.dy ? cx.dy * 1000 : null, dz: cx.dz ? cx.dz * 1000 : null },
-    posicao_m: el.posicao || {}, material: { id: mats[0] ? mats[0].id : null }, propriedades: el.propriedades || {} }; }
 
 /* ════════ Peças de tela ════════ */
 const cartao = (id, tit, numero, un) => `<section class="cartao" aria-labelledby="h-${id}"><h3 id="h-${id}" class="t3">${E(T(tit))}</h3><span class="numero">${numero}</span><span class="t2">${E(T(un))}</span></section>`;
@@ -459,7 +455,7 @@ function partePlanta() { const st = estado(), c = st.cfg, P = calcularPlanta(), 
     <section class="cartao" aria-labelledby="h-mp-curva"><h2 id="h-mp-curva">${E(T("O dia desde o nascer do sol"))}</h2>${curva}</section>
     <section class="cartao" aria-labelledby="h-mp-ener"><h2 id="h-mp-ener">${E(T("Energia no mês e no ano"))}</h2>${ener}</section>
     <section class="cartao" aria-labelledby="h-mp-ele"><h2 id="h-mp-ele">${E(T("Elétrica"))}</h2>${ele}</section>
-    <p><button type="button" data-mp-acao="enviar-planta">${E(T("Enviar para a aba Solar e para o BIM"))}</button> <button type="button" data-mp-acao="rack-3d">${E(T("Pedir suporte sob medida ao Physis 3D"))}</button> <span class="t2" role="status">${E(T(st.plMsg || ""))}</span></p>`; }
+    <p><button type="button" data-mp-acao="enviar-planta">${E(T("Enviar para a aba Solar e para o BIM"))}</button> <span class="t2" role="status">${E(T(st.plMsg || ""))}</span></p>`; }
 function enviarPlanta() { const P = calcularPlanta(); if (P.erro || P.falta) return "Complete a planta antes de enviar.";
   const A = P.A, R = P.R, st_ = R && R.strings;
   gravarLS("physis-calc-planta-solar", { esquema: "physis-planta-solar/1", superficie: { id: P.sup.id, nome: P.sup.nome, plano: P.sup.plano }, modulo: { id: P.mod.id, pmax: P.mod.pmax, comprimento_m: P.mod.comprimento_m, largura_m: P.mod.largura_m },
@@ -472,19 +468,15 @@ function enviarPlanta() { const P = calcularPlanta(); if (P.erro || P.falta) ret
       modulos: P.sup.plano === "solo" ? A.posicoes.slice(0, 2000).map(q => ({ x: q.x, y: q.y, z: 0 })) : [] },
     { id: "inv-" + P.sup.id, tipo: "inversor", nome: P.inv.nome, propriedades: { potencia_kw: P.inv.pca, fator_potencia: P.fp } }]);
   return "Enviado: a aba Solar lê physis-calc-planta-solar e o BIM recebeu o arranjo e o inversor."; }
-function pedirRack() { const P = calcularPlanta(); if (P.erro || P.falta) return "Complete a planta antes de pedir o suporte.";
-  const l = lerLS("physis-ponte-3d") || [], el = { id: "rack-" + P.sup.id, tipo: "rack", nome: "Suporte da mesa · " + P.sup.nome, caixa: { dx: P.A.du, dy: P.A.profundidade_mesa_m, dz: Math.max(0.05, P.A.altura_mesa_m) }, propriedades: { incl_graus: P.incl, modulos_por_mesa: P.A.empilhados } };
-  l.push(Object.assign(pedidoPara3d(el), { pedido_em: new Date().toISOString() })); gravarLS("physis-ponte-3d", l.slice(-50)); return "Pedido gravado para o Physis 3D (physis-ponte-3d)."; }
 
 /* ════════ Parte: BIM (IFC) ════════ */
-function parteBim() { const st = estado(), els = elementosBim(), L = lugar(), p3 = lerLS("physis-ponte-3d") || [];
+function parteBim() { const st = estado(), els = elementosBim(), L = lugar();
   const tab = els.length ? `<div class="rolagem"><table><caption>${E(T("Sistemas que os módulos mandaram"))}</caption><thead><tr><th scope="col">${E(T("Elemento"))}</th><th scope="col">${E(T("Tipo"))}</th><th scope="col">${E(T("Origem"))}</th></tr></thead><tbody>${els.map(e => `<tr><th scope="row">${E(e.nome || e.id)}</th><td>${E(e.tipo)}</td><td>${E(e.origem || "")}</td></tr>`).join("")}</tbody></table></div>` : `<p class="t2">${E(T("Nenhum sistema enviado ainda: a planta solar, a cisterna, as calhas, o AVAC, o quadro, o biodigestor, as turbinas e o viveiro aparecem aqui quando os módulos mandarem."))}</p>`;
   return `<section class="cartao" aria-labelledby="h-mp-bim"><h2 id="h-mp-bim">${E(T("Modelo BIM aberto (IFC4)"))}</h2>${tab}
     ${notaNav()}<p><button type="button" data-mp-acao="ifc"${!L || !els.length || (!emHub() && !window.PhysisIFC) ? " disabled" : ""}>${E(T("Baixar o IFC"))}</button> <span class="t2" role="status">${E(T(st.ifcMsg || ""))}</span></p>
     <p class="t2 pq">${E(T("Fator de potência, potência ativa, reativa e aparente vão em todo equipamento elétrico (premissa eletrica.fator_potencia_padrao)."))}</p></section>
     <section class="cartao" aria-labelledby="h-mp-ler"><h2 id="h-mp-ler">${E(T("Abrir um IFC"))}</h2><p class="t2">${E(T("Leitura básica: terreno, edificações, pavimentos, quantos elementos de cada tipo e o tamanho. A geometria completa fica para um visualizador IFC aberto (Fase 2)."))}</p>
-    <div><label for="mp-ifc">${E(T("Arquivo IFC"))}</label><input id="mp-ifc" type="file" accept=".ifc" data-mp-arquivo="ifc"${emHub() || window.PhysisIFC ? "" : " disabled"}></div>${st.ifcLido ? resumoIfc(st.ifcLido) : ""}</section>
-    <section class="cartao" aria-labelledby="h-mp-3d"><h2 id="h-mp-3d">${E(T("Ponte com o Physis 3D"))}</h2><p class="t2">${E(T("Pedidos de peça (caixa, medidas e material) no esquema physis-ponte-3d/1; a peça impressa volta como elemento do BIM com o link do memorial."))}</p><p>${E(T("Pedidos guardados"))}: ${p3.length}</p></section>`; }
+    <div><label for="mp-ifc">${E(T("Arquivo IFC"))}</label><input id="mp-ifc" type="file" accept=".ifc" data-mp-arquivo="ifc"${emHub() || window.PhysisIFC ? "" : " disabled"}></div>${st.ifcLido ? resumoIfc(st.ifcLido) : ""}</section>`; }
 function resumoIfc(r) { return `<div class="rolagem"><table><caption>${E(T("Resumo do IFC"))}</caption><tbody><tr><th scope="row">${E(T("Esquema"))}</th><td>${E(r.esquema)}</td></tr><tr><th scope="row">${E(T("Projeto"))}</th><td>${E(r.projeto)}</td></tr>
   ${(r.terrenos || []).map(s => `<tr><th scope="row">${E(T("Terreno"))}</th><td>${E(s.nome)} · ${f1(s.lat, 5)}, ${f1(s.lon, 5)}</td></tr>`).join("")}<tr><th scope="row">${E(T("Edificações"))}</th><td>${(r.edificacoes || []).map(e => E(e.nome)).join(", ")}</td></tr>
   <tr><th scope="row">${E(T("Pavimentos"))}</th><td>${(r.pavimentos || []).map(p => E(p.nome)).join(", ")}</td></tr>${Object.entries(r.elementos_por_tipo || {}).map(([k, v]) => `<tr><th scope="row">${E(k)}</th><td>${v}</td></tr>`).join("")}
@@ -559,7 +551,6 @@ if (typeof document !== "undefined" && !window.__mpEventos) { window.__mpEventos
     if (a === "ctx") { st.ctx = null; buscarContexto(true); redesenhar(); return; }
     if (a === "enviar-incidencia") st.incMsg = enviarIncidencia();
     if (a === "enviar-planta") st.plMsg = enviarPlanta();
-    if (a === "rack-3d") st.plMsg = pedirRack();
     if (a === "ifc") { st.ifcMsg = "Gerando…"; redesenhar(); try { st.ifcMsg = await baixarIfc(); } catch (e) { st.ifcMsg = "Não foi possível gerar o IFC agora."; } }
     const id = b.id; redesenhar(); if (id) refocar(id); }); }
 
@@ -757,11 +748,9 @@ window.MAPEAMENTO_I18N = {
   "tensão de circuito aberto no frio": "cold open-circuit voltage",
   "Potência na saída CA do inversor": "Power at the inverter AC output",
   "Enviar para a aba Solar e para o BIM": "Send to the Solar tab and to BIM",
-  "Pedir suporte sob medida ao Physis 3D": "Request a custom bracket from Physis 3D",
   "Complete a planta antes de enviar.": "Complete the plant before sending.",
   "Enviado: a aba Solar lê physis-calc-planta-solar e o BIM recebeu o arranjo e o inversor.": "Sent: the Solar tab reads physis-calc-planta-solar and BIM received the array and the inverter.",
   "Complete a planta antes de pedir o suporte.": "Complete the plant before requesting the bracket.",
-  "Pedido gravado para o Physis 3D (physis-ponte-3d).": "Request saved for Physis 3D (physis-ponte-3d).",
   "Modelo BIM aberto (IFC4)": "Open BIM model (IFC4)",
   "Sistemas que os módulos mandaram": "Systems the modules sent",
   "Elemento": "Element",
@@ -785,9 +774,6 @@ window.MAPEAMENTO_I18N = {
   "Edificações": "Buildings",
   "Pavimentos": "Storeys",
   "Tamanho": "Size",
-  "Ponte com o Physis 3D": "Physis 3D bridge",
-  "Pedidos de peça (caixa, medidas e material) no esquema physis-ponte-3d/1; a peça impressa volta como elemento do BIM com o link do memorial.": "Part requests (box, dimensions and material) in the physis-ponte-3d/1 schema; the printed part comes back as a BIM element linked to its design memo.",
-  "Pedidos guardados": "Saved requests",
   "As bases abertas aparecem na plataforma.": "Open data appears in the platform.",
   "Erro nesta parte.": "Error in this section.",
   "Como o Mapeamento calcula": "How Mapping calculates",
@@ -810,7 +796,7 @@ window.MAPEAMENTO_I18N_RX = [
 ];
 
 window.MAPEAMENTO = { DIA_REP, DIA_21, PASSOS_DIA, SETORES, PREMISSA_FP, PREM, incidenciaSuperficie, horizonte, zGrade, planosTelhado, fachadas, celulasTerreno, incidencia,
-  solEm, nascerPor, cartaSolar, curvaDiaria, potenciaCA, sombraEntreFileiras, arranjo, potencias, gradeDoLote, enviarParaBim, elementosBim, pedidoPara3d, dimensoesModulo, geometriaParaSimulacao, cartaSVG, calcularPlanta, calcularSuperficies };
+  solEm, nascerPor, cartaSolar, curvaDiaria, potenciaCA, sombraEntreFileiras, arranjo, potencias, gradeDoLote, enviarParaBim, elementosBim, dimensoesModulo, geometriaParaSimulacao, cartaSVG, calcularPlanta, calcularSuperficies };
 window.telaMapeamentoModulo = telaMapeamentoModulo;
 window.PhysisMapeamento = { telaPlantaSolar };   /* a aba Energia solar mostra a planta (sub-aba "Planta solar (BIM)") */   /* global: a plataforma chama telaMapeamentoModulo(telaMapeamento) na hora de desenhar */
 })();

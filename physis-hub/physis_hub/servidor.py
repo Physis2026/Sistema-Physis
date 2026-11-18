@@ -77,8 +77,8 @@ from . import editais as editais_mod
 from . import evidencias as evidencias_mod
 from . import municipio as municipio_mod
 from . import parceiros as parceiros_mod
-from . import impressao3d as impressao3d_mod
 from . import frota as frota_mod
+from . import intercambio as intercambio_mod
 from . import mapeamento as mapeamento_mod
 from . import simulacao as simulacao_mod
 from . import cep as cep_mod
@@ -140,8 +140,8 @@ LOJA_CATALOGO_INICIAL = Path(__file__).resolve().parent.parent / "loja-catalogo-
 
 
 def arquivo_instancia() -> Path:
-    """instancia.json desta instalação. PHYSIS_INSTANCIA troca o arquivo: assim o servidor da Physis e o do
-    Instituto Physis rodam do mesmo código na mesma máquina, cada um com a sua configuração (docs/INSTITUTO.md)."""
+    """instancia.json desta instalação. PHYSIS_INSTANCIA troca o arquivo (por exemplo, para rodar uma segunda instalação
+    do mesmo código, cada uma com a sua configuração e o seu PHYSIS_BANCO)."""
     return Path(os.environ.get("PHYSIS_INSTANCIA") or INSTANCIA)
 
 
@@ -158,21 +158,8 @@ SIMULACAO_CORPO_MAX = 8 * 1024 * 1024          # entrada de uma simulação (gra
 
 
 def banco_da_instancia(inst: dict) -> str:
-    """Arquivo do banco: PHYSIS_BANCO; senão o "banco" do instancia.json (relativo à pasta dele); senão physis-hub.db."""
-    if os.environ.get("PHYSIS_BANCO"):
-        return os.environ["PHYSIS_BANCO"]
-    nome = str(inst.get("banco") or "").strip()
-    if nome and re.fullmatch(r"[A-Za-z0-9._-]{1,80}\.db", nome):
-        return str(arquivo_instancia().resolve().parent / nome)
-    return "physis-hub.db"
-
-
-def marca_da_instancia(inst: dict) -> dict:
-    """Marca da instalação para as telas: nome, texto do logo e cores (só as da docs/PALETA.md, conferidas na montagem)."""
-    m = inst.get("marca") if isinstance(inst.get("marca"), dict) else {}
-    cores = m.get("cores") if isinstance(m.get("cores"), dict) else {}
-    return {"nome": str(m.get("nome") or inst.get("nome") or "")[:120], "logo_texto": str(m.get("logo_texto") or "")[:60],
-            "cores": {str(k)[:30]: str(v)[:9] for k, v in cores.items() if re.fullmatch(r"#[0-9A-Fa-f]{6}", str(v))}}
+    """Arquivo do banco: PHYSIS_BANCO; senão physis-hub.db."""
+    return os.environ.get("PHYSIS_BANCO") or "physis-hub.db"
 
 
 def cliente_receptor(base: str, timeout: float = 4.0):
@@ -815,10 +802,14 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 modulos_vivos[nome] = {"docs": lambda: documentos_mod.Documentos(hub),
                                        "municipio": lambda: municipio_mod.Municipio(hub, clima=clima, aprendizado=aprendizado),
                                        "parceiros": lambda: parceiros_mod.Parceiros(hub),
-                                       "impressao3d": lambda: impressao3d_mod.Impressao3D(
-                                           hub, impressao3d_mod.pasta_padrao(banco_da_instancia(instancia))),
                                        "fornecedores": lambda: fornecedores_mod.Fornecedores(
-                                           hub, pasta=fornecedores_mod.pasta_padrao(banco_da_instancia(instancia)))}[nome]()
+                                           hub, pasta=fornecedores_mod.pasta_padrao(banco_da_instancia(instancia))),
+                                       # intercâmbio com plataformas parceiras (docs/INTERCAMBIO.md): chave só no arquivo do servidor
+                                       "intercambio": lambda: intercambio_mod.Intercambio(
+                                           hub, instancia.get("intercambio_id") or os.environ.get("PHYSIS_INTERCAMBIO_ID") or hub.org,
+                                           os.environ.get("PHYSIS_INTERCAMBIO_CHAVES") or instancia.get("intercambio_chaves")
+                                           or (Path(banco_da_instancia(instancia)).resolve().parent / "intercambio-chaves.json"),
+                                           cursos=lambda: instancia.get("cursos") or [])}[nome]()
             return modulos_vivos[nome]
     # Frota e combustível (docs/FROTA.md): criada já na partida, porque o hub entrega a ela cada linha VEI (com a trava do hub)
     frota = frota_mod.Frota(hub, pasta=frota_mod.pasta_padrao(banco_da_instancia(instancia)))
@@ -937,6 +928,36 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
             if codigo == 429:
                 return self._recusar(429, obj, {"Retry-After": str(obj.get("espera", 60))})
             return self._json(codigo, obj)
+
+        def _intercambio(self, metodo: str, u, corpo: bytes, q: dict) -> None:
+            """/api/intercambio/v1/* = a outra plataforma (assinatura HMAC, sem sessão, só HTTPS ou rede local/VPN);
+            /api/intercambio/* = a direção desta instalação (recebidos: equipe). Ver docs/INTERCAMBIO.md."""
+            ic = modulo("intercambio")
+            if u.path.startswith(intercambio_mod.PREFIXO + "v1/"):
+                cod, dados, cab = ic.rota_parceiro(metodo, u.path + ("?" + u.query if u.query else ""), self.headers, corpo,
+                                                   self._ip(), self._https() or self._local())
+                self.send_response(cod)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Length", str(len(dados)))
+                for k, v in cab.items():
+                    self.send_header(k, v)
+                self.end_headers()
+                self.wfile.write(dados)
+                return
+            conta = self._exigir(seg.EQUIPE if (metodo == "GET" and u.path == intercambio_mod.PREFIXO + "recebidos") else seg.DIRECAO)
+            if not conta:
+                return
+            d = None
+            if metodo == "POST":
+                try:
+                    d = json.loads(corpo.decode("utf-8")) if corpo else {}
+                except (ValueError, UnicodeDecodeError):
+                    return self._json(400, {"ok": False, "erro": "json invalido"})
+                if not isinstance(d, dict):
+                    return self._json(400, {"ok": False, "erro": "json invalido"})
+                if u.path.endswith(("/parceiro/chave", "/parceiro/remover")) and not self._sensivel(conta):
+                    return
+            self._json(*ic.rota_admin(metodo, u.path, conta, d, q))
 
         def _enviar_bytes(self, dados: bytes, tipo: str, cabecalhos: dict | None = None) -> None:
             self.send_response(200)
@@ -1067,23 +1088,16 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     else:
                         self._json(cod, r)
                 return True
+            # Intercâmbio (intercambio.py; docs/INTERCAMBIO.md): /v1/ = outra plataforma, com assinatura; o resto = direção
+            if p.startswith("/api/intercambio/"):
+                self._intercambio("GET", u, b"", q)
+                return True
             # Frota e combustível (frota.py; docs/FROTA.md): cliente vê; comprovante e exportação só a equipe
             if p.startswith("/api/frota/"):
                 qv = self._exigir(seg.CLIENTE)
                 if qv:
                     cod, r = modulo("frota").rota("GET", p, qv, None, q)
                     if isinstance(r, tuple):                       # ("bytes", nome, tipo, dados): CSV ou comprovante
-                        self._enviar_bytes(r[3], r[2], {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(r[1]),
-                                                        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
-                    else:
-                        self._json(cod, r)
-                return True
-            # Physis 3D (impressao3d.py; docs/PHYSIS_3D.md): só com sessão de participante (cliente ou acima)
-            if p.startswith("/api/3d/"):
-                q3 = self._exigir(seg.CLIENTE)
-                if q3:
-                    cod, r = modulo("impressao3d").rota("GET", p, q3, None, q)
-                    if isinstance(r, tuple):                       # ("bytes", nome, tipo, dados)
                         self._enviar_bytes(r[3], r[2], {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(r[1]),
                                                         "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
                     else:
@@ -1214,6 +1228,17 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     return True
                 self._rota_mapeamento("POST", u, parse_qs(u.query), corpo, qm)
                 return True
+            # Intercâmbio: pacote de até 4 MB (intercambio.CORPO_MAX)
+            if p.startswith("/api/intercambio/"):
+                if (self.headers.get("Content-Length") or "0").strip() in ("", "0"):
+                    corpo = b""
+                else:
+                    corpo = self._corpo_grande(intercambio_mod.CORPO_MAX)
+                    if corpo is None:
+                        self._recusar_corpo("pacote grande demais (máximo 4 MB)")
+                        return True
+                self._intercambio("POST", u, corpo, parse_qs(u.query))
+                return True
             # Frota: só a equipe grava (CSV até 4 MB, comprovante até 10 MB); apagar veículo e retenção só a direção
             if p.startswith("/api/frota/"):
                 qv = self._exigir(seg.EQUIPE)
@@ -1228,19 +1253,6 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 if p == "/api/frota/veiculo/remover" and not self._sensivel(qv):
                     return True
                 self._json(*modulo("frota").rota("POST", p, qv, corpo, parse_qs(u.query)))
-                return True
-            # Physis 3D: malha e foto vão em base64 dentro do JSON (até impressao3d.CORPO_MAX)
-            if p.startswith("/api/3d/"):
-                q3 = self._exigir(seg.CLIENTE)
-                if not q3 or (re.search(r"/(revisao|foto|fatiar)$", p) and self._limitado("arquivo")):
-                    return True
-                corpo = self._corpo_grande(impressao3d_mod.CORPO_MAX)
-                if corpo is None and (self.headers.get("Content-Length") or "0").strip() == "0":
-                    corpo = b"{}"
-                if corpo is None:
-                    self._recusar_corpo("arquivo grande demais")
-                    return True
-                self._json(*modulo("impressao3d").rota("POST", p, q3, corpo))
                 return True
             if p == "/api/documentos/pdfa":
                 if not self._exigir(seg.CLIENTE) or self._limitado("arquivo"):      # LibreOffice é pesado: 10 por 10 min por IP
@@ -1607,8 +1619,6 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     "supervisao": (WEB / "supervisao.html").exists(), "gestao": (WEB / "gestao.html").exists(),
                     "planejador": (WEB / "planejador.html").exists(), "pesquisa": bool(instancia.get("pesquisa")),
                     "nome_cliente": instancia.get("nome"),
-                    # instalação "physis" (padrão) ou "instituto" (Instituto Physis: outra marca, outro banco, outro catálogo)
-                    "instalacao": instancia.get("instalacao") or "physis", "marca": marca_da_instancia(instancia),
                     "cursos": [c for c in (instancia.get("cursos") or []) if isinstance(c, dict)] if q else [],
                     "senha_min": hub.SENHA_MIN,
                     # segurança: token CSRF da sessão (mandar em X-Physis-CSRF), termos, e-mail, 2FA

@@ -1166,6 +1166,6 @@ class Frota:
 
 
 def pasta_padrao(banco: str | os.PathLike) -> Path:
-    """PHYSIS_FROTA_PASTA ou a pasta do banco + /frota-comprovantes (mesmo padrão dos fornecedores e do Physis 3D)."""
+    """PHYSIS_FROTA_PASTA ou a pasta do banco + /frota-comprovantes (mesmo padrão dos fornecedores)."""
     return Path(os.environ.get("PHYSIS_FROTA_PASTA") or (Path(banco).resolve().parent / "frota-comprovantes"))
 

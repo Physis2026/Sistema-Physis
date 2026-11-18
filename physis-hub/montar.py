@@ -27,11 +27,7 @@ AQUI = Path(__file__).resolve().parent
 MODULOS = ("monitoramento", "agua", "zonas", "animais", "coleiras", "comedouros", "sustainkit", "supervisao", "gestao",
            "painel", "planejador", "certificacoes", "solar", "avac", "turbinas", "sbn", "circular", "carbono",
            "resiliencia", "medicamentos", "pulseira", "cursos", "secador", "servidor-verde",
-           "impressao3d",   # Physis 3D: do Instituto Physis (decisão de 18/11/2026)
            "frota")         # Frota e combustível (em desenvolvimento, 18/11/2026)
-# instalação: "physis" (padrão: plataforma de cliente ou servidor da Physis) ou "instituto" (Instituto Physis:
-# pesquisa, cursos e projetos sociais; mesmo código, banco, marca, suporte e catálogo próprios; docs/INSTITUTO.md)
-INSTALACOES = ("physis", "instituto")
 LICENCA_PADRAO = "Licença Physis de Uso e Adaptação (minuta em revisão jurídica)"
 VENDOR_ARQUIVOS = ("maplibre-gl.js", "maplibre-gl.css", "pmtiles.js", "web-ifc-api-iife.js", "web-ifc.wasm", "three.min.js",
                    "LEIA-ME.md", "LICENSE-maplibre-gl.txt", "LICENSE-three.txt")
@@ -95,29 +91,6 @@ def texto_licenca(nome: str) -> str:
         return nome + "\n"
 
 
-def cores_da_paleta() -> set[str]:
-    """Cores aceitas (docs/PALETA.md): a marca de uma instalação só pode usar estas."""
-    try:
-        return {c.upper() for c in re.findall(r"#[0-9A-Fa-f]{6}", (AQUI / "docs" / "PALETA.md").read_text(encoding="utf-8"))}
-    except OSError:
-        return set()
-
-
-def conferir_marca(marca: dict | None) -> dict | None:
-    """{nome, logo_texto, cores: {nome: "#RRGGBB"}}; cor fora da PALETA.md = erro."""
-    if not marca:
-        return None
-    if not isinstance(marca, dict):
-        raise SystemExit("marca: use {nome, logo_texto, cores}")
-    cores = marca.get("cores") or {}
-    paleta = cores_da_paleta()
-    fora = [f"{k}={v}" for k, v in cores.items() if not isinstance(v, str) or (paleta and v.upper() not in paleta)]
-    if fora:
-        raise SystemExit("marca: cores fora de docs/PALETA.md: " + ", ".join(fora))
-    return {"nome": str(marca.get("nome") or "")[:120], "logo_texto": str(marca.get("logo_texto") or "")[:60],
-            "cores": {str(k): v.upper() for k, v in cores.items()}}
-
-
 def escrever_manual(pasta: Path, modulos: list[str], cliente: str) -> Path:
     """Rascunho do manual desta compra (só os módulos do pacote) em manual/: .md para revisar e .odt.
     Não é o manual emitido: a versão final passa pela fila de emissão (revisão e aprovação) no servidor da Physis."""
@@ -135,14 +108,9 @@ def escrever_manual(pasta: Path, modulos: list[str], cliente: str) -> Path:
 def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Path | None, licenca: str,
            supervisao: Path | None = None, gestao: Path | None = None, planejador: Path | None = None,
            pesquisa: bool = False, nome: str = "", cursos: list | None = None, suporte: dict | None = None,
-           instalacao: str = "physis", marca: dict | None = None, banco: str = "", pegada: dict | None = None) -> Path:
+           pegada: dict | None = None) -> Path:
     if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{1,63}", org):
         raise SystemExit("org: use de 2 a 64 letras minúsculas, números, ponto, hífen ou sublinhado")
-    if instalacao not in INSTALACOES:
-        raise SystemExit(f"instalação: {', '.join(INSTALACOES)}")
-    if banco and not re.fullmatch(r"[A-Za-z0-9._-]{1,80}\.db", banco):
-        raise SystemExit("banco: só o nome do arquivo, terminado em .db (ex.: physis-instituto.db)")
-    marca = conferir_marca(marca)
     desconhecidos = [m for m in modulos if m not in MODULOS]
     if desconhecidos:              # lista vazia é a plataforma básica: Início e Cursos
         raise SystemExit(f"módulos aceitos: {', '.join(MODULOS)}; recebi: {', '.join(desconhecidos) or 'nenhum'}")
@@ -227,14 +195,6 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
     if suporte:
         inst["suporte_email"] = str(suporte.get("email") or "")
         inst["suporte_whatsapp"] = str(suporte.get("whatsapp") or "")
-    if instalacao != "physis":
-        inst["instalacao"] = instalacao
-        # banco próprio: os dados (contas, catálogo da loja, chamados, cursos) nunca se misturam com os da Physis
-        inst["banco"] = banco or f"physis-{instalacao}.db"
-    elif banco:
-        inst["banco"] = banco
-    if marca:
-        inst["marca"] = marca
     if pegada:          # pegada do servidor (docs/PEGADA_SERVIDOR.md): classe da máquina, lugar e forma de contar
         inst["pegada_servidor"] = pegada
     (pasta / "instancia.json").write_text(json.dumps(inst, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -267,17 +227,13 @@ def main() -> None:
     ap.add_argument("--nome", default="", help="nome do cliente para a tela")
     ap.add_argument("--licenca", default=LICENCA_PADRAO)
     ap.add_argument("--saida", type=Path, default=Path("entregas"))
-    ap.add_argument("--instalacao", default="physis", choices=INSTALACOES, help="instituto = Instituto Physis (docs/INSTITUTO.md)")
-    ap.add_argument("--banco", default="", help="nome do arquivo do banco (padrão do instituto: physis-instituto.db)")
     ap.add_argument("--suporte-email", default="", help="e-mail de suporte desta instalação")
     ap.add_argument("--suporte-whatsapp", default="", help="WhatsApp de suporte desta instalação")
-    ap.add_argument("--marca", type=Path, help="arquivo JSON {nome, logo_texto, cores} (cores só da docs/PALETA.md)")
     a = ap.parse_args()
     a.saida.mkdir(parents=True, exist_ok=True)
     suporte = {"email": a.suporte_email, "whatsapp": a.suporte_whatsapp} if (a.suporte_email or a.suporte_whatsapp) else None
-    marca = json.loads(a.marca.read_text(encoding="utf-8")) if a.marca else None
     pacote = montar(a.org, a.lugar, [m.strip() for m in a.modulos.split(",") if m.strip()], a.saida, a.sustainkit, a.licenca,
-                    a.supervisao, a.gestao, a.planejador, a.pesquisa, a.nome, None, suporte, a.instalacao, marca, a.banco)
+                    a.supervisao, a.gestao, a.planejador, a.pesquisa, a.nome, None, suporte)
     print(f"Montado: {pacote} ({pacote.stat().st_size // 1024} kB)")
 
 

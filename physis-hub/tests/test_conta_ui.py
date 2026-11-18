@@ -118,7 +118,7 @@ class TestGestaoRobos(unittest.TestCase):
         cls.g = ler(GESTAO)
 
     def test_rotas_dos_robos_e_aprendizado(self):
-        for r in ("/api/robos/suporte", "/api/robos/precos", "/api/robos/editais", "/api/robos/instituto", "/api/robos/marketing",
+        for r in ("/api/robos/suporte", "/api/robos/precos", "/api/robos/editais", "/api/robos/projetos", "/api/robos/marketing",
                   "/api/aprendizado/estado", "/api/aprendizado/consumo", "/api/aprendizado/anomalias", "/api/aprendizado/treinar",
                   "/api/alertas/assinaturas", "/api/alertas/historico"):
             self.assertIn('"' + r + '"', self.g, r)

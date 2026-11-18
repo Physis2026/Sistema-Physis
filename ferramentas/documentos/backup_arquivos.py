@@ -2,7 +2,10 @@
 from pathlib import Path
 RAIZ = Path(r"C:\physis\physis-sistema")
 DOCS = Path(r"C:\Users\rafae\OneDrive - Physis Engineering\Documents\Sistema Physis")
-FORA = {".git", "__pycache__", "node_modules", "www", "_backup_git", "_backup_arquivos", "sistema_physis_fase1", "sistema_physis_ep_final"}
+FORA = {".git", "__pycache__", "node_modules", "www", "_backup_git", "_backup_arquivos", "sistema_physis_fase1", "sistema_physis_ep_final",
+        "_versoes_oficiais", "_versoes_teste"}   # versões congeladas já têm a sua própria cópia
+# Backup só da Physis Engineering (decisão de 18/11/2026): nada do Instituto Physis, que tem plataforma e backup próprios.
+NOMES_FORA = ("instituto", "physis-3d", "physis_3d", "impressao3d")
 EXT_FORA = {".db", ".db-wal", ".db-shm", ".env", ".pfx", ".jks", ".keystore", ".pyc"}
 destino = DOCS / "_backup_arquivos"
 destino.mkdir(exist_ok=True)
@@ -11,7 +14,8 @@ def juntar(z, base, prefixo):
     n = 0
     for p in base.rglob("*"):
         rel = p.relative_to(base)
-        if any(parte in FORA for parte in rel.parts) or not p.is_file() or p.suffix.lower() in EXT_FORA or p.name.endswith(".env"):
+        if any(parte in FORA for parte in rel.parts) or not p.is_file() or p.suffix.lower() in EXT_FORA or p.name.endswith(".env") \
+                or any(n in parte.lower() for parte in rel.parts for n in NOMES_FORA):
             continue
         z.write(p, f"{prefixo}/{rel.as_posix()}"); n += 1
     return n

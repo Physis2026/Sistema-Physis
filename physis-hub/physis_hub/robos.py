@@ -19,7 +19,7 @@ IA local acima (Fase 2) → respostas prontas por regras. O texto da resposta n�
 15/11/2026); o protocolo fica: "ia" na resposta (provedor, modelo, quando) e uma entrada "ia" no registro encadeado
 do hub (ia.protocolo = id do registro), e revisao_humana=True. Ver docs/IA_CLAUDE.md.
 
-Robôs: suporte, precos, editais, marketing, instituto, pluviometro. Ver docs/ROBOS.md.
+Robôs: suporte, precos, editais, marketing, projetos, pluviometro. Ver docs/ROBOS.md.
 """
 from __future__ import annotations
 
@@ -766,7 +766,7 @@ class Marketing(Robo):
                         confianca=min(1.0, ti / 5000) if ti else 0.2, revisao_humana=False, dados={"ranking": out, "taxa_geral": round(taxa, 4)})
 
 
-# ── 5. Instituto Physis ─────────────────────────────────────────────────────────────────────────
+# ── 5. Esboço de projeto ────────────────────────────────────────────────────────────────────────
 MODELOS_AREA = {
     "energia": {"obj": "reduzir o consumo e o custo de energia com eficiência e geração solar",
                 "ativ": ["diagnóstico energético com as contas dos últimos 12 meses", "dimensionamento solar (SustainKit)", "monitoramento do consumo"],
@@ -799,11 +799,11 @@ RUBRICAS = (("Equipe técnica", 0.45), ("Equipamentos e materiais", 0.25), ("Ser
             ("Capacitação e divulgação", 0.10), ("Viagens", 0.05), ("Despesas administrativas", 0.05))
 
 
-class Instituto(Robo):
-    nome, titulo = "instituto", "Instituto Physis"
-    descricao = "Monta o esqueleto de um projeto a partir de um edital e dos modelos da Physis (a IA local completa depois)."
-    intencoes = (("projeto", r"projeto|proposta|edital|instituto|esboco|roteiro"),)
-    sistema_ia = ("Você ajuda o Instituto Physis a escrever projetos para editais. Português do Brasil, técnico e claro. "
+class Projetos(Robo):
+    nome, titulo = "projetos", "Esboço de projeto"
+    descricao = "Monta o esqueleto de um projeto a partir de um edital e dos modelos da Physis"
+    intencoes = (("projeto", r"projeto|proposta|edital|esboco|roteiro"),)
+    sistema_ia = ("Você ajuda a Physis Engineering a escrever projetos para editais. Português do Brasil, técnico e claro. "
                   "Não invente números, parceiros nem resultados: deixe [A PREENCHER] onde faltar dado.")
 
     def _responder(self, pedido: dict) -> dict:
@@ -836,7 +836,7 @@ class Instituto(Robo):
                       "Valores reais do orçamento"] + ([] if prazo else ["Prazo de envio (não encontrado no texto)"])
         rascunho = "\n".join(f"{s['titulo']}\n" + "\n".join(f"  - {i}" for i in s["itens"]) for s in secoes)
         texto, ia = self.melhorar(rascunho, texto_ed[:3000], "Melhore a redação do roteiro mantendo a estrutura e os [A PREENCHER].")
-        return resposta(self.nome, texto, fontes=[{"fonte": "edital informado"}, {"fonte": "modelos de área do Instituto Physis"}],
+        return resposta(self.nome, texto, fontes=[{"fonte": "edital informado"}, {"fonte": "modelos de área da Physis"}],
                         confianca=0.5, revisao_humana=True, ia=ia,
                         dados={"secoes": secoes, "areas": areas, "prazo": prazo, "pendencias": pendencias})
 
@@ -996,7 +996,7 @@ interval:
 
 
 # ══ Registro dos robôs e roteamento ═════════════════════════════════════════════════════════════
-CLASSES = {c.nome: c for c in (Suporte, Precos, Editais, Marketing, Instituto, Pluviometro)}
+CLASSES = {c.nome: c for c in (Suporte, Precos, Editais, Marketing, Projetos, Pluviometro)}
 
 
 def criar_robos(contexto: dict | None = None, ia=None) -> dict[str, Robo]:
@@ -1014,7 +1014,7 @@ def listar(robos: dict[str, Robo]) -> list[dict]:
 
 def rotear(texto: str, robos: dict[str, Robo]) -> str:
     """Qual robô atende um texto livre (regras de intenção); sem acerto, o suporte."""
-    for nome in ("pluviometro", "precos", "editais", "marketing", "instituto"):
+    for nome in ("pluviometro", "precos", "editais", "marketing", "projetos"):
         if nome in robos and robos[nome].intencao(texto):
             return nome
     return "suporte"

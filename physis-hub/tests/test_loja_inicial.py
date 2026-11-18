@@ -52,7 +52,7 @@ class CatalogoInicial(unittest.TestCase):
                          [(1, 750, True), (2, 5000, False), (3, 30000, True), (4, 50000, True)])
         self.assertTrue(all(v["st"] == "func" for v in it.values()))
         self.assertIn("scada", self.cat["fora"])                               # supervisão está em simulação
-        for dev in ("P23", "servidor-verde", "impressao3d", "simulacao", "mapeamento", "P5", "P15"):
+        for dev in ("P23", "servidor-verde", "simulacao", "mapeamento", "P5", "P15"):
             self.assertNotIn(dev, it)
         sob = [k for k, v in it.items() if v["preco"] is None]
         self.assertTrue(sob and all(not k.startswith("cert-") and k not in ("solar", "consultoria-pers") for k in sob))
@@ -99,7 +99,7 @@ class CatalogoInicial(unittest.TestCase):
                 self.assertEqual(itens["solar"]["preco"], 300)
                 self.assertEqual(itens["cert-leed"]["preco"], 750)
                 self.assertIn("consultoria-pers", itens)
-                for dev in ("P23", "servidor-verde", "scada", "impressao3d"):
+                for dev in ("P23", "servidor-verde", "scada"):
                     self.assertNotIn(dev, itens)
             finally:
                 srv.shutdown()

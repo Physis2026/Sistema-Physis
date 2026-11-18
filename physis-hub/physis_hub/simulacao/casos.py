@@ -115,18 +115,6 @@ def _rack():
             "cargas": cargas, "peso_proprio": {"g": 9.81}, "verificar": True}
 
 
-def _bracket():
-    nx, ny, d = 12, 8, 0.005
-    M = [1 if (i < 2 or j < 2) else 0 for i in range(ny) for j in range(nx)]
-    m = estrutura.malha_de_mascara(M, nx, ny, d, d)
-    nos = m["nos"]
-    ap = [{"no": k, "restr": [1, 1]} for k, (x, y) in enumerate(nos) if abs(x) < 1e-12]
-    ponta = [k for k, (x, y) in enumerate(nos) if abs(x - nx * d) < 1e-12]
-    cargas = [{"no": k, "F": [0.0, -200.0 / len(ponta)]} for k in ponta]
-    return {"nos": nos, "tris": m["tris"], "E": 2.0e9, "nu": 0.38, "t": 0.01, "apoios": ap, "cargas": cargas,
-            "_nota": "E e ν FICTÍCIOS (o real vem do ensaio da oficina)", "mascara": M, "nx": nx, "ny": ny}
-
-
 def _torre():
     H, n = 12.0, 3
     tubo = {"tipo": "tubo", "d": 0.2, "t": 0.006}
@@ -245,9 +233,6 @@ def definir() -> list:
         ["tensoes", "deslocamentos"],
         [{"nome": f"σx = P/A no triângulo {t}", "caminho": f"tensoes.{t}.sx", "valor": 1000 / (0.5 * 0.01), "tol_rel": 1e-9} for t in range(16)]
         + [{"nome": "u na borda = PL/(EA)", "caminho": f"deslocamentos.{dr[0]}.0", "valor": 1000 * 1.0 / (1e9 * 0.5 * 0.01), "tol_rel": 1e-9}])
-    add("ex_suporte_3d", "Mão-francesa impressa (Physis 3D): tensões no corte", "estrutura.cst", _bracket(),
-        ["von_mises_max", "desl_max", "deslocamentos"], [], True,
-        "Corte de 60 × 40 mm, 10 mm de espessura, 200 N na ponta; E e ν fictícios (o real vem do ensaio da oficina).")
     torre, F, q, H, Et, It = _torre()
     add("ex_torre_turbina", "Torre de turbina eólica de 12 m (balanço)", "estrutura.portico", torre,
         ["deslocamentos", "elementos.0.M_max", "elementos.0.sigma_max", "verificacao.todos_ok"],

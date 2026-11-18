@@ -1,4 +1,4 @@
-"""BIM aberto (IFC4, ISO 16739-1) só com a biblioteca padrão: escrever, ler o básico e a ponte com o Physis 3D.
+"""BIM aberto (IFC4, ISO 16739-1) só com a biblioteca padrão: escrever, ler o básico.
 
 escrever(d) → texto STEP (ISO 10303-21) com IfcProject, IfcSite (latitude e longitude), IfcBuilding, IfcBuildingStorey e
 os sistemas que os módulos pré-dimensionam, como elementos tipados do IFC4 (ou IfcBuildingElementProxy quando o IFC4 não
@@ -6,7 +6,7 @@ tem um tipo próprio), cada um com uma caixa envolvente (IfcBoundingBox) e conju
   pv (IfcSolarDevice .SOLARPANEL.), inversor (IfcTransformer .INVERTER.), cisterna (IfcTank .STORAGE.),
   calha (IfcPipeSegment .GUTTER.), condutor (IfcPipeSegment .RIGIDSEGMENT.), avac (IfcUnitaryEquipment .SPLITSYSTEM.),
   quadro (IfcElectricDistributionBoard .DISTRIBUTIONBOARD.), turbina (IfcElectricGenerator .USERDEFINED.),
-  biodigestor, canteiro, peca3d e rack (IfcBuildingElementProxy .USERDEFINED.).
+  biodigestor, canteiro e rack (IfcBuildingElementProxy .USERDEFINED.).
 Elétrica: todo elemento com potência leva Physis_Eletrica com fator de potência, potência ativa (kW), reativa (kvar) e
 aparente (kVA). O fator vem do projeto ou da premissa eletrica.fator_potencia_padrao; sem os dois, o fator e as potências
 reativa e aparente ficam vazios ($) com a nota [CONFERIR] — nunca um número inventado.
@@ -28,7 +28,6 @@ from pathlib import Path
 
 RAIZ_REPO = Path(__file__).resolve().parents[2]
 ALFABETO_GUID = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$"
-ESQUEMA_PONTE = "physis-ponte-3d/1"
 PREMISSA_FP = "eletrica.fator_potencia_padrao"
 MAX_IFC_BYTES = 50 * 1024 * 1024
 
@@ -160,7 +159,6 @@ TIPOS = {
     "turbina": ("IFCELECTRICGENERATOR", "USERDEFINED", "Microturbina hidráulica", "Physis_Turbina", True),
     "biodigestor": ("IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Biodigestor", "Physis_Biodigestor", False),
     "canteiro": ("IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Canteiro de viveiro", "Physis_Viveiro", False),
-    "peca3d": ("IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Peça impressa em 3D", "Physis_Impressao3D", False),
     "rack": ("IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Estrutura de fixação (rack)", "Physis_Estrutura", False),
 }
 # unidade de cada chave conhecida das propriedades (o resto pode vir como {"valor": …, "unidade": …})
@@ -585,33 +583,3 @@ def ler(dados: bytes) -> dict:
             "pavimentos": pavs, "elementos": n_el, "elementos_por_tipo": dict(sorted(por_tipo.items())),
             "caixa": {"min": mn, "max": mx, "unidade": unidade, "nota": "origens das peças mais IfcBoundingBox, sem rotações"} if n_el else None,
             "tipos": tipos}
-
-
-# ═══════════════ Ponte com o Physis 3D (contrato JSON, sem tocar nos arquivos do 3D) ═══════════════
-def componente_para_3d(el: dict) -> dict:
-    """Elemento BIM (formato de escrever) → pedido de peça para o Physis 3D: caixa, medidas e material."""
-    cx, pos = el.get("caixa") or {}, el.get("posicao") or {}
-    mats = el.get("materiais") or []
-    return {"esquema": ESQUEMA_PONTE, "de": "bim", "id": str(el.get("id") or ""), "guid": guid_estavel(el.get("projeto") or "projeto", "el", el.get("id")),
-            "tipo": el.get("tipo"), "tipo_ifc": TIPOS.get(el.get("tipo"), ("IFCBUILDINGELEMENTPROXY",))[0], "nome": el.get("nome"),
-            "caixa_mm": {k: round(float(cx[k]) * 1000, 1) if _num(cx.get(k)) else None for k in ("dx", "dy", "dz")},
-            "posicao_m": {k: _num(pos.get(k)) for k in ("x", "y", "z")},
-            "material": {"id": mats[0].get("id") if mats else None}, "propriedades": el.get("propriedades") or {}}
-
-
-def peca_3d_para_bim(p: dict) -> dict:
-    """Peça impressa no Physis 3D → elemento BIM (proxy) com o link do memorial."""
-    if p.get("esquema") != ESQUEMA_PONTE or p.get("de") != "3d":
-        raise ValueError(f"esperado esquema {ESQUEMA_PONTE} vindo do 3d")
-    cx = p.get("caixa_mm") or {}
-    if not all(_num(cx.get(k)) and _num(cx.get(k)) > 0 for k in ("dx", "dy", "dz")):
-        raise ValueError("caixa_mm (dx, dy, dz) obrigatória")
-    memo = p.get("memorial") or {}
-    if not (memo.get("id") or memo.get("uri")):
-        raise ValueError("a peça precisa do memorial (id ou uri)")
-    props = {"material_impressao": p.get("material"), "massa_g": _num(p.get("massa_g")), "peca_3d_id": p.get("id")}
-    if p.get("para"):
-        props["fixa_em"] = str(p["para"])
-    return {"id": f"p3d-{p.get('id')}", "tipo": "peca3d", "nome": p.get("nome") or "Peça impressa", "origem": "Physis 3D",
-            "posicao": p.get("posicao_m") or {}, "caixa": {k: float(cx[k]) / 1000 for k in ("dx", "dy", "dz")},
-            "propriedades": {k: v for k, v in props.items() if v is not None}, "memorial": memo}
