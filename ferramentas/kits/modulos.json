@@ -927,12 +927,11 @@
    "nome": "Frota e combustível (GPS, abastecimentos e consumo)",
    "tipo": "modulo",
    "responsaveis": [
-    "Ryan",
-    "Arthur"
+    "Rafael"
    ],
    "metodologia": "frota",
    "doc17_secao": null,
-   "o_que_revisar": "Em desenvolvimento. Responsáveis PROVISÓRIOS (Ryan: fornecedores e equipamentos; Arthur: hardware e PDI), a direção confirma. Limites dos alertas (premissas frota.*), opções de rastreador, leitor OBD-II/CAN, fluxômetro e sensor de nível, colunas do CSV do cartão-combustível e textos da aba. Modelo ou faixa de aparelho sem folha de dados fica [CONFERIR].",
+   "o_que_revisar": "Em desenvolvimento. Responsável: Rafael (decisão de 18/11/2026), com Ryan nos fornecedores e Arthur e Eric Oliveira no teste de campo. Limites dos alertas (premissas frota.*), opções de rastreador, leitor OBD-II/CAN, fluxômetro e sensor de nível, colunas do CSV do cartão-combustível e textos da aba. Modelo ou faixa de aparelho sem folha de dados fica [CONFERIR].",
    "editaveis": [
     {
      "arquivo": "sistema/physis-metodologia.json",

@@ -38,7 +38,7 @@ RESPONSAVEIS = {
     "certificacoes": ["Erick Lopes", "Ryan", "Laura", "Rafaella"], "equipamentos": ["Ryan", "Erick Lopes"],
     "monitoramento": ["Arthur"], "saude": ["Rafael", "Emerson"], "scada": ["Erick Lopes", "Laura", "Rafaella"],
     "cursos": ["Laura", "Marzia", "Ryan", "Leonardo Macedo", "Rafaella"], "secador": ["Arthur", "Laura", "Rafaella"],
-    "frota": ["Ryan", "Arthur"],                            # provisório (18/11/2026): a direção confirma
+    "frota": ["Rafael"],                                    # decisão de 18/11/2026
     "servidor-verde": ["Eric Oliveira"],
     "acessibilidade": ["Rafaella", "Arthur", "Emerson", "Leonardo Macedo", "Laura", "Marzia"],
     "mapeamento": ["Rafaella", "Eric Oliveira", "Erick Lopes", "Arthur", "Rafael", "Emerson", "Ryan", "Laura", "Marzia",

@@ -9126,6 +9126,74 @@
      "tituloEn": "",
      "projeto_nome": "Fase 2 · 4. Revisão técnica dos módulos"
     }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-447506fc6167",
+    "titulo": "Revisar Frota e combustível: limites dos alertas (premissas frota.*), retenção de 365 dias e textos da aba",
+    "pessoa_id": "rafael",
+    "projeto_id": "imp-0072df0e",
+    "horizonte": "media",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 4. Revisão técnica dos módulos",
+     "modulo": "frota"
+    }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-18e75bbeb25a",
+    "titulo": "Escolher os equipamentos da frota: rastreador, leitor OBD-II/CAN, medidor de vazão, sensor de nível e colunas do cartão-combustível (com Ryan)",
+    "pessoa_id": "rafael",
+    "projeto_id": "imp-62017554",
+    "horizonte": "media",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 5. Hardware e firmware",
+     "modulo": "frota"
+    }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-eee70fc05965",
+    "titulo": "Definir bloco, frente e estimativa em R$ do P22 (frota) no PDI",
+    "pessoa_id": "rafael",
+    "projeto_id": "imp-a2030fcf",
+    "horizonte": "micro",
+    "peso": 2,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 7. Site, loja, marketing, gestão e editais",
+     "modulo": "frota"
+    }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-ab4daaea4bb2",
+    "titulo": "Teste de campo da frota em veículos reais com rastreador e sensores (com Eric Oliveira e Arthur)",
+    "pessoa_id": "rafael",
+    "projeto_id": "imp-f2fec5ae",
+    "horizonte": "longa",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 8. Instalação no cliente e teste em campo",
+     "modulo": "frota"
+    }
    }
   ]
  },

@@ -136,6 +136,15 @@ FASE0 = [
      "2026-12-20", "2027-01-31", ["d43-marcas"], 3, "m-inst-ict", "Fase 0 · operacional"),
     ("ap-apresentacoes", "transversal", "AP1–AP7 Apresentações de captação: indicadores, P&L por linha, cronograma, riscos, governança",
      "Rafaella + Marzia", "2026-12-20", "2027-01-31", ["d43-marcas", "f0-resp-contador"], 2, "m-casa-obra", "Marca e captação"),
+    # --- editais com prazo aberto (doc 30, pesquisa de 18/11/2026)
+    ("ed-bndes-garagem", "engineering", "Edital BNDES Garagem – Negócios de Impacto 2026/27 (faixa Tração; Cadimpacto obrigatório) — prazo 30/11",
+     "Rafaella + Marzia", "2026-11-19", "2026-11-30", [], 0, "m-eng-sistema", "Editais"),
+    ("ed-cnpq-inspiracao", "inovastem", "Edital CNPq/Petrobras 31/2026 InspirAÇÃO: articular IES parceira com a InovaSTEM — prazo 08/12",
+     "Rafaella + Marzia", "2026-11-19", "2026-12-08", [], 1, "m-inovastem-piloto", "Editais"),
+    ("ed-cnpq-maidai", "engineering", "Edital CNPq/CAPES 30/2026 MAI/DAI: universidade + Physis como empresa — prazo 11/12",
+     "Rafaella + Erick Lopes", "2026-11-19", "2026-12-11", [], 2, "m-eng-sistema", "Editais"),
+    ("ed-embrapii", "engineering", "EMBRAPII + Sebrae: escolher a Unidade (ex.: INT) e montar o plano de projeto do Physis M&V/SustainKit",
+     "Rafaella + Eric Oliveira", "2026-12-01", "2026-12-22", [], 2, "m-eng-sistema", "Editais"),
     # --- construção do M&V e dos bots (D51, D55)
     ("mv-nucleo", "transversal", "Physis M&V: núcleo, Gantt, Kanban, matriz, roadmap, saúde, bots de atraso e documentos (teste)",
      "Claude", "2026-11-18", "2026-11-22", [], 0, "m-transv-fase0", "Physis M&V"),
