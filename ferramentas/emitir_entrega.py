@@ -286,6 +286,10 @@ def main():
         destino = bk / f"{saida.name}_ENVIO_{commit}_{hoje}.zip"
         zipar(saida, destino, saida.name)
         print(f"cópia de envio: {destino}")
+        # sempre uma versão também na pasta Casa Physis, com o Physis M&V atualizado (decisão de 18/11/2026)
+        sys.path.insert(0, str(RAIZ / "ferramentas" / "documentos"))
+        import salvar_casa_physis  # noqa: E402
+        salvar_casa_physis.salvar([destino])
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

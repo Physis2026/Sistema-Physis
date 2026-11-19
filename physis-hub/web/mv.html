@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Physis M&amp;V · versão de teste</title>
+<style>
+:root{--fundo:#F4F6F1;--sup:#FFFFFF;--texto:#1C2B21;--texto2:#4A4F44;--logo:#4B7547;--acao:#33512F;--linha:#C9D2C4;
+--areia:#EFE8D6;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#1C3550;--inf:#DBE7F1;--ok:#1F4A1C;--okf:#DCEBD8;
+--barra:#7FA874;--crit:#A63A28;--risco:#C08A1E;--feita:#A8BFA0;--hoje:#3D6E8F}
+html[data-tema="escuro"]{--fundo:#1C2B21;--sup:#2A3829;--texto:#EEF2EA;--texto2:#C3D0BD;--logo:#8FB183;--acao:#A8BFA0;--linha:#4A5A47;
+--areia:#33372E;--at:#E5D5AE;--atf:#5C3F00;--al:#E3C4BD;--alf:#5C2B2E;--in:#B8D0E0;--inf:#2C5A6E;--ok:#DCEBD8;--okf:#3A4A38;
+--barra:#7FA874;--crit:#FF8A80;--risco:#C9A227;--feita:#5A6154;--hoje:#7FA9C4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--texto);font:15px/1.45 Inter,system-ui,"Segoe UI",sans-serif}
+h1{font:600 1.6rem/1.2 Fraunces,Georgia,serif;color:var(--acao);margin:0}
+h2{font:600 1.15rem Fraunces,Georgia,serif;margin:1.2rem 0 .5rem}
+header{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--linha);background:var(--sup)}
+.selo{display:inline-block;font-size:.75rem;padding:.15rem .5rem;border-radius:99px;background:var(--atf);color:var(--at);margin-left:.5rem;vertical-align:middle;font-family:Inter,system-ui,sans-serif}
+nav[role=tablist]{display:flex;flex-wrap:wrap;gap:.25rem;padding:.5rem 1.25rem;background:var(--sup);border-bottom:1px solid var(--linha)}
+button,select,input{font:inherit;color:inherit}
+.aba{min-height:44px;padding:.5rem .9rem;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer}
+.aba[aria-selected=true]{background:var(--acao);color:var(--fundo)}
+.btn{display:inline-flex;align-items:center;text-decoration:none;color:var(--texto);min-height:44px;padding:.45rem .9rem;border-radius:8px;border:1px solid var(--linha);background:var(--sup);cursor:pointer}
+.btn.prim{background:var(--acao);color:var(--fundo);border-color:var(--acao)}
+:focus-visible{outline:3px solid var(--hoje);outline-offset:2px}
+main{padding:1rem 1.25rem 3rem;max-width:1600px;margin:0 auto}
+.ferr{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.25rem 0 1rem}
+.ferr label{display:flex;gap:.4rem;align-items:center}
+select,input[type=text]{min-height:44px;padding:.35rem .5rem;border:1px solid var(--linha);border-radius:8px;background:var(--sup)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem}
+.card{background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:.9rem}
+.nota{font:600 2rem Fraunces,Georgia,serif}
+.pill{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.78rem;margin:.1rem .15rem 0 0}
+.g-alerta{background:var(--alf);color:var(--al)}.g-atencao{background:var(--atf);color:var(--at)}.g-info{background:var(--inf);color:var(--in)}.g-ok{background:var(--okf);color:var(--ok)}
+table{border-collapse:collapse;width:100%;background:var(--sup)}
+th,td{border-bottom:1px solid var(--linha);padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--sup);font-weight:600}
+.tabwrap{overflow:auto;max-height:70vh;border:1px solid var(--linha);border-radius:10px}
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:.6rem;overflow:auto}
+.col{background:var(--areia);border-radius:12px;padding:.5rem;min-height:200px}
+.col h3{margin:.2rem .2rem .5rem;font-size:.95rem}
+.tc{background:var(--sup);border:1px solid var(--linha);border-left:5px solid var(--barra);border-radius:8px;padding:.5rem;margin:.4rem 0;font-size:.88rem}
+.tc.crit{border-left-color:var(--crit)}.tc.atr{border-left-color:var(--al)}
+.tc select{min-height:36px;width:100%;margin-top:.35rem}
+.gantt{overflow:auto;border:1px solid var(--linha);border-radius:10px;background:var(--sup);max-height:75vh}
+.gantt svg text{fill:var(--texto);font:12px Inter,system-ui,sans-serif}
+.legenda span{margin-right:1rem;font-size:.85rem}
+.leg{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:.3rem;vertical-align:middle}
+.roadmap{display:grid;gap:.6rem}
+.ano{background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:.75rem}
+.barra{height:8px;background:var(--linha);border-radius:99px;overflow:hidden}.barra i{display:block;height:100%;background:var(--logo)}
+.muted{color:var(--texto2);font-size:.88rem}
+.aviso{background:var(--inf);color:var(--in);padding:.6rem .8rem;border-radius:10px;margin-bottom:1rem}
+[hidden]{display:none!important}
+@media (max-width:700px){.kanban{grid-template-columns:repeat(5,80vw)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Physis M&amp;V <span class="selo">versão de teste</span></h1>
+  <div class="ferr" style="margin:0">
+    <label>Frente <select id="frente"><option value="">Todas as frentes</option></select></label>
+    <label>Tema <select id="tema"><option value="auto">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
+    <button class="btn prim" id="rodar">Rodar bots agora</button>
+  </div>
+</header>
+<nav role="tablist" aria-label="Visões">
+  <button class="aba" role="tab" data-v="saude" aria-selected="true">Saúde</button>
+  <button class="aba" role="tab" data-v="gantt" aria-selected="false">Gantt e caminho crítico</button>
+  <button class="aba" role="tab" data-v="kanban" aria-selected="false">Kanban</button>
+  <button class="aba" role="tab" data-v="matriz" aria-selected="false">Matriz de pendências</button>
+  <button class="aba" role="tab" data-v="roadmap" aria-selected="false">Roadmap 2027–2031</button>
+  <button class="aba" role="tab" data-v="alertas" aria-selected="false">Alertas e intervenções</button>
+  <button class="aba" role="tab" data-v="documentos" aria-selected="false">Documentos</button>
+  <button class="aba" role="tab" data-v="financeiro" aria-selected="false">Financeiro</button>
+</nav>
+<main>
+  <p class="aviso" id="status" role="status">Carregando…</p>
+  <section id="v-saude" role="tabpanel"></section>
+  <section id="v-gantt" role="tabpanel" hidden>
+    <div class="ferr">
+      <label>Origem <select id="origem"><option value="semente">Plano Fase 0 + M&amp;V</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2 (577)</option><option value="">Todas</option></select></label>
+      <label><input type="checkbox" id="soCrit"> Só críticas, atrasadas ou em risco</label>
+      <label>Escala <select id="escala"><option value="6">Dia (6 px)</option><option value="14">Dia (14 px)</option><option value="2">Mês (2 px/dia)</option></select></label>
+      <span class="exp" data-vista="gantt"></span>
+    </div>
+    <p class="legenda"><span><i class="leg" style="background:var(--barra)"></i>Planejada</span><span><i class="leg" style="background:var(--crit)"></i>Caminho crítico</span><span><i class="leg" style="background:var(--risco)"></i>Prazo em risco</span><span><i class="leg" style="background:var(--al)"></i>Atrasada</span><span><i class="leg" style="background:var(--feita)"></i>Feita</span><span>◆ marco · linha azul = hoje · tracejado = data [CONFERIR]</span></p>
+    <div class="gantt" id="gantt"></div>
+  </section>
+  <section id="v-kanban" role="tabpanel" hidden>
+    <div class="ferr"><label>Origem <select id="origemK"><option value="semente">Plano Fase 0 + M&amp;V</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2</option><option value="">Todas</option></select></label>
+      <label>Buscar <input type="text" id="busca" placeholder="título ou pessoa"></label></div>
+    <div class="kanban" id="kanban"></div>
+  </section>
+  <section id="v-matriz" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="tarefas"></span></div><div class="tabwrap" id="matriz"></div></section>
+  <section id="v-roadmap" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="saude"></span></div><div id="roadmap" class="roadmap"></div></section>
+  <section id="v-alertas" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="alertas"></span></div><div class="tabwrap" id="alertas"></div></section>
+  <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div class="tabwrap" id="documentos"></div></section>
+  <section id="v-financeiro" role="tabpanel" hidden>
+    <p class="muted">Cada entidade é mostrada separada e nunca somada às outras. "A conferir" só vira "oficial" depois que o contador confere (D70).</p>
+    <div class="cards" id="financeiro"></div>
+    <h2>Novo lançamento</h2>
+    <form id="fLanc" class="ferr">
+      <label>Entidade <select name="entidade"><option value="casa">Casa Physis</option><option value="engineering">Physis Engineering</option><option value="instituto">Instituto Physis</option><option value="pessoa_fisica">Pessoa física (lote)</option></select></label>
+      <label>Tipo <select name="tipo"><option>receita</option><option>despesa</option><option>doacao</option><option>edital</option><option>rateio</option></select></label>
+      <label>Data <input type="text" name="data" placeholder="AAAA-MM-DD" required pattern="\d{4}-\d{2}-\d{2}"></label>
+      <label>Valor (R$) <input type="text" name="valor" required inputmode="decimal"></label>
+      <label>Descrição <input type="text" name="descricao"></label>
+      <label>Fonte <input type="text" name="fonte" placeholder="contrato, invoice, planilha…"></label>
+      <button class="btn prim">Lançar (a conferir)</button>
+    </form>
+  </section>
+</main>
+<script>
+"use strict";
+const $=s=>document.querySelector(s), H={"X-Physis-MV":"1","Content-Type":"application/json"};
+const FR={},EST={};let META=null,CACHE={};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const get=p=>fetch(p,{cache:"no-store"}).then(r=>r.json());
+const post=(p,b)=>fetch(p,{method:"POST",headers:H,body:JSON.stringify(b)}).then(r=>r.json());
+function status(t){$("#status").textContent=t;}
+function tema(v){try{localStorage.setItem("physis-pref-tema",v)}catch(e){}
+  const esc=v==="escuro"||(v==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.tema=esc?"escuro":"claro";}
+let t0="auto";try{t0=localStorage.getItem("physis-pref-tema")||"auto"}catch(e){} $("#tema").value=t0;tema(t0);
+$("#tema").onchange=e=>{tema(e.target.value);render(atual)};
+document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
+let atual="saude";
+document.querySelectorAll(".aba").forEach(b=>b.onclick=()=>abrir(b.dataset.v));
+document.querySelector("[role=tablist]").addEventListener("keydown",e=>{const a=[...document.querySelectorAll(".aba")],i=a.indexOf(document.activeElement);
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();const n=a[(i+(e.key==="ArrowRight"?1:-1)+a.length)%a.length];n.focus();abrir(n.dataset.v);}});
+function abrir(v){atual=v;document.querySelectorAll(".aba").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
+  document.querySelectorAll("[role=tabpanel]").forEach(s=>s.hidden=s.id!=="v-"+v);render(v);}
+const fr=()=>$("#frente").value;
+function origemDe(t){return t.origem==="semente"?"semente":(t.origem||"").startsWith("bot")?"bot":t.origem;}
+async function render(v){
+  try{
+  if(v==="saude"){const s=await get("/api/mv/saude");CACHE.saude=s;
+    const al=s.alertas_abertos||{},d=s.documentos||{};
+    let h=`<div class="cards">`;
+    for(const [id,f] of Object.entries(s.frentes)){if(fr()&&fr()!==id)continue;
+      const g=f.nota>=80?"ok":f.nota>=50?"atencao":"alerta";
+      h+=`<div class="card"><div class="muted">${esc(f.nome)}</div><div class="nota">${f.nota}</div><span class="pill g-${g}">nota de saúde</span>
+      <p class="muted">${f.feitas}/${f.total} feitas (${f.progresso_pct}%) · ${f.atrasadas} atrasadas · ${f.bloqueadas} bloqueadas · ${f.em_risco} em risco · ${f.datas_estimadas} datas [CONFERIR]</p></div>`;}
+    h+=`</div><h2>Alertas abertos</h2><p><span class="pill g-alerta">${al.alerta||0} pedem intervenção</span><span class="pill g-atencao">${al.atencao||0} atenção</span><span class="pill g-info">${al.info||0} informação</span></p>
+    <h2>Documentos</h2><p><span class="pill g-alerta">${d.falha||0} com falha</span><span class="pill g-atencao">${d.vencido||0} vencidos</span><span class="pill g-ok">${d.ok||0} em dia</span></p>
+    <h2>Últimas execuções dos bots</h2><table><thead><tr><th>Bot</th><th>Quando</th><th>Resumo</th></tr></thead><tbody>`+
+    Object.entries(s.ultima_execucao||{}).map(([b,x])=>`<tr><td>${esc(b)}</td><td>${esc(x.quando)}</td><td><code>${esc(x.erro||x.resumo)}</code></td></tr>`).join("")+`</tbody></table>
+    <p class="muted">Nota: começa em 100 e perde, pela fração das tarefas abertas, até 50 pontos por atraso, 30 por bloqueio e 20 por prazo em risco.</p>`;
+    $("#v-saude").innerHTML=h;}
+  if(v==="gantt"){const ts=await get("/api/mv/gantt"+(fr()?"?frente="+fr():""));const r=await get("/api/mv/roadmap");gantt(ts,r.marcos);}
+  if(v==="kanban"){CACHE.k=await get("/api/mv/kanban"+(fr()?"?frente="+fr():""));kanban();}
+  if(v==="matriz"){const m=await get("/api/mv/matriz");const fs=META.frentes.map(f=>f.id).filter(x=>!fr()||x===fr());
+    let h=`<table><caption class="muted">Abertas / atrasadas / bloqueadas por pessoa (primeiro responsável) e frente</caption><thead><tr><th>Pessoa</th>${fs.map(f=>`<th>${esc(FR[f])}</th>`).join("")}<th>Total</th></tr></thead><tbody>`;
+    const linhas=Object.entries(m).map(([p,c])=>[p,c,fs.reduce((a,f)=>a+((c[f]||{}).abertas||0),0)]).sort((a,b)=>b[2]-a[2]);
+    for(const [p,c,tot] of linhas){if(!tot)continue;h+=`<tr><th scope="row">${esc(p)}</th>`+fs.map(f=>{const x=c[f];if(!x)return"<td></td>";
+      return `<td>${x.abertas}${x.atrasadas?` <span class="pill g-alerta">${x.atrasadas} atras.</span>`:""}${x.bloqueadas?` <span class="pill g-atencao">${x.bloqueadas} bloq.</span>`:""}</td>`}).join("")+`<td>${tot}</td></tr>`;}
+    $("#matriz").innerHTML=h+"</tbody></table>";}
+  if(v==="roadmap"){const r=await get("/api/mv/roadmap");let h=`<p class="aviso">Horizonte oficial ${esc(r.horizonte)} (D40). ${r.tarefas_sem_meta} tarefa(s) aberta(s) ainda sem ligação com uma meta de 5 anos.</p>`;
+    for(const ano of [2026,2027,2028,2029,2030,2031]){const ms=r.metas.filter(m=>m.ano===ano&&(!fr()||m.frente===fr())),ks=r.marcos.filter(k=>+k.data.slice(0,4)===ano&&(!fr()||k.frente===fr()));
+      if(!ms.length&&!ks.length)continue;
+      h+=`<div class="ano"><h2>${ano}</h2>`+ks.map(k=>`<p>◆ <strong>${esc(k.data.split("-").reverse().join("/"))}</strong> · ${esc(k.titulo)} <span class="pill g-info">${esc(FR[k.frente])}</span></p>`).join("")+
+      ms.map(m=>{const p=m.tarefas?Math.round(100*m.feitas/m.tarefas):0;return `<div class="card" style="margin:.4rem 0"><strong>${esc(m.titulo)}</strong> <span class="pill g-info">${esc(FR[m.frente])}</span>
+      <p class="muted">Indicador: ${esc(m.indicador)} · Alvo: ${esc(m.alvo)} · Fonte: ${esc(m.fonte)}</p><div class="barra" role="img" aria-label="${p}% das tarefas ligadas feitas"><i style="width:${p}%"></i></div><p class="muted">${m.feitas}/${m.tarefas} tarefas ligadas feitas</p></div>`}).join("")+`</div>`;}
+    $("#roadmap").innerHTML=h;}
+  if(v==="alertas"){const a=(await get("/api/mv/alertas")).filter(x=>!fr()||x.frente===fr());
+    $("#alertas").innerHTML=`<table><thead><tr><th>Gravidade</th><th>Alerta</th><th>Intervenção sugerida</th><th>Bot</th><th></th></tr></thead><tbody>`+
+    a.map(x=>`<tr><td><span class="pill g-${x.gravidade}">${{alerta:"intervir",atencao:"atenção",info:"info"}[x.gravidade]}</span></td><td>${esc(x.texto)}</td><td>${esc(x.acao)}</td><td>${esc(x.bot)}</td>
+    <td><button class="btn" data-res="${esc(x.id)}">Marcar como resolvido</button></td></tr>`).join("")+`</tbody></table>`;
+    $("#alertas").querySelectorAll("[data-res]").forEach(b=>b.onclick=async()=>{await post("/api/mv/alerta/resolver",{id:b.dataset.res});render("alertas")});}
+  if(v==="documentos"){const ds=(await get("/api/mv/documentos")).filter(x=>!fr()||x.frente===fr());
+    $("#documentos").innerHTML=`<table><thead><tr><th>Situação</th><th>Documento</th><th>Tipo</th><th>Idade</th><th>Marcadores</th><th>Falhas</th></tr></thead><tbody>`+
+    ds.map(d=>`<tr><td><span class="pill g-${d.situacao==="falha"?"alerta":d.situacao==="vencido"?"atencao":"ok"}">${esc(d.situacao)}</span></td><td>${esc(d.caminho)}</td><td>${esc(d.tipo)}</td>
+    <td>${d.idade_d} d (validade ${d.validade_d})</td><td>${d.marcadores}</td><td>${d.falhas.map(f=>esc(f.texto+" ("+f.decisao+")")).join("<br>")}</td></tr>`).join("")+`</tbody></table>`;}
+  if(v==="financeiro"){const s=CACHE.saude||await get("/api/mv/saude");const nomes={casa:"Casa Physis",engineering:"Physis Engineering",instituto:"Instituto Physis",pessoa_fisica:"Pessoa física (lote)"};
+    $("#financeiro").innerHTML=Object.entries(s.financeiro).map(([e,d])=>`<div class="card"><strong>${nomes[e]}</strong><p class="muted">${d.lancamentos} lançamento(s)</p>
+    ${["oficial","a_conferir"].map(k=>`<p><span class="pill ${k==="oficial"?"g-ok":"g-atencao"}">${k==="oficial"?"oficial":"a conferir"}</span> ${Object.entries(d[k]).map(([t,vl])=>`${esc(t)}: R$ ${vl.toLocaleString("pt-BR",{minimumFractionDigits:2})}`).join(" · ")||"—"}</p>`).join("")}</div>`).join("");}
+  status("Atualizado em "+new Date().toLocaleString("pt-BR")+". Datas marcadas [CONFERIR] são estimativas até o responsável confirmar.");
+  }catch(e){status("Não consegui ler o servidor do M&V: "+e);}
+}
+function kanban(){const o=$("#origemK").value,b=$("#busca").value.toLowerCase();
+  $("#kanban").innerHTML=META.estados.map(e=>{const ts=CACHE.k[e.id].filter(t=>(!o||origemDe(t)===o)&&(!b||(t.titulo+" "+t.responsavel).toLowerCase().includes(b)));
+    return `<div class="col"><h3>${esc(e.nome)} (${ts.length})</h3>`+ts.slice(0,150).map(t=>`<div class="tc${t.atrasada?" atr":""}"><strong>${esc(t.titulo)}</strong>
+    <div class="muted">${esc(FR[t.frente])} · ${esc(t.responsavel||"sem responsável")} · prazo ${esc(t.fim||"—")}${t.data_estimada?" [CONFERIR]":""}</div>
+    ${t.atrasada?'<span class="pill g-alerta">atrasada</span>':""}${t.bloqueio?`<div class="muted">Bloqueio: ${esc(t.bloqueio)}</div>`:""}
+    <label class="muted">Estado <select data-id="${esc(t.id)}">${META.estados.map(x=>`<option value="${x.id}"${x.id===t.estado?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></label></div>`).join("")+(ts.length>150?`<p class="muted">+${ts.length-150} (use a busca)</p>`:"")+`</div>`}).join("");
+  $("#kanban").querySelectorAll("select[data-id]").forEach(s=>s.onchange=async()=>{let bl="";if(s.value==="bloqueada"){bl=prompt("O que bloqueia e de quem depende?")||"";}
+    const r=await post("/api/mv/estado",{id:s.dataset.id,estado:s.value,bloqueio:bl});if(r.erro)alert(r.erro);render("kanban");});}
+$("#origemK").onchange=kanban;$("#busca").oninput=kanban;
+function gantt(ts,marcos){const o=$("#origem").value,sc=+$("#escala").value,so=$("#soCrit").checked;
+  ts=ts.filter(t=>(!o||origemDe(t)===o)&&(!so||t.critico||t.atrasada||t.prazo_em_risco)&&t.plan_inicio);
+  if(!ts.length){$("#gantt").innerHTML='<p style="padding:1rem">Nada para mostrar com esses filtros.</p>';return;}
+  const d=s=>new Date(s+"T12:00:00"),dia=864e5,hoje=new Date();
+  let ini=new Date(Math.min(...ts.map(t=>d(t.plan_inicio)),hoje)),fim=new Date(Math.max(...ts.map(t=>Math.max(d(t.plan_fim),t.fim?d(t.fim):0))));
+  ini=new Date(ini-3*dia);fim=new Date(+fim+10*dia);
+  const LW=360,RH=26,top=40,W=LW+Math.ceil((fim-ini)/dia)*sc,Ht=top+ts.length*RH+10,x=t=>LW+Math.round((d(t)-ini)/dia)*sc;
+  const cs=getComputedStyle(document.documentElement),c=n=>cs.getPropertyValue(n).trim();
+  let s=`<svg width="${W}" height="${Ht}" role="img" aria-label="Gantt com ${ts.length} tarefas"><title>Cronograma</title>`;
+  for(let m=new Date(ini.getFullYear(),ini.getMonth(),1);m<fim;m=new Date(m.getFullYear(),m.getMonth()+1,1)){const xm=LW+Math.round((m-ini)/dia)*sc;
+    if(xm>=LW)s+=`<line x1="${xm}" y1="0" x2="${xm}" y2="${Ht}" stroke="${c("--linha")}"/><text x="${xm+4}" y="14">${m.toLocaleDateString("pt-BR",{month:"short",year:"2-digit"})}</text>`;}
+  for(const k of marcos||[]){if(d(k.data)<ini||d(k.data)>fim)continue;const xk=x(k.data);s+=`<text x="${xk-5}" y="32" fill="${c("--acao")}">◆</text><title>${esc(k.titulo)}</title>`;}
+  const xh=LW+Math.round((hoje-ini)/dia)*sc;s+=`<line x1="${xh}" y1="18" x2="${xh}" y2="${Ht}" stroke="${c("--hoje")}" stroke-width="2"/>`;
+  const pos={};ts.forEach((t,i)=>pos[t.id]=i);
+  ts.forEach((t,i)=>{const y=top+i*RH,x1=x(t.plan_inicio),x2=x(t.plan_fim)+sc;
+    const cor=t.estado==="feita"?c("--feita"):t.atrasada?c("--al"):t.critico?c("--crit"):t.prazo_em_risco?c("--risco"):c("--barra");
+    s+=`<g><title>${esc(t.titulo)} — ${esc(t.responsavel)} — ${t.plan_inicio} a ${t.plan_fim}${t.fim?" (prazo "+t.fim+")":""} — folga ${t.folga} d${t.data_estimada?" — data [CONFERIR]":""}</title>
+    <text x="6" y="${y+16}">${esc((t.titulo.length>52?t.titulo.slice(0,51)+"…":t.titulo))}</text>
+    <rect x="${x1}" y="${y+5}" width="${Math.max(sc,x2-x1)}" height="${RH-10}" rx="4" fill="${cor}" ${t.data_estimada?`stroke="${c("--texto2")}" stroke-dasharray="3 2"`:""}/>`;
+    if(t.fim&&t.prazo_em_risco){const xf=x(t.fim)+sc;s+=`<line x1="${xf}" y1="${y+2}" x2="${xf}" y2="${y+RH-2}" stroke="${c("--al")}" stroke-width="2"/>`;}
+    s+=`</g>`;
+    for(const dp of t.depende_de){if(pos[dp]==null)continue;const p=ts[pos[dp]],xa=x(p.plan_fim)+sc,ya=top+pos[dp]*RH+RH/2;
+      s+=`<path d="M${xa} ${ya} H${xa+6} V${y+RH/2} H${x1}" fill="none" stroke="${c("--texto2")}" stroke-width="1"/>`;}});
+  $("#gantt").innerHTML=s+"</svg>";}
+["#origem","#escala","#soCrit"].forEach(i=>$(i).onchange=()=>render("gantt"));
+$("#frente").onchange=()=>render(atual);
+$("#rodar").onclick=async()=>{status("Rodando bots (documentos, atrasos, resumo)…");$("#rodar").disabled=true;
+  const r=await post("/api/mv/bots/rodar",{});$("#rodar").disabled=false;status("Bots rodaram: "+JSON.stringify(r).slice(0,300));render(atual);};
+$("#fLanc").onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));f.valor=parseFloat(String(f.valor).replace(/\./g,"").replace(",","."));
+  const r=await post("/api/mv/lanc",f);if(r.erro)alert(r.erro);else{e.target.reset();CACHE.saude=null;render("financeiro");}};
+get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#frente").insertAdjacentHTML("beforeend",`<option value="${f.id}">${esc(f.nome)}</option>`)});m.estados.forEach(e=>EST[e.id]=e.nome);render("saude");});
+</script>
+</body>
+</html>

@@ -24,3 +24,7 @@ with zipfile.ZipFile(arq, "w", zipfile.ZIP_DEFLATED) as z:
     a = juntar(z, RAIZ, "codigo")
     b = juntar(z, DOCS, "documentos")
 print(arq, a, "arquivos de código,", b, "documentos,", round(arq.stat().st_size / 2**20, 1), "MB")
+# sempre uma versão também na pasta Casa Physis, com o Physis M&V atualizado (decisão de 18/11/2026)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import salvar_casa_physis  # noqa: E402
+salvar_casa_physis.salvar([arq])
