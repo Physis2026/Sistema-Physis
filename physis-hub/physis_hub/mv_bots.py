@@ -31,7 +31,7 @@ IGNORAR = re.compile(r"(\\|/)(sistema_physis_fase1|_backup[^\\/]*|_versoes_teste
                      r"Projetos em desenvolvimento|sistema_physis_ep_final|06_Kits_revisao|28_Physis_MV)(\\|/)", re.I)
 EXTS = {".docx", ".pptx", ".xlsx", ".odt", ".odp", ".ods", ".md", ".txt", ".pdf"}
 # arquivos que CITAM as regras (decisões, revisões): não são conferidos por elas
-SEM_REGRAS = re.compile(r"^(27_Decisoes|04_Respostas|Revis[aã]o_Estrutural)", re.I)
+SEM_REGRAS = re.compile(r"^(27_Decisoes|04_Respostas|Revis[aã]o_Estrutural|Trechos_retirados)", re.I)   # Trechos_retirados: registro do texto antigo
 
 # validade por tipo (dias); premissas da versão de teste, a ajustar pela dona
 VALIDADE = {"apresentacao": 90, "contrato": 365, "planilha": 180, "memo": 30, "plano": 180, "documento": 180}
@@ -44,6 +44,14 @@ REGRAS = [
      "ICT descrita na América Latina sem 'sede e foro no Brasil'", "D42", "alerta"),
     ("ongs", re.compile(r"duas ONGs", re.I), None, "'Duas ONGs': a S2 Services SARL é empresa, não ONG", "D66", "alerta"),
     ("bonus", re.compile(r"b[oô]nus[^.\n]{0,80}vendas", re.I), None, "Bônus de bolsista sobre vendas (suspenso até o parecer)", "D34", "alerta"),
+    # Divergências mapeadas em 18/11/2026 na leitura da pasta Casa Physis (sessão do Instituto Physis)
+    ("pdi28", re.compile(r"\b28\s+(projetos|projects|fichas)\b", re.I), re.compile(r"vers[aã]o de 28 projetos|28-project version", re.I),
+     "PDI com 28 projetos: o atual tem 22 (P1–P22, atualização de 18/11/2026)", "PDI P1–P22", "atencao"),
+    ("p18", re.compile(r"P18\b[^\n]{0,30}Maker e e-?waste", re.I), None,
+     "P18 se chama Economia circular (maker, filamento, reúso e e-waste são rotas dele)", "PDI P1–P22", "atencao"),
+    ("gsa_cessao", re.compile(r"(technical secretariat|secretaria t[ée]cnica)[^.\n]{0,60}Physis Engineering", re.I),
+     re.compile(r"cess[aã]o de posi[cç][aã]o|assignment|assign(?:ed)? to (?:the )?(?:Physis )?Institut", re.I),
+     "Global South Alliance: a Physis assina agora e o Instituto assume depois; prever a cláusula de cessão", "D67", "atencao"),
 ]
 MARCADORES = re.compile(r"\[(MARCADOR|A PREENCHER|CONFERIR)\]|\ba definir\b", re.I)
 
@@ -225,12 +233,37 @@ def bot_documentos(mv: MV, raizes: list[Path] | None = None, hoje: date | None =
 
 
 # ------------------------------------------------------------------------------------------------ bot de atrasos
+# Marcos que fecham uma fase: toda tarefa aberta cujo projeto começa com o nome da fase precisa terminar até o marco.
+# Pedido de 18/11/2026: o CNPJ do Instituto (J2, fev/2027) e as cessões (J5/J6, mar/2027) passam do marco "Fase 0 fechada"
+# (31/01/2027, mantido pela dona), e o M&V só comparava cada tarefa com o próprio prazo. Tarefa com o campo "marco"
+# preenchido também é conferida contra esse marco.
+MARCOS_DE_FASE = {"k-fase0": "Fase 0"}
+
+
+def marcos_estourados_por(t: dict, k: dict, marcos: dict) -> list[tuple[str, str, str, str]]:
+    """[(id do marco, título, data do marco, fim planejado)] dos marcos abertos que a tarefa ultrapassa.
+    Fim planejado = o mais tarde entre o prazo informado e o fim calculado pelo CPM (dependências)."""
+    if t["estado"] == "feita":
+        return []
+    fins = [x for x in (mvmod._d(k.get("ef")), mvmod._d(t["fim"])) if x]
+    if not fins:
+        return []
+    fim_plan, out = max(fins), []
+    for mid, m in marcos.items():
+        liga = t.get("marco") == mid or (mid in MARCOS_DE_FASE and (t.get("projeto") or "").startswith(MARCOS_DE_FASE[mid]))
+        data = mvmod._d(m["data"])
+        if liga and data and fim_plan > data:
+            out.append((mid, m["titulo"], data.isoformat(), fim_plan.isoformat()))
+    return out
+
+
 def bot_atrasos(mv: MV, hoje: date | None = None) -> dict:
     inicio = mv.nova_rodada()
     hoje = hoje or HOJE()
     cpm = mv.cpm()
     crit = set(cpm["criticos"])
     ts = {t["id"]: t for t in mv.tarefas()}
+    marcos = {r["id"]: dict(r) for r in mv.db.execute("SELECT * FROM mv_marco WHERE feito=0")}
     n = {"atrasadas": 0, "bloqueadas": 0, "dependencias": 0, "sem_responsavel": 0, "estimadas_criticas": 0}
     for c in cpm["ciclos"]:
         mv.alertar("atrasos", "ciclo", c, "alerta", f"Ciclo de dependências: {c}", "Remover uma das dependências")
@@ -270,6 +303,12 @@ def bot_atrasos(mv: MV, hoje: date | None = None) -> dict:
             mv.alertar("atrasos", "prazo_em_risco", tid, "alerta" if t["prioridade"] <= 1 else "atencao",
                        f"Prazo em risco ({k['estouro_d']} d além de {t['fim']}): {t['titulo']} — as dependências terminam depois",
                        "Antecipar a dependência, rodar em paralelo ou renegociar o prazo", t["frente"])
+        for mid, mtit, mdata, fim_plan in marcos_estourados_por(t, k, marcos):
+            n["marco_estourado"] = n.get("marco_estourado", 0) + 1
+            dias = (date.fromisoformat(fim_plan) - date.fromisoformat(mdata)).days
+            mv.alertar("atrasos", "marco_estourado", f"{mid}:{tid}", "alerta" if t["prioridade"] <= 1 else "atencao",
+                       f"Passa do marco '{mtit}' ({mdata}): {t['titulo']} termina em {fim_plan} (+{dias} d)",
+                       "Antecipar a tarefa, tirar dela o que não é desta fase, ou a direção registrar a exceção ao marco", t["frente"])
         if not t["responsavel"].strip():
             n["sem_responsavel"] += 1
             mv.alertar("atrasos", "sem_responsavel", tid, "info", f"Sem responsável: {t['titulo']}", "Atribuir", t["frente"])

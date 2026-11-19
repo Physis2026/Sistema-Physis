@@ -46,10 +46,18 @@ corrompe SQLite. Os resumos diários vão para `Sistema Physis\28_Physis_MV\resu
   - prazo em risco;
   - ciclo de dependências;
   - tarefa sem responsável;
-  - data estimada no caminho crítico.
+  - data estimada no caminho crítico;
+  - **tarefa que passa do marco da fase** (18/11/2026): toda tarefa aberta cujo projeto começa com "Fase 0" precisa
+    terminar até o marco "Fase 0 fechada" (`MARCOS_DE_FASE` em `mv_bots.py`), e toda tarefa com o campo `marco`
+    preenchido, até aquele marco. Vale o mais tarde entre o prazo informado e o fim calculado pelas dependências. Pega o
+    caso em que a tarefa está dentro do próprio prazo, mas o prazo dela já passa do marco (ex.: CNPJ do Instituto em
+    fev/2027 com a Fase 0 fechando em 31/01/2027).
 - **documentos** (de hora em hora): varre `Casa Physis`, `Sistema Physis` e `Instituto Physis` (sem as pastas de código, backup e kits) e confere:
   - **idade × validade** por tipo: apresentação 90 dias, contrato 365, planilha 180, memo 30, plano 180, documento 180. A idade vem da data gravada dentro do arquivo, então uma cópia recente de conteúdo antigo continua velha;
   - **regras das decisões**: horizonte 2031 (D40), sede no Brasil (D42), grafia Rafaella (D61), S2 Services é SARL (D66), bônus sobre vendas (D34);
+    desde 18/11/2026 também: PDI com "28 projetos" (o atual tem 22, P1–P22), P18 ainda chamado "Maker e e-waste" (agora
+    Economia circular) e a secretaria da Global South Alliance na Physis Engineering sem a cláusula de cessão ao Instituto (D67).
+    Arquivos que só registram texto antigo (`Trechos_retirados…`) ficam fora das regras;
   - **marcadores** ([MARCADOR], [A PREENCHER], [CONFERIR], "a definir");
   - **falha de template**: autor e data falsos deixados pelo gerador (python-docx ou python-pptx, "Steve Canny", 2013).
   Cada documento com falha vira alerta e uma tarefa "Corrigir…".

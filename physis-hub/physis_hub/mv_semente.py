@@ -71,8 +71,9 @@ FASE0 = [
     # --- jurídico
     ("j1-estatuto", "instituto", "J1 Estatuto do Instituto Physis (PDI/ICT, assistência social e saúde, NIT, vedação de distribuição, dissolução)",
      "Advogado [MARCADOR]", "2026-11-30", "2026-12-14", ["f0-advogado"], 0, "m-inst-ict", "Fase 0 · jurídico"),
-    ("j2-ata-cnpj", "instituto", "J2 Ata de constituição, registro em cartório e CNPJ do Instituto", "Rafaella + cartório", "2026-12-15",
-     "2027-01-08", ["j1-estatuto"], 0, "m-inst-ict", "Fase 0 · jurídico"),
+    # J2 pelo kit de abertura 17 (decisão de 18/11/2026): assembleia em jan/2027, registro e CNPJ em fev/2027; a D60 (31/01) fica em risco
+    ("j2-ata-cnpj", "instituto", "J2 Ata de constituição, registro em cartório e CNPJ do Instituto (kit 17: assembleia jan, CNPJ fev/2027)",
+     "Rafaella + cartório", "2027-01-11", "2027-02-26", ["j1-estatuto"], 0, "m-inst-ict", "Fase 0 · jurídico"),
     ("f0-cnpj-casa", "casa", "Abrir CNPJ Casa Physis (D60): sócios (D33), CNAEs, regime", "Contador [MARCADOR]", "2026-12-11", "2027-01-15",
      ["f0-resp-contador"], 0, "m-casa-operacao", "Fase 0 · contábil"),
     ("j3-politica-inovacao", "instituto", "J3 Política de inovação (Decreto 9.283/2018)", "Advogado + Rafaella", "2026-12-15", "2027-01-10",
@@ -82,10 +83,10 @@ FASE0 = [
     ("j8-conselho", "instituto", "J8 Conselho fiscal e política de conflito de interesse (D63: impedimento de voto da dona)",
      "Advogado", "2026-12-15", "2027-01-08", ["j1-estatuto"], 1, "m-inst-ict", "Fase 0 · jurídico"),
     ("j5-cessao", "transversal", "J5 Cessões do lote: Zona 1 → Physis Eng., Zona 2 → Instituto, Zona 3 + restaurante → Casa (D32/D32b) + laudo",
-     "Advogado + avaliador", "2027-01-16", "2027-01-29", ["f0-lote-escritura", "j2-ata-cnpj", "f0-cnpj-casa"], 0, "m-casa-obra",
-     "Fase 0 · jurídico"),
+     "Advogado + avaliador", "2027-03-01", "2027-03-12", ["f0-lote-escritura", "j2-ata-cnpj", "f0-cnpj-casa"], 0, "m-casa-obra",
+     "Fase 0 · jurídico"),   # depois do CNPJ do Instituto (J2, fev/2027): a cessão da Zona 2 precisa do CNPJ
     ("j6-rateio", "transversal", "J6 Rateio de custos (PF, Physis, Instituto, Casa) com critério objetivo", "Advogado + contador",
-     "2027-01-30", "2027-01-31", ["j5-cessao"], 1, "m-transv-fase0", "Fase 0 · jurídico"),
+     "2027-03-15", "2027-03-16", ["j5-cessao"], 1, "m-transv-fase0", "Fase 0 · jurídico"),
     ("j7-licenca-pi", "instituto", "J7 Licenciamento/transferência de tecnologia Instituto ↔ Physis/Casa (royalties, Physis 3D)",
      "Advogado", "2027-01-11", "2027-01-29", ["j4-nit", "f0-d37-cenarios"], 1, "m-inst-ict", "Fase 0 · jurídico"),
     # --- contábil

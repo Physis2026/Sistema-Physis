@@ -161,6 +161,37 @@ class TestBots(unittest.TestCase):
                                       "Distrito de inovação da América Latina.")
         self.assertEqual(f, [])
 
+    def test_regras_de_18_11_pdi_p18_e_gsa(self):
+        f, _ = mv_bots.conferir_texto("Fichas técnicas dos 28 projetos. **P18 · Maker e e-waste** (dentro da Economia circular). "
+                                      "Technical secretariat — Physis Engineering, during the first cycle.")
+        self.assertEqual({x["regra"] for x in f}, {"pdi28", "p18", "gsa_cessao"})
+        f, _ = mv_bots.conferir_texto("PDI P1 a P22. Mudanças em relação à versão de 28 projetos: antigos P17, P18 e P19 → P16. "
+                                      "P18 · Economia circular. Technical secretariat — Physis Engineering, with assignment to the "
+                                      "Physis Institute once its CNPJ is issued.")
+        self.assertEqual(f, [])
+
+    def test_marco_de_fase_estourado(self):
+        """Tarefa da Fase 0 que termina depois do marco 'Fase 0 fechada' vira alerta, mesmo dentro do próprio prazo."""
+        mv = novo()
+        mv.db.execute("INSERT INTO mv_marco (id,frente,data,titulo,meta,fase) VALUES (?,?,?,?,?,?)",
+                      ("k-fase0", "transversal", "2027-01-31", "Fase 0 fechada", None, "Fase 0"))
+        mv.db.execute("INSERT INTO mv_marco (id,frente,data,titulo,meta,fase) VALUES (?,?,?,?,?,?)",
+                      ("k-outro", "transversal", "2026-12-01", "Marco ligado à mão", None, "Fase 2"))
+        mv.db.commit()
+        t(mv, "cnpj", "2027-01-11", "2027-02-26", projeto="Fase 0 · jurídico", prioridade=0)
+        t(mv, "cedo", "2026-12-01", "2027-01-15", projeto="Fase 0 · contábil")
+        t(mv, "outra", "2027-01-11", "2027-03-30", projeto="Fase 2 · servidor")        # outra fase: não conta
+        t(mv, "ligada", "2026-11-20", "2026-12-10", projeto="Qualquer", marco="k-outro")
+        r = mv_bots.bot_atrasos(mv, HOJE)
+        al = {x["ref"]: x for x in mv.alertas() if x["tipo"] == "marco_estourado"}
+        self.assertEqual(set(al), {"k-fase0:cnpj", "k-outro:ligada"})
+        self.assertEqual(r["marco_estourado"], 2)
+        self.assertEqual(al["k-fase0:cnpj"]["gravidade"], "alerta")
+        self.assertIn("+26 d", al["k-fase0:cnpj"]["texto"])
+        mv.mudar_estado("cnpj", "feita")                                             # feita: o alerta fecha sozinho
+        mv_bots.bot_atrasos(mv, HOJE)
+        self.assertEqual({x["ref"] for x in mv.alertas() if x["tipo"] == "marco_estourado"}, {"k-outro:ligada"})
+
     def test_bot_documentos_varre_e_cria_tarefa(self):
         mv = novo()
         with tempfile.TemporaryDirectory() as tmp:
