@@ -106,8 +106,11 @@ class MV:
         self._marca = 0.0
 
     def nova_rodada(self) -> float:
-        """Marca de tempo estritamente crescente por rodada de bot (o relógio do Windows tem ~15 ms de resolução)."""
-        self._marca = max(time.time(), self._marca + 0.001)
+        """Marca de tempo estritamente crescente por rodada de bot (o relógio do Windows tem ~15 ms de resolução).
+        Também fica depois do último 'visto' gravado: sem isso, duas rodadas no mesmo tique do relógio deixavam o alerta
+        da rodada anterior com visto == início da nova, e um problema já resolvido não fechava (18/11/2026)."""
+        ult = self.db.execute("SELECT MAX(visto) FROM mv_alerta").fetchone()[0] or 0.0
+        self._marca = max(time.time(), self._marca + 0.001, float(ult) + 0.001)
         return self._marca
 
     # ------------------------------------------------------------------ tarefas
