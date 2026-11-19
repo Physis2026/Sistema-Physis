@@ -78,6 +78,7 @@ from . import evidencias as evidencias_mod
 from . import municipio as municipio_mod
 from . import parceiros as parceiros_mod
 from . import frota as frota_mod
+from . import validacao as validacao_mod
 from . import intercambio as intercambio_mod
 from . import mapeamento as mapeamento_mod
 from . import simulacao as simulacao_mod
@@ -549,6 +550,8 @@ for _k, _v in fornecedores_mod.ESQUEMAS.items():          # fornecedores e equip
     seg.ESQUEMAS.setdefault(_k, _v)
 for _k, _v in frota_mod.ESQUEMAS.items():                 # frota e combustível (docs/FROTA.md, em desenvolvimento)
     seg.ESQUEMAS.setdefault(_k, _v)
+for _k, _v in validacao_mod.ESQUEMAS.items():             # validação planejado × gerado (docs/VALIDACAO_MV.md, em desenvolvimento)
+    seg.ESQUEMAS.setdefault(_k, _v)
 
 
 def esquema_documento(caminho: str) -> str | None:
@@ -815,6 +818,8 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
     frota = frota_mod.Frota(hub, pasta=frota_mod.pasta_padrao(banco_da_instancia(instancia)))
     modulos_vivos["frota"] = frota
     hub.frota_receptor = frota.receber_v6
+    # Validação · planejado × gerado (docs/VALIDACAO_MV.md): lê o medido do hub e a frota; planos na tabela validacao_plano
+    modulos_vivos["validacao"] = validacao_mod.Validacao(hub, frota=frota)
     cfg_pegada = pegada_mod.config_de(instancia)          # None = desligada (PHYSIS_PEGADA=0)
     # ── Segurança (seguranca.py; docs/SEGURANCA.md) ──
     proxies = seg.proxies_confiaveis()                  # PHYSIS_PROXY_CONFIAVEL: só deles vale X-Forwarded-*
@@ -1092,6 +1097,17 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
             if p.startswith("/api/intercambio/"):
                 self._intercambio("GET", u, b"", q)
                 return True
+            # Validação · planejado × gerado (validacao.py; docs/VALIDACAO_MV.md): cliente vê
+            if p.startswith("/api/validacao/"):
+                qv = self._exigir(seg.CLIENTE)
+                if qv:
+                    cod, r = modulo("validacao").rota("GET", p, qv, None, q)
+                    if isinstance(r, tuple):                       # ("bytes", nome, tipo, dados): pacote de auditoria
+                        self._enviar_bytes(r[3], r[2], {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(r[1]),
+                                                        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+                    else:
+                        self._json(cod, r)
+                return True
             # Frota e combustível (frota.py; docs/FROTA.md): cliente vê; comprovante e exportação só a equipe
             if p.startswith("/api/frota/"):
                 qv = self._exigir(seg.CLIENTE)
@@ -1238,6 +1254,17 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                         self._recusar_corpo("pacote grande demais (máximo 4 MB)")
                         return True
                 self._intercambio("POST", u, corpo, parse_qs(u.query))
+                return True
+            # Validação: só a equipe grava o planejado (com a fonte)
+            if p.startswith("/api/validacao/"):
+                qv = self._exigir(seg.EQUIPE)
+                if not qv:
+                    return True
+                corpo = self._corpo_grande(64 * 1024)
+                if corpo is None:
+                    self._recusar_corpo("corpo grande demais (máximo 64 kB)")
+                    return True
+                self._json(*modulo("validacao").rota("POST", p, qv, corpo, parse_qs(u.query)))
                 return True
             # Frota: só a equipe grava (CSV até 4 MB, comprovante até 10 MB); apagar veículo e retenção só a direção
             if p.startswith("/api/frota/"):

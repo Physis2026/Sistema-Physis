@@ -1522,6 +1522,473 @@
       "fonte": "LGPD (Lei 13.709/2018, art. 15 e 16: término do tratamento quando a finalidade acaba); prazo proposto pela Physis, a direção confirma. [CONFERIR]",
       "status": "conferir",
       "nota": "Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento). A direção muda na aba (POST /api/frota/config)."
+    },
+    {
+      "id": "validacao.desvio_limite_pct",
+      "grandeza": "Desvio entre planejado e medido que conta como fora do plano",
+      "valor_padrao": 10.0,
+      "unidade": "% do planejado no mês",
+      "opcoes": [
+        {
+          "rotulo": "Rigoroso",
+          "valor": 5.0,
+          "quando": "medição com medidor de faturamento e plano bem calibrado"
+        },
+        {
+          "rotulo": "Padrão",
+          "valor": 10.0,
+          "quando": "proposta inicial da Physis"
+        },
+        {
+          "rotulo": "Folgado",
+          "valor": 15.0,
+          "quando": "primeiro ano de operação ou plano feito por estimativa"
+        }
+      ],
+      "fonte": "proposta da Physis (o mesmo limite vale para todo módulo). [CONFERIR] com 12 meses de dados da Casa Physis.",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). É o limite do QUANDO e do POR QUÊ."
+    },
+    {
+      "id": "validacao.cobertura_min_pct",
+      "grandeza": "Dias com leitura no mês abaixo dos quais o mês conta como falha de dado",
+      "valor_padrao": 90.0,
+      "unidade": "% dos dias do mês",
+      "opcoes": [],
+      "fonte": "proposta da Physis (abaixo disso o total do mês fica baixo por falta de leitura, não por geração ou consumo). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'equipamento desligado ou falha de dado'."
+    },
+    {
+      "id": "validacao.clima_min_pct",
+      "grandeza": "Diferença mínima do clima medido para o esperado para o clima explicar o desvio",
+      "valor_padrao": 10.0,
+      "unidade": "% do esperado (irradiação, chuva ou graus-dia)",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR] com a estação meteorológica da Resiliência.",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'clima diferente do esperado'."
+    },
+    {
+      "id": "validacao.premissa_meses_min",
+      "grandeza": "Meses seguidos com desvio no mesmo sentido para apontar premissa divergente",
+      "valor_padrao": 3,
+      "unidade": "meses",
+      "opcoes": [],
+      "fonte": "proposta da Physis (um trimestre tira o efeito de um mês atípico). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'premissa do projeto diverge do medido'."
+    },
+    {
+      "id": "validacao.premissa_variacao_max_pct",
+      "grandeza": "Variação máxima da razão medido ÷ planejado nesses meses para ser premissa",
+      "valor_padrao": 15.0,
+      "unidade": "% (coeficiente de variação)",
+      "opcoes": [],
+      "fonte": "proposta da Physis (desvio quase constante indica número de partida errado, não evento). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'premissa do projeto diverge do medido'."
+    },
+    {
+      "id": "validacao.plano_plano_max_pct",
+      "grandeza": "Variação máxima do planejado entre os meses para o plano contar como igual todo mês",
+      "valor_padrao": 2.0,
+      "unidade": "% (coeficiente de variação)",
+      "opcoes": [],
+      "fonte": "proposta da Physis (plano anual dividido por 12 não tem estação). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'efeito sazonal'."
+    },
+    {
+      "id": "validacao.anomalia_z",
+      "grandeza": "Limite do z robusto para consumo do mês fora do normal",
+      "valor_padrao": 3.5,
+      "unidade": "adimensional (z robusto = 0,6745 × (x − mediana) ÷ MAD)",
+      "opcoes": [],
+      "fonte": "Iglewicz e Hoaglin (1993): z modificado acima de 3,5 como candidato a valor atípico; a mesma conta da Frota (frota.anomalia_consumo). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'consumo fora do normal aprendido'."
+    },
+    {
+      "id": "validacao.anomalia_amostra_min",
+      "grandeza": "Meses de histórico antes de dizer o normal do consumo",
+      "valor_padrao": 6,
+      "unidade": "meses",
+      "opcoes": [],
+      "fonte": "proposta da Physis (com menos meses, mediana e MAD variam demais). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.grau_dia_base_c",
+      "grandeza": "Temperatura base dos graus-dia de resfriamento",
+      "valor_padrao": 18.3,
+      "unidade": "°C",
+      "opcoes": [
+        {
+          "rotulo": "Base usual (65 °F)",
+          "valor": 18.3,
+          "quando": "referência internacional de graus-dia"
+        },
+        {
+          "rotulo": "Clima quente",
+          "valor": 24.0,
+          "quando": "prédio que só liga o ar acima de 24 °C"
+        }
+      ],
+      "fonte": "ASHRAE Handbook Fundamentals: graus-dia na base de 65 °F (18,3 °C). [CONFERIR] a base certa para o clima e o uso de cada prédio.",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Variável da linha de base de energia e AVAC."
+    },
+    {
+      "id": "validacao.baseline_meses_min",
+      "grandeza": "Meses mínimos do período de base da linha de base",
+      "valor_padrao": 12,
+      "unidade": "meses",
+      "opcoes": [],
+      "fonte": "IPMVP (só citado): a base deve cobrir um ciclo completo de operação; 12 meses é a proposta da Physis. [CONFERIR] na edição vigente.",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.baseline_cvrmse_max_pct",
+      "grandeza": "CV(RMSE) máximo da regressão mensal da linha de base",
+      "valor_padrao": 15.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "ASHRAE Guideline 14 (só citado): critério usual de calibração de modelo mensal. [CONFERIR] na edição vigente.",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.aceite_r2_min",
+      "grandeza": "R² mínimo para aceitar o modelo da linha de base",
+      "valor_padrao": 0.75,
+      "unidade": "adimensional (0 a 1)",
+      "opcoes": [],
+      "fonte": "proposta da Physis no estilo da ASHRAE Guideline 14 (só citada). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.aceite_nmbe_max_pct",
+      "grandeza": "NMBE máximo (em módulo) para aceitar o modelo da linha de base",
+      "valor_padrao": 5.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "critério usual de modelo mensal no estilo da ASHRAE Guideline 14 (só citada). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.aceite_cvrmse_diario_max_pct",
+      "grandeza": "CV(RMSE) máximo do modelo diário (ponto de mudança)",
+      "valor_padrao": 25.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "proposta da Physis entre os critérios mensal e horário usuais da ASHRAE Guideline 14 (só citada). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.modelo_ganho_min_pct",
+      "grandeza": "Ganho mínimo de CV(RMSE) para escolher um modelo mais complexo",
+      "valor_padrao": 5.0,
+      "unidade": "% do CV(RMSE) do melhor",
+      "opcoes": [],
+      "fonte": "proposta da Physis (preferir o modelo mais simples quando o ajuste é parecido). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.ml_amostra_min",
+      "grandeza": "Amostras mínimas para usar o modelo de vizinhos (tipo ML)",
+      "valor_padrao": 365,
+      "unidade": "amostras (dias)",
+      "opcoes": [],
+      "fonte": "proposta da Physis (um ano de dias). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.ml_k",
+      "grandeza": "Vizinhos do modelo k-NN",
+      "valor_padrao": 7,
+      "unidade": "amostras",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.incerteza_confianca_pct",
+      "grandeza": "Nível de confiança combinado da incerteza da economia",
+      "valor_padrao": 68.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "exemplo do pedido da direção (68 %); combinar com o cliente no plano de M&V. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.incerteza_max_pct",
+      "grandeza": "Incerteza máxima aceita, em parte da economia anual",
+      "valor_padrao": 50.0,
+      "unidade": "% da economia",
+      "opcoes": [],
+      "fonte": "exemplo do pedido da direção (50 %); combinar com o cliente no plano de M&V. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.perda_dados_max_pct",
+      "grandeza": "Perda de dados máxima aceita no plano de coleta",
+      "valor_padrao": 10.0,
+      "unidade": "% das leituras esperadas",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.limpeza_z",
+      "grandeza": "z robusto acima do qual a leitura é marcada como atípica",
+      "valor_padrao": 5.0,
+      "unidade": "adimensional",
+      "opcoes": [],
+      "fonte": "proposta da Physis (mais folgado que o 3,5 de Iglewicz e Hoaglin, porque marca leitura isolada). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.travado_n",
+      "grandeza": "Leituras iguais seguidas que marcam o sensor como travado",
+      "valor_padrao": 12,
+      "unidade": "leituras",
+      "opcoes": [],
+      "fonte": "proposta da Physis (3 h de leituras de 15 min). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.inspecao_dias_max",
+      "grandeza": "Dias máximos entre duas inspeções de cada medida de eficiência",
+      "valor_padrao": 90,
+      "unidade": "dias",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.revisao_aviso_dias",
+      "grandeza": "Dias antes da revisão anual do plano de M&V em que a tarefa aparece",
+      "valor_padrao": 30,
+      "unidade": "dias",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.fdd_dias_min",
+      "grandeza": "Dias seguidos acima da linha de base para virar alarme (FDD)",
+      "valor_padrao": 3,
+      "unidade": "dias",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.cv_k",
+      "grandeza": "Blocos da validação cruzada que escolhe o modelo",
+      "valor_padrao": 5,
+      "unidade": "blocos seguidos",
+      "opcoes": [],
+      "fonte": "proposta da Physis (estilo CalTRACK, citado só pelo nome). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.aceite_cvrmse_ou_max_pct",
+      "grandeza": "CV(RMSE) abaixo do qual o modelo passa no ajuste mínimo (ou R² acima do mínimo)",
+      "valor_padrao": 20.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "pedido da direção: R² > 0,75 ou CV(RMSE) < 20 % (estilo NMEC Rulebook e CalTRACK, citados só pelo nome). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.cusum_k",
+      "grandeza": "Folga do CUSUM (em desvios-padrão)",
+      "valor_padrao": 0.5,
+      "unidade": "desvio-padrão",
+      "opcoes": [],
+      "fonte": "valor usual do CUSUM tabular (meio desvio-padrão). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.cusum_h",
+      "grandeza": "Limite de decisão do CUSUM",
+      "valor_padrao": 5.0,
+      "unidade": "desvio-padrão",
+      "opcoes": [],
+      "fonte": "valor usual do CUSUM tabular. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.ip_confianca_pct",
+      "grandeza": "Nível do intervalo de previsão do FDD",
+      "valor_padrao": 95.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.mc_n",
+      "grandeza": "Sorteios do Monte Carlo da incerteza",
+      "valor_padrao": 2000,
+      "unidade": "sorteios",
+      "opcoes": [],
+      "fonte": "proposta da Physis (equilíbrio entre tempo e estabilidade do intervalo). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.mc_confianca_pct",
+      "grandeza": "Nível do intervalo de confiança da economia (Monte Carlo)",
+      "valor_padrao": 95.0,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "pedido da direção (IC de 95 %). [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.nre_dias_min",
+      "grandeza": "Dias mínimos antes e depois de um degrau para virar evento não rotineiro",
+      "valor_padrao": 14,
+      "unidade": "dias",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.nre_limite_pct",
+      "grandeza": "Tamanho mínimo do degrau, em parte do esperado",
+      "valor_padrao": 10.0,
+      "unidade": "% do esperado do dia",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.nre_z",
+      "grandeza": "t mínimo do degrau para virar evento não rotineiro",
+      "valor_padrao": 3.0,
+      "unidade": "adimensional",
+      "opcoes": [],
+      "fonte": "proposta da Physis. [CONFERIR]",
+      "status": "conferir",
+      "nota": "Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."
+    },
+    {
+      "id": "validacao.pee.confianca_pct",
+      "grandeza": "Confiança exigida na M&V do PEE",
+      "valor_padrao": null,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.precisao_pct",
+      "grandeza": "Precisão exigida na M&V do PEE",
+      "valor_padrao": null,
+      "unidade": "%",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.amostra_min",
+      "grandeza": "Tamanho mínimo de amostra por estrato no PEE",
+      "valor_padrao": null,
+      "unidade": "unidades",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.duracao_medicao_dias",
+      "grandeza": "Duração mínima da medição no PEE",
+      "valor_padrao": null,
+      "unidade": "dias",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.vida_util_anos",
+      "grandeza": "Vida útil dos equipamentos para o PEE",
+      "valor_padrao": null,
+      "unidade": "anos",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.taxa_desconto_pct",
+      "grandeza": "Taxa de desconto do cálculo da RCB no PEE",
+      "valor_padrao": null,
+      "unidade": "% ao ano",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.rcb_max",
+      "grandeza": "RCB máxima aceita no PEE",
+      "valor_padrao": null,
+      "unidade": "adimensional",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.custo_mv_max_pct",
+      "grandeza": "Parte máxima do custo da M&V no custo total do projeto PEE",
+      "valor_padrao": null,
+      "unidade": "% do custo total",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
+    },
+    {
+      "id": "validacao.pee.prazo_relatorio_dias",
+      "grandeza": "Prazo do relatório final do projeto PEE",
+      "valor_padrao": null,
+      "unidade": "dias",
+      "opcoes": [],
+      "fonte": "[MARCADOR: conferir no Guia de M&V da ANEEL]",
+      "status": "conferir",
+      "nota": "Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."
     }
   ],
   "normas": {

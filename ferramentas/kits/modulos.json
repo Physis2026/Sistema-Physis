@@ -971,6 +971,56 @@
    "aba": "frota"
   },
   {
+   "id": "validacao",
+   "nome": "Validação · planejado × gerado (M&V)",
+   "tipo": "modulo",
+   "responsaveis": [
+    "Erick Lopes",
+    "Arthur",
+    "Rafael"
+   ],
+   "metodologia": "validacao",
+   "doc17_secao": null,
+   "o_que_revisar": "Em desenvolvimento. Responsáveis: Erick Lopes, Arthur e Rafael (decisão de 18/11/2026). Limites das regras, dos modelos e da incerteza (premissas validacao.*), plano de M&V, cadastro de medidores e calibração, textos das causas e da aba, e o planejado de exemplo da Casa Physis. O que não tiver fonte fica [CONFERIR].",
+   "editaveis": [
+    {
+     "arquivo": "sistema/physis-metodologia.json",
+     "partes": [
+      [
+       "modulos",
+       "validacao"
+      ]
+     ],
+     "normas_de": "validacao"
+    },
+    {
+     "arquivo": "sistema/physis-premissas.json",
+     "premissas_de": "validacao"
+    },
+    {
+     "arquivo": "sistema/physis-i18n-modulos.json",
+     "i18n_de": "referencia"
+    }
+   ],
+   "referencia": [
+    "physis-hub/docs/VALIDACAO_MV.md",
+    "physis-hub/physis_hub/validacao.py",
+    "sistema/physis-validacao.js",
+    "physis-hub/tests/test_validacao.py"
+   ],
+   "conferir": [
+    {
+     "arquivo": "physis-hub/web/painel.html",
+     "como": "Abra a plataforma da Casa Physis (pesquisa) e vá à aba Validação · planejado × gerado (M&V)."
+    }
+   ],
+   "testes": [
+    "test_validacao",
+    "test_metodologia"
+   ],
+   "aba": "validacao"
+  },
+  {
    "id": "servidor-verde",
    "nome": "Servidor verde (dimensionamento para projetos externos e pegada do servidor)",
    "tipo": "modulo",

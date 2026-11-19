@@ -39,6 +39,7 @@ RESPONSAVEIS = {
     "monitoramento": ["Arthur"], "saude": ["Rafael", "Emerson"], "scada": ["Erick Lopes", "Laura", "Rafaella"],
     "cursos": ["Laura", "Marzia", "Ryan", "Leonardo Macedo", "Rafaella"], "secador": ["Arthur", "Laura", "Rafaella"],
     "frota": ["Rafael"],                                    # decisão de 18/11/2026
+    "validacao": ["Erick Lopes", "Arthur", "Rafael"],       # Validação · planejado × gerado (M&V), decisão de 18/11/2026
     "servidor-verde": ["Eric Oliveira"],
     "acessibilidade": ["Rafaella", "Arthur", "Emerson", "Leonardo Macedo", "Laura", "Marzia"],
     "mapeamento": ["Rafaella", "Eric Oliveira", "Erick Lopes", "Arthur", "Rafael", "Emerson", "Ryan", "Laura", "Marzia",

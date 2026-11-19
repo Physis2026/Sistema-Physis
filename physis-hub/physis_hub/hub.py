@@ -1146,7 +1146,7 @@ class Hub:
     # e-mail de acesso na fila de saída. O código nunca aparece na loja: só no e-mail.
     MODULOS_PLATAFORMA = ("monitoramento", "agua", "zonas", "animais", "coleiras", "comedouros", "sustainkit", "supervisao",
                           "gestao", "painel", "planejador", "certificacoes", "solar", "avac", "turbinas", "sbn", "circular",
-                          "carbono", "resiliencia", "medicamentos", "pulseira", "secador", "frota")
+                          "carbono", "resiliencia", "medicamentos", "pulseira", "secador", "frota", "validacao")
     ATIVAR_ERROS = 5
     ATIVAR_ESPERA_S = 15 * 60
 
@@ -1182,6 +1182,7 @@ class Hub:
                     "P19": ("sbn",), "P11": ("circular",), "P16": ("circular",),
                     "P20": ("circular",), "P22": ("circular",), "P27": ("circular",), "P23": ("secador",),
                     "frota": ("frota",),   # Frota e combustível (em desenvolvimento, só na loja interna; 18/11/2026)
+                    "validacao": ("validacao",),   # Validação planejado × gerado, M&V (produto 3 do SustainKit; em desenvolvimento, só na loja interna)
                     # D17 (15/11/2026): níveis 2 a 4 de cada certificação (regra em sistema/physis-certificacoes.json,
                     # niveis_loja; conferida por tests/test_cert_niveis.py). N3 = N2 (consultoria é serviço); N4 = N3 + M&V + SustainKit (D20).
                     'cert-iso9001-n2': ('certificacoes', 'gestao', 'monitoramento'),

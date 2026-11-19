@@ -27,7 +27,8 @@ AQUI = Path(__file__).resolve().parent
 MODULOS = ("monitoramento", "agua", "zonas", "animais", "coleiras", "comedouros", "sustainkit", "supervisao", "gestao",
            "painel", "planejador", "certificacoes", "solar", "avac", "turbinas", "sbn", "circular", "carbono",
            "resiliencia", "medicamentos", "pulseira", "cursos", "secador", "servidor-verde",
-           "frota")         # Frota e combustível (em desenvolvimento, 18/11/2026)
+           "frota",         # Frota e combustível (em desenvolvimento, 18/11/2026)
+           "validacao")     # Validação · planejado × gerado, M&V (em desenvolvimento, 18/11/2026)
 LICENCA_PADRAO = "Licença Physis de Uso e Adaptação (minuta em revisão jurídica)"
 VENDOR_ARQUIVOS = ("maplibre-gl.js", "maplibre-gl.css", "pmtiles.js", "web-ifc-api-iife.js", "web-ifc.wasm", "three.min.js",
                    "LEIA-ME.md", "LICENSE-maplibre-gl.txt", "LICENSE-three.txt")

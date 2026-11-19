@@ -26,7 +26,9 @@ Aparelhos (ID = --id-base + n; padrão 81 a 89):
   89 VEI   trator SIMULADO (com HOR): linhas de ida e volta num talhão
 Os veículos andam em volta do local da instalação (GET /api/clima → lugar; ou --lat/--lon; sem nenhum, um ponto de exemplo
 avisado na tela), com uma linha a cada 2 min com o motor ligado e a cada 30 min parado, só nos últimos --dias-veiculos dias.
-Com --usuario, o simulador cadastra os 3 veículos ("SIMULADO") e uma cerca de teste na aba Frota e combustível.
+Com --usuario, o simulador cadastra os 3 veículos ("SIMULADO") e uma cerca de teste na aba Frota e combustível, e grava na aba
+Validação (planejado × gerado) os planejados SIMULADOS dos medidores de energia (84) e de água (85): o consumo do próprio modelo
+do simulador sem as anomalias, para que as anomalias e os dias sem leitura apareçam como desvio com causa.
 Ciclo diário (sol, temperatura, umidade, consumo) e anomalias de propósito: sensor travado, salto de temperatura,
 bateria descarregando, fator de potência baixo, dia de desperdício de energia, vazamento de madrugada, pH fora da faixa,
 nível do caminhão caindo parado de madrugada (vazamento ou furto, um dia por semana) e o carro saindo da cerca (um dia por semana).
@@ -535,6 +537,20 @@ class Hub:
             self.pedir("POST", "/api/frota/cerca", {"nome": f"Cerca de teste ({ROTULO})", "poligono": [list(mundo.desloca(a, b)) for a, b in CERCA_KM]})
         return feitos
 
+    def preparar_validacao(self, mundo: Mundo) -> int:
+        """Grava na aba Validação os planejados SIMULADOS do medidor de energia (nó 84) e do de água (nó 85): o consumo
+        do próprio modelo do simulador, sem as anomalias, mês a mês. As anomalias e os dias sem leitura viram desvio."""
+        st, r = self.pedir("GET", "/api/instancia")
+        lugar = (r or {}).get("lugar") if st == 200 else None
+        if not lugar:
+            print(f"  validação: sem o lugar da instalação (HTTP {st}); pulei os planejados.", file=sys.stderr)
+            return 0
+        feitos = 0
+        for p in planos_validacao(mundo, lugar):
+            st, _ = self.pedir("POST", "/api/validacao/plano", p)
+            feitos += st == 200
+        return feitos
+
     def gravar_agua(self, novas: list[dict], manter: int = 2000) -> bool:
         """Junta as leituras simuladas às da aba Água (as de verdade ficam), com controle de versão."""
         for _ in range(3):
@@ -563,6 +579,29 @@ class Hub:
 
 
 # ── Limpar (com o hub desligado) ─────────────────────────────────────────────────────────────────
+def planos_validacao(mundo: Mundo, lugar: str, ano: int | None = None) -> list[dict]:
+    """Planejados SIMULADOS (aba Validação): por mês do ano, a média de 7 dias do modelo do simulador SEM anomalias,
+    × 24 h × dias do mês (energia: kWh líquidos do medidor 84; água: m³ do medidor 85). Só para teste."""
+    limpo = Mundo(mundo.inicio, mundo.semente, mundo.id_base, 0.0, centro=mundo.centro)
+    ano = ano or datetime.fromtimestamp(mundo.inicio, FUSO).year
+    ene, agua = {}, {}
+    for m in range(1, 13):
+        t0 = datetime(ano, m, 10, tzinfo=FUSO).timestamp()
+        pws, qs = [], []
+        for k in range(7 * 24 * 4):                           # 7 dias, de 15 em 15 min
+            t = t0 + k * 900
+            pws.append(float(dict(limpo._ene(t))["PW"]))
+            qs.append(float(dict(limpo._hid(t))["Q"]))
+        dias = (datetime(ano + (m == 12), m % 12 + 1, 1) - datetime(ano, m, 1)).days
+        ene[f"{m:02d}"] = round(max(0.0, sum(pws) / len(pws)) * 24 * dias, 1)
+        agua[f"{m:02d}"] = round(sum(qs) / len(qs) * 24 * dias, 2)
+    fonte = f"{ROTULO}: consumo do modelo do simulador, sem as anomalias"
+    return [{"modulo": "energia", "item": "simulado-energia", "nome": f"Medidor de energia ({ROTULO})", "ativo": f"{lugar}-no{mundo.ident(4):02d}",
+             "grandeza": "energia", "fonte": fonte, "meses": ene},
+            {"modulo": "agua", "item": "simulado-agua", "nome": f"Medidor de água ({ROTULO})", "ativo": f"{lugar}-no{mundo.ident(5):02d}",
+             "grandeza": "vazao", "fonte": fonte, "meses": agua}]
+
+
 def limpar(banco: Path) -> dict:
     """Apaga do banco as leituras simuladas (linha com SIM:SIMULADO/teste) e as medições delas, revoga as chaves
     "SIMULADO / teste", tira as leituras de água simuladas, refaz a chuva observada do pluviômetro e apaga os modelos
@@ -613,6 +652,8 @@ def limpar(banco: Path) -> dict:
                            (dia, "physis", round(sum(ativos.values()) / len(ativos), 2), time.time()))
         if "frota_ponto" in tabelas:                    # pontos dos veículos simulados (linhas V6 marcadas)
             out["frota"] = db.execute("DELETE FROM frota_ponto WHERE origem='v6-simulado'").rowcount
+        if "validacao_plano" in tabelas:                # planejados SIMULADOS da aba Validação
+            out["validacao"] = db.execute("DELETE FROM validacao_plano WHERE fonte LIKE ?", (ROTULO + "%",)).rowcount
         if "modelo" in tabelas and out["leituras"]:
             out["modelos"] = db.execute("DELETE FROM modelo").rowcount
         db.commit()
@@ -689,6 +730,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Sem local da instalação: os veículos andam em volta do ponto de exemplo {PONTO_EXEMPLO} (use --lat e --lon).")
     if logado:
         print(f"Frota: {hub.preparar_frota(Mundo(time.time(), a.semente, a.id_base, centro=centro))} veículos SIMULADOS cadastrados.")
+        print(f"Validação: {hub.preparar_validacao(Mundo(time.time(), a.semente, a.id_base, centro=centro))} planejados SIMULADOS gravados.")
     else:
         print("Sem --usuario: linhas sem chave (o hub aceita só da rede local); qualidade da água fica de fora.")
 

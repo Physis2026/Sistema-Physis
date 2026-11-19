@@ -55,7 +55,7 @@
       "projeto": "Projeto de pesquisa: modelo do sistema net zero com TODAS as telas de todos os sistemas, inclusive as em desenvolvimento (decisão de 15/11/2026)",
       "modulos": ["planejador", "sustainkit", "certificacoes", "solar", "avac", "turbinas", "agua", "zonas", "sbn",
                   "circular", "carbono", "resiliencia", "monitoramento", "coleiras", "comedouros", "medicamentos", "pulseira",
-                  "supervisao", "gestao", "cursos", "secador", "servidor-verde", "frota"],
+                  "supervisao", "gestao", "cursos", "secador", "servidor-verde", "frota", "validacao"],
       "gestao_interna": true,
       "pesquisa": true,
       "confirmar": "Instalação de pesquisa: mostra também o que está em desenvolvimento, sempre marcado como tal."

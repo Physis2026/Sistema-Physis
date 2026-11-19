@@ -2900,8 +2900,8 @@ const DADOS = {
           "limites_de_validade": "Opção pela fatura (medição da instalação inteira); o ajuste sugerido pela produção supõe consumo proporcional à produção.",
           "fonte_de_dados": "Contas mensais de luz e água (Início), produção mensal (Gestão), ajustes, tarifas e instrumentos informados.",
           "status": "simplificado",
-          "o_que_falta": "Ajuste rotineiro por regressão (clima e produção) em vez da proporção simples; incerteza calculada a partir dos instrumentos.",
-          "onde": "painel.html · mvEconomia(), mvComprovavel(), mvStatusCal(), mvPlano()"
+          "o_que_falta": "Trazer para esta tela o ajuste rotineiro por regressão (clima e produção), que já existe na aba Validação; incerteza calculada a partir dos instrumentos.",
+          "onde": "painel.html · mvEconomia() (a equação é VALIDACAO.ipmvp de sistema/physis-validacao.js, espelho de validacao.ipmvp_economia), mvComprovavel(), mvStatusCal(), mvPlano()"
         }
       ]
     },
@@ -3754,6 +3754,422 @@ const DADOS = {
           "onde": "physis_hub/frota.py (espelho: sistema/physis-frota.js) · co2e(), para_carbono() → carbono.calcular (ctx.frota_movel)"
         }
       ]
+    },
+    "validacao": {
+      "nome": "Validação · planejado × gerado (M&V)",
+      "resumo": "Planejado × medido de cada módulo, mês a mês: quanto, quando, como e por quê, com linha de base por regressão (versão 0.1, em desenvolvimento).",
+      "calculos": [
+        {
+          "id": "validacao.desvio",
+          "nome": "Quanto: desvio entre planejado e medido",
+          "o_que_calcula": "Diferença entre o medido e o planejado de cada mês, em unidade do módulo e em %, por equipamento e somada no módulo.",
+          "formula": {
+            "texto": "desvio = M − P; desvio % = (M − P) ÷ P × 100; M do mês = Σ dias (média das leituras do dia × 24 h); dias com leitura ÷ dias do mês = cobertura",
+            "variaveis": [
+              {
+                "simbolo": "P",
+                "significado": "planejado do mês (dimensionamento, Planejador ou premissa, com a fonte)",
+                "unidade": "kWh, m³, L ou tCO₂e"
+              },
+              {
+                "simbolo": "M",
+                "significado": "medido do mês pelo hub",
+                "unidade": "kWh, m³, L ou tCO₂e"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.desvio_limite_pct"
+          ],
+          "normas": [
+            {
+              "codigo": "sem norma aplicável",
+              "edicao": "—",
+              "item": "",
+              "como_e_usada": "Método de referência descrito na fórmula."
+            }
+          ],
+          "limites_de_validade": "A média do dia × 24 h supõe leituras espalhadas pelo dia; plano anual dividido por 12 não tem estação.",
+          "fonte_de_dados": "Tabela validacao_plano (planejado com a fonte) e tabela medicao do hub (V6, MQTT, importações); Frota: consumo esperado do cadastro × km ou horas medidos.",
+          "status": "simplificado",
+          "o_que_falta": "Conferir o limite com 12 meses de dados reais da Casa Physis.",
+          "onde": "physis_hub/validacao.py (espelho: sistema/physis-validacao.js) · desvio(), comparar(), somar_itens(), Validacao.medido_mensal()"
+        },
+        {
+          "id": "validacao.quando",
+          "nome": "Quando: primeiro mês fora do limite e duração",
+          "o_que_calcula": "O primeiro mês em que o desvio passou do limite, quantos meses seguidos durou, se continua no último mês e todos os trechos fora do limite.",
+          "formula": {
+            "texto": "fora = |desvio %| > d_lim; trecho = meses seguidos fora; primeiro mês = início do primeiro trecho",
+            "variaveis": [
+              {
+                "simbolo": "d_lim",
+                "significado": "desvio que conta como fora do plano",
+                "unidade": "%"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.desvio_limite_pct"
+          ],
+          "normas": [
+            {
+              "codigo": "sem norma aplicável",
+              "edicao": "—",
+              "item": "",
+              "como_e_usada": "Método de referência descrito na fórmula."
+            }
+          ],
+          "limites_de_validade": "Um mês sem planejado ou sem medido interrompe o trecho.",
+          "fonte_de_dados": "Linhas do desvio mês a mês.",
+          "status": "simplificado",
+          "o_que_falta": "Conferir o limite com dados reais.",
+          "onde": "physis_hub/validacao.py (espelho: sistema/physis-validacao.js) · quando(), fora()"
+        },
+        {
+          "id": "validacao.causas",
+          "nome": "Como e por quê: equipamento e causa provável",
+          "o_que_calcula": "O equipamento e a variável que mais pesaram no desvio do mês e as causas prováveis, por regras, com evidência e confiança de 0 a 1; sem regra que case, causa não identificada.",
+          "formula": {
+            "texto": "como = item com maior |desvio| do mês; falha de dado: cobertura < c_min; clima: |clima medido ÷ esperado − 1| ≥ k_min no sentido do desvio; consumo anormal: z robusto da razão M ÷ P > z_lim (a mesma conta da Frota); estação: plano igual todo mês e M longe da média do período; premissa: n_min meses seguidos no mesmo sentido com variação ≤ v_max",
+            "variaveis": [
+              {
+                "simbolo": "c_min",
+                "significado": "dias com leitura para o mês valer",
+                "unidade": "%"
+              },
+              {
+                "simbolo": "k_min",
+                "significado": "diferença do clima que explica o desvio",
+                "unidade": "%"
+              },
+              {
+                "simbolo": "z_lim",
+                "significado": "limite do z robusto",
+                "unidade": "adimensional"
+              },
+              {
+                "simbolo": "n_min, v_max",
+                "significado": "meses seguidos e variação máxima da razão para apontar premissa",
+                "unidade": "meses; %"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.cobertura_min_pct",
+            "validacao.clima_min_pct",
+            "validacao.anomalia_z",
+            "validacao.anomalia_amostra_min",
+            "validacao.premissa_meses_min",
+            "validacao.premissa_variacao_max_pct",
+            "validacao.plano_plano_max_pct"
+          ],
+          "normas": [
+            {
+              "codigo": "sem norma aplicável",
+              "edicao": "—",
+              "item": "",
+              "como_e_usada": "Método de referência descrito na fórmula."
+            }
+          ],
+          "limites_de_validade": "Regras simples: apontam a causa provável, não provam. A confiança é uma escala própria, não uma probabilidade calibrada.",
+          "fonte_de_dados": "Desvio mês a mês; dias com leitura; irradiância, chuva e temperatura do ar medidas (estação da Resiliência e pluviômetro); clima esperado gravado com o plano.",
+          "status": "simplificado",
+          "o_que_falta": "Calibrar as confianças e os limites com casos reais conferidos em campo.",
+          "onde": "physis_hub/validacao.py (espelho: sistema/physis-validacao.js) · causas(), como(), analisar_modulo()"
+        },
+        {
+          "id": "validacao.linha_de_base",
+          "nome": "Linha de base por regressão e economia (estilo IPMVP)",
+          "o_que_calcula": "Consumo esperado aprendido com os dados do próprio lugar (regressão linear simples contra graus-dia, irradiação ou produção) e a economia do período de relatório, com ajuste rotineiro.",
+          "formula": {
+            "texto": "base: y = a·x + b (mínimos quadrados); r²; CV(RMSE) = √(Σ(y − ŷ)² ÷ (n − 2)) ÷ ȳ; ajuste rotineiro = Σ ŷ(x do relatório) − Σ y da base; economia = (linha de base − período de relatório) ± ajustes; graus-dia = Σ max(0, T média do dia − T_base)",
+            "variaveis": [
+              {
+                "simbolo": "y",
+                "significado": "consumo do mês",
+                "unidade": "kWh ou m³"
+              },
+              {
+                "simbolo": "x",
+                "significado": "graus-dia, irradiação ou produção do mês",
+                "unidade": "°C·dia, kWh/m²·dia ou unidade da Gestão"
+              },
+              {
+                "simbolo": "T_base",
+                "significado": "base dos graus-dia",
+                "unidade": "°C"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.grau_dia_base_c",
+            "validacao.baseline_meses_min",
+            "validacao.baseline_cvrmse_max_pct"
+          ],
+          "normas": [
+            {
+              "codigo": "IPMVP",
+              "edicao": "a conferir",
+              "item": "linha de base, período de relatório e ajustes (só citado)",
+              "como_e_usada": "Economia pela equação geral, a mesma da aba Certificações; ajuste rotineiro pela linha de base nas condições do relatório."
+            },
+            {
+              "codigo": "ASHRAE Handbook Fundamentals",
+              "edicao": "a conferir",
+              "item": "graus-dia (só citado)",
+              "como_e_usada": "Graus-dia de resfriamento como variável do consumo de energia e AVAC."
+            }
+          ],
+          "limites_de_validade": "Uma variável só; relação linear; base curta ou CV(RMSE) alto aparecem como aviso.",
+          "fonte_de_dados": "Medido do equipamento (tabela medicao), temperatura do ar e irradiância medidas, produção da Gestão do cliente.",
+          "status": "simplificado",
+          "o_que_falta": "Regressão com mais de uma variável e cálculo da incerteza da economia; conferir a base dos graus-dia para o clima de cada prédio.",
+          "onde": "physis_hub/validacao.py (espelho: sistema/physis-validacao.js) · linha_de_base(), ipmvp_regressao(), ipmvp_economia() (no painel: VALIDACAO.ipmvp, chamada também por mvEconomia())"
+        },
+        {
+          "id": "validacao.carbono",
+          "nome": "Carbono planejado × medido",
+          "o_que_calcula": "Emissões planejadas e medidas do mês a partir da energia (fator da rede do Carbono) e do combustível da frota (fatores de combustão móvel do Carbono).",
+          "formula": {
+            "texto": "tCO₂e = kWh ÷ 1000 × fator da rede + litros × fator de combustão móvel (os mesmos do Carbono)",
+            "variaveis": [
+              {
+                "simbolo": "fator da rede",
+                "significado": "fator do Carbono",
+                "unidade": "tCO₂/MWh"
+              }
+            ]
+          },
+          "premissas": [],
+          "normas": [
+            {
+              "codigo": "GHG Protocol",
+              "edicao": "2004 / 2015",
+              "item": "escopos 1 e 2 (combustão móvel e eletricidade por localização)",
+              "como_e_usada": "Mesmo caminho do inventário do Carbono; nada é duplicado."
+            }
+          ],
+          "limites_de_validade": "Só a parte que tem planejado (energia e frota); a solar evitada fica à parte, como no Carbono.",
+          "fonte_de_dados": "Planejado e medido de Energia e da Frota; base de fatores do Carbono.",
+          "status": "simplificado",
+          "o_que_falta": "Fatores mensais da rede quando a base tiver o ano.",
+          "onde": "physis_hub/validacao.py (espelho: sistema/physis-validacao.js) · Validacao.itens_carbono() (carbono.fator_rede, frota.co2e)"
+        },
+        {
+          "id": "validacao.dados_intervalo",
+          "nome": "Dados de intervalo: limpeza, granularidade e faltantes",
+          "o_que_calcula": "Marca carimbos de tempo, saltos isolados, sensor travado e valores negativos ou impossíveis (o original fica ao lado), mantém a granularidade nativa e aplica a política de faltantes do plano.",
+          "formula": {
+            "texto": "salto: d1 = v − v_ant, d2 = v − v_seg, d1·d2 > 0 e 0,6745·min(|d1|,|d2|) ÷ MAD(passos) > z_lim; travado: n_trav leituras iguais; perda = 1 − válidas ÷ esperadas; energia do intervalo = potência × passo",
+            "variaveis": [
+              {
+                "simbolo": "z_lim",
+                "significado": "z robusto do salto",
+                "unidade": "adimensional"
+              },
+              {
+                "simbolo": "n_trav",
+                "significado": "leituras iguais seguidas",
+                "unidade": "leituras"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.limpeza_z",
+            "validacao.travado_n",
+            "validacao.perda_dados_max_pct",
+            "validacao.cobertura_min_pct"
+          ],
+          "normas": [
+            {
+              "codigo": "sem norma aplicável",
+              "edicao": "—",
+              "item": "",
+              "como_e_usada": "Método de referência descrito na fórmula."
+            }
+          ],
+          "limites_de_validade": "Interpolação linear só serve para buracos curtos; o preenchimento pelo modelo herda o erro do modelo (entra no Monte Carlo).",
+          "fonte_de_dados": "Tabela medicao do hub (V6, MQTT, importações).",
+          "status": "simplificado",
+          "o_que_falta": "Conferir os limites com dados reais de 15 min.",
+          "onde": "physis_hub/validacao_nucleo.py e validacao_modelos.py (espelho: sistema/physis-validacao.js) · limpar_serie(), agregar()"
+        },
+        {
+          "id": "validacao.modelos_cv",
+          "nome": "Modelos diário e horário escolhidos por validação cruzada",
+          "o_que_calcula": "Regressões com ponto de mudança 2P a 5P na temperatura do dia, modelo horário (hora do dia + temperatura) e k-NN com dados bastantes; escolhe pelo erro fora da amostra, com valores-p, resíduos e versão com hash.",
+          "formula": {
+            "texto": "CV fora da amostra em k blocos seguidos; ajuste mínimo: R² > R²_min ou CV(RMSE) < CV_max; p dos coeficientes por t = b ÷ erro (aproximação normal); Durbin-Watson dos resíduos",
+            "variaveis": [
+              {
+                "simbolo": "k",
+                "significado": "blocos da validação cruzada",
+                "unidade": "blocos"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.cv_k",
+            "validacao.aceite_r2_min",
+            "validacao.aceite_cvrmse_ou_max_pct",
+            "validacao.modelo_ganho_min_pct",
+            "validacao.ml_amostra_min",
+            "validacao.ml_k"
+          ],
+          "normas": [
+            {
+              "codigo": "CalTRACK",
+              "edicao": "a conferir",
+              "item": "modelos diário e horário (só citado)",
+              "como_e_usada": "Estrutura do pipeline e escolha do modelo."
+            },
+            {
+              "codigo": "ASHRAE Guideline 14",
+              "edicao": "a conferir",
+              "item": "critérios de ajuste do modelo (só citado)",
+              "como_e_usada": "R², CV(RMSE) e NMBE como métricas."
+            }
+          ],
+          "limites_de_validade": "Uma variável do tempo (temperatura); o modelo horário usa a temperatura do dia em todas as horas quando não há leitura horária.",
+          "fonte_de_dados": "Dados de intervalo limpos e temperatura da estação da Resiliência (ou da fonte aberta guardada no hub).",
+          "status": "simplificado",
+          "o_que_falta": "Gradient boosting, floresta aleatória e LSTM no servidor (Fase 2); revisão por pares dos modelos.",
+          "onde": "physis_hub/validacao_nucleo.py e validacao_modelos.py (espelho: sistema/physis-validacao.js) · escolher_por_cv(), ajustar_horario(), diagnostico(), versao_modelo()"
+        },
+        {
+          "id": "validacao.incerteza_mc",
+          "nome": "Incerteza da economia por Monte Carlo e sensibilidade",
+          "o_que_calcula": "Intervalo de confiança da economia sorteando a exatidão do medidor, o erro do modelo e os dias preenchidos, com a parte de cada fonte; mantém a incerteza fracional.",
+          "formula": {
+            "texto": "E = Σŷ + ε_mod − Σy·(1 + ε_med) − ε_falt; ε_mod ~ N(0, s·√(m·(1+ρ)/(1−ρ))); ε_med ~ N(0, exatidão ÷ 1,96); ε_falt ~ N(0, s·√dias_preenchidos); IC pelos percentis",
+            "variaveis": [
+              {
+                "simbolo": "s",
+                "significado": "erro padrão diário do modelo",
+                "unidade": "kWh"
+              },
+              {
+                "simbolo": "ρ",
+                "significado": "autocorrelação dos resíduos",
+                "unidade": "adimensional"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.mc_n",
+            "validacao.mc_confianca_pct",
+            "validacao.incerteza_confianca_pct",
+            "validacao.incerteza_max_pct"
+          ],
+          "normas": [
+            {
+              "codigo": "ASHRAE Guideline 14",
+              "edicao": "a conferir",
+              "item": "incerteza fracional da economia (só citado)",
+              "como_e_usada": "Conferência da incerteza ao lado do Monte Carlo."
+            },
+            {
+              "codigo": "ISO 50015",
+              "edicao": "2014",
+              "item": "medição e verificação do desempenho energético",
+              "como_e_usada": "Incerteza declarada junto com a economia."
+            }
+          ],
+          "limites_de_validade": "Exatidão tratada como limite de 95 % [CONFERIR]; fontes independentes entre si.",
+          "fonte_de_dados": "Modelo, cadastro do medidor e política de faltantes.",
+          "status": "simplificado",
+          "o_que_falta": "Correlação entre as fontes e incerteza dos parâmetros do modelo.",
+          "onde": "physis_hub/validacao_nucleo.py e validacao_modelos.py (espelho: sistema/physis-validacao.js) · monte_carlo(), sensibilidade()"
+        },
+        {
+          "id": "validacao.deriva_nre_fdd",
+          "nome": "Deriva (CUSUM), eventos não rotineiros e FDD contra o intervalo de previsão",
+          "o_que_calcula": "Deriva do modelo e do sensor, degrau sustentado que o modelo não explica (com classe provável e ajuste que só vale aprovado) e alarme quando o medido sai do intervalo de previsão, com projeção por persistência e R$ em risco.",
+          "formula": {
+            "texto": "CUSUM: S⁺ = max(0, S⁺ + z − k); IP = ŷ ± t·s·√(1 + 1/n); degrau: maior t entre as médias de antes e depois; projeção = economia até agora ÷ dias × dias do período",
+            "variaveis": [
+              {
+                "simbolo": "k, h",
+                "significado": "folga e limite do CUSUM",
+                "unidade": "desvio-padrão"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.cusum_k",
+            "validacao.cusum_h",
+            "validacao.ip_confianca_pct",
+            "validacao.fdd_dias_min",
+            "validacao.nre_dias_min",
+            "validacao.nre_limite_pct",
+            "validacao.nre_z"
+          ],
+          "normas": [
+            {
+              "codigo": "IPMVP",
+              "edicao": "a conferir",
+              "item": "ajustes não rotineiros (só citado)",
+              "como_e_usada": "O ajuste não rotineiro é proposto e só entra depois da aprovação."
+            },
+            {
+              "codigo": "NMEC Rulebook",
+              "edicao": "a conferir",
+              "item": "eventos não rotineiros (só citado)",
+              "como_e_usada": "Detecção e documentação do evento."
+            }
+          ],
+          "limites_de_validade": "Sem fatura, a deriva do sensor usa a carga de base, que a medida também muda.",
+          "fonte_de_dados": "Resíduos do modelo, perfil horário, tarifa do plano de M&V.",
+          "status": "simplificado",
+          "o_que_falta": "Conferir os limites com eventos reais; tarifa por posto horário.",
+          "onde": "physis_hub/validacao_nucleo.py e validacao_modelos.py (espelho: sistema/physis-validacao.js) · cusum(), detectar_nre(), fdd_intervalo(), projecao_persistencia(), ordenar_por_risco()"
+        },
+        {
+          "id": "validacao.pee",
+          "nome": "Perfil PEE (ANEEL): amostragem e custo da M&V",
+          "o_que_calcula": "Campos do Programa de Eficiência Energética (energia economizada, demanda na ponta, RCB, custo da M&V, erro, precisão e confiança) e o tamanho da amostra por estrato.",
+          "formula": {
+            "texto": "fórmula estatística genérica (não a da ANEEL): n₀ = (z·CV ÷ e)²; n = n₀ ÷ (1 + n₀ ÷ N); precisão alcançada = z·(s ÷ média) ÷ √n · √(1 − n ÷ N); parte da M&V = custo da M&V ÷ custo total",
+            "variaveis": [
+              {
+                "simbolo": "e",
+                "significado": "precisão relativa",
+                "unidade": "fração"
+              },
+              {
+                "simbolo": "N",
+                "significado": "população do estrato",
+                "unidade": "unidades"
+              }
+            ]
+          },
+          "premissas": [
+            "validacao.pee.confianca_pct",
+            "validacao.pee.precisao_pct",
+            "validacao.pee.amostra_min",
+            "validacao.pee.custo_mv_max_pct",
+            "validacao.pee.rcb_max",
+            "validacao.pee.vida_util_anos",
+            "validacao.pee.taxa_desconto_pct",
+            "validacao.pee.duracao_medicao_dias",
+            "validacao.pee.prazo_relatorio_dias"
+          ],
+          "normas": [
+            {
+              "codigo": "Guia de M&V da ANEEL",
+              "edicao": "a conferir",
+              "item": "módulos 1.1 a 1.4 e 2.1 a 2.3 (a ler)",
+              "como_e_usada": "Exigências do PEE: todas [MARCADOR] até a leitura do Guia."
+            }
+          ],
+          "limites_de_validade": "Nenhuma exigência numérica do PEE foi conferida; a RCB não é calculada aqui (só guardada com as entradas).",
+          "fonte_de_dados": "Plano de M&V (perfil PEE).",
+          "status": "falta implementar",
+          "o_que_falta": "Ler o Guia de M&V da ANEEL e preencher as premissas validacao.pee.*; exportar o XML do relatório final (Fase 2).",
+          "onde": "physis_hub/validacao_nucleo.py e validacao_modelos.py (espelho: sistema/physis-validacao.js) · tamanho_amostra(), plano_amostral(), resumo_pee()"
+        }
+      ]
     }
   },
   "adequacoes": [
@@ -4073,6 +4489,17 @@ const DADOS = {
       "titulo": "Incêndio: Instrução Técnica do estado",
       "o_que_fazer": "Ligar as medidas à IT do Corpo de Bombeiros do estado do projeto.",
       "criterio_de_aceite": "Exigências por estado na base."
+    },
+    {
+      "prioridade": 27,
+      "quem": "engenharia",
+      "quando": "depois",
+      "calculos": [
+        "validacao.pee"
+      ],
+      "titulo": "Validação: exigências do PEE da ANEEL",
+      "o_que_fazer": "Ler o Guia de M&V da ANEEL (módulos 1.1 a 1.4 e 2.1 a 2.3) e preencher as premissas validacao.pee.*.",
+      "criterio_de_aceite": "Nenhuma premissa validacao.pee.* sem número e fonte; teste de premissas atualizado."
     }
   ],
   "normas": {
@@ -4719,6 +5146,34 @@ const DADOS = {
       "edicao": "a conferir",
       "situacao": "conferir",
       "nota": ""
+    },
+    "ASHRAE Guideline 14": {
+      "tipo": "referência técnica",
+      "assunto": "medição de economia de energia e de demanda (critérios de modelo e incerteza)",
+      "edicao": "a conferir",
+      "situacao": "conferir",
+      "nota": "citado só pelo nome; nenhum texto copiado"
+    },
+    "CalTRACK": {
+      "tipo": "referência técnica",
+      "assunto": "métodos abertos de cálculo de economia medida com dados de intervalo",
+      "edicao": "a conferir",
+      "situacao": "conferir",
+      "nota": "citado só pelo nome; nenhum texto copiado"
+    },
+    "NMEC Rulebook": {
+      "tipo": "referência técnica",
+      "assunto": "regras de M&V por consumo medido normalizado (programas de eficiência)",
+      "edicao": "a conferir",
+      "situacao": "conferir",
+      "nota": "citado só pelo nome; nenhum texto copiado"
+    },
+    "Guia de M&V da ANEEL": {
+      "tipo": "referência técnica",
+      "assunto": "medição e verificação no Programa de Eficiência Energética (PEE) da ANEEL",
+      "edicao": "a conferir",
+      "situacao": "conferir",
+      "nota": "citado só pelo nome; nenhum texto copiado"
     }
   }
 };

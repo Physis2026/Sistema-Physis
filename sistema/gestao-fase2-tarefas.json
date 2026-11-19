@@ -9194,6 +9194,74 @@
      "projeto_nome": "Fase 2 · 8. Instalação no cliente e teste em campo",
      "modulo": "frota"
     }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-bd74ae128827",
+    "titulo": "Revisar Validação M&V: premissas validacao.*, limites de ajuste e incerteza [CONFERIR]",
+    "pessoa_id": "ericklopes",
+    "projeto_id": "imp-0072df0e",
+    "horizonte": "media",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 4. Revisão técnica dos módulos",
+     "modulo": "validacao"
+    }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-a5e413b83291",
+    "titulo": "Cadastro de medidores e plano de calibração do M&V (com Arthur)",
+    "pessoa_id": "arthur",
+    "projeto_id": "imp-62017554",
+    "horizonte": "media",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 5. Hardware e firmware",
+     "modulo": "validacao"
+    }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-e05c496e0c02",
+    "titulo": "Plano de M&V da Casa Physis: fronteira, opção IPMVP, variáveis e papéis",
+    "pessoa_id": "rafael",
+    "projeto_id": "imp-0072df0e",
+    "horizonte": "media",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 4. Revisão técnica dos módulos",
+     "modulo": "validacao"
+    }
+   },
+   {
+    "org_id": "physis",
+    "tarefa_id": "imp-f9515b9a30ea",
+    "titulo": "Teste de campo do M&V com dados de intervalo reais (com Erick Lopes e Rafael)",
+    "pessoa_id": "arthur",
+    "projeto_id": "imp-f2fec5ae",
+    "horizonte": "longa",
+    "peso": 3,
+    "concluida": false,
+    "concluida_em": null,
+    "depende_de": null,
+    "extras": {
+     "tituloEn": "",
+     "projeto_nome": "Fase 2 · 8. Instalação no cliente e teste em campo",
+     "modulo": "validacao"
+    }
    }
   ]
  },

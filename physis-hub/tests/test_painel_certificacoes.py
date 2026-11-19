@@ -28,7 +28,9 @@ class TelaDoClienteSaiu(unittest.TestCase):
         self.assertIn('if (s === "conforme") ok++; else if (s === "parcial") ok += 0.5;', p)        # calcConformidade
         self.assertIn('veredito: razao >= 3 ? "confortavel" : (razao >= 1 ? "apertado" : "nao_comprova")', p)   # comprovavel
         self.assertIn('dias < 0 ? "vencida" : (dias <= 60 ? "vence_em_breve" : "valida")', p)       # statusCal
-        self.assertIn("const econ = b && p ? b.v - p.v + aj : null", p)                             # equação geral do IPMVP
+        # equação geral do IPMVP: uma conta só, VALIDACAO.ipmvp (sistema/physis-validacao.js), também usada pela aba Validação
+        self.assertIn("const ip = VALIDACAO.ipmvp(b ? b.v : null, p ? p.v : null, aj), econ = ip.econ;", p)
+        self.assertIn("const econ = base - rel + a, baseAj = base + a;", p)
 
     def test_migracao_do_rascunho(self):
         p = ler(PAINEL)

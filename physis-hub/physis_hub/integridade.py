@@ -249,6 +249,15 @@ def registros_do_dia(con: sqlite3.Connection, ini: float, fim: float, *, org: st
                      "origem": {"aparelho": ativo, "local": lugar, "leitura": leitura, "via": origem,
                                 "relogio": "aparelho" if ts and ts > 0 else "chegada"},
                      "metodo": {"contrato": nucleo.VERSAO_CONTRATO, "dicionario": DICIONARIO}, "qualidade": "valido"})
+    try:                                  # economia verificada da Validação (M&V): o registro leva o resumo do resultado
+        for rid, item, dados, rz, quando in con.execute("SELECT id, item, dados, resumo, quando FROM validacao_resultado "
+                                                         "WHERE quando >= ? AND quando < ? ORDER BY id", (ini, fim)):
+            d = json.loads(dados)
+            regs.append({"id": f"mv{rid}", "grandeza": "economia_verificada", "valor": d.get("economia"), "unidade": d.get("unidade") or "kWh",
+                         "quando": _iso(quando), "origem": {"calculo": "validacao.verificar_resultado", "item": item, "local": lugar},
+                         "metodo": {"resultado": d, "resumo_resultado": rz, "dicionario": DICIONARIO}, "qualidade": "valido"})
+    except (sqlite3.Error, ValueError):
+        pass
     try:
         r = con.execute("SELECT valor FROM cliente_estado WHERE org=? AND chave='physis-ph-leituras'", (org,)).fetchone()
         lista = json.loads(r[0]) if r else []

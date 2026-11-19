@@ -108,6 +108,9 @@ flowchart LR
   sbn -->|sbn.plano| certificacoes
   frota -.->|frota.litros_movel| carbono
   frota -.->|frota.custo_mes| gestao
+  frota -.->|frota.distancia_consumo| validacao
+  monitoramento -.->|sup.energia| validacao
+  carbono -.->|carb.fator_rede| validacao
   secador -->|mon.bateria| aprendizado
   secador -->|mon.bateria, mon.sinal_radio| monitoramento
   solar -.->|solar.geracao| carbono
@@ -406,6 +409,17 @@ Premissas da base estão no fim, numa tabela só. 'Lote' = entra no lote de inte
 | `frota.litros_movel` | Litros medidos por combustível no ano | L | calculado | frota.para_carbono | carbono (o medido substitui o digitado) | calculado na hora | — | não |
 | `frota.custo_mes` | Litros e custo dos abastecimentos por mês | L; R$ | calculado | frota.custos_por_mes | gestao | calculado na hora | — | não |
 | `frota.co2e` | Emissões da frota | tCO₂e | calculado | frota.co2e (carbono.combustao) | frota | calculado na hora | — | não |
+
+### Validação · planejado × gerado, M&V (em desenvolvimento, 18/11/2026; `VALIDACAO_MV.md`)
+
+| Id | Nome | Unidade | Tipo | Origem | Quem usa | Guardado em | Faixa | Lote |
+|---|---|---|---|---|---|---|---|---|
+| `validacao.plano` | Planejado mensal por equipamento, com a fonte | kWh; m³ | digitado | Validação · Planejado (traz da Energia solar e das Turbinas) | validacao | tabela validacao_plano | ≥ 0 | não |
+| `validacao.desvio` | Planejado × medido mês a mês, desvio e quando saiu do limite | kWh; m³; L; tCO₂e; % | calculado | validacao.analisar_modulo (medido: tabela medicao, Frota, fatores do Carbono) | validacao | calculado na hora | — | não |
+| `validacao.causas` | Como e por quê: equipamento e causa provável | confiança 0 a 1 | calculado | validacao.causas | validacao | calculado na hora | 0 a 1 | não |
+| `validacao.linha_de_base` | Linha de base por regressão e economia (estilo IPMVP) | kWh; m³; % | calculado | validacao.ipmvp_regressao | validacao | calculado na hora | — | não |
+
+As premissas `validacao.*` (limites das regras e da linha de base) são da base de premissas, todas com status "conferir".
 
 ### Premissas da base (`sistema/physis-premissas.json`)
 

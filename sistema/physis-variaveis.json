@@ -198,6 +198,11 @@
       "nome": "Frota e combustível (em desenvolvimento)",
       "aba": "frota",
       "classe": "contrato"
+    },
+    "validacao": {
+      "nome": "Validação · planejado × gerado, M&V (em desenvolvimento)",
+      "aba": "validacao",
+      "classe": "contrato"
     }
   },
   "loja": {
@@ -34806,6 +34811,32 @@
             ]
           }
         ]
+      },
+      "validacao": {
+        "nome": "Validação · planejado × gerado (M&V)",
+        "venda": false,
+        "modulos": [
+          "validacao"
+        ],
+        "sem_modulo": null,
+        "variaveis_necessarias": [
+          {
+            "variavel": "validacao.plano",
+            "consumidor": "validacao",
+            "necessario": true,
+            "fonte": [
+              "validacao"
+            ]
+          },
+          {
+            "variavel": "validacao.desvio",
+            "consumidor": "validacao",
+            "necessario": true,
+            "fonte": [
+              "validacao"
+            ]
+          }
+        ]
       }
     },
     "fonte": "physis-hub/physis_hub/hub.py ITEM_MODULOS e CERTIFICACOES_LOJA; physis-hub/web/painel.html LOJA_VENDA"
@@ -47151,6 +47182,2518 @@
         "frota.retencao_dias"
       ],
       "entradas": []
+    },
+    {
+      "id": "validacao.plano",
+      "nome": {
+        "pt": "Planejado mensal por equipamento, com a fonte",
+        "en": "Monthly planned value per equipment, with its source"
+      },
+      "unidade": "kWh; m³",
+      "tipo": "typed",
+      "modulo": "validacao",
+      "produtores": [
+        "validacao"
+      ],
+      "origem": {
+        "api": "POST /api/validacao/plano (aba Validação · Planejado; traz da Energia solar e das Turbinas)"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def gravar_plano"
+        },
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def validar_plano"
+        },
+        {
+          "arquivo": "sistema/physis-validacao.js",
+          "linha": 0,
+          "simbolo": "function partePlanejado"
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · planejado × medido",
+          "necessario": true,
+          "modo": "manual"
+        }
+      ],
+      "armazenamento": [
+        "tabela validacao_plano (meses e clima esperado em JSON)"
+      ],
+      "frequencia": "quando a equipe grava",
+      "agregacao": "mês (AAAA-MM) ou mês do ano típico (MM)",
+      "faixa": {
+        "min": 0,
+        "max": null,
+        "fonte": "validacao.validar_plano"
+      },
+      "qualidade": [
+        "fonte obrigatória",
+        "valor negativo ou não numérico recusado",
+        "sem plano: o módulo diz 'sem plano' (nada inventado)"
+      ],
+      "lote": "nao",
+      "premissas": [],
+      "entradas": []
+    },
+    {
+      "id": "validacao.desvio",
+      "nome": {
+        "pt": "Planejado × medido mês a mês, desvio e quando saiu do limite",
+        "en": "Planned × measured month by month, deviation and when it went over the limit"
+      },
+      "unidade": "kWh; m³; L; tCO₂e; %",
+      "tipo": "calculated",
+      "modulo": "validacao",
+      "produtores": [
+        "validacao"
+      ],
+      "origem": {
+        "calculo": "validacao.analisar_modulo"
+      },
+      "formula": "desvio = medido − planejado; % = ÷ planejado; medido do mês = Σ dias (média do dia × 24 h); quando = primeiro mês com |%| > validacao.desvio_limite_pct",
+      "onde": [
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def comparar"
+        },
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def quando"
+        },
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def medido_mensal"
+        },
+        {
+          "arquivo": "sistema/physis-validacao.js",
+          "linha": 0,
+          "simbolo": "function analisarModulo"
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · resumo, por módulo e relatório",
+          "necessario": true,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "calculado na hora (GET /api/validacao/estado)"
+      ],
+      "frequencia": "a cada consulta",
+      "agregacao": "mês",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "a definir [CONFERIR]"
+      },
+      "qualidade": [
+        "dias com leitura do mês ao lado de cada valor"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.desvio_limite_pct"
+      ],
+      "entradas": [
+        "validacao.plano",
+        "sup.energia",
+        "sup.vazao",
+        "frota.distancia_consumo",
+        "frota.abastecimento",
+        "frota.veiculo",
+        "carb.fator_rede"
+      ]
+    },
+    {
+      "id": "validacao.causas",
+      "nome": {
+        "pt": "Como e por quê: equipamento e causa provável do desvio",
+        "en": "How and why: equipment and probable cause of the deviation"
+      },
+      "unidade": "confiança 0 a 1",
+      "tipo": "calculated",
+      "modulo": "validacao",
+      "produtores": [
+        "validacao"
+      ],
+      "origem": {
+        "calculo": "validacao.causas"
+      },
+      "formula": "regras: falha de dado (cobertura), clima (medido × esperado), consumo anormal (z robusto da razão medido ÷ planejado), estação, premissa; sem regra: causa não identificada",
+      "onde": [
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def causas"
+        },
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def como"
+        },
+        {
+          "arquivo": "sistema/physis-validacao.js",
+          "linha": 0,
+          "simbolo": "function causas"
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · por quê",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "calculado na hora"
+      ],
+      "frequencia": "a cada consulta",
+      "agregacao": "mês",
+      "faixa": {
+        "min": 0,
+        "max": 1,
+        "fonte": "escala própria (não é probabilidade calibrada)"
+      },
+      "qualidade": [],
+      "lote": "nao",
+      "premissas": [
+        "validacao.cobertura_min_pct",
+        "validacao.clima_min_pct",
+        "validacao.anomalia_z",
+        "validacao.anomalia_amostra_min",
+        "validacao.premissa_meses_min",
+        "validacao.premissa_variacao_max_pct",
+        "validacao.plano_plano_max_pct"
+      ],
+      "entradas": [
+        "validacao.desvio",
+        "mon.temperatura_ar",
+        "sec.irradiancia",
+        "mon.chuva_intervalo"
+      ]
+    },
+    {
+      "id": "validacao.linha_de_base",
+      "nome": {
+        "pt": "Linha de base por regressão e economia (estilo IPMVP)",
+        "en": "Regression baseline and savings (IPMVP style)"
+      },
+      "unidade": "kWh; m³; %",
+      "tipo": "calculated",
+      "modulo": "validacao",
+      "produtores": [
+        "validacao"
+      ],
+      "origem": {
+        "calculo": "validacao.ipmvp_regressao"
+      },
+      "formula": "y = a·x + b no período de base; ajuste rotineiro = Σ ŷ(relatório) − Σ y(base); economia = (linha de base − período de relatório) ± ajustes (a mesma equação da aba Certificações)",
+      "onde": [
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def linha_de_base"
+        },
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def ipmvp_economia"
+        },
+        {
+          "arquivo": "sistema/physis-validacao.js",
+          "linha": 0,
+          "simbolo": "function ipmvp("
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · linha de base (IPMVP)",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "calculado na hora (GET /api/validacao/baseline)"
+      ],
+      "frequencia": "a cada consulta",
+      "agregacao": "período",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "a definir [CONFERIR]"
+      },
+      "qualidade": [
+        "base curta ou CV(RMSE) alto aparecem como aviso"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.grau_dia_base_c",
+        "validacao.baseline_meses_min",
+        "validacao.baseline_cvrmse_max_pct"
+      ],
+      "entradas": [
+        "validacao.desvio",
+        "mon.temperatura_ar",
+        "sec.irradiancia"
+      ]
+    },
+    {
+      "id": "premissa.validacao.desvio_limite_pct",
+      "nome": {
+        "pt": "Desvio entre planejado e medido que conta como fora do plano",
+        "en": "Planned × measured deviation that counts as off plan"
+      },
+      "unidade": "% do planejado no mês",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.desvio_limite_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.desvio_limite_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.desvio_limite_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.cobertura_min_pct",
+      "nome": {
+        "pt": "Dias com leitura no mês abaixo dos quais o mês conta como falha de dado",
+        "en": "Days with readings below which the month counts as a data gap"
+      },
+      "unidade": "% dos dias do mês",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.cobertura_min_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.cobertura_min_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.cobertura_min_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.clima_min_pct",
+      "nome": {
+        "pt": "Diferença mínima do clima medido para o esperado para o clima explicar o desvio",
+        "en": "Minimum weather difference for the weather to explain the deviation"
+      },
+      "unidade": "% do esperado (irradiação, chuva ou graus-dia)",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.clima_min_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.clima_min_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.clima_min_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.premissa_meses_min",
+      "nome": {
+        "pt": "Meses seguidos com desvio no mesmo sentido para apontar premissa divergente",
+        "en": "Consecutive months in the same direction to point to a diverging assumption"
+      },
+      "unidade": "meses",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.premissa_meses_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.premissa_meses_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.premissa_meses_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.premissa_variacao_max_pct",
+      "nome": {
+        "pt": "Variação máxima da razão medido ÷ planejado nesses meses para ser premissa",
+        "en": "Maximum variation of the measured ÷ planned ratio for an assumption"
+      },
+      "unidade": "% (coeficiente de variação)",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.premissa_variacao_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.premissa_variacao_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.premissa_variacao_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.plano_plano_max_pct",
+      "nome": {
+        "pt": "Variação máxima do planejado entre os meses para o plano contar como igual todo mês",
+        "en": "Maximum plan variation between months for a flat plan"
+      },
+      "unidade": "% (coeficiente de variação)",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.plano_plano_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.plano_plano_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.plano_plano_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.anomalia_z",
+      "nome": {
+        "pt": "Limite do z robusto para consumo do mês fora do normal",
+        "en": "Robust z threshold for monthly consumption outside the normal"
+      },
+      "unidade": "adimensional (z robusto = 0,6745 × (x − mediana) ÷ MAD)",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.anomalia_z"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.anomalia_z\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.anomalia_z"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.anomalia_amostra_min",
+      "nome": {
+        "pt": "Meses de histórico antes de dizer o normal do consumo",
+        "en": "Months of history before stating the consumption normal"
+      },
+      "unidade": "meses",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.anomalia_amostra_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.anomalia_amostra_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.anomalia_amostra_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.grau_dia_base_c",
+      "nome": {
+        "pt": "Temperatura base dos graus-dia de resfriamento",
+        "en": "Base temperature of cooling degree-days"
+      },
+      "unidade": "°C",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.grau_dia_base_c"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.grau_dia_base_c\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.grau_dia_base_c"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.baseline_meses_min",
+      "nome": {
+        "pt": "Meses mínimos do período de base da linha de base",
+        "en": "Minimum months of the baseline period"
+      },
+      "unidade": "meses",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.baseline_meses_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.baseline_meses_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.baseline_meses_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.baseline_cvrmse_max_pct",
+      "nome": {
+        "pt": "CV(RMSE) máximo da regressão mensal da linha de base",
+        "en": "Maximum CV(RMSE) of the monthly baseline regression"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.baseline_cvrmse_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.baseline_cvrmse_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.baseline_cvrmse_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.aceite_r2_min",
+      "nome": {
+        "pt": "R² mínimo para aceitar o modelo da linha de base",
+        "en": "R² mínimo para aceitar o modelo da linha de base"
+      },
+      "unidade": "adimensional (0 a 1)",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.aceite_r2_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.aceite_r2_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.aceite_r2_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.aceite_nmbe_max_pct",
+      "nome": {
+        "pt": "NMBE máximo (em módulo) para aceitar o modelo da linha de base",
+        "en": "NMBE máximo (em módulo) para aceitar o modelo da linha de base"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.aceite_nmbe_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.aceite_nmbe_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.aceite_nmbe_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.aceite_cvrmse_diario_max_pct",
+      "nome": {
+        "pt": "CV(RMSE) máximo do modelo diário (ponto de mudança)",
+        "en": "CV(RMSE) máximo do modelo diário (ponto de mudança)"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.aceite_cvrmse_diario_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.aceite_cvrmse_diario_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.aceite_cvrmse_diario_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.modelo_ganho_min_pct",
+      "nome": {
+        "pt": "Ganho mínimo de CV(RMSE) para escolher um modelo mais complexo",
+        "en": "Ganho mínimo de CV(RMSE) para escolher um modelo mais complexo"
+      },
+      "unidade": "% do CV(RMSE) do melhor",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.modelo_ganho_min_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.modelo_ganho_min_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.modelo_ganho_min_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.ml_amostra_min",
+      "nome": {
+        "pt": "Amostras mínimas para usar o modelo de vizinhos (tipo ML)",
+        "en": "Amostras mínimas para usar o modelo de vizinhos (tipo ML)"
+      },
+      "unidade": "amostras (dias)",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.ml_amostra_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.ml_amostra_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.ml_amostra_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.ml_k",
+      "nome": {
+        "pt": "Vizinhos do modelo k-NN",
+        "en": "Vizinhos do modelo k-NN"
+      },
+      "unidade": "amostras",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.ml_k"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.ml_k\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.ml_k"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.incerteza_confianca_pct",
+      "nome": {
+        "pt": "Nível de confiança combinado da incerteza da economia",
+        "en": "Nível de confiança combinado da incerteza da economia"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.incerteza_confianca_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.incerteza_confianca_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.incerteza_confianca_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.incerteza_max_pct",
+      "nome": {
+        "pt": "Incerteza máxima aceita, em parte da economia anual",
+        "en": "Incerteza máxima aceita, em parte da economia anual"
+      },
+      "unidade": "% da economia",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.incerteza_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.incerteza_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.incerteza_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.perda_dados_max_pct",
+      "nome": {
+        "pt": "Perda de dados máxima aceita no plano de coleta",
+        "en": "Perda de dados máxima aceita no plano de coleta"
+      },
+      "unidade": "% das leituras esperadas",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.perda_dados_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.perda_dados_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.perda_dados_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.limpeza_z",
+      "nome": {
+        "pt": "z robusto acima do qual a leitura é marcada como atípica",
+        "en": "z robusto acima do qual a leitura é marcada como atípica"
+      },
+      "unidade": "adimensional",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.limpeza_z"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.limpeza_z\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.limpeza_z"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.travado_n",
+      "nome": {
+        "pt": "Leituras iguais seguidas que marcam o sensor como travado",
+        "en": "Leituras iguais seguidas que marcam o sensor como travado"
+      },
+      "unidade": "leituras",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.travado_n"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.travado_n\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.travado_n"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.inspecao_dias_max",
+      "nome": {
+        "pt": "Dias máximos entre duas inspeções de cada medida de eficiência",
+        "en": "Dias máximos entre duas inspeções de cada medida de eficiência"
+      },
+      "unidade": "dias",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.inspecao_dias_max"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.inspecao_dias_max\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.inspecao_dias_max"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.revisao_aviso_dias",
+      "nome": {
+        "pt": "Dias antes da revisão anual do plano de M&V em que a tarefa aparece",
+        "en": "Dias antes da revisão anual do plano de M&V em que a tarefa aparece"
+      },
+      "unidade": "dias",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.revisao_aviso_dias"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.revisao_aviso_dias\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.revisao_aviso_dias"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.fdd_dias_min",
+      "nome": {
+        "pt": "Dias seguidos acima da linha de base para virar alarme (FDD)",
+        "en": "Dias seguidos acima da linha de base para virar alarme (FDD)"
+      },
+      "unidade": "dias",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.fdd_dias_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.fdd_dias_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.fdd_dias_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.cv_k",
+      "nome": {
+        "pt": "Blocos da validação cruzada que escolhe o modelo",
+        "en": "Blocos da validação cruzada que escolhe o modelo"
+      },
+      "unidade": "blocos seguidos",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.cv_k"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.cv_k\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.cv_k"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.aceite_cvrmse_ou_max_pct",
+      "nome": {
+        "pt": "CV(RMSE) abaixo do qual o modelo passa no ajuste mínimo (ou R² acima do mínimo)",
+        "en": "CV(RMSE) abaixo do qual o modelo passa no ajuste mínimo (ou R² acima do mínimo)"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.aceite_cvrmse_ou_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.aceite_cvrmse_ou_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.aceite_cvrmse_ou_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.cusum_k",
+      "nome": {
+        "pt": "Folga do CUSUM (em desvios-padrão)",
+        "en": "Folga do CUSUM (em desvios-padrão)"
+      },
+      "unidade": "desvio-padrão",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.cusum_k"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.cusum_k\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.cusum_k"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.cusum_h",
+      "nome": {
+        "pt": "Limite de decisão do CUSUM",
+        "en": "Limite de decisão do CUSUM"
+      },
+      "unidade": "desvio-padrão",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.cusum_h"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.cusum_h\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.cusum_h"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.ip_confianca_pct",
+      "nome": {
+        "pt": "Nível do intervalo de previsão do FDD",
+        "en": "Nível do intervalo de previsão do FDD"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.ip_confianca_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.ip_confianca_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.ip_confianca_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.mc_n",
+      "nome": {
+        "pt": "Sorteios do Monte Carlo da incerteza",
+        "en": "Sorteios do Monte Carlo da incerteza"
+      },
+      "unidade": "sorteios",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.mc_n"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.mc_n\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.mc_n"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.mc_confianca_pct",
+      "nome": {
+        "pt": "Nível do intervalo de confiança da economia (Monte Carlo)",
+        "en": "Nível do intervalo de confiança da economia (Monte Carlo)"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.mc_confianca_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.mc_confianca_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.mc_confianca_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.nre_dias_min",
+      "nome": {
+        "pt": "Dias mínimos antes e depois de um degrau para virar evento não rotineiro",
+        "en": "Dias mínimos antes e depois de um degrau para virar evento não rotineiro"
+      },
+      "unidade": "dias",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.nre_dias_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.nre_dias_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.nre_dias_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.nre_limite_pct",
+      "nome": {
+        "pt": "Tamanho mínimo do degrau, em parte do esperado",
+        "en": "Tamanho mínimo do degrau, em parte do esperado"
+      },
+      "unidade": "% do esperado do dia",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.nre_limite_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.nre_limite_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.nre_limite_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.nre_z",
+      "nome": {
+        "pt": "t mínimo do degrau para virar evento não rotineiro",
+        "en": "t mínimo do degrau para virar evento não rotineiro"
+      },
+      "unidade": "adimensional",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.nre_z"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.nre_z\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.nre_z"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.confianca_pct",
+      "nome": {
+        "pt": "Confiança exigida na M&V do PEE",
+        "en": "Confiança exigida na M&V do PEE"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.confianca_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.confianca_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.confianca_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.precisao_pct",
+      "nome": {
+        "pt": "Precisão exigida na M&V do PEE",
+        "en": "Precisão exigida na M&V do PEE"
+      },
+      "unidade": "%",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.precisao_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.precisao_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.precisao_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.amostra_min",
+      "nome": {
+        "pt": "Tamanho mínimo de amostra por estrato no PEE",
+        "en": "Tamanho mínimo de amostra por estrato no PEE"
+      },
+      "unidade": "unidades",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.amostra_min"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.amostra_min\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.amostra_min"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.duracao_medicao_dias",
+      "nome": {
+        "pt": "Duração mínima da medição no PEE",
+        "en": "Duração mínima da medição no PEE"
+      },
+      "unidade": "dias",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.duracao_medicao_dias"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.duracao_medicao_dias\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.duracao_medicao_dias"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.vida_util_anos",
+      "nome": {
+        "pt": "Vida útil dos equipamentos para o PEE",
+        "en": "Vida útil dos equipamentos para o PEE"
+      },
+      "unidade": "anos",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.vida_util_anos"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.vida_util_anos\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.vida_util_anos"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.taxa_desconto_pct",
+      "nome": {
+        "pt": "Taxa de desconto do cálculo da RCB no PEE",
+        "en": "Taxa de desconto do cálculo da RCB no PEE"
+      },
+      "unidade": "% ao ano",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.taxa_desconto_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.taxa_desconto_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.taxa_desconto_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.rcb_max",
+      "nome": {
+        "pt": "RCB máxima aceita no PEE",
+        "en": "RCB máxima aceita no PEE"
+      },
+      "unidade": "adimensional",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.rcb_max"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.rcb_max\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.rcb_max"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.custo_mv_max_pct",
+      "nome": {
+        "pt": "Parte máxima do custo da M&V no custo total do projeto PEE",
+        "en": "Parte máxima do custo da M&V no custo total do projeto PEE"
+      },
+      "unidade": "% do custo total",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.custo_mv_max_pct"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.custo_mv_max_pct\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.custo_mv_max_pct"
+      ],
+      "entradas": []
+    },
+    {
+      "id": "premissa.validacao.pee.prazo_relatorio_dias",
+      "nome": {
+        "pt": "Prazo do relatório final do projeto PEE",
+        "en": "Prazo do relatório final do projeto PEE"
+      },
+      "unidade": "dias",
+      "tipo": "premissa",
+      "modulo": "bases",
+      "produtores": [
+        "bases"
+      ],
+      "origem": {
+        "base": "sistema/physis-premissas.json",
+        "id": "validacao.pee.prazo_relatorio_dias"
+      },
+      "formula": null,
+      "onde": [
+        {
+          "arquivo": "sistema/physis-premissas.json",
+          "linha": 0,
+          "simbolo": "\"validacao.pee.prazo_relatorio_dias\""
+        }
+      ],
+      "consumidores": [
+        {
+          "modulo": "validacao",
+          "tela": "Validação · planejado × gerado (M&V) · limites usados",
+          "necessario": false,
+          "modo": "automatico"
+        }
+      ],
+      "armazenamento": [
+        "sistema/physis-premissas.json (cópia em physis-calc-comum.js)"
+      ],
+      "frequencia": "versionada (atualizado 2026-11-18)",
+      "agregacao": "valor padrão; o projeto pode trocar com motivo",
+      "faixa": {
+        "min": null,
+        "max": null,
+        "fonte": "opções da base"
+      },
+      "qualidade": [
+        "status 'conferir'"
+      ],
+      "lote": "nao",
+      "premissas": [
+        "validacao.pee.prazo_relatorio_dias"
+      ],
+      "entradas": []
     }
   ],
   "estatisticas": [
@@ -47725,6 +50268,85 @@
         "frota.anomalia_desvio_min_pct",
         "frota.anomalia_amostra_min",
         "frota.ewma_alfa"
+      ]
+    },
+    {
+      "id": "validacao.linha_de_base",
+      "nome": "Linha de base do consumo aprendida com os dados do lugar (estilo IPMVP)",
+      "metodo": "Regressão linear simples (mínimos quadrados, aprendizado.reta) do consumo mensal do período de base contra graus-dia, irradiação ou produção; r² e CV(RMSE) = √(SSE ÷ (n − 2)) ÷ média",
+      "onde": [
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def linha_de_base"
+        },
+        {
+          "arquivo": "sistema/physis-validacao.js",
+          "linha": 0,
+          "simbolo": "function linhaDeBase"
+        }
+      ],
+      "entradas": [
+        "validacao.desvio",
+        "mon.temperatura_ar",
+        "sec.irradiancia"
+      ],
+      "saidas": [
+        "a",
+        "b",
+        "r2",
+        "cv_rmse_pct",
+        "n",
+        "ajuste_rotineiro",
+        "economia"
+      ],
+      "amostra_minima": "3 meses para calcular; validacao.baseline_meses_min (12) para não avisar",
+      "validacao": "reta conhecida recuperada e economia igual à equação geral da aba Certificações (tests/test_validacao.py)",
+      "armazenamento": "calculado na hora (sem modelo guardado)",
+      "consumidores": [
+        "validacao"
+      ],
+      "premissas": [
+        "validacao.grau_dia_base_c",
+        "validacao.baseline_meses_min",
+        "validacao.baseline_cvrmse_max_pct"
+      ]
+    },
+    {
+      "id": "validacao.consumo_anormal",
+      "nome": "Consumo do mês fora do normal (razão medido ÷ planejado)",
+      "metodo": "O mesmo z robusto da Frota (frota.anomalia_consumo: mediana e MAD dos meses anteriores) sobre a razão medido ÷ planejado; alerta com z > validacao.anomalia_z e razão acima da mediana pelo menos validacao.desvio_limite_pct",
+      "onde": [
+        {
+          "arquivo": "physis-hub/physis_hub/validacao.py",
+          "linha": 0,
+          "simbolo": "def causas"
+        },
+        {
+          "arquivo": "physis-hub/physis_hub/frota.py",
+          "linha": 0,
+          "simbolo": "def anomalia_consumo"
+        }
+      ],
+      "entradas": [
+        "validacao.desvio"
+      ],
+      "saidas": [
+        "z",
+        "mediana",
+        "n",
+        "anomalo"
+      ],
+      "amostra_minima": "validacao.anomalia_amostra_min (6) meses; abaixo disso a regra não decide",
+      "validacao": "mês com consumo 38 % acima do esperado apontado; meses comuns sem alarme (tests/test_validacao.py)",
+      "armazenamento": "calculado na hora",
+      "consumidores": [
+        "validacao"
+      ],
+      "premissas": [
+        "validacao.anomalia_z",
+        "validacao.anomalia_amostra_min",
+        "validacao.desvio_limite_pct"
       ]
     }
   ],
@@ -48928,6 +51550,30 @@
       "modo": "automatico",
       "necessario": false,
       "tela": "Gestão · Indicadores · Financeiro (Combustível da frota)"
+    },
+    {
+      "de": "frota",
+      "para": "validacao",
+      "variavel": "frota.distancia_consumo",
+      "modo": "automatico",
+      "necessario": false,
+      "tela": "Validação · Frota: litros medidos × consumo esperado"
+    },
+    {
+      "de": "monitoramento",
+      "para": "validacao",
+      "variavel": "sup.energia",
+      "modo": "automatico",
+      "necessario": false,
+      "tela": "Validação · Energia, Solar e Turbinas: medido do mês"
+    },
+    {
+      "de": "carbono",
+      "para": "validacao",
+      "variavel": "carb.fator_rede",
+      "modo": "automatico",
+      "necessario": false,
+      "tela": "Validação · Carbono planejado × medido"
     }
   ],
   "lacunas": [
