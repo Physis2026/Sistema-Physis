@@ -208,7 +208,8 @@ class TestBots(unittest.TestCase):
             ign = raiz / "_backup_x"
             ign.mkdir()
             (ign / "velho.md").write_text("2027–2032", encoding="utf-8")
-            r = mv_bots.bot_documentos(mv, [raiz], HOJE)
+            # "hoje" = o dia real: os arquivos acabaram de ser gravados (com HOJE fixo em 18/11 o teste quebrava a partir de 19/11)
+            r = mv_bots.bot_documentos(mv, [raiz], date.today())
         self.assertEqual(r["vistos"], 3)
         self.assertEqual(r["com_falha"], 1)
         self.assertEqual(r["template_gerador"], 1)
