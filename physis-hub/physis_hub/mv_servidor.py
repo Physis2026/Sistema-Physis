@@ -7,8 +7,13 @@ X-Physis-MV: 1 em todo POST (um site de fora não consegue mandar esse cabeçalh
 """
 from __future__ import annotations
 
+import base64
+import hmac
+import ipaddress
 import json
 import os
+import secrets
+import socket
 import threading
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -18,13 +23,16 @@ from urllib.parse import parse_qs, urlparse
 from . import documentos
 from . import mv_bots
 from . import mv_arquivos
+from . import mv_comandos
 from . import mv_editais
 from .mv import ESTADOS, FRENTES, MV, NOMES_ESTADO, ErroMV
 
 WEB = Path(__file__).resolve().parents[1] / "web"
+VENDOR = Path(__file__).resolve().parents[2] / "vendor"
+VENDOR_OK = {"three.min.js", "jszip.min.js"}       # bibliotecas abertas guardadas localmente (sem internet)
 PORTA = int(os.environ.get("PHYSIS_MV_PORTA") or 8710)
 CORPO_MAX = 256 * 1024
-CORPO_UPLOAD = 15 * 1024 * 1024      # 10 MB em base64
+CORPO_UPLOAD = 56 * 1024 * 1024      # até 40 MB (modelos 3D) em base64
 _TRAVA = threading.Lock()
 NOME_FRENTE = {f[0]: f[1] for f in FRENTES}
 
@@ -89,6 +97,9 @@ def exportar(mv: MV, vista: str, formato: str) -> tuple[bytes, str, str]:
 def fabricar(mv: MV):
     ed = mv_editais.Editais(mv)
     arq = mv_arquivos.Arquivos(mv)
+    cmd = mv_comandos.Comandos(mv, arq)
+    cmd.semear_aprovacoes(mv_comandos.APROVACOES_23_11)
+    rede = getattr(mv, "_rede", None)        # modo rede local (teste): {"senha": ..., "hosts": {...}}
     class H(BaseHTTPRequestHandler):
         server_version = "PhysisMV/teste"
 
@@ -97,7 +108,31 @@ def fabricar(mv: MV):
 
         def _host_ok(self) -> bool:
             h = (self.headers.get("Host") or "").split(":")[0]
-            return h in ("127.0.0.1", "localhost")
+            if h in ("127.0.0.1", "localhost"):
+                return True
+            return bool(rede) and h in rede["hosts"]
+
+        def _autorizado(self) -> bool:
+            """Modo rede local: quem não está neste computador entra com usuário 'teste' e a senha de teste (HTTP Basic)."""
+            if not rede or self.client_address[0] in ("127.0.0.1", "::1"):
+                return True
+            a = self.headers.get("Authorization") or ""
+            if a.startswith("Basic "):
+                try:
+                    u, _, s = base64.b64decode(a[6:]).decode("utf-8").partition(":")
+                except (ValueError, UnicodeDecodeError):
+                    return False
+                return u == "teste" and hmac.compare_digest(s, rede["senha"])
+            return False
+
+        def _pedir_senha(self) -> None:
+            b = "Physis M&A (teste): entre com o usuário teste e a senha de teste.".encode()
+            self.send_response(401)
+            self.send_header("WWW-Authenticate", 'Basic realm="Physis M&A teste", charset="UTF-8"')
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
 
         def _seguranca(self) -> None:
             # R-04 (auditoria 39): o painel não abre dentro de páginas de terceiros nem vaza o endereço
@@ -136,6 +171,8 @@ def fabricar(mv: MV):
         def do_GET(self):  # noqa: N802
             if not self._host_ok():
                 return self._json(403, {"erro": "host"})
+            if not self._autorizado():
+                return self._pedir_senha()
             u = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(u.query).items()}
             p, fr = u.path, q.get("frente") or None
@@ -155,6 +192,8 @@ def fabricar(mv: MV):
                         return self._bytes((WEB / "mv.html").read_bytes(), "text/html; charset=utf-8")
                     if p == "/logo.png" and (WEB / "logo-physis.png").is_file():   # logo atualizado (árvore, 19/11/2026)
                         return self._bytes((WEB / "logo-physis.png").read_bytes(), "image/png")
+                    if p.startswith("/vendor/") and p[8:] in VENDOR_OK and (VENDOR / p[8:]).is_file():
+                        return self._bytes((VENDOR / p[8:]).read_bytes(), "text/javascript; charset=utf-8")
                     if p == "/icone.png" and (WEB / "app" / "icone-192.png").is_file():   # logo Physis no cabeçalho
                         return self._bytes((WEB / "app" / "icone-192.png").read_bytes(), "image/png")
                     rotas = {"/api/mv/saude": lambda: mv.saude(), "/api/mv/gantt": lambda: mv.gantt(fr),
@@ -166,7 +205,13 @@ def fabricar(mv: MV):
                                                       "etapas": [{"id": e, "nome": mv_editais.NOMES_ETAPA[e]} for e in mv_editais.ETAPAS]},
                              "/api/mv/editais": lambda: ed.listar(),
                              "/api/mv/arquivos": lambda: arq.listar(q.get("destino") or None, q.get("ref") or None),
-                             "/api/mv/arquivo/previa": lambda: arq.previa(q.get("id", ""))}
+                             "/api/mv/arquivo/previa": lambda: arq.previa(q.get("id", "")),
+                             "/api/mv/fila": lambda: cmd.fila(q.get("estado") or None),
+                             "/api/mv/programados": lambda: cmd.programados(),
+                             "/api/mv/aprovacoes": lambda: cmd.aprovacoes(),
+                             "/api/mv/perguntas": lambda: mv_comandos.perguntas(mv, None if q.get("abertas") is None else q.get("abertas") == "1",
+                                                                                 q.get("sistema") or None),
+                             "/api/mv/comandos/ajuda": lambda: mv_comandos.AJUDA}
                     if p in rotas:
                         return self._json(200, rotas[p]())
                     if p == "/api/mv/arquivo/baixar":
@@ -186,6 +231,8 @@ def fabricar(mv: MV):
         def do_POST(self):  # noqa: N802
             if not self._host_ok() or self.headers.get("X-Physis-MV") != "1":
                 return self._json(403, {"erro": "pedido recusado"})
+            if not self._autorizado():
+                return self._pedir_senha()
             p = urlparse(self.path).path
             n = int(self.headers.get("Content-Length") or 0)
             if n > (CORPO_UPLOAD if p == "/api/mv/arquivo/enviar" else CORPO_MAX):
@@ -219,6 +266,25 @@ def fabricar(mv: MV):
                         return self._json(200, arq.aplicar(str(corpo.get("id"))))
                     if p == "/api/mv/arquivo/descartar":
                         return self._json(200, arq.descartar(str(corpo.get("id"))))
+                    if p == "/api/mv/comando":
+                        return self._json(200, cmd.executar(str(corpo.get("texto") or ""), "caixa"))
+                    if p == "/api/mv/pedido":
+                        return self._json(200, cmd.decidir_pedido(int(corpo.get("id")), str(corpo.get("estado")),
+                                                                  corpo.get("resultado")))
+                    if p == "/api/mv/programado":
+                        if corpo.get("id"):
+                            return self._json(200, cmd.alternar(int(corpo["id"]), bool(corpo.get("ativo"))))
+                        return self._json(200, cmd.programar(str(corpo.get("comando") or ""), str(corpo.get("frequencia") or ""),
+                                                             str(corpo.get("nome") or "")))
+                    if p == "/api/mv/pergunta":
+                        return self._json(200, mv_comandos.perguntar(mv, str(corpo.get("pergunta") or ""), corpo.get("opcoes") or [],
+                                                                     str(corpo.get("origem") or "tela"), corpo.get("aplica_em") or [],
+                                                                     str(corpo.get("prazo") or "")))
+                    if p == "/api/mv/pergunta/responder":
+                        return self._json(200, mv_comandos.responder(mv, str(corpo.get("id")), str(corpo.get("resposta") or ""),
+                                                                     str(corpo.get("nota") or "")))
+                    if p == "/api/mv/aprovacao":
+                        return self._json(200, cmd.decidir(str(corpo.get("id")), str(corpo.get("estado")), str(corpo.get("nota") or "")))
                 if p == "/api/mv/bots/rodar":
                     # R-04: bots (até ~1,5 min) rodam numa conexão própria, fora da trava; com banco em memória (testes), na trava
                     quais = [x for x in ((corpo.get("quais") if isinstance(corpo, dict) else None) or []) if x in mv_bots.BOTS] or None
@@ -239,7 +305,44 @@ def fabricar(mv: MV):
     return H
 
 
-def servir(mv: MV | None = None, porta: int = PORTA) -> ThreadingHTTPServer:
+def ips_locais() -> set[str]:
+    """IPs privados desta máquina (rede local). Só endereços privados entram; nunca um IP público."""
+    ips = set()
+    try:
+        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            ips.add(info[4][0])
+    except OSError:
+        pass
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("10.255.255.255", 1))
+        ips.add(s.getsockname()[0])
+        s.close()
+    except OSError:
+        pass
+    return {i for i in ips if ipaddress.ip_address(i).is_private and not ipaddress.ip_address(i).is_loopback}
+
+
+def senha_teste(pasta: Path) -> str:
+    """Senha de teste da rede local, criada uma vez e guardada fora do OneDrive (dados/senha-teste-rede.txt)."""
+    arq = pasta / "senha-teste-rede.txt"
+    if not arq.is_file():
+        arq.write_text(secrets.token_urlsafe(9), encoding="utf-8")
+    return arq.read_text(encoding="utf-8").strip()
+
+
+def servir(mv: MV | None = None, porta: int = PORTA, rede_local: bool = False) -> ThreadingHTTPServer:
+    """Padrão: só 127.0.0.1. rede_local=True (teste, 20/11/2026): ouve nos IPs privados desta máquina, com senha de teste
+    para quem vem de outro aparelho. Não abre para a internet: nada de redirecionamento no roteador; o Windows pode perguntar
+    se libera o Python no firewall para redes PRIVADAS (a dona decide; nunca liberar em rede pública)."""
     mv = mv or MV()
+    if rede_local:
+        ips = ips_locais()
+        if not ips:
+            raise ErroMV("nenhum IP de rede local encontrado (Wi-Fi/cabo desligado?)")
+        mv._rede = {"senha": senha_teste(Path(mv.caminho).parent), "hosts": ips | {socket.gethostname().lower()}}
+        srv = ThreadingHTTPServer(("0.0.0.0", porta), fabricar(mv))
+        srv.ips = sorted(ips)
+        return srv
     srv = ThreadingHTTPServer(("127.0.0.1", porta), fabricar(mv))
     return srv

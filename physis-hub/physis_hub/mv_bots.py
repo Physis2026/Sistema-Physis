@@ -455,6 +455,13 @@ def rodar(mv: MV, quais: list[str] | None = None) -> dict:
             mv.alertar("mv", "bot_falhou", nome, "alerta", f"O bot {nome} falhou: {e!r}", "Ver o registro e corrigir")
             out[nome] = {"erro": repr(e)}
     try:
+        from . import mv_comandos, mv_arquivos
+        prog = mv_comandos.Comandos(mv, mv_arquivos.Arquivos(mv)).rodar_programados()
+        if prog:
+            out["programados"] = prog
+    except Exception as e:  # noqa: BLE001
+        out["programados"] = {"erro": repr(e)}
+    try:
         out["rotina"] = conferir_rotina(mv)
     except Exception as e:  # noqa: BLE001
         out["rotina"] = {"erro": repr(e)}

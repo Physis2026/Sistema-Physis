@@ -8,19 +8,21 @@
 /* Identity Guide Physis (19/11/2026; PALETA.md "Guia de identidade"): verde-floresta da Physis Engineering, creme, carvão,
    laranja-semente como destaque e laranja de botão com texto branco. Josefin Sans só no logotipo e nos títulos grandes; Lora no corpo. */
 :root{--fundo:#F4F1EA;--sup:#FFFFFF;--texto:#1B1F23;--texto2:#4A4F44;--logo:#4A8A5A;--acao:#1A4D2E;--sobreacao:#FFFFFF;--botao:#C2410C;
---linha:#D9D3C2;--semente:#F97316;
+--linha:#D9D3C2;--semente:#F97316;--rotulo:#C2410C;--faixa:#0B3D2E;--faixat:#F4F1EA;
 --areia:#EFE8D6;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#4A4F44;--inf:#EFE8D6;--ok:#1F4A1C;--okf:#DCEBD8;
 --barra:#7FA874;--crit:#A63A28;--risco:#C08A1E;--feita:#A8BFA0;--hoje:#BB6B4A;
 --c-feita:#1A4D2E;--c-fazendo:#4A8A5A;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#C2410C;--c-plan:#4A4F44;--c-conc:#1A4D2E;
 --c-ent:#1A4D2E;--c-ent2:#8FB183;--c-sai:#C2410C;--c-sai2:#E3C4BD;
 --h0:#F4F1EA;--h1:#CDDCC4;--h2:#8FB183;--h3:#4B7547;--h4:#1A4D2E;--ht0:#4A4F44;--ht1:#1B1F23;--ht2:#1B1F23;--ht3:#FFFFFF;--ht4:#FFFFFF;
 --f-titulo:"Josefin Sans","Century Gothic","Segoe UI",sans-serif;--f-corpo:Lora,Georgia,"Times New Roman",serif}
-html[data-tema="escuro"]{--fundo:#1B1F23;--sup:#23282D;--texto:#F4F1EA;--texto2:#C3D0BD;--logo:#8FB183;--acao:#8FB183;--sobreacao:#1B1F23;--linha:#4A5A47;
---areia:#33372E;--at:#E5D5AE;--atf:#5C3F00;--al:#E3C4BD;--alf:#5C2B2E;--in:#E5D5AE;--inf:#33372E;--ok:#DCEBD8;--okf:#3A4A38;
---barra:#7FA874;--crit:#FF8A80;--risco:#C9A227;--feita:#5A6154;--hoje:#D9A58C;
---c-feita:#8FB183;--c-fazendo:#4A8A5A;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#FF8A80;--c-plan:#C3D0BD;--c-conc:#8FB183;
---c-ent:#8FB183;--c-ent2:#4A8A5A;--c-sai:#FF8A80;--c-sai2:#A85432;
---h0:#23282D;--h1:#3A4A38;--h2:#4A5A47;--h3:#4B7547;--h4:#8FB183;--ht0:#C3D0BD;--ht1:#F4F1EA;--ht2:#F4F1EA;--ht3:#FFFFFF;--ht4:#1B1F23}
+/* tipo A (escuro verde) */
+html[data-tema="escuro"]{--fundo:#0B3D2E;--sup:#0F4535;--texto:#F4F1EA;--texto2:#C3D0BD;--logo:#8FB183;--acao:#F4F1EA;--sobreacao:#0B3D2E;--linha:#2F5E4E;
+--rotulo:#D9A58C;--faixa:#1B1F23;--faixat:#F4F1EA;
+--areia:#2F5E4E;--at:#E5D5AE;--atf:#5C3F00;--al:#E3C4BD;--alf:#5C2B2E;--in:#E5D5AE;--inf:#33372E;--ok:#DCEBD8;--okf:#3A4A38;
+--barra:#8FB183;--crit:#FF8A80;--risco:#C9A227;--feita:#5A6154;--hoje:#D9A58C;
+--c-feita:#8FB183;--c-fazendo:#D9A58C;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#FF8A80;--c-plan:#C3D0BD;--c-conc:#8FB183;
+--c-ent:#8FB183;--c-ent2:#4B7547;--c-sai:#FF8A80;--c-sai2:#A85432;
+--h0:#0F4535;--h1:#2F5E4E;--h2:#4B7547;--h3:#8FB183;--h4:#F4F1EA;--ht0:#C3D0BD;--ht1:#F4F1EA;--ht2:#FFFFFF;--ht3:#0B3D2E;--ht4:#0B3D2E}
 *{box-sizing:border-box}
 body{margin:0;background:var(--fundo);color:var(--texto);font:15px/1.5 var(--f-corpo)}
 h1{font:300 1.7rem/1.15 var(--f-titulo);letter-spacing:.06em;color:var(--acao);margin:0}
@@ -86,11 +88,18 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 .drop.sobre{border-color:var(--acao);background:var(--sup)}
 .drop input[type=file]{max-width:100%}
 .previa{margin-top:.75rem}
+.faixa{background:var(--faixa);color:var(--faixat);font-size:.8rem;letter-spacing:.06em;padding:.3rem 1.25rem;display:flex;flex-wrap:wrap;gap:.25rem 1rem;justify-content:space-between}
+.rotulo{color:var(--rotulo);font:600 .75rem var(--f-corpo);letter-spacing:.12em;text-transform:uppercase}
+.cmdbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:0 0 .75rem;padding:.6rem .75rem;background:var(--sup);border:1px solid var(--linha);border-radius:12px}
+.cmdbar label{font-weight:700}.cmdbar input{flex:1 1 22rem;min-width:0;min-height:44px;padding:.35rem .6rem;border:1px solid var(--linha);border-radius:8px;background:var(--fundo);color:var(--texto)}
+pre.saida{white-space:pre-wrap;font:13px/1.45 Consolas,"Courier New",monospace;background:var(--fundo);border:1px solid var(--linha);border-radius:8px;padding:.5rem;max-height:40vh;overflow:auto}
+.botsaida{margin-top:.4rem}.v3d{border:1px solid var(--linha);border-radius:12px;overflow:hidden;min-height:120px;background:var(--sup)}.v3d canvas{display:block;max-width:100%;cursor:grab}
 [hidden]{display:none!important}
 @media (max-width:700px){.kanban{grid-template-columns:repeat(5,80vw)}}
 </style>
 </head>
 <body>
+<div class="faixa"><span>Physis Engineering · Physis M&amp;A</span><span>versão de teste · nada é enviado para fora sem aprovação</span></div>
 <header>
   <div class="marca"><img id="logo" src="/logo.png" alt="Physis Engineering" onerror="this.hidden=true">
     <div><h1>Physis M&amp;A <span class="selo">versão de teste</span></h1><p class="assina">Physis Engineering · gestão e monitoramento integrados</p></div></div>
@@ -104,6 +113,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 </header>
 <nav role="tablist" aria-label="Visões">
   <button class="aba" role="tab" data-v="saude" aria-selected="true">Visão geral</button>
+  <button class="aba" role="tab" data-v="aprovacoes" aria-selected="false">Aprovações</button>
   <button class="aba" role="tab" data-v="projetos" aria-selected="false">Projetos</button>
   <button class="aba" role="tab" data-v="gantt" aria-selected="false">Cronograma</button>
   <button class="aba" role="tab" data-v="kanban" aria-selected="false">Tarefas</button>
@@ -113,9 +123,36 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
   <button class="aba" role="tab" data-v="documentos" aria-selected="false">Documentos</button>
   <button class="aba" role="tab" data-v="financeiro" aria-selected="false">Finanças por entidade</button>
   <button class="aba" role="tab" data-v="editais" aria-selected="false">Editais e captação</button>
+  <button class="aba" role="tab" data-v="modelos3d" aria-selected="false">Modelagem 3D</button>
+  <button class="aba" role="tab" data-v="bots" aria-selected="false">Bots e comandos</button>
 </nav>
 <main>
+  <form id="cmdForm" class="cmdbar" aria-label="Comandos aos bots"><label for="cmdTxt">Comando aos bots</label>
+    <input id="cmdTxt" type="text" autocomplete="off" placeholder="/ajuda · /contrato f0-advogado · ou um pedido ao Claude com #id da tarefa">
+    <button class="btn prim">Enviar</button></form>
+  <div id="cmdSaida"></div>
   <p class="aviso" id="status" role="status">Carregando…</p>
+  <section id="v-aprovacoes" role="tabpanel" hidden>
+    <p class="rotulo">Até 23/11 · versão de teste</p>
+    <p class="muted" id="apResumo"></p>
+    <div class="tabwrap" id="aprovacoes"></div>
+    <h2>Perguntas e decisões (centralizadas)</h2>
+    <p class="muted">Toda pergunta de qualquer sistema (Sistema Physis, Instituto, InovaSTEM, Casa, templates) fica aqui uma vez só. Respondida aqui, vale para todos os sistemas indicados.</p>
+    <div id="perguntas"></div>
+  </section>
+  <section id="v-bots" role="tabpanel" hidden>
+    <p class="muted">Comandos executam na hora; texto sem barra vai para a fila do Claude e volta como rascunho. Nada é enviado para fora: e-mails ficam como rascunho e documentos como versão de teste.</p>
+    <div class="cards"><div class="card"><h2>Comandos</h2><ul id="botsAjuda"></ul></div>
+      <div class="card"><h2>Programar um bot</h2><form id="fProg" class="ferr"><label>Comando <input type="text" name="comando" placeholder="/rodar resumo" required></label>
+        <label>Repetir <select name="frequencia"><option value="dia">todo dia</option><option value="hora">toda hora</option><option value="semana">toda semana</option></select></label>
+        <label>Nome <input type="text" name="nome" placeholder="opcional"></label><button class="btn prim">Programar</button></form><div class="tabwrap" id="botsProg"></div></div></div>
+    <h2>Fila de pedidos e rascunhos</h2><div class="tabwrap" id="botsFila"></div>
+  </section>
+  <section id="v-modelos3d" role="tabpanel" hidden>
+    <p class="muted">Visualizador 3D local (sem internet), galeria com licença de cada arquivo, pedido de impressão (CrealityPrint para filamento, HALOT BOX para resina, abertos no computador da impressora) e modelos escaneados (CrealityScan). IFC/BIM abre no Planejador.</p>
+    <div id="up3d"></div><h2>Galeria</h2><div class="cards" id="galeria3d"></div>
+    <h2>Visualizador</h2><div class="v3d" id="v3d"><p class="muted" style="padding:1rem">Escolha "Ver em 3D" num modelo da galeria. Arraste para girar, role para aproximar; no teclado, setas e + / −.</p></div><div id="v3dInfo" class="muted" style="margin-top:.5rem"></div>
+  </section>
   <section id="v-saude" role="tabpanel"></section>
   <section id="v-projetos" role="tabpanel" hidden>
     <p class="muted">Um cartão por projeto: andamento, prazos, riscos e confiança das datas. "Ver cronograma" filtra todas as abas por esse projeto (o filtro "Projeto" fica no topo).</p>
@@ -180,7 +217,7 @@ const FR={},EST={};let META=null,CACHE={};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // Modo DEMO (mock): com window.MV_MOCK a tela funciona sem servidor, com dados fictícios embutidos (ferramenta mv_mock.py)
 const MOCK=window.MV_MOCK||null;
-function mockGet(p){const u=new URL(p,"http://x/"),fr=u.searchParams.get("frente"),d=JSON.parse(JSON.stringify(MOCK[u.pathname]));
+function mockGet(p){const u=new URL(p,"http://x/");if(!(u.pathname in MOCK))return [];const fr=u.searchParams.get("frente"),d=JSON.parse(JSON.stringify(MOCK[u.pathname]));
   if(fr&&Array.isArray(d))return d.filter(t=>t.frente===fr);
   if(fr&&u.pathname==="/api/mv/kanban"){for(const k in d)d[k]=d[k].filter(t=>t.frente===fr);}return d;}
 function mockPost(p,b){if(p==="/api/mv/estado"){for(const k in MOCK["/api/mv/kanban"]){const L=MOCK["/api/mv/kanban"][k],i=L.findIndex(t=>t.id===b.id);
@@ -253,6 +290,7 @@ $("#tema").onchange=e=>{tema(e.target.value);render(atual)};
 document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=MOCK?'<span class="muted">Downloads ODS/ODT/PDF na versão com servidor.</span>':["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}&idioma=${IDI}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
 $("#idioma").value=IDI;$("#idioma").onchange=e=>{try{localStorage.setItem("physis-pref-idioma",e.target.value)}catch(x){}location.reload();};
 EN["Downloads ODS/ODT/PDF na versão com servidor."]="ODS/ODT/PDF downloads in the server version.";
+EN["Aprovações"]="Approvals";EN["Modelagem 3D"]="3D modeling";EN["Bots e comandos"]="Bots and commands";EN["Comando aos bots"]="Command to the bots";EN["Enviar"]="Send";EN["Comandos"]="Commands";EN["Programar um bot"]="Schedule a bot";EN["Programar"]="Schedule";EN["Repetir"]="Repeat";EN["todo dia"]="every day";EN["toda hora"]="every hour";EN["toda semana"]="every week";EN["Fila de pedidos e rascunhos"]="Requests and drafts queue";EN["Galeria"]="Gallery";EN["Visualizador"]="Viewer";EN["Ver em 3D"]="View in 3D";EN["Licença"]="License";EN["Aprovar"]="Approve";EN["Pedir ajuste"]="Request changes";EN["Descartar"]="Discard";EN["Bot"]="Bot";EN["Escolher…"]="Choose…";EN["Modelo de contrato"]="Contract template";EN["Rascunho de e-mail"]="Email draft";EN["Checklist e passos"]="Checklist and steps";EN["Enviar ao Claude (fila)"]="Send to Claude (queue)";EN["Pedir impressão (aguarda aprovação)"]="Request print (awaits approval)";EN["Material"]="Material";EN["Enviar modelo 3D"]="Upload 3D model";EN["Até 23/11 · versão de teste"]="By 23/11 · test version";
 EN["Projeto"]="Project";EN["Todos os projetos"]="All projects";EN["Projetos"]="Projects";EN["(sem projeto)"]="(no project)";EN["Andamento por frente"]="Progress by front";EN["Prazos das próximas 8 semanas"]="Deadlines for the next 8 weeks";EN["Evolução: planejado × concluído"]="Progress: planned × done";EN["Editais e finanças"]="Calls and finance";EN["Funil de editais"]="Calls funnel";EN["Finanças por entidade (nunca somadas entre si)"]="Finance by entity (never added together)";EN["Ver os números em tabela"]="See the numbers as a table";EN["Feitas"]="Done";EN["Em revisão"]="In review";EN["Fazendo"]="Doing";EN["A fazer"]="To do";EN["Bloqueadas"]="Blocked";EN["Ver cronograma"]="See schedule";EN["Ver tarefas"]="See tasks";EN["Ordenar"]="Sort";EN["Mais atrasos e riscos primeiro"]="Most delays and risks first";EN["Prazo final"]="Final deadline";EN["Mais tarefas"]="Most tasks";EN["Nome"]="Name";EN["Sem dados para mostrar com estes filtros."]="No data to show with these filters.";EN["Entradas oficiais"]="Official inflows";EN["Entradas a conferir"]="Inflows to check";EN["Saídas oficiais"]="Official outflows";EN["Saídas a conferir"]="Outflows to check";EN["Concluído"]="Done";EN["Escopo total"]="Total scope";EN["Planejado (prazo até a semana, tracejado)"]="Planned (due by the week, dashed)";EN["Editais (prazo de envio)"]="Calls (submission deadline)";EN["Nenhum projeto com esses filtros."]="No projects with these filters.";
 EN["Enviar editais (CSV do banco) ou o arquivo do edital"]="Upload calls (bank CSV) or the call document";EN["Anexar documentos"]="Attach documents";EN["Importar lançamentos ou guardar extratos"]="Import entries or store statements";EN["Arraste arquivos aqui ou clique para escolher"]="Drag files here or click to choose";EN["Vincular a"]="Link to";EN["(sem vínculo)"]="(no link)";EN["Baixar modelo CSV"]="Download CSV template";EN["Arquivo"]="File";EN["Vínculo"]="Link";EN["Enviado"]="Uploaded";EN["Situação"]="Status";EN["Ações"]="Actions";EN["Ver prévia"]="Preview";EN["Baixar"]="Download";EN["Descartar"]="Discard";EN["aguardando prévia"]="awaiting preview";EN["guardado"]="stored";EN["aplicado"]="applied";EN["descartado"]="discarded";EN["Nenhum arquivo enviado ainda."]="No files uploaded yet.";EN["Prévia (versão de teste: nada foi gravado ainda)"]="Preview (test version: nothing saved yet)";EN["Aplicar (gravar no banco)"]="Apply (save to database)";EN["Fechar prévia"]="Close preview";EN["Linhas com erro (não entram)"]="Rows with errors (not imported)";EN["Arquivos deste edital (PDF, anexos, rascunhos)"]="Files for this call (PDF, annexes, drafts)";EN["Upload disponível só na versão local com servidor (os arquivos ficam guardados fora do OneDrive)."]="Upload is available only in the local server version (files are stored outside OneDrive).";
 traduz(document.body);
@@ -309,6 +347,9 @@ async function render(v){
     $("#documentos").innerHTML=`<table><thead><tr><th>Situação</th><th>Documento</th><th>Tipo</th><th>Idade</th><th>Marcadores</th><th>Falhas</th></tr></thead><tbody>`+
     ds.map(d=>`<tr><td><span class="pill g-${d.situacao==="falha"?"alerta":d.situacao==="vencido"?"atencao":"ok"}">${esc(d.situacao)}</span></td><td>${esc(d.caminho)}</td><td>${esc(d.tipo)}</td>
     <td>${d.idade_d} d (validade ${d.validade_d})</td><td>${d.marcadores}</td><td>${d.falhas.map(f=>esc(f.texto+" ("+f.decisao+")")).join("<br>")}</td></tr>`).join("")+`</tbody></table>`;}
+  if(v==="aprovacoes"){await aprovacoes();await perguntasCentrais();}
+  if(v==="bots"){await bots();}
+  if(v==="modelos3d"){await modelos3d();}
   if(v==="editais"){await editais();}
   if(v==="financeiro"){const s=CACHE.saude||await get("/api/mv/saude");const nomes={casa:"Casa Physis",engineering:"Physis Engineering",instituto:"Instituto Physis",pessoa_fisica:"Pessoa física (lote)"};
     $("#financeiro").innerHTML=Object.entries(s.financeiro).map(([e,d])=>`<div class="card"><strong>${nomes[e]}</strong><p class="muted">${d.lancamentos} lançamento(s)</p>
@@ -321,7 +362,9 @@ function kanban(){const o=$("#origemK").value,b=$("#busca").value.toLowerCase();
     return `<div class="col"><h3>${esc(e.nome)} (${ts.length})</h3>`+ts.slice(0,150).map(t=>`<div class="tc${t.atrasada?" atr":""}"><strong>${esc(t.titulo)}</strong>
     <div class="muted"><span class="fr fr-${esc(t.frente)}">${esc(FR[t.frente])}</span> ${esc(t.responsavel||"sem responsável")} · prazo ${esc(t.fim||"—")}${t.data_estimada?" [CONFERIR]":""}</div>
     ${t.atrasada?'<span class="pill g-alerta">atrasada</span>':""}${t.bloqueio?`<div class="muted">Bloqueio: ${esc(t.bloqueio)}</div>`:""}
-    <label class="muted">Estado <select data-id="${esc(t.id)}">${META.estados.map(x=>`<option value="${x.id}"${x.id===t.estado?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></label></div>`).join("")+(ts.length>150?`<p class="muted">+${ts.length-150} (use a busca)</p>`:"")+`</div>`}).join("");
+    <label class="muted">Estado <select data-id="${esc(t.id)}">${META.estados.map(x=>`<option value="${x.id}"${x.id===t.estado?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></label>
+    <label class="muted">Bot <select data-bot="${esc(t.id)}" aria-label="Bot para a tarefa ${esc(t.titulo)}"><option value="">Escolher…</option><option value="/modelo contrato">Modelo de contrato</option><option value="/modelo oficio">Modelo de ofício</option><option value="/modelo ata">Modelo de ata</option><option value="/modelo termo">Modelo de termo</option><option value="/modelo proposta">Modelo de proposta</option><option value="/email">Rascunho de e-mail</option><option value="/checklist">Checklist e passos</option><option value="claude">Enviar ao Claude (fila)</option></select></label></div>`).join("")+(ts.length>150?`<p class="muted">+${ts.length-150} (use a busca)</p>`:"")+`</div>`}).join("");
+  $("#kanban").querySelectorAll("select[data-bot]").forEach(s=>s.onchange=()=>botTarefa(s));
   $("#kanban").querySelectorAll("select[data-id]").forEach(s=>s.onchange=async()=>{let bl="";if(s.value==="bloqueada"){bl=prompt("O que bloqueia e de quem depende?")||"";}
     const r=await post("/api/mv/estado",{id:s.dataset.id,estado:s.value,bloqueio:bl});if(r.erro)alert(r.erro);CACHE.todas=null;render("kanban");});}
 $("#origemK").onchange=kanban;$("#busca").oninput=kanban;
@@ -467,9 +510,92 @@ async function projetos(){const ts=(await todas(true)).filter(t=>!fr()||t.frente
   const ir=(k,v)=>{$("#projeto").value=k;$("#origem").value="";$("#origemK").value="";abrir(v);};
   $("#projetos").querySelectorAll("[data-pjg]").forEach(b=>b.onclick=()=>ir(b.dataset.pjg,"gantt"));
   $("#projetos").querySelectorAll("[data-pjk]").forEach(b=>b.onclick=()=>ir(b.dataset.pjk,"kanban"));}
+// ---------------------------------------------------------------- aprovações, bots e comandos, modelagem 3D (20/11/2026)
+const EST_AP={pendente:"pendente",aprovado:"aprovado",ajustar:"ajustar",reprovado:"reprovado"};
+const EST_PED={na_fila:"na fila do Claude",rascunho:"rascunho para aprovar",pronto:"pronto",aprovado:"aprovado",descartado:"descartado",erro:"erro"};
+const semServidor=t=>`<p class="aviso">${esc(t)}: disponível só na versão local com servidor.</p>`;
+async function aprovacoes(){if(MOCK){$("#aprovacoes").innerHTML=semServidor("Lista de aprovações");return;}
+  const ls=await get("/api/mv/aprovacoes"),pend=ls.filter(x=>x.estado!=="aprovado").length;
+  $("#apResumo").textContent=`${ls.length} item(ns) · ${pend} aguardando · aprovar aqui NÃO grava nada sozinho: a gravação no Sistema Physis e no do Instituto é o último item, depois de tudo aprovado.`;
+  $("#aprovacoes").innerHTML=`<table><thead><tr><th>Prazo</th><th>Item</th><th>Grupo</th><th>Onde ver</th><th>Situação</th><th>Decidir</th></tr></thead><tbody>`+ls.map(a=>`<tr>
+    <td><span class="pill g-${a.atrasada?"alerta":a.estado==="aprovado"?"ok":"atencao"}">${esc(a.prazo.split("-").reverse().join("/"))}</span></td><td>${esc(a.item)}${a.nota?`<div class="muted">Nota: ${esc(a.nota)}</div>`:""}</td>
+    <td>${esc(a.grupo)}</td><td class="muted">${esc(a.onde)}</td><td><span class="pill g-${a.estado==="aprovado"?"ok":a.estado==="reprovado"?"alerta":a.estado==="ajustar"?"atencao":"info"}">${esc(EST_AP[a.estado])}</span></td>
+    <td><div class="ferr" style="margin:0"><button class="btn prim" data-ap="${esc(a.id)}" data-e="aprovado">Aprovar</button><button class="btn" data-ap="${esc(a.id)}" data-e="ajustar">Pedir ajuste</button></div></td></tr>`).join("")+`</tbody></table>`;
+  $("#aprovacoes").querySelectorAll("[data-ap]").forEach(b=>b.onclick=async()=>{const e=b.dataset.e;let nota="";
+    if(e==="ajustar"){const c=b.closest("tr").querySelector("td:nth-child(2)");nota=(window.prompt?prompt("O que ajustar?"):"")||"";}
+    const r=await post("/api/mv/aprovacao",{id:b.dataset.ap,estado:e,nota});if(r.erro)status("Erro: "+r.erro);aprovacoes();});}
+async function perguntasCentrais(){if(MOCK){$("#perguntas").innerHTML=semServidor("Perguntas centralizadas");return;}
+  const ls=await get("/api/mv/perguntas");
+  $("#perguntas").innerHTML=ls.length?ls.map(p=>`<div class="card" style="margin:.5rem 0"><p><span class="pill g-${p.aberta?"atencao":"ok"}">${p.aberta?"aberta":"respondida"}</span>
+    ${p.pedidos>1?`<span class="pill g-info">pedida ${p.pedidos}×</span>`:""} ${p.aplica_em.map(s=>`<span class="pill g-info">${esc(s)}</span>`).join("")} <span class="muted">${esc(p.origem)}${p.prazo?" · prazo "+esc(p.prazo):""}</span></p>
+    <strong>${esc(p.pergunta)}</strong>${p.aberta?`<div class="ferr" style="margin:.4rem 0 0">${p.opcoes.map(o=>`<button class="btn" data-pr="${esc(p.id)}" data-r="${esc(o)}">${esc(o)}</button>`).join("")}
+    <label>Outra resposta <input type="text" data-prt="${esc(p.id)}"></label><button class="btn prim" data-prb="${esc(p.id)}">Responder</button></div>`:`<p>Resposta: <strong>${esc(p.resposta)}</strong>${p.nota?` · ${esc(p.nota)}`:""}</p>`}</div>`).join("")
+    :'<p class="muted">Nenhuma pergunta registrada ainda.</p>';
+  const resp=async(id,r)=>{const x=await post("/api/mv/pergunta/responder",{id,resposta:r});if(x.erro)status("Erro: "+x.erro);perguntasCentrais();};
+  $("#perguntas").querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>resp(b.dataset.pr,b.dataset.r));
+  $("#perguntas").querySelectorAll("[data-prb]").forEach(b=>b.onclick=()=>{const v=$(`[data-prt="${b.dataset.prb}"]`).value.trim();if(v)resp(b.dataset.prb,v);});}
+async function enviarComando(txt,saida){if(!txt.trim())return;if(MOCK){saida.innerHTML=semServidor("Comandos aos bots");return;}
+  saida.innerHTML='<p class="muted">Executando…</p>';const r=await post("/api/mv/comando",{texto:txt});
+  if(r.erro){saida.innerHTML=`<p class="aviso">Erro: ${esc(r.erro)}</p>`;return;}
+  saida.innerHTML=`<div class="card"><p><span class="pill g-${r.estado==="na_fila"?"atencao":r.estado==="erro"?"alerta":"ok"}">${esc(EST_PED[r.estado]||r.estado)}</span> <strong>${esc(r.tipo)}</strong>${r.tarefa?` · tarefa ${esc(r.tarefa)}`:""}</p>
+    <pre class="saida">${esc(r.resultado||"")}</pre>${r.arquivo?`<p><a class="btn" href="/api/mv/arquivo/baixar?id=${encodeURIComponent(r.arquivo)}">Baixar o documento (teste)</a></p>`:""}</div>`;
+  if(atual==="bots")bots();}
+async function bots(){if(MOCK){$("#botsFila").innerHTML=semServidor("Fila de bots");return;}
+  const [f,pg,aj]=await Promise.all([get("/api/mv/fila"),get("/api/mv/programados"),get("/api/mv/comandos/ajuda")]);
+  $("#botsAjuda").innerHTML=aj.map(x=>`<li><code>${esc(x)}</code></li>`).join("");
+  $("#botsProg").innerHTML=pg.length?`<table><thead><tr><th>Bot</th><th>Comando</th><th>Frequência</th><th>Última vez</th><th>Ativo</th></tr></thead><tbody>${pg.map(b=>`<tr><td>${esc(b.nome)}</td><td><code>${esc(b.comando)}</code></td><td>${esc(b.frequencia)}</td>
+    <td>${b.ultima?esc(new Date(b.ultima*1000).toLocaleString("pt-BR")):"—"}</td><td><label><input type="checkbox" data-bp="${b.id}"${b.ativo?" checked":""}> ativo</label></td></tr>`).join("")}</tbody></table>`:'<p class="muted" style="padding:.5rem">Nenhum bot programado ainda.</p>';
+  $("#botsProg").querySelectorAll("[data-bp]").forEach(c=>c.onchange=async()=>{await post("/api/mv/programado",{id:+c.dataset.bp,ativo:c.checked});bots();});
+  $("#botsFila").innerHTML=f.length?`<table><thead><tr><th>Quando</th><th>Tipo</th><th>Tarefa</th><th>Pedido</th><th>Situação</th><th>Resultado</th><th></th></tr></thead><tbody>${f.map(p=>`<tr><td>${esc(p.quando)}</td><td>${esc(p.tipo)}</td><td>${esc(p.tarefa||"—")}</td>
+    <td><code>${esc(p.comando.slice(0,120))}</code></td><td><span class="pill g-${p.estado==="aprovado"||p.estado==="pronto"?"ok":p.estado==="descartado"?"info":"atencao"}">${esc(EST_PED[p.estado]||p.estado)}</span></td>
+    <td><details><summary>ver</summary><pre class="saida">${esc(p.resultado)}</pre></details>${p.arquivo?`<a href="/api/mv/arquivo/baixar?id=${encodeURIComponent(p.arquivo)}">baixar</a>`:""}</td>
+    <td>${["rascunho","na_fila","pronto"].includes(p.estado)?`<div class="ferr" style="margin:0"><button class="btn prim" data-pd="${p.id}" data-e="aprovado">Aprovar</button><button class="btn" data-pd="${p.id}" data-e="descartado">Descartar</button></div>`:""}</td></tr>`).join("")}</tbody></table>`:'<p class="muted" style="padding:.5rem">Fila vazia.</p>';
+  $("#botsFila").querySelectorAll("[data-pd]").forEach(b=>b.onclick=async()=>{await post("/api/mv/pedido",{id:+b.dataset.pd,estado:b.dataset.e});bots();});}
+// ---- 3D: visualizador (three.js local), galeria com licença, impressão e escaneados
+let T3=null;
+function carregarThree(){return window.THREE?Promise.resolve(window.THREE):new Promise((ok,er)=>{const s=document.createElement("script");s.src="/vendor/three.min.js";s.onload=()=>ok(window.THREE);s.onerror=er;document.head.appendChild(s);});}
+function lerSTL(buf){const dv=new DataView(buf),n=dv.byteLength>=84?dv.getUint32(80,true):0,pos=[];
+  if(84+n*50===dv.byteLength){for(let i=0;i<n;i++){const o=84+i*50+12;for(let v=0;v<9;v++)pos.push(dv.getFloat32(o+v*4,true));}return pos;}
+  const t=new TextDecoder().decode(buf),re=/vertex\s+([-+\d.eE]+)\s+([-+\d.eE]+)\s+([-+\d.eE]+)/g;let m;while((m=re.exec(t)))pos.push(+m[1],+m[2],+m[3]);return pos;}
+function lerOBJ(buf){const t=new TextDecoder().decode(buf),vs=[],pos=[];
+  t.split(/\r?\n/).forEach(l=>{const p=l.trim().split(/\s+/);if(p[0]==="v")vs.push([+p[1],+p[2],+p[3]]);
+    else if(p[0]==="f"){const ix=p.slice(1).map(x=>{const k=parseInt(x.split("/")[0],10);return k<0?vs.length+k:k-1;});for(let i=1;i+1<ix.length;i++)[ix[0],ix[i],ix[i+1]].forEach(j=>{const v=vs[j];if(v)pos.push(...v);});}});return pos;}
+async function verModelo(a){const box=$("#v3d"),info=$("#v3dInfo");
+  if(!["stl","obj"].includes(a.extensao)){info.innerHTML=a.extensao==="ifc"?"IFC (BIM): abra no Planejador Physis (aba BIM), que usa o web-ifc local.":`Visualização de .${esc(a.extensao)} ainda não está no M&A: baixe o arquivo. (STL e OBJ abrem aqui.)`;return;}
+  info.textContent="Carregando o modelo…";let THREE;try{THREE=await carregarThree();}catch(e){info.textContent="Não consegui carregar o three.js local.";return;}
+  const buf=await fetch("/api/mv/arquivo/baixar?id="+encodeURIComponent(a.id)).then(r=>r.arrayBuffer());
+  const pos=a.extensao==="stl"?lerSTL(buf):lerOBJ(buf);if(!pos.length){info.textContent="Não encontrei triângulos no arquivo.";return;}
+  if(T3&&T3.parar)T3.parar();box.innerHTML="";const W=box.clientWidth||640,H=Math.round(W*0.62);
+  const ren=new THREE.WebGLRenderer({antialias:true});ren.setSize(W,H);ren.setPixelRatio(Math.min(2,window.devicePixelRatio||1));box.appendChild(ren.domElement);
+  const cs=getComputedStyle(document.documentElement),cor=n=>new THREE.Color(cs.getPropertyValue(n).trim());
+  const cena=new THREE.Scene();cena.background=cor("--sup");const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();g.computeBoundingBox();
+  const bb=g.boundingBox,tam=new THREE.Vector3();bb.getSize(tam);const c=new THREE.Vector3();bb.getCenter(c);g.translate(-c.x,-c.y,-c.z);
+  const malha=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:cor("--c-fazendo"),metalness:.1,roughness:.7}));cena.add(malha);
+  cena.add(new THREE.HemisphereLight(0xffffff,0x444444,1.1));const luz=new THREE.DirectionalLight(0xffffff,.8);luz.position.set(1,2,3);cena.add(luz);
+  const r=Math.max(tam.x,tam.y,tam.z)||1,cam=new THREE.PerspectiveCamera(40,W/H,r/100,r*100);let dist=r*2.2,rx=-.5,ry=.6;
+  const pos3=()=>{cam.position.set(dist*Math.sin(ry)*Math.cos(rx),-dist*Math.sin(rx),dist*Math.cos(ry)*Math.cos(rx));cam.lookAt(0,0,0);};
+  let arr=null;ren.domElement.addEventListener("pointerdown",e=>{arr=[e.clientX,e.clientY];ren.domElement.setPointerCapture(e.pointerId);});
+  ren.domElement.addEventListener("pointermove",e=>{if(!arr)return;ry+=(e.clientX-arr[0])*.01;rx=Math.max(-1.5,Math.min(1.5,rx+(e.clientY-arr[1])*.01));arr=[e.clientX,e.clientY];});
+  ren.domElement.addEventListener("pointerup",()=>arr=null);ren.domElement.addEventListener("wheel",e=>{e.preventDefault();dist*=e.deltaY>0?1.1:0.9;},{passive:false});
+  ren.domElement.tabIndex=0;ren.domElement.setAttribute("role","img");ren.domElement.setAttribute("aria-label",`Modelo 3D ${a.nome}: ${tam.x.toFixed(1)} × ${tam.y.toFixed(1)} × ${tam.z.toFixed(1)} (unidades do arquivo). Use as setas para girar e + ou − para aproximar.`);
+  ren.domElement.addEventListener("keydown",e=>{const k={ArrowLeft:[0,-.1],ArrowRight:[0,.1],ArrowUp:[-.1,0],ArrowDown:[.1,0]}[e.key];if(k){e.preventDefault();rx=Math.max(-1.5,Math.min(1.5,rx+k[0]));ry+=k[1];}if(e.key==="+")dist*=.9;if(e.key==="-")dist*=1.1;});
+  let vivo=true;const laco=()=>{if(!vivo)return;pos3();ren.render(cena,cam);requestAnimationFrame(laco);};laco();T3={parar:()=>{vivo=false;ren.dispose();}};
+  info.innerHTML=`<strong>${esc(a.nome)}</strong> · ${(pos.length/9)|0} triângulos · caixa ${tam.x.toFixed(1)} × ${tam.y.toFixed(1)} × ${tam.z.toFixed(1)} (unidades do arquivo; STL costuma ser mm) · licença: ${esc(a.ref||"[definir]")}
+   <div class="ferr" style="margin:.5rem 0 0"><label>Material <select id="v3dMat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>Resina padrão</option><option>Resina tough</option></select></label><button class="btn prim" id="v3dImp">Pedir impressão (aguarda aprovação)</button></div><div id="v3dSaida"></div>`;
+  $("#v3dImp").onclick=()=>enviarComando(`/imprimir ${a.id} "${$("#v3dMat").value}"`,$("#v3dSaida"));}
+async function modelos3d(){if(MOCK){$("#galeria3d").innerHTML=semServidor("Modelagem 3D");return;}
+  const ls=(await get("/api/mv/arquivos?destino=modelos3d")).filter(a=>a.estado!=="descartado");
+  $("#galeria3d").innerHTML=ls.length?ls.map(a=>`<div class="card"><strong>${esc(a.nome)}</strong><p class="muted">.${esc(a.extensao)} · ${kb(a.tamanho)} · ${esc(a.quando)} · licença: ${esc(a.ref||"[definir]")}${a.origem&&a.origem!=="upload"?" · "+esc(a.origem):""}</p>
+    <div class="ferr" style="margin:0"><button class="btn prim" data-m3="${esc(a.id)}">Ver em 3D</button><a class="btn" href="/api/mv/arquivo/baixar?id=${encodeURIComponent(a.id)}">Baixar</a></div></div>`).join(""):'<p class="muted">Nenhum modelo ainda. Envie STL/OBJ (ou 3MF, GLB, PLY, IFC) na caixa acima.</p>';
+  $("#galeria3d").querySelectorAll("[data-m3]").forEach(b=>b.onclick=()=>{const a=ls.find(x=>x.id===b.dataset.m3);verModelo(a);$("#v3d").scrollIntoView({behavior:"smooth"});});}
+function botTarefa(sel){const id=sel.dataset.bot,v=sel.value;sel.value="";if(!v)return;
+  const cmd=v==="claude"?`Ajude na tarefa #${id}: ${(sel.closest(".tc").querySelector("strong")||{}).textContent||""}`:`${v} ${id}`;
+  let out=sel.closest(".tc").querySelector(".botsaida");if(!out){out=document.createElement("div");out.className="botsaida";sel.closest(".tc").appendChild(out);}enviarComando(cmd,out);}
 // ---------------------------------------------------------------- caixas de upload (19/11/2026)
 const UPL={editais:{t:"Enviar editais (CSV do banco) ou o arquivo do edital",ac:".csv,.pdf,.odt,.ods,.docx,.xlsx",
     d:"CSV no formato do banco (separador ;) passa por prévia e só entra com Aplicar. PDF/ODT/DOCX ficam guardados e vinculados ao edital."},
+  modelos3d:{t:"Enviar modelo 3D",ac:".stl,.obj,.3mf,.glb,.ply,.ifc",
+    d:"STL e OBJ abrem no visualizador; 3MF, GLB e PLY ficam guardados; IFC (BIM) abre no Planejador. Escaneados do CrealityScan: exporte em OBJ ou STL. Até 40 MB."},
   documentos:{t:"Anexar documentos",ac:".pdf,.odt,.ods,.odp,.docx,.xlsx,.pptx,.csv,.txt,.md,.png,.jpg,.jpeg",
     d:"Comprovantes, atas, rascunhos e imagens, vinculados a uma tarefa ou a um documento."},
   financas:{t:"Importar lançamentos ou guardar extratos",ac:".csv,.ods,.pdf,.png,.jpg,.jpeg",
@@ -478,7 +604,7 @@ const ESTADO_ARQ={recebido:"aguardando prévia",guardado:"guardado",aplicado:"ap
 const kb=n=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";
 function caixa(alvo,destino,o={}){const el=typeof alvo==="string"?$(alvo):alvo;if(!el)return;const c=UPL[destino],uid="u"+Math.random().toString(36).slice(2,8);
   if(MOCK){el.innerHTML=`<div class="card upl"><h2>${esc(o.titulo||c.t)}</h2><p class="muted">Upload disponível só na versão local com servidor (os arquivos ficam guardados fora do OneDrive).</p></div>`;return;}
-  const refCampo=o.refFixa!=null?"":o.refOpcoes?`<label>Vincular a <select id="${uid}r"><option value="">(sem vínculo)</option>${o.refOpcoes.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select></label>`
+  const refCampo=o.refFixa!=null?"":o.refOpcoes?`<label>${esc(o.refRotulo||"Vincular a")} <select id="${uid}r"><option value="">${esc(o.refVazio||"(sem vínculo)")}</option>${o.refOpcoes.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select></label>`
     :`<label>Vincular a <input type="text" id="${uid}r" list="${uid}l" placeholder="tarefa ou documento (opcional)"></label><datalist id="${uid}l"></datalist>`;
   el.innerHTML=`<div class="card upl"><h2>${esc(o.titulo||c.t)}</h2><p class="muted">${esc(c.d)} Até 10 MB por arquivo; o mesmo arquivo não é duplicado.</p>
     <label class="drop" id="${uid}d"><strong>Arraste arquivos aqui ou clique para escolher</strong><span class="muted">${esc(c.ac.replaceAll(","," "))}</span><input type="file" id="${uid}f" multiple accept="${c.ac}"></label>
@@ -508,12 +634,12 @@ function caixa(alvo,destino,o={}){const el=typeof alvo==="string"?$(alvo):alvo;i
     $("#"+uid+"a").onclick=async()=>{$("#"+uid+"a").disabled=true;const a=await post("/api/mv/arquivo/aplicar",{id});
       if(a.erro){st("Erro: "+a.erro);$("#"+uid+"a").disabled=false;return;}st("Aplicado: "+a.resultado);pv.innerHTML="";lista();if(o.depois)o.depois();};}
   async function enviar(files){for(const f of files){st(`Enviando ${f.name}…`);
-      if(f.size>10*1048576){st(`${f.name}: maior que 10 MB, não enviado.`);continue;}
+      const lim=(destino==="modelos3d"?40:10)*1048576;if(f.size>lim){st(`${f.name}: maior que ${lim/1048576} MB, não enviado.`);continue;}
       const b64=await new Promise((ok,er)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(",")[1]||"");fr.onerror=er;fr.readAsDataURL(f);});
       const r=await fetch("/api/mv/arquivo/enviar",{method:"POST",headers:H,body:JSON.stringify({destino,nome:f.name,conteudo:b64,ref:ref()})}).then(x=>x.json()).catch(e=>({erro:String(e)}));
       st(r.erro?`${f.name}: ${r.erro}`:r.duplicado?`${f.name}: já estava guardado (mesmo conteúdo).`:`${f.name}: recebido.`+(r.importavel?" Confira a prévia antes de aplicar.":""));
       if(!r.erro&&r.importavel&&!r.duplicado)await previa(r.id);}
-    lista();}
+    lista();if(o.aposEnviar)o.aposEnviar();}
   const fi=$("#"+uid+"f"),dz=$("#"+uid+"d");fi.onchange=()=>{enviar([...fi.files]);fi.value="";};
   ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("sobre");}));
   ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("sobre");}));
@@ -524,6 +650,8 @@ const montadas={};
 function montarUploads(v){if(montadas[v])return;montadas[v]=true;
   if(v==="editais")caixa("#upEditais","editais",{depois:editais});
   if(v==="documentos")caixa("#upDocumentos","documentos",{refLista:tarefasRef});
+  if(v==="modelos3d")caixa("#up3d","modelos3d",{refRotulo:"Licença",refVazio:"[definir licença]",aposEnviar:modelos3d,
+    refOpcoes:[["CC BY 4.0","CC BY 4.0 (citar autoria)"],["CC BY-SA 4.0","CC BY-SA 4.0 (compartilhar igual)"],["CC0","CC0 (domínio público)"],["CERN-OHL-S","CERN-OHL-S (hardware aberto)"],["Todos os direitos reservados","Todos os direitos reservados"]]});
   if(v==="financeiro")caixa("#upFinancas","financas",{refOpcoes:[["casa","Casa Physis"],["engineering","Physis Engineering"],["instituto","Instituto Physis"],["pessoa_fisica","Pessoa física (lote)"]],depois:()=>{CACHE.saude=null;render("financeiro");}});}
 async function editais(){ED=await get("/api/mv/editais");tabelaEditais();}
 function tabelaEditais(){const et=$("#edEtapa").value,ad=$("#edAd").value,pz=$("#edPrazo").value,b=$("#edBusca").value.toLowerCase();
@@ -558,6 +686,9 @@ function ficha(id){const d=ED.find(x=>x.id===id);if(!d)return;const f=$("#edFich
   f.scrollIntoView({behavior:"smooth"});}
 const ETP={};["#edEtapa","#edAd","#edPrazo"].forEach(i=>$(i).onchange=tabelaEditais);$("#edBusca").oninput=tabelaEditais;
 $("#frente").onchange=()=>{preencherProjetos();render(atual);};
+$("#cmdForm").onsubmit=e=>{e.preventDefault();enviarComando($("#cmdTxt").value,$("#cmdSaida"));$("#cmdTxt").value="";};
+$("#fProg").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);if(MOCK)return;const r=await post("/api/mv/programado",{comando:f.get("comando"),frequencia:f.get("frequencia"),nome:f.get("nome")});
+  status(r.erro?"Erro: "+r.erro:r.resultado);e.target.reset();bots();};
 $("#projeto").onchange=()=>{if(pj()){$("#origem").value="";$("#origemK").value="";}render(atual);};
 $("#pjBusca").oninput=()=>projetos();$("#pjOrdem").onchange=()=>projetos();
 $("#rodar").onclick=async()=>{status("Rodando bots (documentos, atrasos, resumo)…");$("#rodar").disabled=true;
