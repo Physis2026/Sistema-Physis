@@ -43,7 +43,7 @@ REGRAS = [
     ("sede", re.compile(r"\b(ICT|OSC|Instituto Physis)\b[^.\n]{0,120}Am[ée]rica Latina", re.I), re.compile(r"sede e foro no Brasil", re.I),
      "ICT descrita na América Latina sem 'sede e foro no Brasil'", "D42", "alerta"),
     ("ongs", re.compile(r"duas ONGs", re.I), None, "'Duas ONGs': a S2 Services SARL é empresa, não ONG", "D66", "alerta"),
-    ("bonus", re.compile(r"b[oô]nus[^.\n]{0,80}vendas", re.I), None, "Bônus de bolsista sobre vendas (suspenso até o parecer)", "D34", "alerta"),
+    ("bonus", re.compile(r"b[oô]nus[^.\n]{0,80}vendas", re.I), re.compile(r"suspens[oa][^.\n]{0,60}parecer", re.I), "Bônus de bolsista sobre vendas (suspenso até o parecer)", "D34", "alerta"),
     # Divergências mapeadas em 18/11/2026 na leitura da pasta Casa Physis (sessão do Instituto Physis)
     ("pdi28", re.compile(r"\b28\s+(projetos|projects|fichas)\b", re.I), re.compile(r"vers[aã]o de 28 projetos|28-project version", re.I),
      "PDI com 28 projetos: o atual tem 22 (P1–P22, atualização de 18/11/2026)", "PDI P1–P22", "atencao"),
