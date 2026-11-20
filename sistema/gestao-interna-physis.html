@@ -917,11 +917,11 @@ window.PHYSIS_MELHORIAS_FEITAS={};
     if (document.getElementById("pc-estilo") || !document.head) return;
     var s = document.createElement("style"); s.id = "pc-estilo";
     s.textContent = [
-      ".pc{--pc-sup:#FFFFFF;--pc-tinta:#1C2B21;--pc-fraca:#4A4F44;--pc-marca:#33512F;--pc-linha:#C9D2C4;--pc-campo:#8A9284;--pc-ok-f:#DCEBD8;--pc-ok-t:#1F4A1C;--pc-at-f:#F6EAD0;--pc-at-t:#5C3F00;--pc-al-f:#F5E2D7;--pc-al-t:#7A2214;--pc-perigo:#A63A28;--pc-fundo:#F4F6F1;color:var(--pc-tinta)}",
-      "html[data-tema=escuro] .pc{--pc-sup:#1C2B21;--pc-tinta:#EEF2EA;--pc-fraca:#D9D3C2;--pc-marca:#B9CDB3;--pc-linha:#4A5A47;--pc-campo:#8A9182;--pc-ok-f:#1F4A1C;--pc-ok-t:#DCEBD8;--pc-at-f:#5C3F00;--pc-at-t:#E5D5AE;--pc-al-f:#5C2B2E;--pc-al-t:#FF8A80;--pc-perigo:#FF8A80;--pc-fundo:#14180F}",
+      ".pc{--pc-sup:#FFFFFF;--pc-tinta:#1B1F23;--pc-fraca:#4A4F44;--pc-marca:#1A4D2E;--pc-linha:#D9D3C2;--pc-campo:#8A8270;--pc-ok-f:#DCEBD8;--pc-ok-t:#1F4A1C;--pc-at-f:#F6EAD0;--pc-at-t:#5C3F00;--pc-al-f:#F5E2D7;--pc-al-t:#7A2214;--pc-perigo:#A63A28;--pc-fundo:#F4F1EA;color:var(--pc-tinta)}",
+      "html[data-tema=escuro] .pc{--pc-sup:#0F4535;--pc-tinta:#F4F1EA;--pc-fraca:#C3D0BD;--pc-marca:#D9A58C;--pc-linha:#2F5E4E;--pc-campo:#8A9182;--pc-ok-f:#1F4A1C;--pc-ok-t:#DCEBD8;--pc-at-f:#5C3F00;--pc-at-t:#E5D5AE;--pc-al-f:#5C2B2E;--pc-al-t:#FF8A80;--pc-perigo:#FF8A80;--pc-fundo:#0B3D2E}",
       ".pc-tela{display:grid;gap:14px;max-width:880px}",
       ".pc-cartao{background:var(--pc-sup);border:1px solid var(--pc-linha);border-radius:12px;padding:14px 16px;min-width:0}",
-      ".pc-h{font:600 1.15em/1.3 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--pc-marca);margin:0 0 8px}",
+      ".pc-h{font:600 1.15em/1.3 'Josefin Sans','Century Gothic','Segoe UI',sans-serif;color:var(--pc-marca);margin:0 0 8px}",
       ".pc-h3{font-size:1em;color:var(--pc-marca);margin:12px 0 6px}",
       ".pc p{margin:6px 0}.pc ul{margin:6px 0;padding-left:20px}",
       ".pc-campo{display:grid;gap:3px;margin:8px 0}.pc-campo label{font-weight:600}",
@@ -932,7 +932,7 @@ window.PHYSIS_MELHORIAS_FEITAS={};
       ".pc-grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 14px}",
       ".pc-barra{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}",
       ".pc-b{font:inherit;font-weight:600;min-height:44px;min-width:44px;padding:0 16px;border-radius:8px;border:1px solid var(--pc-marca);background:var(--pc-sup);color:var(--pc-marca);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}",
-      ".pc-b.pc-p{background:var(--pc-marca);color:var(--pc-sup)}",
+      ".pc-b.pc-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
       ".pc-b.pc-perigo{border-color:var(--pc-perigo);color:var(--pc-perigo)}",
       ".pc-b.pc-p.pc-perigo{background:var(--pc-perigo);color:var(--pc-sup)}",
       ".pc-b.pc-pq{min-height:44px;padding:0 12px;font-size:14px}",
@@ -957,7 +957,7 @@ window.PHYSIS_MELHORIAS_FEITAS={};
       ".pc-rolar{max-height:50vh;overflow:auto;border:1px solid var(--pc-linha);border-radius:8px;padding:8px 12px}",
       ".pc-faixas-fixas{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:2147482900;width:min(92vw,560px);display:grid;gap:8px}",
       ".pc-faixa{position:relative;background:var(--pc-at-f);color:var(--pc-at-t);border-left:4px solid var(--pc-at-t);border-radius:10px;padding:10px 52px 10px 14px;font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 4px 18px rgba(20,24,15,.2)}",
-      ".pc-faixa .pc-b{background:var(--pc-sup);color:var(--pc-marca)}.pc-faixa .pc-b.pc-p{background:var(--pc-marca);color:var(--pc-sup)}",
+      ".pc-faixa .pc-b{background:var(--pc-sup);color:var(--pc-marca)}.pc-faixa .pc-b.pc-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
       ".pc-faixa .pc-x{position:absolute;top:6px;right:6px;padding:0;width:44px;font-size:20px}",
       "@media (max-width:480px){.pc-cartao{padding:12px}.pc-janela{padding:14px}}"
     ].join("\n");

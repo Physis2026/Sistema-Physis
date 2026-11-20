@@ -374,7 +374,7 @@ global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info
 </script>
 <script id="pxp-cedo">(function(){var r=document.documentElement,t=null,p=null;try{p=JSON.parse(localStorage.getItem("physis-pref")||"null");t=p&&p.tema||localStorage.getItem("physis-pref-tema");}catch(e){}var v=!!(p&&p.verde);if(t!=="claro"&&t!=="escuro"){try{t=matchMedia("(prefers-color-scheme: dark)").matches?"escuro":"claro";}catch(e){t="claro";}}r.setAttribute("data-tema",v?"escuro":t);if(v)r.classList.add("a11y-verde");})();</script>
 <link rel="manifest" href="/app/manifest-plataforma.webmanifest">
-<meta name="theme-color" content="#33512F">
+<meta name="theme-color" content="#1A4D2E">
 <link rel="icon" type="image/png" sizes="192x192" href="/app/icone-192.png">
 <link rel="apple-touch-icon" href="/app/icone-192.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -396,11 +396,13 @@ if ("serviceWorker" in navigator && window.isSecureContext && location.protocol 
 @font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url(data:font/woff2;base64,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) format("woff2")}
 :root{
   color-scheme:light;
-  --fundo:#F4F6F1;--sup:#FFFFFF;--tinta:#1C2B21;--tinta2:#4A4F44;--acao:#33512F;--marca:#4B7547;--linha:#D6DBCF;--trilho:#E3E8DE;
-  --ok-f:#DCEBD8;--ok-t:#1F4A1C;--at-f:#F6EAD0;--at-t:#5C3F00;--al-f:#F5E2D7;--al-t:#7A2214;--in-f:#DBE7F1;--in-t:#1C3550;
-  --det-f:#1C2B21;--det-t:#EEF2EA;--det-2:#D9D3C2;--ouro:#C9B98F;--agua:#3D6E8F;--tinte:#EEF4EA;
-  --areia:#B9A97F;--areia-f:#EFE8D6;--ceu:#F1F3EC;--colina:#CDDCC4;--colina2:#E2EADB;--terra:#EFE8D6;--sol:#FFF6DF;--sol-b:#ECE0BD;--agua-f:#B8D0E0;
-  --fonte:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;--titulo:Fraunces,Georgia,serif;--numero:"Space Grotesk",Inter,sans-serif;
+  --fundo:#F4F1EA;--sup:#FFFFFF;--tinta:#1B1F23;--tinta2:#4A4F44;--acao:#1A4D2E;--marca:#C2410C;--linha:#D9D3C2;--trilho:#EFE8D6;
+  --botao:#C2410C;--botao-t:#FFFFFF;--faixa:#0B3D2E;--semente:#F97316;
+  --ok-f:#DCEBD8;--ok-t:#1F4A1C;--at-f:#F6EAD0;--at-t:#5C3F00;--al-f:#F5E2D7;--al-t:#7A2214;--in-f:#EFE8D6;--in-t:#4A4F44;
+  --det-f:#0B3D2E;--det-t:#F4F1EA;--det-2:#C3D0BD;--ouro:#C9B98F;--agua:#2F7D5B;--tinte:#EEF4EA;
+  --areia:#B9A97F;--areia-f:#EFE8D6;--ceu:#F1F3EC;--colina:#CDDCC4;--colina2:#E2EADB;--terra:#EFE8D6;--sol:#FFF6DF;--sol-b:#ECE0BD;--agua-f:#DCEBD8;
+  /* guia de identidade (20/11/2026): Josefin Sans só no logotipo e nos títulos grandes; Lora no corpo; sem fonte da internet */
+  --fonte:Lora,Georgia,"Times New Roman",serif;--titulo:"Josefin Sans","Century Gothic","Segoe UI",sans-serif;--numero:"Josefin Sans","Century Gothic","Segoe UI",sans-serif;
   --base:16px;--entre:1.5;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
@@ -413,7 +415,7 @@ body.p-espaco{--entre:1.8;letter-spacing:.012em;word-spacing:.06em}
 body.p-contraste{--tinta2:var(--tinta);--linha:var(--tinta);--trilho:var(--tinta)}
 body.p-contraste .cartao,body.p-contraste input,body.p-contraste button{border-width:2px}
 /* Fundo verde: escolha de quem usa. Só cores que já existem na paleta da Physis. */
-body.fundo-verde{--fundo:#1C2B21;--sup:#2A3829;--tinta:#EEF2EA;--tinta2:#D9D3C2;--acao:#B9CDB3;--marca:#A8BFA0;--linha:#4A5A47;--trilho:#3A4A38;--tinte:#33372E;--areia-f:#33372E;--areia:#B9A97F;--ceu:#2A3829;--colina:#3A4A38;--colina2:#33372E;--terra:#4A5A47;--sol:#C9B98F;--sol-b:#B9A97F;--agua:#7FA9C4;--agua-f:#7FA9C4;--det-f:#14180F}
+body.fundo-verde{--fundo:#0B3D2E;--sup:#0F4535;--tinta:#F4F1EA;--tinta2:#C3D0BD;--acao:#D9A58C;--marca:#D9A58C;--linha:#2F5E4E;--trilho:#2F5E4E;--tinte:#33372E;--areia-f:#33372E;--areia:#B9A97F;--ceu:#0F4535;--colina:#2F5E4E;--colina2:#33372E;--terra:#2F5E4E;--sol:#C9B98F;--sol-b:#B9A97F;--agua:#8FB183;--agua-f:#2F7D5B;--det-f:#0F4535;--in-f:#33372E;--in-t:#E5D5AE}
 body.fundo-verde .px-faixa{background:var(--fundo)}
 body.fundo-verde .px-id img{background:transparent;filter:brightness(0) invert(1)}
 body.fundo-verde input,body.fundo-verde select,body.fundo-verde textarea{background:var(--sup);color:var(--tinta)}
@@ -422,7 +424,7 @@ body.fundo-verde.p-calma{--ok-t:var(--tinta);--at-t:var(--tinta);--al-t:var(--ti
 #tela > *{min-width:0;max-width:100%}
 #tela .cartao > .rolagem{max-width:100%}
 .rolagem{position:relative}
-input[type=date],input[type=month],input[type=datetime-local],input[type=time]{font:inherit;min-height:44px;padding:0 12px;border:1px solid #8A9284;border-radius:8px;background:var(--sup);color:var(--tinta)}
+input[type=date],input[type=month],input[type=datetime-local],input[type=time]{font:inherit;min-height:44px;padding:0 12px;border:1px solid #8A8270;border-radius:8px;background:var(--sup);color:var(--tinta)}
 body.fundo-verde input[type=date],body.fundo-verde input[type=month],body.fundo-verde input[type=datetime-local]{color-scheme:dark}
 body.p-calma{--ok-f:var(--sup);--at-f:var(--sup);--al-f:var(--sup);--in-f:var(--sup);--tinte:var(--sup);--areia-f:var(--sup)}
 body.p-calma .mapa svg{opacity:.75}
@@ -435,7 +437,7 @@ body.p-calma .grafico{filter:grayscale(1)}
 body.p-foco .apoio{display:none}
 a{color:var(--acao)}
 :focus-visible{outline:3px solid var(--acao);outline-offset:2px}
-h1,h2,h3{font-family:var(--titulo);font-weight:500;line-height:1.15;margin:0;color:var(--acao)}   /* todos os títulos no verde Physis (regra de 14/11/2026) */
+h1,h2,h3{font-family:var(--titulo);font-weight:500;line-height:1.15;margin:0;color:var(--acao)}   /* títulos no verde-floresta #1A4D2E (claro) e terracota clara (escuro), guia de identidade 20/11/2026 */
 h1{font-size:2.1em;font-weight:400}h2{font-size:1.4em}h3,h2.t3{font-size:1.1em;font-family:var(--fonte);font-weight:700}
 p{margin:0}
 .pular{position:absolute;left:12px;top:-60px;background:var(--acao);color:var(--sup);padding:10px 14px;border-radius:8px;z-index:20}
@@ -448,7 +450,7 @@ header.topo{background:var(--sup);border-bottom:1px solid var(--linha)}
 .marca span{font-size:.88em;color:var(--tinta2)}
 nav.abas{display:flex;flex-wrap:wrap;gap:4px}
 button,.botao{font:inherit;min-height:44px;border-radius:8px;cursor:pointer;padding:0 16px;border:1px solid var(--acao);background:var(--sup);color:var(--acao);font-weight:600}
-button.principal{background:var(--acao);color:var(--sup)}
+button.principal{background:var(--botao);border-color:var(--botao);color:var(--botao-t)}   /* botão do guia: #C2410C com texto branco (5,2:1) */
 button.perigo{border-color:var(--al-t);color:var(--al-t)}
 button.texto{border:none;background:none;text-decoration:underline;padding:0 4px}
 button[disabled]{opacity:.55;cursor:not-allowed}
@@ -457,11 +459,16 @@ nav.abas button[aria-current="page"]{background:var(--tinta);border-color:var(--
 .px-faixa{background:var(--fundo);border-bottom:1px solid var(--linha)}
 .px-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
 .px-id{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
-.px-id img{height:44px;width:auto;display:block;background:#F4F6F1;border-radius:6px}
+.px-id img{height:44px;width:auto;display:block;background:#F4F1EA;border-radius:6px}
 .px-tit{font-family:var(--numero);font-weight:600;font-size:1.2em;color:var(--marca);padding-left:14px;border-left:1px solid var(--linha)}
 /* Um título só (regra 10): árvore + serifada no verde Physis. A imagem da marca mostra só a árvore. */
 .px-faixa .px-id img{height:42px !important;width:42px !important;object-fit:cover;object-position:0 50%}
 .px-faixa .px-tit{font-family:var(--titulo);font-weight:500;font-size:24px;letter-spacing:-.012em;color:var(--acao);padding-left:0;border-left:0}
+/* Faixa superior do guia de identidade (tipo B, 20/11/2026): verde profundo #0B3D2E nos dois temas, com fio laranja-semente.
+   Dentro dela valem as cores do tipo A (texto #F4F1EA, linhas #2F5E4E, destaque pequeno #D9A58C). */
+.px-faixa{background:#0B3D2E;border-bottom:4px solid var(--semente);color:#F4F1EA;--fundo:#0B3D2E;--sup:#0F4535;--tinta:#F4F1EA;--tinta2:#C3D0BD;--acao:#D9A58C;--marca:#D9A58C;--linha:#2F5E4E;--trilho:#2F5E4E}
+.px-faixa .px-tit{color:#F4F1EA;font-weight:400;letter-spacing:.04em}
+.px-faixa .pp-barra{--pp-f:#0F4535;--pp-t:#F4F1EA;--pp-l:#8A9182;--pp-a:#D9A58C;--pp-at:#0B3D2E}
 body.so-loja .px-abas{display:none !important}
 #lugar{display:none !important}   /* um título só: nada ao lado de "Sistema Physis" (pedido de 14/11/2026) */
 .px-id #lugar{color:var(--tinta2);font-size:.9em}
@@ -470,7 +477,7 @@ body.so-loja .px-abas{display:none !important}
 #px-conforto[aria-pressed="true"]{background:var(--acao);color:var(--sup)}
 .px-abas{max-width:1240px;margin:0 auto;padding:0 20px 12px}
 html.px-conforto *{transition:none !important;animation:none !important}
-#faixa-modo{background:transparent;border:1px dashed #8A9284;color:var(--tinta2);border-radius:999px;padding:8px 16px;font-size:.92em;display:flex;flex-wrap:wrap;align-items:center;column-gap:.35em}
+#faixa-modo{background:transparent;border:1px dashed #8A8270;color:var(--tinta2);border-radius:999px;padding:8px 16px;font-size:.92em;display:flex;flex-wrap:wrap;align-items:center;column-gap:.35em}
 @media (max-width:600px){#faixa-modo{border-radius:14px}}   /* em tela estreita o texto quebra em linhas: a pílula vira cartão (validação 15/11) */
 .sobre{font-size:.82em;letter-spacing:.14em;text-transform:uppercase;color:var(--marca);font-weight:700}
 h1 .dest{color:var(--marca)}
@@ -485,7 +492,7 @@ h1 .dest{color:var(--marca)}
 .ponto.at{border-color:#8A6410}.ponto.at .bola{background:transparent;border:3px solid #8A6410;width:14px;height:14px}
 .aneis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px}
 .anel{flex-direction:row !important;align-items:center;gap:14px !important}
-.detalhe .areia{background:var(--ouro);color:#1C2B21;border-color:var(--ouro);font-weight:700}
+.detalhe .areia{background:var(--ouro);color:#1B1F23;border-color:var(--ouro);font-weight:700}
 .passo{background:var(--areia-f) !important;border-color:var(--areia) !important}
 .arvore{display:flex;gap:12px;align-items:center;background:var(--areia-f);border:1px solid var(--areia);border-radius:12px;padding:10px 14px}
 .arvore svg{flex:none}
@@ -520,9 +527,9 @@ main{padding:24px 0 64px;display:flex;flex-direction:column;gap:22px}
 .selo.ok{background:var(--ok-f);color:var(--ok-t)}.selo.at{background:var(--at-f);color:var(--at-t)}.selo.al{background:var(--al-f);color:var(--al-t)}.selo.in{background:var(--in-f);color:var(--in-t)}
 dl.recibo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px 20px;margin:0}dl.recibo dd{margin:0;font-weight:600}
 ul.limpa{list-style:none;margin:0;padding:0}ul.limpa li{border-top:1px solid var(--trilho);padding:10px 0;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-start}
-.jur-link{min-height:0;padding:0 2px;border:0;background:none;text-decoration:underline;font-weight:600;color:var(--acao)}.jur-dialogo{max-width:860px;width:calc(100% - 32px);max-height:88vh;border:1px solid var(--marca);border-radius:12px;padding:16px;background:var(--sup,#fff);color:inherit}.jur-dialogo::backdrop{background:rgba(20,30,20,.55)}.jur-cab{display:flex;justify-content:space-between;align-items:center;gap:8px}.jur-corpo{max-height:62vh;overflow:auto}.jur-corpo p,.jur-corpo li{line-height:1.55}height:8px;border-radius:4px;background:var(--linha,#dfe5da);overflow:hidden;margin:4px 0 12px}.curso-barra span{display:block;height:100%;background:var(--marca)}.curso-passos{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 12px}.curso-passos li{padding:4px 10px;border-radius:999px;border:1px solid var(--marca);font-size:.85em}.curso-passos li.atual{background:var(--marca);color:#fff;font-weight:600}.curso-passos li.feito{opacity:.75}.curso-itens li{margin:0 0 8px;line-height:1.5}.curso:focus{outline:3px solid var(--acao);outline-offset:2px}
+.jur-link{min-height:0;padding:0 2px;border:0;background:none;text-decoration:underline;font-weight:600;color:var(--acao)}.jur-dialogo{max-width:860px;width:calc(100% - 32px);max-height:88vh;border:1px solid var(--marca);border-radius:12px;padding:16px;background:var(--sup,#fff);color:inherit}.jur-dialogo::backdrop{background:rgba(20,30,20,.55)}.jur-cab{display:flex;justify-content:space-between;align-items:center;gap:8px}.jur-corpo{max-height:62vh;overflow:auto}.jur-corpo p,.jur-corpo li{line-height:1.55}height:8px;border-radius:4px;background:var(--linha,#D9D3C2);overflow:hidden;margin:4px 0 12px}.curso-barra span{display:block;height:100%;background:var(--marca)}.curso-passos{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 12px}.curso-passos li{padding:4px 10px;border-radius:999px;border:1px solid var(--marca);font-size:.85em}.curso-passos li.atual{background:var(--marca);color:#fff;font-weight:600}.curso-passos li.feito{opacity:.75}.curso-itens li{margin:0 0 8px;line-height:1.5}.curso:focus{outline:3px solid var(--acao);outline-offset:2px}
 a.botao{font:inherit;min-height:44px;border-radius:8px;padding:0 16px;border:1px solid var(--acao);background:var(--sup);color:var(--acao);font-weight:600}
-input[type=password]{font:inherit;min-height:44px;padding:8px 12px;border:1px solid #8A9284;border-radius:8px;background:var(--sup);color:var(--tinta);max-width:100%}
+input[type=password]{font:inherit;min-height:44px;padding:8px 12px;border:1px solid #8A8270;border-radius:8px;background:var(--sup);color:var(--tinta);max-width:100%}
 .rolagem{overflow-x:auto}
 table{width:100%;border-collapse:collapse;min-width:680px}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--trilho);vertical-align:middle}
@@ -540,7 +547,7 @@ tr.sel{background:var(--tinte)}
 dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
 dt{font-size:.875em}dd{margin:0;font-weight:600}
 label{font-weight:600;display:block}
-input[type=text],input[type=number],textarea,select{font:inherit;min-height:44px;padding:8px 12px;border:1px solid #8A9284;border-radius:8px;background:var(--sup);color:var(--tinta);max-width:100%}
+input[type=text],input[type=number],textarea,select{font:inherit;min-height:44px;padding:8px 12px;border:1px solid #8A8270;border-radius:8px;background:var(--sup);color:var(--tinta);max-width:100%}
 textarea{width:100%;min-height:90px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;word-break:break-all}
 .linha-v6{display:block;background:var(--fundo);border:1px solid var(--linha);border-radius:8px;padding:10px}
@@ -571,7 +578,7 @@ output{min-width:36px;text-align:center;font-weight:700;display:inline-block}
 .exp-c h3{font-family:var(--fonte);font-weight:700;font-size:1.15em;margin:0}
 .exp-c .acoes{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
 .exp-c .acoes a.botao{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
-.exp-c a.botao.principal{background:var(--acao);color:var(--sup)}
+.exp-c a.botao.principal,a.botao.principal{background:var(--botao);border-color:var(--botao);color:var(--botao-t)}
 .exp-svg{display:block;width:100%;height:auto;max-height:150px;border-radius:10px}
 .exp-svg .e-fundo{fill:var(--tinte)}.exp-svg .e-linha{stroke:var(--linha)}.exp-svg .e-acao{fill:var(--acao)}.exp-svg .e-marca{fill:var(--marca)}
 .exp-svg .e-agua{fill:var(--agua)}.exp-svg .e-aguaf{fill:var(--agua-f)}.exp-svg .e-sol{fill:var(--ouro)}.exp-svg .e-ok{fill:var(--sol)}
@@ -591,19 +598,19 @@ html.a11y-calma .exp-svg *,body.p-calma .exp-svg *{animation:none!important}
 @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
 /* Tema escuro (Tema: Claro / Escuro / Automático, na barra de preferências). Só cores da paleta. */
 @media screen{
-html[data-tema="escuro"]{--fundo:#14180F;--sup:#1C2B21;--tinta:#EEF2EA;--tinta2:#D9D3C2;--acao:#B9CDB3;--marca:#A8BFA0;--linha:#4A5A47;--trilho:#3A4A38;
-  --ok-f:#1F4A1C;--ok-t:#DCEBD8;--at-f:#5C3F00;--at-t:#F6EAD0;--al-f:#5C2B2E;--al-t:#F5E2D7;--in-f:#1C3550;--in-t:#DBE7F1;
-  --det-f:#2A3829;--det-t:#EEF2EA;--det-2:#D9D3C2;--ouro:#C9B98F;--agua:#7FA9C4;--tinte:#2A3829;
-  --areia:#B9A97F;--areia-f:#33372E;--ceu:#1C2B21;--colina:#3A4A38;--colina2:#33372E;--terra:#4A5A47;--sol:#C9B98F;--sol-b:#B9A97F;--agua-f:#3D6E8F}
+html[data-tema="escuro"]{--fundo:#0B3D2E;--sup:#0F4535;--tinta:#F4F1EA;--tinta2:#C3D0BD;--acao:#D9A58C;--marca:#D9A58C;--linha:#2F5E4E;--trilho:#2F5E4E;
+  --ok-f:#1F4A1C;--ok-t:#DCEBD8;--at-f:#5C3F00;--at-t:#F6EAD0;--al-f:#5C2B2E;--al-t:#F5E2D7;--in-f:#33372E;--in-t:#E5D5AE;
+  --det-f:#0F4535;--det-t:#F4F1EA;--det-2:#C3D0BD;--ouro:#C9B98F;--agua:#8FB183;--tinte:#33372E;
+  --areia:#B9A97F;--areia-f:#33372E;--ceu:#0F4535;--colina:#2F5E4E;--colina2:#33372E;--terra:#2F5E4E;--sol:#C9B98F;--sol-b:#B9A97F;--agua-f:#2F7D5B}
 html[data-tema="escuro"] .px-id img{background:transparent;filter:brightness(0) invert(1)}
 html[data-tema="escuro"] :is(input,select,textarea){background:var(--sup);color:var(--tinta)}
 html[data-tema="escuro"] .ponto.at{border-color:#C9A227}html[data-tema="escuro"] .ponto.at .bola{border-color:#C9A227}
 html[data-tema="escuro"] .curso-passos li.atual{color:var(--fundo)}
 html[data-tema="escuro"] .barra i.off{background:#8A9182}
-html[data-tema="escuro"] svg [stroke="#2C5A6E"]{stroke:#7FA9C4}html[data-tema="escuro"] svg [stroke="#A0526E"]{stroke:#E3C4BD}
-html[data-tema="escuro"] svg [stroke="#C29A4B"]{stroke:#C9B98F}
+html[data-tema="escuro"] svg [stroke="#2F7D5B"]{stroke:#8FB183}html[data-tema="escuro"] svg [stroke="#A85432"]{stroke:#E3C4BD}
+html[data-tema="escuro"] svg [stroke="#C9A227"]{stroke:#C9B98F}
 html[data-tema="escuro"] [data-px-geral] :is(select,textarea,input),html[data-tema="escuro"] [style*="background:#fff"]{background:var(--sup)!important;color:var(--tinta)!important}
-html[data-tema="escuro"] [style*="solid #D6DBCF"]{border-color:var(--linha)!important}
+html[data-tema="escuro"] [style*="solid #D9D3C2"]{border-color:var(--linha)!important}
 html[data-tema="escuro"] .jur-dialogo{background:var(--sup);color:var(--tinta)}
 html[data-tema="escuro"] :is([style^="color: rgb(138, 100, 16)"],[style*="; color: rgb(138, 100, 16)"]){color:#E5D5AE!important}
 html[data-tema="escuro"] :is([style^="color: rgb(138, 97, 16)"],[style*="; color: rgb(138, 97, 16)"]){color:#E5D5AE!important}
@@ -611,30 +618,30 @@ html[data-tema="escuro"] :is([style^="color: rgb(142, 58, 30)"],[style*="; color
 html[data-tema="escuro"] :is([style^="color: rgb(166, 58, 40)"],[style*="; color: rgb(166, 58, 40)"]){color:#FF8A80!important}
 html[data-tema="escuro"] :is([style^="color: rgb(122, 34, 20)"],[style*="; color: rgb(122, 34, 20)"]){color:#FF8A80!important}
 html[data-tema="escuro"] :is([style^="color: rgb(168, 84, 50)"],[style*="; color: rgb(168, 84, 50)"]){color:#FF8A80!important}
-html[data-tema="escuro"] :is([style^="color: rgb(84, 106, 123)"],[style*="; color: rgb(84, 106, 123)"]){color:#B8D0E0!important}
+html[data-tema="escuro"] :is([style^="color: rgb(74, 79, 68)"],[style*="; color: rgb(74, 79, 68)"]){color:#DCEBD8!important}
 html[data-tema="escuro"] :is([style^="color: rgb(46, 107, 65)"],[style*="; color: rgb(46, 107, 65)"]){color:#8FB183!important}
 html[data-tema="escuro"] :is([style^="color: rgb(27, 72, 42)"],[style*="; color: rgb(27, 72, 42)"]){color:#8FB183!important}
-html[data-tema="escuro"] :is([style^="color: rgb(20, 110, 106)"],[style*="; color: rgb(20, 110, 106)"]){color:#7FA9C4!important}
-html[data-tema="escuro"] :is([style^="color: rgb(11, 71, 68)"],[style*="; color: rgb(11, 71, 68)"]){color:#7FA9C4!important}
-html[data-tema="escuro"] :is([style^="color: rgb(94, 106, 80)"],[style*="; color: rgb(94, 106, 80)"]){color:#C9D3C4!important}
-html[data-tema="escuro"] :is([style^="color: rgb(78, 88, 67)"],[style*="; color: rgb(78, 88, 67)"]){color:#C9D3C4!important}
-html[data-tema="escuro"] :is([style^="color: rgb(62, 111, 168)"],[style*="; color: rgb(62, 111, 168)"]){color:#B8D0E0!important}
-html[data-tema="escuro"] :is([style^="color: rgb(40, 73, 112)"],[style*="; color: rgb(40, 73, 112)"]){color:#B8D0E0!important}
+html[data-tema="escuro"] :is([style^="color: rgb(20, 110, 106)"],[style*="; color: rgb(20, 110, 106)"]){color:#8FB183!important}
+html[data-tema="escuro"] :is([style^="color: rgb(11, 71, 68)"],[style*="; color: rgb(11, 71, 68)"]){color:#8FB183!important}
+html[data-tema="escuro"] :is([style^="color: rgb(94, 106, 80)"],[style*="; color: rgb(94, 106, 80)"]){color:#D9D3C2!important}
+html[data-tema="escuro"] :is([style^="color: rgb(78, 88, 67)"],[style*="; color: rgb(78, 88, 67)"]){color:#D9D3C2!important}
+html[data-tema="escuro"] :is([style^="color: rgb(47, 125, 91)"],[style*="; color: rgb(47, 125, 91)"]){color:#DCEBD8!important}
+html[data-tema="escuro"] :is([style^="color: rgb(26, 77, 46)"],[style*="; color: rgb(26, 77, 46)"]){color:#DCEBD8!important}
 html[data-tema="escuro"] :is([style^="color: rgb(118, 55, 32)"],[style*="; color: rgb(118, 55, 32)"]){color:#FF8A80!important}
-html[data-tema="escuro"] :is([style^="color: rgb(75, 117, 71)"],[style*="; color: rgb(75, 117, 71)"]){color:#A8BFA0!important}
-html[data-tema="escuro"] :is([style^="color: rgb(51, 81, 47)"],[style*="; color: rgb(51, 81, 47)"]){color:#B9CDB3!important}
-html[data-tema="escuro"] :is([style^="color: rgb(28, 43, 33)"],[style*="; color: rgb(28, 43, 33)"]){color:#EEF2EA!important}
+html[data-tema="escuro"] :is([style^="color: rgb(74, 138, 90)"],[style*="; color: rgb(74, 138, 90)"]){color:#A8BFA0!important}
+html[data-tema="escuro"] :is([style^="color: rgb(26, 77, 46)"],[style*="; color: rgb(26, 77, 46)"]){color:#B9CDB3!important}
+html[data-tema="escuro"] :is([style^="color: rgb(27, 31, 35)"],[style*="; color: rgb(27, 31, 35)"]){color:#F4F1EA!important}
 html[data-tema="escuro"] :is([style^="color: rgb(74, 79, 68)"],[style*="; color: rgb(74, 79, 68)"]){color:#D9D3C2!important}
 html[data-tema="escuro"] :is([style^="color: rgb(31, 74, 28)"],[style*="; color: rgb(31, 74, 28)"]){color:#DCEBD8!important}
 html[data-tema="escuro"] :is([style^="color: rgb(192, 138, 30)"],[style*="; color: rgb(192, 138, 30)"]){color:#C9A227!important}
 html[data-tema="escuro"] :is([style*="background: rgb(138, 100, 16)"],[style*="background-color: rgb(138, 100, 16)"]){background-color:#C9A227!important}
 html[data-tema="escuro"] [style*="solid rgb(138, 100, 16)"]{border-color:#C9A227!important}
-html[data-tema="escuro"] :is([style*="background: rgb(75, 117, 71)"],[style*="background-color: rgb(75, 117, 71)"]){background-color:#A8BFA0!important}
-html[data-tema="escuro"] [style*="solid rgb(75, 117, 71)"]{border-color:#A8BFA0!important}
-html[data-tema="escuro"] :is([style*="background: rgb(51, 81, 47)"],[style*="background-color: rgb(51, 81, 47)"]){background-color:#B9CDB3!important}
-html[data-tema="escuro"] [style*="solid rgb(51, 81, 47)"]{border-color:#B9CDB3!important}
-html[data-tema="escuro"] :is([style*="background: rgb(28, 43, 33)"],[style*="background-color: rgb(28, 43, 33)"]){background-color:#EEF2EA!important}
-html[data-tema="escuro"] [style*="solid rgb(28, 43, 33)"]{border-color:#EEF2EA!important}
+html[data-tema="escuro"] :is([style*="background: rgb(74, 138, 90)"],[style*="background-color: rgb(74, 138, 90)"]){background-color:#D9A58C!important}
+html[data-tema="escuro"] [style*="solid rgb(74, 138, 90)"]{border-color:#D9A58C!important}
+html[data-tema="escuro"] :is([style*="background: rgb(26, 77, 46)"],[style*="background-color: rgb(26, 77, 46)"]){background-color:#D9A58C!important}
+html[data-tema="escuro"] [style*="solid rgb(26, 77, 46)"]{border-color:#D9A58C!important}
+html[data-tema="escuro"] :is([style*="background: rgb(27, 31, 35)"],[style*="background-color: rgb(27, 31, 35)"]){background-color:#F4F1EA!important}
+html[data-tema="escuro"] [style*="solid rgb(27, 31, 35)"]{border-color:#F4F1EA!important}
 html[data-tema="escuro"] :is([style*="background: rgb(142, 58, 30)"],[style*="background-color: rgb(142, 58, 30)"]){background-color:#FF8A80!important}
 html[data-tema="escuro"] [style*="solid rgb(142, 58, 30)"]{border-color:#FF8A80!important}
 html[data-tema="escuro"] :is([style*="background: rgb(166, 58, 40)"],[style*="background-color: rgb(166, 58, 40)"]){background-color:#FF8A80!important}
@@ -642,8 +649,8 @@ html[data-tema="escuro"] [style*="solid rgb(166, 58, 40)"]{border-color:#FF8A80!
 }
 /* Modo de conforto > Fundo verde vale por cima do tema (classe no body, como antes). */
 html:not([lang="en"]) .jur-so-en{display:none}
-/* título dentro do cartão escuro (.detalhe): verde claro da paleta, legível (antes #33512F sobre #1C2B21) */
-.detalhe :is(h2,h3){color:#B9CDB3}
+/* título dentro do cartão escuro (.detalhe): verde claro da paleta, legível (antes #1A4D2E sobre #1B1F23) */
+.detalhe :is(h2,h3){color:#D9A58C}
 body.p-calma .detalhe :is(h2,h3){color:var(--acao)}
 </style>
 <script id="physis-conta">
@@ -1244,11 +1251,11 @@ body.p-calma .detalhe :is(h2,h3){color:var(--acao)}
     if (document.getElementById("pc-estilo") || !document.head) return;
     var s = document.createElement("style"); s.id = "pc-estilo";
     s.textContent = [
-      ".pc{--pc-sup:#FFFFFF;--pc-tinta:#1C2B21;--pc-fraca:#4A4F44;--pc-marca:#33512F;--pc-linha:#C9D2C4;--pc-campo:#8A9284;--pc-ok-f:#DCEBD8;--pc-ok-t:#1F4A1C;--pc-at-f:#F6EAD0;--pc-at-t:#5C3F00;--pc-al-f:#F5E2D7;--pc-al-t:#7A2214;--pc-perigo:#A63A28;--pc-fundo:#F4F6F1;color:var(--pc-tinta)}",
-      "html[data-tema=escuro] .pc{--pc-sup:#1C2B21;--pc-tinta:#EEF2EA;--pc-fraca:#D9D3C2;--pc-marca:#B9CDB3;--pc-linha:#4A5A47;--pc-campo:#8A9182;--pc-ok-f:#1F4A1C;--pc-ok-t:#DCEBD8;--pc-at-f:#5C3F00;--pc-at-t:#E5D5AE;--pc-al-f:#5C2B2E;--pc-al-t:#FF8A80;--pc-perigo:#FF8A80;--pc-fundo:#14180F}",
+      ".pc{--pc-sup:#FFFFFF;--pc-tinta:#1B1F23;--pc-fraca:#4A4F44;--pc-marca:#1A4D2E;--pc-linha:#D9D3C2;--pc-campo:#8A8270;--pc-ok-f:#DCEBD8;--pc-ok-t:#1F4A1C;--pc-at-f:#F6EAD0;--pc-at-t:#5C3F00;--pc-al-f:#F5E2D7;--pc-al-t:#7A2214;--pc-perigo:#A63A28;--pc-fundo:#F4F1EA;color:var(--pc-tinta)}",
+      "html[data-tema=escuro] .pc{--pc-sup:#0F4535;--pc-tinta:#F4F1EA;--pc-fraca:#C3D0BD;--pc-marca:#D9A58C;--pc-linha:#2F5E4E;--pc-campo:#8A9182;--pc-ok-f:#1F4A1C;--pc-ok-t:#DCEBD8;--pc-at-f:#5C3F00;--pc-at-t:#E5D5AE;--pc-al-f:#5C2B2E;--pc-al-t:#FF8A80;--pc-perigo:#FF8A80;--pc-fundo:#0B3D2E}",
       ".pc-tela{display:grid;gap:14px;max-width:880px}",
       ".pc-cartao{background:var(--pc-sup);border:1px solid var(--pc-linha);border-radius:12px;padding:14px 16px;min-width:0}",
-      ".pc-h{font:600 1.15em/1.3 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--pc-marca);margin:0 0 8px}",
+      ".pc-h{font:600 1.15em/1.3 'Josefin Sans','Century Gothic','Segoe UI',sans-serif;color:var(--pc-marca);margin:0 0 8px}",
       ".pc-h3{font-size:1em;color:var(--pc-marca);margin:12px 0 6px}",
       ".pc p{margin:6px 0}.pc ul{margin:6px 0;padding-left:20px}",
       ".pc-campo{display:grid;gap:3px;margin:8px 0}.pc-campo label{font-weight:600}",
@@ -1259,7 +1266,7 @@ body.p-calma .detalhe :is(h2,h3){color:var(--acao)}
       ".pc-grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 14px}",
       ".pc-barra{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}",
       ".pc-b{font:inherit;font-weight:600;min-height:44px;min-width:44px;padding:0 16px;border-radius:8px;border:1px solid var(--pc-marca);background:var(--pc-sup);color:var(--pc-marca);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}",
-      ".pc-b.pc-p{background:var(--pc-marca);color:var(--pc-sup)}",
+      ".pc-b.pc-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
       ".pc-b.pc-perigo{border-color:var(--pc-perigo);color:var(--pc-perigo)}",
       ".pc-b.pc-p.pc-perigo{background:var(--pc-perigo);color:var(--pc-sup)}",
       ".pc-b.pc-pq{min-height:44px;padding:0 12px;font-size:14px}",
@@ -1284,7 +1291,7 @@ body.p-calma .detalhe :is(h2,h3){color:var(--acao)}
       ".pc-rolar{max-height:50vh;overflow:auto;border:1px solid var(--pc-linha);border-radius:8px;padding:8px 12px}",
       ".pc-faixas-fixas{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:2147482900;width:min(92vw,560px);display:grid;gap:8px}",
       ".pc-faixa{position:relative;background:var(--pc-at-f);color:var(--pc-at-t);border-left:4px solid var(--pc-at-t);border-radius:10px;padding:10px 52px 10px 14px;font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 4px 18px rgba(20,24,15,.2)}",
-      ".pc-faixa .pc-b{background:var(--pc-sup);color:var(--pc-marca)}.pc-faixa .pc-b.pc-p{background:var(--pc-marca);color:var(--pc-sup)}",
+      ".pc-faixa .pc-b{background:var(--pc-sup);color:var(--pc-marca)}.pc-faixa .pc-b.pc-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
       ".pc-faixa .pc-x{position:absolute;top:6px;right:6px;padding:0;width:44px;font-size:20px}",
       "@media (max-width:480px){.pc-cartao{padding:12px}.pc-janela{padding:14px}}"
     ].join("\n");
@@ -3048,8 +3055,8 @@ const lstAvisos = l => l.length ? `<ul>${l.map(x => `<li>${esc(x)}</li>`).join("
 /* barras verticais simples (12 meses), com tabela ao lado como alternativa */
 function barras(id, titulo, valores, rotulos, un) { const W = 360, H = 150, m = 24, mx = Math.max(1e-9, ...valores), bw = (W - m) / valores.length;
   const b = valores.map((v, i) => { const h = (H - 34) * v / mx, x = m + i * bw + 2, y = H - 20 - h;
-    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw - 4).toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" fill="#4B7547"><title>${esc(rotulos[i])}: ${f1(v, 0)} ${esc(un)}</title></rect><text x="${(x + (bw - 4) / 2).toFixed(1)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#4A4F44">${esc(rotulos[i])}</text>`; }).join("");
-  return `<svg id="${id}" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${esc(titulo)}: de ${f1(Math.min(...valores), 0)} a ${f1(mx, 0)} ${esc(un)}; os números estão na tabela"><line x1="${m}" y1="${H - 20}" x2="${W}" y2="${H - 20}" stroke="#C9D2C4"/>${b}</svg>`; }
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw - 4).toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" fill="#4A8A5A"><title>${esc(rotulos[i])}: ${f1(v, 0)} ${esc(un)}</title></rect><text x="${(x + (bw - 4) / 2).toFixed(1)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#4A4F44">${esc(rotulos[i])}</text>`; }).join("");
+  return `<svg id="${id}" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${esc(titulo)}: de ${f1(Math.min(...valores), 0)} a ${f1(mx, 0)} ${esc(un)}; os números estão na tabela"><line x1="${m}" y1="${H - 20}" x2="${W}" y2="${H - 20}" stroke="#D9D3C2"/>${b}</svg>`; }
 
 function blocoInvest(r, kwhAno, tarifa) { if (!r) return `<p class="t2 pq">Informe o custo instalado e a tarifa para ver o retorno (mesma conta dos investimentos da Gestão).</p>`;
   return `<div class="rolagem"><table><caption>Retorno do investimento (economia de ${brl(Math.round(kwhAno * tarifa))} no primeiro ano)</caption><thead><tr><th scope="col">Retorno simples</th><th scope="col">Retorno descontado</th><th scope="col">VPL</th><th scope="col">TIR ao ano</th></tr></thead><tbody><tr>
@@ -3130,8 +3137,8 @@ function parteEolica() { const o = ler("e"), V = ventoDoLugar(), temV = V && V.o
       ${cartao("te-fc", "Fator de capacidade", R.fc == null ? "—" : f1(R.fc * 100, 1) + "%", R.p_nom ? "de " + f1(R.p_nom, 1) + " kW nominais" : "informe a potência nominal")}
       ${cartao("te-rho", "Densidade do ar", f1(R.rho, 3), "kg/m³ · área do rotor " + f1(R.area, 1) + " m²")}</div>${R.avisos.length ? `<div class="faixa at">${lstAvisos(R.avisos)}</div>` : ""}`;
   const pts = R.curva, W = 360, H = 170, mxP = Math.max(1e-9, ...pts.map(x => x.kw)), vx = pts[pts.length - 1].v, sx = v => 30 + v / vx * (W - 40), sy = p => H - 24 - p / mxP * (H - 40);
-  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Curva de potência: até ${f1(mxP, 1)} kW; os números estão na tabela"><line x1="30" y1="${H - 24}" x2="${W - 10}" y2="${H - 24}" stroke="#C9D2C4"/><line x1="30" y1="10" x2="30" y2="${H - 24}" stroke="#C9D2C4"/>
-    <polyline fill="none" stroke="#33512F" stroke-width="2.5" points="${pts.map(x => sx(x.v).toFixed(1) + "," + sy(x.kw).toFixed(1)).join(" ")}"/>${R.v_cubo > 0 ? `<line x1="${sx(R.v_cubo).toFixed(1)}" y1="10" x2="${sx(R.v_cubo).toFixed(1)}" y2="${H - 24}" stroke="#8A6410" stroke-dasharray="4 3"/>` : ""}
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Curva de potência: até ${f1(mxP, 1)} kW; os números estão na tabela"><line x1="30" y1="${H - 24}" x2="${W - 10}" y2="${H - 24}" stroke="#D9D3C2"/><line x1="30" y1="10" x2="30" y2="${H - 24}" stroke="#D9D3C2"/>
+    <polyline fill="none" stroke="#1A4D2E" stroke-width="2.5" points="${pts.map(x => sx(x.v).toFixed(1) + "," + sy(x.kw).toFixed(1)).join(" ")}"/>${R.v_cubo > 0 ? `<line x1="${sx(R.v_cubo).toFixed(1)}" y1="10" x2="${sx(R.v_cubo).toFixed(1)}" y2="${H - 24}" stroke="#8A6410" stroke-dasharray="4 3"/>` : ""}
     <text x="${W - 10}" y="${H - 6}" font-size="10" text-anchor="end" fill="#4A4F44">vento (m/s)</text><text x="34" y="18" font-size="10" fill="#4A4F44">${f1(mxP, 1)} kW</text></svg>`;
   const curva = `<section class="cartao" aria-labelledby="h-te-curva"><h2 id="h-te-curva">Curva de potência e horas por ano</h2>${svg}<p class="t2 pq">P = ½·ρ·A·v³·Cp, limitada à potência nominal; zero abaixo da partida e acima do corte. Linha tracejada: média no cubo.</p>
     <div class="rolagem"><table><caption>Potência e horas por ano em cada velocidade (Weibull k ${f1(R.k, 1)}, c ${f1(R.c, 2)} m/s)</caption><thead><tr><th scope="col">Vento (m/s)</th><th scope="col">Potência (kW)</th><th scope="col">Horas por ano</th></tr></thead><tbody>
@@ -3359,7 +3366,7 @@ const lista = (o, k, rot, ops, padrao) => { const a = o[k] == null || o[k] === "
 const cartao = (id, tit, numero, un, extra) => `<section class="cartao" aria-labelledby="h-${id}"><h3 id="h-${id}" class="t3">${tit}</h3><span class="numero">${numero}</span><span class="t2">${un}</span>${extra || ""}</section>`;
 function hbar(titulo, itens, un) { const W = 360, lh = 24, H = itens.length * lh + 6, Lx = 150, mx = Math.max(1e-9, ...itens.map(x => x.v));
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${esc(titulo)}; os números estão na tabela">${itens.map((x, i) => { const w = (W - Lx - 60) * x.v / mx, y = 3 + i * lh;
-    return `<text x="${Lx - 6}" y="${y + 14}" font-size="11" text-anchor="end" fill="#1C2B21">${esc(x.rot)}</text><rect x="${Lx}" y="${y + 3}" width="${Math.max(0, w).toFixed(1)}" height="15" fill="#A85432"><title>${esc(x.rot)}: ${f1(x.v, 0)} ${esc(un)}</title></rect><text x="${(Lx + w + 4).toFixed(1)}" y="${y + 14}" font-size="11" fill="#4A4F44">${f1(x.v, 0)}</text>`; }).join("")}</svg>`; }
+    return `<text x="${Lx - 6}" y="${y + 14}" font-size="11" text-anchor="end" fill="#1B1F23">${esc(x.rot)}</text><rect x="${Lx}" y="${y + 3}" width="${Math.max(0, w).toFixed(1)}" height="15" fill="#A85432"><title>${esc(x.rot)}: ${f1(x.v, 0)} ${esc(un)}</title></rect><text x="${(Lx + w + 4).toFixed(1)}" y="${y + 14}" font-size="11" fill="#4A4F44">${f1(x.v, 0)}</text>`; }).join("")}</svg>`; }
 
 function metodologia() { return `<details class="cartao"><summary><h2 style="display:inline">Metodologia e normas</h2></summary>
   <ul><li><strong>Sol do lugar:</strong> irradiação global horizontal média de cada mês (NASA POWER, climatologia de longo prazo, guardada no servidor); sem a base, estimativa pela latitude (Duffie e Beckman) com o índice de claridade.</li>
@@ -3909,7 +3916,7 @@ function graficoLinhas(id, titulo, series, un, rotX) { const W = 640, H = 220, m
   const sx = x => m.l + (x - x0) / (x1 - x0) * (W - m.l - m.r), sy = y => H - m.b - y / y1 * (H - m.t - m.b);
   const lin = s => `<polyline fill="none" style="stroke:${s.cor}" stroke-width="2.5"${s.tracejado ? ' stroke-dasharray="6 4"' : ""} points="${s.pts.map(p => sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join(" ")}"/>`;
   return `<figure style="margin:0"><svg id="${id}" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-labelledby="${id}-t"><title id="${id}-t">${E(T(titulo))}</title>
-    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#C9D2C4)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H - m.b}" style="stroke:var(--linha,#C9D2C4)"/>
+    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/>
     <text x="${m.l - 6}" y="${m.t + 10}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y1, 0)}</text><text x="${m.l - 6}" y="${H - m.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">0</text>
     <text x="${m.l}" y="${H - 8}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(rotX(x0))}</text><text x="${W - m.r}" y="${H - 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${E(rotX(x1))}</text>
     <text x="${m.l + 4}" y="${m.t + 10}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(un)}</text>${series.map(lin).join("")}</svg>
@@ -4040,8 +4047,8 @@ function mapaCalor(r) { const cel = r.terreno; if (!cel.length || !r.grade) retu
   const passo = Math.max(1, Math.round(Math.sqrt(((g.nx - 2) * (g.ny - 2)) / cel.length))), lado = g.cs * passo * k;
   const rects = cel.map(c => `<rect x="${((c.x - g.x0) * k - lado / 2).toFixed(1)}" y="${(H - (c.y - g.y0) * k - lado / 2).toFixed(1)}" width="${(lado + 0.5).toFixed(1)}" height="${(lado + 0.5).toFixed(1)}" fill="${cor(c.anual_kwh_m2, a, b)}"/>`).join("");
   const caixas = r.caixas.map(c => { const rr = (c.rot || 0) * RAD, pts = [[-c.w / 2, -c.d / 2], [c.w / 2, -c.d / 2], [c.w / 2, c.d / 2], [-c.w / 2, c.d / 2]].map(([x, y]) => [c.x + x * Math.cos(rr) - y * Math.sin(rr), c.y + x * Math.sin(rr) + y * Math.cos(rr)]);
-    return `<polygon points="${pts.map(p => ((p[0] - g.x0) * k).toFixed(1) + "," + (H - (p[1] - g.y0) * k).toFixed(1)).join(" ")}" fill="none" stroke="#1C2B21" stroke-width="1.5"/>`; }).join("");
-  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="${E(T("Sol no terreno"))}: ${f1(a, 0)} a ${f1(b, 0)} kWh/m²·ano">${rects}${caixas}<text x="${W - 6}" y="14" font-size="12" text-anchor="end" style="fill:#1C2B21">N ↑</text></svg>
+    return `<polygon points="${pts.map(p => ((p[0] - g.x0) * k).toFixed(1) + "," + (H - (p[1] - g.y0) * k).toFixed(1)).join(" ")}" fill="none" stroke="#1B1F23" stroke-width="1.5"/>`; }).join("");
+  const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="${E(T("Sol no terreno"))}: ${f1(a, 0)} a ${f1(b, 0)} kWh/m²·ano">${rects}${caixas}<text x="${W - 6}" y="14" font-size="12" text-anchor="end" style="fill:#1B1F23">N ↑</text></svg>
     <span class="t2 pq"><span aria-hidden="true" style="display:inline-block;width:80px;height:9px;vertical-align:middle;background:linear-gradient(90deg,${RAMPA.join(",")})"></span> ${f1(a, 0)} ${E(T("a"))} ${f1(b, 0)} kWh/m²·${E(T("ano"))}</span>`;
   return conforto() ? `<details><summary>${E(T("Ver o mapa de calor"))}</summary>${svg}</details>` : svg; }
 function tabelaSup(tit, l) { if (!l.length) return ""; return `<div class="rolagem"><table><caption>${E(T(tit))}</caption><thead><tr><th scope="col">${E(T("Superfície"))}</th><th scope="col">${E(T("Inclinação"))}</th><th scope="col">${E(T("Orientação"))}</th><th scope="col">kWh/m²·${E(T("ano"))}</th><th scope="col">${E(T("Sombra"))}</th></tr></thead><tbody>
@@ -4101,9 +4108,9 @@ function calcularPlanta() { const st = estado(), c = st.cfg, L = lugar(), S = SO
   const pq = potencias(inv.pca, num(c.fp)), fp = pq.fp;
   return { sup, sups, mod, A, inc, hz, R, inv, fp, pq, incl, azim, lat: r.lat, H: r.H, T: Tm, fonte: r.fonte }; }
 function cartaSVG(lat, hz) { const W = 320, c = W / 2, R = W / 2 - 24, p = (alt, az) => { const r = R * (90 - alt) / 90; return [c + r * Math.sin(az * RAD), c - r * Math.cos(az * RAD)]; };
-  const aneis = [0, 30, 60].map(a => `<circle cx="${c}" cy="${c}" r="${(R * (90 - a) / 90).toFixed(1)}" fill="none" style="stroke:var(--linha,#C9D2C4)"/>`).join("");
+  const aneis = [0, 30, 60].map(a => `<circle cx="${c}" cy="${c}" r="${(R * (90 - a) / 90).toFixed(1)}" fill="none" style="stroke:var(--linha,#D9D3C2)"/>`).join("");
   const hor = hz ? `<path d="${hz.map((h, k) => { const q = p(h / RAD, k * 10); return (k ? "L" : "M") + q[0].toFixed(1) + " " + q[1].toFixed(1); }).join(" ")} Z M ${c + R} ${c} A ${R} ${R} 0 1 0 ${c - R} ${c} A ${R} ${R} 0 1 0 ${c + R} ${c} Z" fill="#B9A97F" fill-opacity=".45" fill-rule="evenodd"/>` : "";
-  const dias = [[SOLSTICIO_JUN, "#3D6E8F", "junho"], [EQUINOCIO_MAR, "#4B7547", "março e setembro"], [SOLSTICIO_DEZ, "#A85432", "dezembro"]].map(([dn, cr]) => { const [n0, n1] = nascerPor(lat, dn), pts = [];
+  const dias = [[SOLSTICIO_JUN, "#2F7D5B", "junho"], [EQUINOCIO_MAR, "#4A8A5A", "março e setembro"], [SOLSTICIO_DEZ, "#A85432", "dezembro"]].map(([dn, cr]) => { const [n0, n1] = nascerPor(lat, dn), pts = [];
     for (let h = n0; h <= n1; h += 0.25) { const s = solEm(lat, dn, h); if (s.altura >= 0) pts.push(p(s.altura, s.azimute)); }
     return `<polyline fill="none" style="stroke:${cr}" stroke-width="2.5" points="${pts.map(q => q[0].toFixed(1) + "," + q[1].toFixed(1)).join(" ")}"/>`; }).join("");
   const rot = [["N", 0], ["L", 90], ["S", 180], ["O", 270]].map(([t, a]) => { const q = p(-10, a); return `<text x="${q[0].toFixed(1)}" y="${(q[1] + 4).toFixed(1)}" font-size="12" text-anchor="middle" style="fill:var(--tinta2,#4A4F44)">${t}</text>`; }).join("");
@@ -4130,7 +4137,7 @@ function partePlanta() { const st = estado(), c = st.cfg, P = calcularPlanta(), 
   const W = 360, xs = P.sup.poligono.map(p => p[0]), ys = P.sup.poligono.map(p => p[1]), x0 = Math.min(...xs), y0 = Math.min(...ys), esc = W / Math.max(Math.max(...xs) - x0, Math.max(...ys) - y0, 1), Hh = Math.round((Math.max(...ys) - y0) * esc) + 2;
   const pol = `<polygon points="${P.sup.poligono.map(p => ((p[0] - x0) * esc).toFixed(1) + "," + (Hh - (p[1] - y0) * esc).toFixed(1)).join(" ")}" fill="#EFE8D6" stroke="#4A4F44"/>`;
   const r0 = (P.sup.plano === "telhado" ? 0 : P.azim) * RAD, mw = A.du * esc, mh = A.dv * (P.sup.plano === "telhado" ? 1 : Math.cos(P.incl * RAD)) * esc;
-  const mods = A.posicoes.length <= 3000 ? A.posicoes.map(q => `<rect x="${((q.x - x0) * esc - mw / 2).toFixed(1)}" y="${(Hh - (q.y - y0) * esc - mh / 2).toFixed(1)}" width="${mw.toFixed(1)}" height="${mh.toFixed(1)}" fill="#1C3550" stroke="#DBE7F1" stroke-width=".5" transform="rotate(${(r0 / RAD).toFixed(1)} ${((q.x - x0) * esc).toFixed(1)} ${(Hh - (q.y - y0) * esc).toFixed(1)})"/>`).join("") : "";
+  const mods = A.posicoes.length <= 3000 ? A.posicoes.map(q => `<rect x="${((q.x - x0) * esc - mw / 2).toFixed(1)}" y="${(Hh - (q.y - y0) * esc - mh / 2).toFixed(1)}" width="${mw.toFixed(1)}" height="${mh.toFixed(1)}" fill="#4A4F44" stroke="#EFE8D6" stroke-width=".5" transform="rotate(${(r0 / RAD).toFixed(1)} ${((q.x - x0) * esc).toFixed(1)} ${(Hh - (q.y - y0) * esc).toFixed(1)})"/>`).join("") : "";
   const desenho = `<svg viewBox="0 0 ${W} ${Hh}" width="100%" style="max-width:${W}px" role="img" aria-label="${E(T("Arranjo das placas na superfície"))}: ${A.modulos} ${E(T("módulos"))}">${pol}${mods}</svg>`;
   /* curva do dia desde o nascer do sol */
   const dias = DIA_REP.map((d, m) => [String(d), MESES[m] + " (dia médio)"]).concat([[String(SOLSTICIO_JUN), "solstício de junho"], [String(SOLSTICIO_DEZ), "solstício de dezembro"], [String(EQUINOCIO_MAR), "equinócio de março"], [String(EQUINOCIO_SET), "equinócio de setembro"]]);
@@ -4139,7 +4146,7 @@ function partePlanta() { const st = estado(), c = st.cfg, P = calcularPlanta(), 
   const pca = potenciaCA(cv, A.kwp, tA, P.mod, P.inv.eta) || [];
   const curva = `${lista("dia", "Dia da curva", dias, String(dn))}<p class="t2">${E(T("Nascer do sol"))} ${horaTxt(cv.nascer_h)} · ${E(T("pôr do sol"))} ${horaTxt(cv.por_h)} (${E(T("hora solar"))}) · ${f1(cv.total_kwh_m2, 2)} kWh/m² ${E(T("no plano das placas"))}${P.T ? "" : " · " + E(T("temperatura de 25 °C (sem a base de temperatura)"))}</p>
     ${graficoLinhas("mp-g-curva", "Irradiância no plano das placas, do nascer ao pôr do sol", [{ nome: "Irradiância (W/m²)", cor: "#C08A1E", pts: cv.pontos }], "W/m²", horaTxt)}
-    ${graficoLinhas("mp-g-ca", "Potência CA estimada", [{ nome: "Potência CA (kW)", cor: "#33512F", pts: pca }], "kW", horaTxt)}
+    ${graficoLinhas("mp-g-ca", "Potência CA estimada", [{ nome: "Potência CA (kW)", cor: "#1A4D2E", pts: pca }], "kW", horaTxt)}
     <details><summary>${E(T("Ver os números da curva"))}</summary><div class="rolagem"><table><caption>${E(T("Hora a hora"))}</caption><thead><tr><th scope="col">${E(T("Hora"))}</th><th scope="col">W/m²</th><th scope="col">kW</th></tr></thead><tbody>${cv.pontos.filter((_, i) => i % 4 === 2).map((p, i) => `<tr><th scope="row">${horaTxt(p[0])}</th><td>${f1(p[1], 0)}</td><td>${f1((pca[i * 4 + 2] || [0, null])[1], 2)}</td></tr>`).join("")}</tbody></table></div></details>`;
   const R = P.R, ener = R ? `<div class="rolagem"><table><caption>${E(T("Energia mês a mês (contas da aba Solar)"))}</caption><thead><tr><th scope="col">${E(T("Mês"))}</th><th scope="col">kWh/m²·${E(T("dia no plano"))}</th><th scope="col">kWh</th></tr></thead><tbody>${R.meses.map((x, m) => `<tr><th scope="row">${E(T(MESES[m]))}</th><td>${f1(x.H * x.fp, 2)}</td><td>${f1(x.kwh_kwp * R.kwp, 0)}</td></tr>`).join("")}</tbody><tfoot><tr><th scope="row">${E(T("Ano"))}</th><td>${f1(R.h_plano, 0)} kWh/m²</td><td>${f1(R.ger, 0)}</td></tr></tfoot></table></div><p class="t2 pq">PR ${f1(R.pr * 100, 1)} % · ${E(T("sombra do horizonte"))} ${f1(P.inc.sombra_pct, 1)} %</p>` : "";
   const st_ = R && R.strings, ele = `<div class="precos">${lista("inversor", "Inversor (base de equipamentos)", Sx.INVERSORES.map(v => [v.id, v.nome]), P.inv.id)}${campo("tmin", "Temperatura mínima do lugar (°C)", c.tmin, "a da aba Solar")}${campo("tmax", "Temperatura máxima do lugar (°C)", c.tmax, "a da aba Solar")}${campo("fp", "Fator de potência", c.fp, premissa(PREMISSA_FP) != null ? f1(premissa(PREMISSA_FP), 2) : "premissa " + PREMISSA_FP + " [CONFERIR]")}</div>
@@ -4517,9 +4524,9 @@ const traduzRotulo = s => { try { if (/^en/i.test(document.documentElement.lang 
 const CAT = {
   aterro:["Aterro (sanitário ou não informado)", "#7A2214", "quad"], aterro_controlado:["Aterro controlado", "#A85432", "quad"],
   lixao:["Lixão (vazadouro a céu aberto)", "#2A1215", "cruz"], transbordo:["Estação de transbordo", "#8A6410", "quad"],
-  cooperativa:["Cooperativa ou associação de catadores", "#1F4A1C", "circ"], reciclagem:["Centro de reciclagem ou triagem", "#4B7547", "circ"],
-  ecoponto:["Ecoponto", "#3D6E8F", "diam"], pev:["Ponto de entrega voluntária (PEV)", "#2C5A6E", "circ"], sucata:["Ferro-velho ou sucata", "#546A7B", "diam"],
-  compostagem:["Compostagem", "#8A6A1F", "tri"], rcc:["Resíduos da construção (RCC, ATT)", "#5F6659", "diam"], ete:["Estação de tratamento de esgoto", "#1C3550", "tri"] };
+  cooperativa:["Cooperativa ou associação de catadores", "#1F4A1C", "circ"], reciclagem:["Centro de reciclagem ou triagem", "#4A8A5A", "circ"],
+  ecoponto:["Ecoponto", "#2F7D5B", "diam"], pev:["Ponto de entrega voluntária (PEV)", "#2F7D5B", "circ"], sucata:["Ferro-velho ou sucata", "#4A4F44", "diam"],
+  compostagem:["Compostagem", "#8A6A1F", "tri"], rcc:["Resíduos da construção (RCC, ATT)", "#5F6659", "diam"], ete:["Estação de tratamento de esgoto", "#4A4F44", "tri"] };
 /* destino do plano -> categorias que recebem (espelho de residuos_gis.CATEGORIAS_POR_DESTINO) */
 const POR_DESTINO = { reciclagem:["cooperativa", "reciclagem", "ecoponto", "sucata", "pev"], reversa:["ecoponto", "pev", "reciclagem"],
   compostagem:["compostagem"], aterro2:["aterro", "aterro_controlado", "transbordo"] };
@@ -4571,12 +4578,12 @@ function indicadores(plano, pontos, cfg) { const linhas = [], porRota = {}; let 
     temCo2:linhas.some(l => l.co2 && l.co2.kg_co2_mes != null) }; }
 
 /* ════════ Fluxo dos resíduos: geração por tipo → separação → rota → destino (distância e CO₂) ════════ */
-const COR_GRUPO = { "Orgânicos":"#8A6A1F", "Recicláveis":"#4B7547", "Obra e madeira":"#5F6659", "Perigosos e logística reversa":"#7A2214", "Rejeito":"#4A4F44", "Outros":"#546A7B" };
+const COR_GRUPO = { "Orgânicos":"#8A6A1F", "Recicláveis":"#4A8A5A", "Obra e madeira":"#5F6659", "Perigosos e logística reversa":"#7A2214", "Rejeito":"#4A4F44", "Outros":"#4A4F44" };
 function destinoDe(l) { return l.interno ? "No próprio lugar" : l.alvo ? (l.alvo.nome || (CAT[l.alvo.categoria] || [l.alvo.categoria])[0]) : l.semCategoria ? "Empresa licenciada (a contratar)" : "Destino a definir (nenhum no raio)"; }
 function fluxo(I) { const L = I.linhas.filter(l => l.kg > 0); if (!L.length) return null;
   const col = [{}, {}, {}, {}], lig = [{}, {}, {}], soma = (o, k, v, extra) => { o[k] = o[k] || Object.assign({ v:0 }, extra || {}); o[k].v += v; };
-  L.forEach(l => { const ks = [l.tipo, l.grupo, l.rota, destinoDe(l)], cor = COR_GRUPO[l.grupo] || "#546A7B";
-    soma(col[0], ks[0], l.kg, { cor }); soma(col[1], ks[1], l.kg, { cor }); soma(col[2], ks[2], l.kg, { cor:"#33512F" });
+  L.forEach(l => { const ks = [l.tipo, l.grupo, l.rota, destinoDe(l)], cor = COR_GRUPO[l.grupo] || "#4A4F44";
+    soma(col[0], ks[0], l.kg, { cor }); soma(col[1], ks[1], l.kg, { cor }); soma(col[2], ks[2], l.kg, { cor:"#1A4D2E" });
     soma(col[3], ks[3], l.kg, { cor:l.interno ? "#1F4A1C" : "#8A6410", dist:l.dist, co2:0 }); if (l.co2 && l.co2.kg_co2_mes) col[3][ks[3]].co2 += l.co2.kg_co2_mes;
     for (let i = 0; i < 3; i++) soma(lig[i], ks[i] + "→" + ks[i + 1], l.kg, { a:ks[i], b:ks[i + 1], cor }); });
   return { col, lig, tot:L.reduce((s, l) => s + l.kg, 0), L }; }
@@ -4588,7 +4595,7 @@ function sankeySvg(F) { const W = 900, H = 300, nw = 12, pad = 10, xs = [8, 200,
   F.lig.forEach((ls, i) => Object.values(ls).sort((a, b) => b.v - a.v).forEach(l => { const A = pos[i][l.a], B = pos[i + 1][l.b], t = l.v * k, x0 = xs[i] + nw, x1 = xs[i + 1], y0 = A.y + A.sa, y1 = B.y + B.ea, xm = (x0 + x1) / 2; A.sa += t; B.ea += t;
     fitas += `<path d="M${x0} ${y0.toFixed(1)}C${xm} ${y0.toFixed(1)} ${xm} ${y1.toFixed(1)} ${x1} ${y1.toFixed(1)}L${x1} ${(y1 + t).toFixed(1)}C${xm} ${(y1 + t).toFixed(1)} ${xm} ${(y0 + t).toFixed(1)} ${x0} ${(y0 + t).toFixed(1)}Z" fill="${l.cor}" fill-opacity="0.35"><title>${esc(l.a)} → ${esc(l.b)}: ${f1(l.v, 0)} kg/mês</title></path>`; }));
   const nos = pos.map((c, i) => Object.entries(c).map(([n, p]) => { const ult = i === 3, tx = xs[i] + nw + 4, extra = ult && p.x.dist != null ? ` · ${f1(p.x.dist, 1)} km${p.x.co2 ? " · " + f1(p.x.co2, 1) + " kg CO₂e" : ""}` : "";
-    return `<rect x="${xs[i]}" y="${p.y.toFixed(1)}" width="${nw}" height="${p.h.toFixed(1)}" fill="${p.x.cor}"><title>${esc(n)}: ${f1(p.x.v, 0)} kg/mês${esc(extra)}</title></rect><text x="${tx}" y="${(p.y + p.h / 2 + 4).toFixed(1)}" font-size="11" fill="#1C2B21" text-anchor="start">${esc(corta(n, ult ? 30 : 24))} (${f1(p.x.v, 0)})${esc(extra)}</text>`; }).join("")).join("");
+    return `<rect x="${xs[i]}" y="${p.y.toFixed(1)}" width="${nw}" height="${p.h.toFixed(1)}" fill="${p.x.cor}"><title>${esc(n)}: ${f1(p.x.v, 0)} kg/mês${esc(extra)}</title></rect><text x="${tx}" y="${(p.y + p.h / 2 + 4).toFixed(1)}" font-size="11" fill="#1B1F23" text-anchor="start">${esc(corta(n, ult ? 30 : 24))} (${f1(p.x.v, 0)})${esc(extra)}</text>`; }).join("")).join("");
   const cab = ["Geração", "Separação", "Rota", "Destino"].map((t, i) => `<text x="${xs[i]}" y="8" font-size="10" font-weight="700" fill="#4A4F44">${t}</text>`).join("");
   return `<svg viewBox="0 -6 ${W} ${H + 6}" width="100%" style="max-width:${W}px" role="img" aria-label="Fluxo dos resíduos em kg por mês: geração por tipo, separação, rota e destino; os números estão na tabela">${cab}${fitas}${nos}</svg>`; }
 function secaoFluxo(I) { const F = fluxo(I); if (!F) return "";
@@ -4630,15 +4637,15 @@ const descr = p => `${p.nome || "Sem nome"}, ${(CAT[p.categoria] || [p.categoria
 
 function mapaSvg(d, pontos, raio, sel) { const S = 360, c = S / 2, Rp = 160, lat0 = d.lat, lon0 = d.lon, kx = 111.32 * Math.cos(lat0 * Math.PI / 180), ky = 110.574;
   const pos = p => [c + (p.lon - lon0) * kx / raio * Rp, c - (p.lat - lat0) * ky / raio * Rp];
-  const aneis = [0.25, 0.5, 0.75, 1].map(f => `<circle cx="${c}" cy="${c}" r="${(Rp * f).toFixed(1)}" fill="none" stroke="#C9D2C4" stroke-dasharray="${f === 1 ? "0" : "3 3"}"/><text x="${(c + 3).toFixed(1)}" y="${(c - Rp * f - 3).toFixed(1)}" font-size="10" fill="#4A4F44">${f1(raio * f, raio * f < 10 && raio * f % 1 ? 1 : 0)} km</text>`).join("");
+  const aneis = [0.25, 0.5, 0.75, 1].map(f => `<circle cx="${c}" cy="${c}" r="${(Rp * f).toFixed(1)}" fill="none" stroke="#D9D3C2" stroke-dasharray="${f === 1 ? "0" : "3 3"}"/><text x="${(c + 3).toFixed(1)}" y="${(c - Rp * f - 3).toFixed(1)}" font-size="10" fill="#4A4F44">${f1(raio * f, raio * f < 10 && raio * f % 1 ? 1 : 0)} km</text>`).join("");
   const ord = pontos.slice().sort((a, b) => b.dist_km - a.dist_km);   /* os mais perto por cima */
   const foco = new Set(pontos.slice(0, MAX_FOCO).map(p => p.id));
   const pts = ord.map(p => { const [x, y] = pos(p), [nome, cor, f] = CAT[p.categoria] || [p.categoria, "#4A4F44", "circ"], i = pontos.indexOf(p), s = p.id === sel ? 8 : 5.5;
     return foco.has(p.id) ? `<g class="rcm-p" tabindex="0" role="button" aria-pressed="${p.id === sel}" aria-label="${esc(descr(p))}" data-rcm-p="${i}"><title>${esc(descr(p))}</title>${forma(f, x, y, s, cor)}</g>`
       : `<g aria-hidden="true">${forma(f, x, y, 4, cor)}</g>`; }).join("");
-  return `<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:${S}px;background:#F7F9F4;border:1px solid #C9D2C4;border-radius:10px" role="group" aria-label="Mapa dos destinos em volta do lugar, raio de ${raio} km, ${pontos.length} pontos; a lista completa está na tabela abaixo">
-    ${aneis}<text x="${S - 14}" y="22" font-size="13" font-weight="700" text-anchor="middle" fill="#1C2B21">N</text><path d="M${S - 14} 26 l-5 12 h10 z" fill="#1C2B21"/>
-    ${pts}<circle cx="${c}" cy="${c}" r="9" fill="none" stroke="#33512F" stroke-width="3"/><circle cx="${c}" cy="${c}" r="3.5" fill="#33512F"/><text x="${c}" y="${c + 24}" font-size="11" text-anchor="middle" fill="#33512F" font-weight="700" stroke="#F7F9F4" stroke-width="3" paint-order="stroke">o lugar</text></svg>`; }
+  return `<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:${S}px;background:#FAF9F5;border:1px solid #D9D3C2;border-radius:10px" role="group" aria-label="Mapa dos destinos em volta do lugar, raio de ${raio} km, ${pontos.length} pontos; a lista completa está na tabela abaixo">
+    ${aneis}<text x="${S - 14}" y="22" font-size="13" font-weight="700" text-anchor="middle" fill="#1B1F23">N</text><path d="M${S - 14} 26 l-5 12 h10 z" fill="#1B1F23"/>
+    ${pts}<circle cx="${c}" cy="${c}" r="9" fill="none" stroke="#1A4D2E" stroke-width="3"/><circle cx="${c}" cy="${c}" r="3.5" fill="#1A4D2E"/><text x="${c}" y="${c + 24}" font-size="11" text-anchor="middle" fill="#1A4D2E" font-weight="700" stroke="#FAF9F5" stroke-width="3" paint-order="stroke">o lugar</text></svg>`; }
 
 function legenda(grupos) { const ks = Object.keys(CAT).filter(k => grupos[k]);
   return ks.length ? `<ul class="rcm-leg" aria-label="Legenda do mapa">${ks.map(k => `<li><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">${forma(CAT[k][2], 9, 9, 5.5, CAT[k][1])}</svg> ${esc(CAT[k][0])} (${grupos[k].n})</li>`).join("")}</ul>` : ""; }
@@ -4646,8 +4653,8 @@ function legenda(grupos) { const ks = Object.keys(CAT).filter(k => grupos[k]);
 /* barras horizontais, com a tabela como alternativa */
 function hbarras(titulo, itens, un, casas, meta) { if (!itens.length) return ""; const W = 360, lh = 26, H = itens.length * lh + 10, L = 130, mx = Math.max(1e-9, ...itens.map(x => x.v), meta || 0);
   const b = itens.map((x, i) => { const w = (W - L - 60) * x.v / mx, y = 5 + i * lh;
-    return `<text x="${L - 6}" y="${y + 15}" font-size="11" text-anchor="end" fill="#1C2B21">${esc(traduzRotulo(x.rot).length > 22 ? traduzRotulo(x.rot).slice(0, 21) + "…" : traduzRotulo(x.rot))}</text><rect x="${L}" y="${y + 3}" width="${Math.max(0, w).toFixed(1)}" height="16" fill="${x.cor || "#4B7547"}"><title>${esc(x.rot)}: ${f1(x.v, casas)} ${esc(un)}</title></rect><text x="${(L + w + 4).toFixed(1)}" y="${y + 15}" font-size="11" fill="#4A4F44">${f1(x.v, casas)}</text>`; }).join("");
-  const m = meta ? `<line x1="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y1="2" x2="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y2="${H - 2}" stroke="#1C2B21" stroke-dasharray="4 3"/>` : "";
+    return `<text x="${L - 6}" y="${y + 15}" font-size="11" text-anchor="end" fill="#1B1F23">${esc(traduzRotulo(x.rot).length > 22 ? traduzRotulo(x.rot).slice(0, 21) + "…" : traduzRotulo(x.rot))}</text><rect x="${L}" y="${y + 3}" width="${Math.max(0, w).toFixed(1)}" height="16" fill="${x.cor || "#4A8A5A"}"><title>${esc(x.rot)}: ${f1(x.v, casas)} ${esc(un)}</title></rect><text x="${(L + w + 4).toFixed(1)}" y="${y + 15}" font-size="11" fill="#4A4F44">${f1(x.v, casas)}</text>`; }).join("");
+  const m = meta ? `<line x1="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y1="2" x2="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y2="${H - 2}" stroke="#1B1F23" stroke-dasharray="4 3"/>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${esc(titulo)}; os números estão na tabela">${b}${m}</svg>`; }
 
 function campo(o, k, rot, ph, ajuda) { return `<div><label for="rcm-${k}">${rot}</label><input id="rcm-${k}" type="text" inputmode="decimal" data-rcm-k="${k}" value="${esc(o[k] == null ? "" : o[k])}" placeholder="${esc(ph)}" style="width:100%"${ajuda ? ` aria-describedby="rcm-${k}-a"` : ""}>${ajuda ? `<span id="rcm-${k}-a" class="t2 pq">${ajuda}</span>` : ""}</div>`; }
@@ -4665,7 +4672,7 @@ function telaCircularMapa(dados) { const o = cfgLer(), raio = RAIOS.includes(+o.
   if (ok) {
     const info = sel ? `<p class="faixa in" role="status" aria-live="polite"><strong>${esc(sel.nome || "Sem nome")}</strong> · ${esc((CAT[sel.categoria] || [sel.categoria])[0])} · ${f1(sel.dist_km, 1)} km em linha reta a ${rumoTxt(sel.rumo || 0)}${sel.materiais && sel.materiais.length ? " · recebe " + esc(sel.materiais.join(", ")) : ""}${sel.operador ? " · " + esc(sel.operador) : ""}${sel.horario ? " · horário " + esc(sel.horario) : ""} · fonte: ${esc(sel.fonte || "")}</p>`
       : `<p class="t2 pq" role="status" aria-live="polite">Escolha um ponto no mapa (Tab e Enter) para ver os detalhes.</p>`;
-    const fundo = (typeof window !== "undefined") ? `<div><button type="button" data-rcm-fundo="1" aria-pressed="${!!ui.rcmFundo}">${ui.rcmFundo ? "Fechar o mapa com fundo" : "Abrir o mapa com fundo da região"}</button></div>${ui.rcmFundo ? `<div id="rcm-ml" role="region" aria-label="Mapa com fundo da região (visual; a mesma informação está nas tabelas)" style="height:360px;border:1px solid #C9D2C4;border-radius:10px;margin-top:8px"></div><p id="rcm-ml-aviso" class="t2 pq" role="status"></p>` : ""}` : "";
+    const fundo = (typeof window !== "undefined") ? `<div><button type="button" data-rcm-fundo="1" aria-pressed="${!!ui.rcmFundo}">${ui.rcmFundo ? "Fechar o mapa com fundo" : "Abrir o mapa com fundo da região"}</button></div>${ui.rcmFundo ? `<div id="rcm-ml" role="region" aria-label="Mapa com fundo da região (visual; a mesma informação está nas tabelas)" style="height:360px;border:1px solid #D9D3C2;border-radius:10px;margin-top:8px"></div><p id="rcm-ml-aviso" class="t2 pq" role="status"></p>` : ""}` : "";
     const maisProx = Object.keys(CAT).filter(k => grupos[k]).map(k => { const p = grupos[k].mais_proximo;
       return `<tr><th scope="row">${esc(CAT[k][0])}</th><td>${grupos[k].n}</td><td>${esc(p.nome || "Sem nome")}</td><td>${f1(p.dist_km, 1)} km a ${rumoTxt(p.rumo || 0)}</td></tr>`; }).join("");
     const lista = pontos.map(p => `<tr><th scope="row">${esc(p.nome || "Sem nome")}</th><td>${esc((CAT[p.categoria] || [p.categoria])[0])}</td><td>${f1(p.dist_km, 1)}</td><td>${rumoTxt(p.rumo || 0)}</td><td>${esc((p.materiais || []).join(", ") || "—")}</td><td>${esc(p.fonte || "")}</td></tr>`).join("");
@@ -4693,7 +4700,7 @@ function telaCircularMapa(dados) { const o = cfgLer(), raio = RAIOS.includes(+o.
       <div class="rolagem"><table><caption>Transporte de cada resíduo até o destino mais próximo do tipo certo</caption><thead><tr><th scope="col">Resíduo</th><th scope="col">Rota</th><th scope="col">kg/mês</th><th scope="col">Destino mais próximo</th><th scope="col">Distância (km)</th><th scope="col">t·km/mês</th><th scope="col">kg CO₂e/mês</th></tr></thead><tbody>${tabTrans || `<tr><td colspan="7">Todas as rotas são no lugar: sem transporte.</td></tr>`}</tbody></table></div>
       <p class="t2 pq">CO₂ = t·km × fator; ou viagens (⌈t ÷ carga⌉) × distância × 2 ÷ consumo × ${n2(DIESEL_KG_L, 3)} kg CO₂e/L de diesel (premissa da Physis). Estimativa de planejamento; o destino precisa ter licença e o MTR (SINIR) segue valendo.</p>`
       : `<p class="t2">Acrescente os resíduos do lugar acima para ver os indicadores.</p>`}</section>`;
-  const estilo = `<style>.rcm-p{cursor:pointer;outline:none}.rcm-p:focus .rcm-f,.rcm-p:hover .rcm-f{stroke:#1C2B21;stroke-width:3}.rcm-p:focus-visible .rcm-f{stroke:#1C2B21;stroke-width:3.5}.rcm-leg{list-style:none;padding:0;margin:0 0 8px}.rcm-leg li{display:flex;align-items:center;gap:6px;margin:2px 0}</style>`;
+  const estilo = `<style>.rcm-p{cursor:pointer;outline:none}.rcm-p:focus .rcm-f,.rcm-p:hover .rcm-f{stroke:#1B1F23;stroke-width:3}.rcm-p:focus-visible .rcm-f{stroke:#1B1F23;stroke-width:3.5}.rcm-leg{list-style:none;padding:0;margin:0 0 8px}.rcm-leg li{display:flex;align-items:center;gap:6px;margin:2px 0}</style>`;
   if (ui.rcmFundo && ok) setTimeout(() => montarFundo(d, pontos), 0);
   return `<section aria-labelledby="h-rcm">${estilo}<h2 id="h-rcm">Mapa e indicadores</h2><p class="t2 apoio">Aterros, cooperativas, ecopontos, compostagem e áreas de entulho em volta do lugar, e os números do plano de resíduos.</p>
     <section class="cartao" aria-labelledby="h-rcm-mapa"><h3 id="h-rcm-mapa" class="t3">Destinos em volta</h3>${ctrl}${estado ? `<p class="t2" role="status">${esc(estado)}</p>` : ""}${mapa}</section>${secaoFluxo(I)}${painel}${metodoCircular()}</section>`; }
@@ -4707,10 +4714,10 @@ async function montarFundo(d, pontos) { const div = el("rcm-ml"), aviso = el("rc
     let fundo = false; try { const r = await fetch("/mapas/regiao.pmtiles", { method:"HEAD" }); fundo = r.ok; } catch (e) {}
     const gj = { type:"FeatureCollection", features:pontos.map(p => ({ type:"Feature", properties:{ nome:p.nome || "", cor:(CAT[p.categoria] || [0, "#4A4F44"])[1] }, geometry:{ type:"Point", coordinates:[p.lon, p.lat] } })) };
     const fontes = { pts:{ type:"geojson", data:gj }, lugar:{ type:"geojson", data:{ type:"Feature", properties:{}, geometry:{ type:"Point", coordinates:[d.lon, d.lat] } } } };
-    const camadas = [{ id:"fundo", type:"background", paint:{ "background-color":"#EEF2EA" } }];
-    if (fundo) { fontes.osm = { type:"vector", url:"pmtiles:///mapas/regiao.pmtiles" }; camadas.push({ id:"agua", type:"fill", source:"osm", "source-layer":"water", paint:{ "fill-color":"#B8D0E0" } }, { id:"vias", type:"line", source:"osm", "source-layer":"roads", paint:{ "line-color":"#C9B98F", "line-width":1 } }); }
+    const camadas = [{ id:"fundo", type:"background", paint:{ "background-color":"#F4F1EA" } }];
+    if (fundo) { fontes.osm = { type:"vector", url:"pmtiles:///mapas/regiao.pmtiles" }; camadas.push({ id:"agua", type:"fill", source:"osm", "source-layer":"water", paint:{ "fill-color":"#DCEBD8" } }, { id:"vias", type:"line", source:"osm", "source-layer":"roads", paint:{ "line-color":"#C9B98F", "line-width":1 } }); }
     camadas.push({ id:"pts", type:"circle", source:"pts", paint:{ "circle-radius":6, "circle-color":["get", "cor"], "circle-stroke-color":"#FFFFFF", "circle-stroke-width":1.5 } },
-      { id:"lugar", type:"circle", source:"lugar", paint:{ "circle-radius":8, "circle-color":"#FFFFFF", "circle-stroke-color":"#33512F", "circle-stroke-width":3 } });
+      { id:"lugar", type:"circle", source:"lugar", paint:{ "circle-radius":8, "circle-color":"#FFFFFF", "circle-stroke-color":"#1A4D2E", "circle-stroke-width":3 } });
     const kx = (d.raio_km || 20) / (111.32 * Math.cos(d.lat * Math.PI / 180)), ky = (d.raio_km || 20) / 110.574;
     const m = new maplibregl.Map({ container:div, style:{ version:8, sources:fontes, layers:camadas }, attributionControl:false });
     m.addControl(new maplibregl.NavigationControl({ showCompass:true })); m.addControl(new maplibregl.ScaleControl({ unit:"metric" }));
@@ -5653,12 +5660,12 @@ const MATS = tipo => Object.keys(DADOS.materiais).filter(k => k[0] !== "_" && DA
 const TIPOS_SUP = [["parede", "Parede externa"], ["cobertura", "Cobertura"], ["vidro", "Vidro / janela"], ["adjacente", "Divisa com ambiente sem ar"], ["piso_exterior", "Piso sobre área aberta"], ["piso_solo", "Piso sobre o solo"]];
 const ORI = [["N", "Norte"], ["NE", "Nordeste"], ["L", "Leste"], ["SE", "Sudeste"], ["S", "Sul"], ["SO", "Sudoeste"], ["O", "Oeste"], ["NO", "Noroeste"], ["H", "Horizontal (claraboia)"]];
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-const CORES_SVG = ["#33512F", "#7FA874", "#B9CDB3", "#B07A10", "#3D6E8F", "#7FA9C4", "#A85432", "#8A8270"];
+const CORES_SVG = ["#1A4D2E", "#7FA874", "#B9CDB3", "#B07A10", "#2F7D5B", "#8FB183", "#A85432", "#8A8270"];
 
 function grafico(grupos) { const tot = grupos.reduce((s, g) => s + Math.max(g.W, 0), 0); if (!(tot > 0)) return "";
   const larg = 640, alt = 28 * grupos.length + 16, maxW = Math.max.apply(null, grupos.map(g => Math.max(g.W, 0))) || 1, x0 = 250;
   const barras = grupos.map((g, i) => { const w = Math.max(g.W, 0) / maxW * (larg - x0 - 90), y = 8 + i * 28;
-    return `<text x="${x0 - 8}" y="${y + 15}" text-anchor="end" font-size="13" fill="#1C2B21">${esc(g.nome)}</text>`
+    return `<text x="${x0 - 8}" y="${y + 15}" text-anchor="end" font-size="13" fill="#1B1F23">${esc(g.nome)}</text>`
       + `<rect x="${x0}" y="${y + 2}" width="${w.toFixed(1)}" height="18" fill="${CORES_SVG[i % CORES_SVG.length]}"></rect>`
       + `<text x="${(x0 + w + 6).toFixed(1)}" y="${y + 15}" font-size="13" fill="#4A4F44">${esc(fmt(g.W / tot * 100, 0))} %</text>`; }).join("");
   return `<figure><svg viewBox="0 0 ${larg} ${alt}" width="100%" role="img" aria-labelledby="ct-graf-t"><title id="ct-graf-t">Parcela de cada componente na carga do pico simultâneo</title>${barras}</svg>`
@@ -11563,7 +11570,7 @@ ${r.itens.length ? `<button type="button" data-sbn-cons-plano="${E(id)}">Levar a
   }
 
   /* ───────────── mapa de plantio (GIS/BIM do Planejador + espaçamento) ───────────── */
-  const CORES = ["#33512F", "#4B7547", "#7FA36B", "#2C5A6E", "#5B8FA8", "#9A6A3A", "#C29A4B", "#8A6410", "#6B4F8A", "#A0526E", "#3F7F6E", "#B7793B"];
+  const CORES = ["#1A4D2E", "#4A8A5A", "#8FB183", "#2F7D5B", "#B07A12", "#BB6B4A", "#C9A227", "#8A6410", "#C2410C", "#A85432", "#5F6659", "#D9A58C"];
   const corDe = n => CORES[Math.abs(+n || 0) % CORES.length];
   const VERDES = ["horta", "gramado", "mata", "infiltracao"];
   /* estado do mapa: áreas desenhadas no Planejador + as ajustadas pelo usuário (salvoJson tem prioridade, por id) */
@@ -11633,13 +11640,13 @@ ${r.itens.length ? `<button type="button" data-sbn-cons-plano="${E(id)}">Levar a
     const pts = P => P.map(p => X(p[0]) + "," + Y(p[1])).join(" ");
     const lw = Math.max(W, H) / 400;
     let svg = "";
-    if (st.poly && st.poly.length > 2) svg += `<polygon points="${pts(st.poly)}" fill="#EEF2EA" stroke="#1C2B21" stroke-width="${(lw * 2).toFixed(2)}"/>`;
-    if (st.app && st.app.celulas) svg += st.app.celulas.map(c => `<rect x="${X(c[0] - st.app.cs / 2)}" y="${Y(c[1] + st.app.cs / 2)}" width="${st.app.cs.toFixed(2)}" height="${st.app.cs.toFixed(2)}" fill="#C0392B" fill-opacity="0.25"/>`).join("");
-    svg += st.construcoes.map(c => `<polygon points="${pts(cantosRet(c))}" fill="#9C9C93" fill-opacity="0.7"><title>${E(c.nome)} (construção)</title></polygon>`).join("");
+    if (st.poly && st.poly.length > 2) svg += `<polygon points="${pts(st.poly)}" fill="#F4F1EA" stroke="#1B1F23" stroke-width="${(lw * 2).toFixed(2)}"/>`;
+    if (st.app && st.app.celulas) svg += st.app.celulas.map(c => `<rect x="${X(c[0] - st.app.cs / 2)}" y="${Y(c[1] + st.app.cs / 2)}" width="${st.app.cs.toFixed(2)}" height="${st.app.cs.toFixed(2)}" fill="#A63A28" fill-opacity="0.25"/>`).join("");
+    svg += st.construcoes.map(c => `<polygon points="${pts(cantosRet(c))}" fill="#8A8270" fill-opacity="0.7"><title>${E(c.nome)} (construção)</title></polygon>`).join("");
     const legenda = new Map(); let nPontos = 0, avisos = [];
     st.areas.forEach(a => {
       const sel = st.sel === a.id, P = poligonoArea(a); if (P.length < 3) return;
-      svg += `<polygon points="${pts(P)}" fill="${a.app ? "#E8B4AE" : "#CFE3C2"}" fill-opacity="0.55" stroke="${sel ? "#C29A4B" : "#33512F"}" stroke-width="${(lw * (sel ? 4 : 2)).toFixed(2)}" tabindex="0" role="button" focusable="true" data-sbn-m-area="${E(a.id)}" aria-label="${E(a.nome)}: ${N(areaDaArea(a), 1)} m². Setas movem 0,5 m; Shift+setas mudam o tamanho; R gira 5 graus" style="cursor:move"><title>${E(a.nome)}</title></polygon>`;
+      svg += `<polygon points="${pts(P)}" fill="${a.app ? "#E3C4BD" : "#CDDCC4"}" fill-opacity="0.55" stroke="${sel ? "#C9A227" : "#1A4D2E"}" stroke-width="${(lw * (sel ? 4 : 2)).toFixed(2)}" tabindex="0" role="button" focusable="true" data-sbn-m-area="${E(a.id)}" aria-label="${E(a.nome)}: ${N(areaDaArea(a), 1)} m². Setas movem 0,5 m; Shift+setas mudam o tamanho; R gira 5 graus" style="cursor:move"><title>${E(a.nome)}</title></polygon>`;
       const r = cons[a.id];
       if (r && st.grade !== false) {
         const g = gradePlantio(a, r); avisos = avisos.concat(g.avisos.map(t => a.nome + ": " + t)); nPontos += g.desenhadas;
@@ -11658,7 +11665,7 @@ ${a.forma === "poli" ? `<label>Pontos (x y; x y; …, em metros)<br><textarea ro
     const leg = [...legenda.values()].map(i => `<li><span aria-hidden="true" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${corDe(i.n)}"></span> ${E(i.nome)} (${E(NOME_ESTRATO[i.estrato] || i.estrato)}, ${N(i.mudas, 0)})</li>`).join("");
     return `<section class="cartao" aria-labelledby="${id}-h" data-sbn-mapa="${E(id)}"><h2 id="${id}-h">Mapa de plantio e espaçamento</h2>
 <p class="t2 pq">Desenho do terreno e das áreas do Planejador (norte para cima, em metros). Arraste uma área para mover ou use o teclado: Tab até a área, setas movem 0,5 m, Shift+setas mudam o tamanho, R gira 5°. Os pontos são as plantas no espaçamento real de cada estrato; em vermelho, a APP de declividade; em cinza, as construções.</p>
-<svg viewBox="0 0 ${W.toFixed(2)} ${H.toFixed(2)}" width="100%" style="max-width:${ctx.largura || 720}px;background:#F7F8F4;border-radius:8px;touch-action:none" role="group" aria-label="Planta do terreno com ${st.areas.length} áreas de plantio e ${nPontos} plantas desenhadas" data-sbn-m-svg="1">${svg}</svg>
+<svg viewBox="0 0 ${W.toFixed(2)} ${H.toFixed(2)}" width="100%" style="max-width:${ctx.largura || 720}px;background:#FAF9F5;border-radius:8px;touch-action:none" role="group" aria-label="Planta do terreno com ${st.areas.length} áreas de plantio e ${nPontos} plantas desenhadas" data-sbn-m-svg="1">${svg}</svg>
 ${semDesenho ? `<p class="t2">Sem desenho do Planejador neste navegador. Crie uma área abaixo (retângulo ou pontos).</p>` : ""}
 ${leg ? `<ul style="list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px">${leg}</ul>` : ""}
 ${avisos.length ? `<ul class="t2 pq">${avisos.map(t => `<li>${E(t)}</li>`).join("")}</ul>` : ""}
@@ -11735,10 +11742,10 @@ ${linhas}</section>`;
     const lons = todos.map(c => c[0]), lats = todos.map(c => c[1]);
     const mapa = new ml.Map({ container, attributionControl: false, bounds: [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], fitBoundsOptions: { padding: 20 },
       style: { version: 8, sources: { d: { type: "geojson", data: { type: "FeatureCollection", features: F } }, g: { type: "geojson", data: { type: "FeatureCollection", features: G } } },
-        layers: [{ id: "fundo", type: "background", paint: { "background-color": "#F7F8F4" } },
-          { id: "terreno", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "terreno"], paint: { "fill-color": "#EEF2EA", "fill-outline-color": "#1C2B21" } },
-          { id: "construcoes", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "construcao"], paint: { "fill-color": "#9C9C93" } },
-          { id: "areas", type: "fill", source: "d", filter: ["in", ["get", "tipo"], ["literal", ["area", "app"]]], paint: { "fill-color": ["match", ["get", "tipo"], "app", "#E8B4AE", "#CFE3C2"], "fill-opacity": 0.6, "fill-outline-color": "#33512F" } },
+        layers: [{ id: "fundo", type: "background", paint: { "background-color": "#FAF9F5" } },
+          { id: "terreno", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "terreno"], paint: { "fill-color": "#F4F1EA", "fill-outline-color": "#1B1F23" } },
+          { id: "construcoes", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "construcao"], paint: { "fill-color": "#8A8270" } },
+          { id: "areas", type: "fill", source: "d", filter: ["in", ["get", "tipo"], ["literal", ["area", "app"]]], paint: { "fill-color": ["match", ["get", "tipo"], "app", "#E3C4BD", "#CDDCC4"], "fill-opacity": 0.6, "fill-outline-color": "#1A4D2E" } },
           { id: "plantas", type: "circle", source: "g", paint: { "circle-color": ["get", "cor"], "circle-radius": 3 } }] } });
     return mapa;
   }
@@ -12133,15 +12140,15 @@ function lista(c, p, F, R){ const L = LISTAS(F)[p], arr = pegarCaminho(c, p) || 
 /* gráficos SVG acessíveis (o texto alternativo repete a tabela ao lado) */
 function barras(id, titulo, dados){ const d = dados.filter(x => x[1] > 0); if (!d.length) return ""; const max = Math.max.apply(null, d.map(x => x[1])), h = 30 * d.length + 10, W = 640, x0 = 190;
   return `<figure style="margin:8px 0"><svg role="img" aria-labelledby="${id}-t ${id}-d" viewBox="0 0 ${W} ${h}" style="width:100%;max-width:${W}px;height:auto"><title id="${id}-t">${E(titulo)}</title><desc id="${id}-d">${E(d.map(x => x[0] + ": " + T(x[1]) + " tCO₂e").join("; "))}</desc>
-    ${d.map((x, i) => { const w = Math.max(2, (W - x0 - 90) * x[1] / max), y = 6 + i * 30; return `<text x="${x0 - 8}" y="${y + 15}" text-anchor="end" font-size="13" fill="currentColor">${E(x[0])}</text><rect x="${x0}" y="${y}" width="${w.toFixed(1)}" height="20" rx="3" fill="${x[2] || "var(--marca, #33512F)"}"></rect><text x="${(x0 + w + 6).toFixed(1)}" y="${y + 15}" font-size="13" fill="currentColor">${E(T(x[1]))}</text>`; }).join("")}</svg><figcaption class="t2 pq">${E(titulo)} (tCO₂e por ano)</figcaption></figure>`; }
+    ${d.map((x, i) => { const w = Math.max(2, (W - x0 - 90) * x[1] / max), y = 6 + i * 30; return `<text x="${x0 - 8}" y="${y + 15}" text-anchor="end" font-size="13" fill="currentColor">${E(x[0])}</text><rect x="${x0}" y="${y}" width="${w.toFixed(1)}" height="20" rx="3" fill="${x[2] || "var(--marca, #1A4D2E)"}"></rect><text x="${(x0 + w + 6).toFixed(1)}" y="${y + 15}" font-size="13" fill="currentColor">${E(T(x[1]))}</text>`; }).join("")}</svg><figcaption class="t2 pq">${E(titulo)} (tCO₂e por ano)</figcaption></figure>`; }
 function linhaMeta(R){ const tr = R.metas.trajet; if (tr.length < 2 || !(R.metas.base_t > 0)) return ""; const W = 640, H = 220, x0 = 56, y0 = 16, w = W - x0 - 16, h = H - y0 - 36, max = R.metas.base_t * 1.05, a0 = tr[0][0], a1 = tr[tr.length - 1][0];
   const X = a => x0 + (a - a0) / Math.max(1, a1 - a0) * w, Y = v => y0 + h - v / max * h, pts = tr.map(([a, v]) => X(a).toFixed(1) + "," + Y(v).toFixed(1)).join(" "), ap = R.metas.apos_medidas;
   const marcas = [a0, Math.round((a0 + a1) / 2), a1].map(a => `<text x="${X(a).toFixed(1)}" y="${H - 14}" font-size="12" text-anchor="middle" fill="currentColor">${a}</text>`).join("");
   return `<figure style="margin:8px 0"><svg role="img" aria-labelledby="cb-traj-t cb-traj-d" viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto"><title id="cb-traj-t">Caminho de redução até ${a1}</title><desc id="cb-traj-d">Linha da meta: de ${E(T(R.metas.base_t))} tCO₂e em ${a0} caindo ${E(N(R.metas.pct, 1))}% da base por ano. Linha tracejada: emissões depois das medidas cadastradas, ${E(T(ap))} tCO₂e.</desc>
     <line x1="${x0}" y1="${y0 + h}" x2="${x0 + w}" y2="${y0 + h}" stroke="currentColor" stroke-opacity=".4"></line><line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 + h}" stroke="currentColor" stroke-opacity=".4"></line>
     <text x="${x0 - 6}" y="${y0 + 10}" font-size="12" text-anchor="end" fill="currentColor">${E(T(max))}</text><text x="${x0 - 6}" y="${y0 + h}" font-size="12" text-anchor="end" fill="currentColor">0</text>${marcas}
-    <polyline points="${pts}" fill="none" stroke="var(--marca, #33512F)" stroke-width="3"></polyline>
-    ${R.metas.medidas_t > 0 ? `<line x1="${x0}" y1="${Y(ap).toFixed(1)}" x2="${x0 + w}" y2="${Y(ap).toFixed(1)}" stroke="var(--acao, #2C5A6E)" stroke-width="2" stroke-dasharray="6 4"></line>` : ""}</svg>
+    <polyline points="${pts}" fill="none" stroke="var(--marca, #1A4D2E)" stroke-width="3"></polyline>
+    ${R.metas.medidas_t > 0 ? `<line x1="${x0}" y1="${Y(ap).toFixed(1)}" x2="${x0 + w}" y2="${Y(ap).toFixed(1)}" stroke="var(--acao, #2F7D5B)" stroke-width="2" stroke-dasharray="6 4"></line>` : ""}</svg>
     <figcaption class="t2 pq">Linha cheia: meta (tCO₂e por ano). ${R.metas.medidas_t > 0 ? "Tracejada: depois das medidas cadastradas." : ""}</figcaption></figure>`; }
 
 /* ════════ subabas ════════ */
@@ -12175,7 +12182,7 @@ function abaInventario(c, R, F, ctx){ const tot = R.total, ops = [["", "Padrão 
   const conf = `<section class="cartao" aria-labelledby="h-cb-conf"><h2 id="h-cb-conf">Ano e método</h2><div class="precos">${inp(c, "ano", "Ano do inventário", "ex.: 2025")}${sel(c, "gwp", "Potencial de aquecimento (GWP)", ops)}${inp(c, "area_m2", "Área construída (m²)", ctx.area_m2 != null ? N(ctx.area_m2, 0) + " (do Início)" : "ex.: 1200", "Para o indicador por m².")}</div>
     <p class="t2 pq">${aviso(E(F.gwp.nota_padrao))}</p></section>`;
   const cards = `<div class="grade">${cartao("cb-t1", "Escopo 1 · diretas", T(R.e1), "tCO₂e por ano")}${cartao("cb-t2", "Escopo 2 · energia comprada", T(R.e2_loc), "tCO₂e por ano (localização)", `<span class="t2 pq">Escolha de compra: ${T(R.e2_mkt)}</span>`)}${cartao("cb-t3", "Escopo 3 · cadeia de valor", T(R.e3), "tCO₂e por ano", `<span class="t2 pq">${(c.e3.cats || []).length} categorias escolhidas</span>`)}${cartao("cb-tt", "Total", T(tot), "tCO₂e por ano", tot ? `<span class="t2 pq">Dado medido: ${P(R.medido)} · incerteza ±${R.incerteza != null ? Math.round(R.incerteza * 100) : "—"}%</span>` : `<span class="t2 pq">Comece pelo Escopo 1 e pelo Escopo 2.</span>`)}</div>`;
-  const grafico = barras("cb-g-esc", "Emissões por escopo", [["Escopo 1", R.e1, "var(--marca, #33512F)"], ["Escopo 2", R.e2_loc, "var(--acao, #2C5A6E)"], ["Escopo 3", R.e3, "var(--agua, #5B8FA8)"]]) + barras("cb-g-fonte", "Emissões por grupo de fontes", Object.keys(R.porGrupo).map(k => [GRUPOS[k] || k, R.porGrupo[k]]).sort((a, b) => b[1] - a[1]));
+  const grafico = barras("cb-g-esc", "Emissões por escopo", [["Escopo 1", R.e1, "var(--marca, #1A4D2E)"], ["Escopo 2", R.e2_loc, "var(--acao, #2F7D5B)"], ["Escopo 3", R.e3, "var(--agua, #B07A12)"]]) + barras("cb-g-fonte", "Emissões por grupo de fontes", Object.keys(R.porGrupo).map(k => [GRUPOS[k] || k, R.porGrupo[k]]).sort((a, b) => b[1] - a[1]));
   const gases = tabela("Emissões por gás", ["Gás", "tCO₂e por ano", "Parte"], [["CO₂", "CO2"], ["CH₄", "CH4"], ["N₂O", "N2O"], ["HFCs", "HFC"], ["SF₆", "SF6"]].map(([n, k]) => `<tr><th scope="row">${n}</th><td>${T(R.porGas[k] || 0)}</td><td>${tot ? P((R.porGas[k] || 0) / tot) : "—"}</td></tr>`));
   const ind = tabela("Indicadores de intensidade", ["Indicador", "Valor"], [`<tr><th scope="row">Escopos 1 e 2 por m² construído</th><td>${R.int_m2 != null ? N(R.int_m2, 1) + " kgCO₂e/m²·ano" : "falta a área"}</td></tr>`, `<tr><th scope="row">Escopos 1 e 2 por unidade produzida</th><td>${R.int_prod != null ? N(R.int_prod, 3) + " kgCO₂e por " + E(R.producao_un) : "falta a produção (Gestão → Produção e insumos)"}</td></tr>`, `<tr><th scope="row">CO₂ biogênico (à parte)</th><td>${T(R.bio_t)} t</td></tr>`, `<tr><th scope="row">Gases fora de Quioto (HCFC-22, à parte)</th><td>${T(R.fora_t)} tCO₂e</td></tr>`, `<tr><th scope="row">Remoções (à parte, não abatem)</th><td>${T(R.remocoes_t)} tCO₂ por ano</td></tr>`, `<tr><th scope="row">Emissões evitadas (à parte, não abatem)</th><td>${T(R.evitadas_t)} tCO₂e por ano</td></tr>`]);
   return `${conf}${cards}<section class="cartao" aria-labelledby="h-cb-inv"><h2 id="h-cb-inv">Inventário ${E(c.ano || "")} por fonte</h2>${grafico}${tabLinhas(R, () => true, "Todas as fontes do inventário")}
@@ -14096,8 +14103,8 @@ window.PhysisBLE = Object.freeze({
     var mapa = new M.Map({ container: div, attributionControl: false, center: [s.lon != null ? s.lon : s.cy, s.lat != null ? s.lat : s.cx], zoom: s.lat != null ? 12 : 4,
       locale: { "NavigationControl.ZoomIn": "Aproximar o mapa", "NavigationControl.ZoomOut": "Afastar o mapa", "NavigationControl.ResetBearing": "Voltar o norte para cima", "Marker.Title": "Marcador da lavoura: arraste, ou use as setas para mover", "ScaleControl.Meters": "m", "ScaleControl.Kilometers": "km" },
       style: { version: 8, sources: { osm: { type: "vector", url: "pmtiles:///mapas/regiao.pmtiles" } }, layers: [
-        { id: "fundo", type: "background", paint: { "background-color": escuro ? "#2A3829" : "#EEF2EA" } },
-        { id: "agua", type: "fill", source: "osm", "source-layer": "water", paint: { "fill-color": escuro ? "#3D6E8F" : "#B8D0E0" } },
+        { id: "fundo", type: "background", paint: { "background-color": escuro ? "#0B3D2E" : "#F4F1EA" } },
+        { id: "agua", type: "fill", source: "osm", "source-layer": "water", paint: { "fill-color": escuro ? "#2F7D5B" : "#DCEBD8" } },
         { id: "vias", type: "line", source: "osm", "source-layer": "roads", paint: { "line-color": "#C9B98F", "line-width": 1 } }] } });
     mapa.addControl(new M.NavigationControl({ showCompass: true })); mapa.addControl(new M.ScaleControl({ unit: "metric" }));
     mapa.addControl(new M.AttributionControl({ customAttribution: "© colaboradores do OpenStreetMap" }));
@@ -14134,18 +14141,18 @@ window.PhysisBLE = Object.freeze({
   }
 
   var CSS = ".pml{display:flex;flex-direction:column;gap:10px;min-width:0}"
-    + ".pml-sv{min-width:0}.pml-svg{display:block;width:100%;height:auto;max-height:360px;border:1px solid var(--linha,#C9D2C4);border-radius:10px;background:var(--tinte,#EEF4EA);touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}"
-    + ".pml-svg:focus-visible{outline:3px solid var(--acao,#33512F);outline-offset:2px}"
-    + ".pml-svg .pml-f{fill:var(--tinte,#EEF4EA)}.pml-svg .pml-g{stroke:var(--linha,#C9D2C4);stroke-width:1}"
-    + ".pml-svg .pml-r{fill:var(--tinta2,#4A4F44);font-size:13px;font-family:var(--fonte,system-ui,sans-serif)}.pml-svg .pml-nt{font-weight:700;fill:var(--tinta,#1C2B21)}"
-    + ".pml-svg .pml-cx{fill:var(--sup,#FFFFFF);opacity:.85}.pml-svg .pml-n{fill:var(--tinta,#1C2B21)}.pml-svg .pml-esc{stroke:var(--tinta,#1C2B21);stroke-width:3}"
-    + ".pml-svg .pml-m line{stroke:var(--acao,#33512F);stroke-width:2.5}.pml-svg .pml-m circle{fill:none;stroke:var(--acao,#33512F);stroke-width:3}.pml-svg .pml-m .pml-mc{fill:var(--acao,#33512F);stroke:none}"
+    + ".pml-sv{min-width:0}.pml-svg{display:block;width:100%;height:auto;max-height:360px;border:1px solid var(--linha,#D9D3C2);border-radius:10px;background:var(--tinte,#EEF4EA);touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}"
+    + ".pml-svg:focus-visible{outline:3px solid var(--acao,#1A4D2E);outline-offset:2px}"
+    + ".pml-svg .pml-f{fill:var(--tinte,#EEF4EA)}.pml-svg .pml-g{stroke:var(--linha,#D9D3C2);stroke-width:1}"
+    + ".pml-svg .pml-r{fill:var(--tinta2,#4A4F44);font-size:13px;font-family:var(--fonte,system-ui,sans-serif)}.pml-svg .pml-nt{font-weight:700;fill:var(--tinta,#1B1F23)}"
+    + ".pml-svg .pml-cx{fill:var(--sup,#FFFFFF);opacity:.85}.pml-svg .pml-n{fill:var(--tinta,#1B1F23)}.pml-svg .pml-esc{stroke:var(--tinta,#1B1F23);stroke-width:3}"
+    + ".pml-svg .pml-m line{stroke:var(--acao,#1A4D2E);stroke-width:2.5}.pml-svg .pml-m circle{fill:none;stroke:var(--acao,#1A4D2E);stroke-width:3}.pml-svg .pml-m .pml-mc{fill:var(--acao,#1A4D2E);stroke:none}"
     + ".pml-bt{display:flex;flex-wrap:wrap;gap:6px}.pml-bt button[data-pml-zoom]{min-width:44px;padding:0;font-size:1.2em}"
-    + ".pml-ml{height:320px;border:1px solid var(--linha,#C9D2C4);border-radius:10px;overflow:hidden}.pml-ml-in{width:100%;height:100%}"
+    + ".pml-ml{height:320px;border:1px solid var(--linha,#D9D3C2);border-radius:10px;overflow:hidden}.pml-ml-in{width:100%;height:100%}"
     + ".pml-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:10px}.pml-campos input{width:100%}"
     + ".pml-erro{color:var(--al-t,#7A2214);font-weight:600}.pml-aviso{color:var(--at-t,#5C3F00);font-weight:600}"
-    + ".pml-pino{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#33512F;border:3px solid #FFFFFF;box-shadow:0 0 0 1px #1C2B21;cursor:grab}"
-    + ".pml-pino:focus-visible{outline:3px solid var(--acao,#33512F);outline-offset:3px;box-shadow:0 0 0 2px #FFFFFF}";
+    + ".pml-pino{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#1A4D2E;border:3px solid #FFFFFF;box-shadow:0 0 0 1px #1B1F23;cursor:grab}"
+    + ".pml-pino:focus-visible{outline:3px solid var(--acao,#1A4D2E);outline-offset:3px;box-shadow:0 0 0 2px #FFFFFF}";
   function estilo() { if (!doc || !doc.head || doc.getElementById("pml-estilo")) return; var e = doc.createElement("style"); e.id = "pml-estilo"; e.textContent = CSS; doc.head.appendChild(e); }
 
   var I18N = {
@@ -14572,28 +14579,28 @@ window.PhysisBLE = Object.freeze({
   var CSS = ".pau-secao{display:flex;flex-direction:column;gap:14px;min-width:0}.pau-cartao{min-width:0}.pau-cartao>*{max-width:100%}"
     + ".pau-grande .numero{margin-right:6px}.pau-sub{font-weight:600;margin:4px 0 0}"
     + ".pau-lista{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}.pau-lista li{overflow-wrap:anywhere}"
-    + ".pau-anom,.pau-irr{list-style:none;padding-left:0}.pau-anom li,.pau-irr li{border-top:1px solid var(--trilho,#E3E8DE);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}"
+    + ".pau-anom,.pau-irr{list-style:none;padding-left:0}.pau-anom li,.pau-irr li{border-top:1px solid var(--trilho,#EFE8D6);padding-top:8px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}"
     + ".pau-irr li{flex-direction:column;flex-wrap:nowrap;align-items:stretch}.pau-cartao p,.pau-cartao li{overflow-wrap:anywhere}.pau-txt{flex-basis:100%}"
     + ".pau-num{font-family:var(--numero,inherit);font-weight:600}"
-    + ".pau-med{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--trilho,#E3E8DE)}"
+    + ".pau-med{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--trilho,#EFE8D6)}"
     + ".pau-graf{display:block;width:100%;max-width:560px;height:auto}"
-    + ".pau-graf .pau-fx{fill:var(--trilho,#E3E8DE)}.pau-graf .pau-real{fill:var(--acao,#33512F)}.pau-graf .pau-desp{fill:var(--al-t,#7A2214)}"
-    + ".pau-graf .pau-esp{stroke:var(--tinta,#1C2B21);stroke-width:2;stroke-dasharray:4 3}.pau-graf .pau-base{stroke:var(--linha,#C9D2C4)}"
+    + ".pau-graf .pau-fx{fill:var(--trilho,#EFE8D6)}.pau-graf .pau-real{fill:var(--acao,#1A4D2E)}.pau-graf .pau-desp{fill:var(--al-t,#7A2214)}"
+    + ".pau-graf .pau-esp{stroke:var(--tinta,#1B1F23);stroke-width:2;stroke-dasharray:4 3}.pau-graf .pau-base{stroke:var(--linha,#D9D3C2)}"
     + ".pau-graf text{font-size:12px;fill:var(--tinta2,#4A4F44);font-family:var(--fonte,system-ui,sans-serif)}.pau-graf .pau-alerta{font-size:15px;font-weight:700;fill:var(--al-t,#7A2214)}"
     + ".pau-leg{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.9em}.pau-leg li{display:flex;align-items:center;gap:6px}"
-    + ".pau-leg i{display:inline-block;width:14px;height:14px;border-radius:3px}.pau-leg i.pau-real{background:var(--acao,#33512F)}.pau-leg i.pau-fx{background:var(--trilho,#E3E8DE);border:1px solid var(--linha,#C9D2C4)}"
-    + ".pau-leg i.pau-esp{height:0;border-top:2px dashed var(--tinta,#1C2B21);border-radius:0}.pau-leg i.pau-desp{background:var(--al-t,#7A2214)}"
+    + ".pau-leg i{display:inline-block;width:14px;height:14px;border-radius:3px}.pau-leg i.pau-real{background:var(--acao,#1A4D2E)}.pau-leg i.pau-fx{background:var(--trilho,#EFE8D6);border:1px solid var(--linha,#D9D3C2)}"
+    + ".pau-leg i.pau-esp{height:0;border-top:2px dashed var(--tinta,#1B1F23);border-radius:0}.pau-leg i.pau-desp{background:var(--al-t,#7A2214)}"
     + "table.pau-tab{min-width:0;width:100%}.pau-tab caption{text-align:left;font-weight:600;padding-bottom:6px}.pau-tab td,.pau-tab th{overflow-wrap:anywhere}"
     + "tr.pau-linha-desp{background:var(--al-f,#F5E2D7)}tr.pau-linha-desp th,tr.pau-linha-desp td{color:var(--al-t,#7A2214);font-weight:600}"
     + ".pau-form{display:flex;flex-direction:column;gap:12px}.pau-form fieldset{gap:8px}.pau-form legend{font-size:1.05em}"
     + ".pau-campo{display:flex;flex-direction:column;gap:4px;min-width:0}.pau-campo input{width:100%}"
-    + ".pau-form input[type=email],.pau-form input[type=tel]{font:inherit;min-height:44px;padding:8px 12px;border:1px solid #8A9284;border-radius:8px;background:var(--sup,#FFFFFF);color:var(--tinta,#1C2B21);max-width:100%}"
+    + ".pau-form input[type=email],.pau-form input[type=tel]{font:inherit;min-height:44px;padding:8px 12px;border:1px solid #8A8270;border-radius:8px;background:var(--sup,#FFFFFF);color:var(--tinta,#1B1F23);max-width:100%}"
     + ".pau-duas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:10px}"
     + ".pau-grade-opc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:0 14px}"
     + ".pau-det{display:flex;flex-direction:column;gap:8px;padding:4px 0 8px}.pau-det ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}"
-    + ".pau-final{display:flex;flex-direction:column;gap:8px;border:2px solid var(--acao,#33512F);border-radius:12px;padding:14px}"
+    + ".pau-final{display:flex;flex-direction:column;gap:8px;border:2px solid var(--acao,#1A4D2E);border-radius:12px;padding:14px}"
     + ".pau-bloco{display:flex;flex-direction:column;gap:8px;margin-top:8px}.pau-assin li{flex-direction:column;align-items:stretch}.pau-a-info{display:flex;flex-wrap:wrap;gap:4px 10px;overflow-wrap:anywhere}"
-    + "#pau-av-msg:focus{outline:3px solid var(--acao,#33512F);outline-offset:2px}";
+    + "#pau-av-msg:focus{outline:3px solid var(--acao,#1A4D2E);outline-offset:2px}";
   function estilo() { if (!doc || !doc.head || doc.getElementById("pau-estilo")) return; var e = doc.createElement("style"); e.id = "pau-estilo"; e.textContent = CSS; doc.head.appendChild(e); }
 
   var I18N = {
@@ -14831,7 +14838,7 @@ window.PhysisBLE = Object.freeze({
  *   PhysisODF.ods(tabelasOuElemento, opcoes) -> Promise<Uint8Array>  planilha (.ods), uma folha por tabela
  * Identidade Physis igual à do exportador (physis-exportar.js): cabeçalho com a árvore e o nome do sistema,
  * marca d'água "PHYSIS" na diagonal (ODT), rodapé "Documento gerado pelo Sistema Physis" com página X de Y,
- * títulos em Fraunces no verde #33512F, cabeçalho de tabela verde.
+ * títulos em Fraunces no verde #1A4D2E, cabeçalho de tabela verde.
  * ESPELHO: physis-hub/physis_hub/documentos.py gera a mesma estrutura no servidor (mesmos arquivos, estilos e
  * modelo de blocos); os testes (tests/test_odf.py) conferem os dois. Mudou um, mude o outro.
  *
@@ -14848,7 +14855,7 @@ window.PhysisBLE = Object.freeze({
 (function (g) {
   "use strict";
   var EN = /^en/i.test((g.navigator && g.navigator.language) || "pt");
-  var VERDE = "#33512f", MARCA = "#4b7547", TINTA = "#1c2b21", TINTA2 = "#4a4f44", LINHA = "#c9d2c4", CLARO = "#dcebd8", FUNDO = "#f4f6f1";
+  var VERDE = "#1A4D2E", MARCA = "#4A8A5A", TINTA = "#1B1F23", TINTA2 = "#4a4f44", LINHA = "#D9D3C2", CLARO = "#dcebd8", FUNDO = "#F4F1EA";
   var GERADOR = "Sistema Physis/physis-odf 1.0", AUTOR = "Physis Engineering";
   var MIME = { odt: "application/vnd.oasis.opendocument.text", ods: "application/vnd.oasis.opendocument.spreadsheet", pdf: "application/pdf" };
   var NS = 'xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" ' +
@@ -15628,7 +15635,7 @@ function pesosDoLote(l, F) { const ini = l.inicio / 1000;
   return { pts: [], origem: "" }; }
 
 /* ════════ Desenho: gráficos em SVG (com tabela ao lado) ════════ */
-const CORES = { ti:"#A63A28", te:"#4A4F44", tc:"#C08A1E", ui:"#3D6E8F", ue:"#7FA9C4", peso:"#33512F", modelo:"#8A6410" };
+const CORES = { ti:"#A63A28", te:"#4A4F44", tc:"#C08A1E", ui:"#2F7D5B", ue:"#8FB183", peso:"#1A4D2E", modelo:"#8A6410" };
 function grafico(id, titulo, linhas, un, opc) { opc = opc || {}; const W = 640, H = 220, m = { l: 44, r: 12, t: 12, b: 28 };
   const todos = linhas.flatMap(l => l.pts.filter(p => p[1] != null && isFinite(p[1])));
   if (!todos.length) return `<p class="t2">Sem dados para ${E(titulo.toLowerCase())} ainda.</p>`;
@@ -15643,7 +15650,7 @@ function grafico(id, titulo, linhas, un, opc) { opc = opc || {}; const W = 640, 
   /* nome acessível = título + resumo de cada linha, em textos separados (cada um tem o seu par em inglês) */
   const resumo = linhas.filter(l => l.pts.length).map(l => { const v = l.pts.map(p => p[1]).filter(x => x != null && isFinite(x)); return v.length ? `${l.nome}: de ${f1(Math.min(...v))} a ${f1(Math.max(...v))} ${un}` : ""; }).filter(Boolean);
   return `<figure style="margin:0"><svg id="${id}" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-labelledby="${id}-t ${id}-d"><title id="${id}-t">${E(titulo)}</title>
-    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#C9D2C4)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H - m.b}" style="stroke:var(--linha,#C9D2C4)"/>
+    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/>
     <text x="${m.l - 6}" y="${m.t + 10}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y1, 0)}</text><text x="${m.l - 6}" y="${H - m.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y0, 0)}</text>
     <text x="${m.l}" y="${H - 8}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(eixoX(x0))}</text><text x="${W - m.r}" y="${H - 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${E(eixoX(x1))}</text>
     <text x="${m.l + 4}" y="${m.t + 10}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(un)}</text>${ref}${linhas.map(traco).join("")}</svg>
@@ -16056,7 +16063,7 @@ const COMBUSTIVEIS = ["diesel_b", "gasolina_c", "etanol_hidratado", "gnv", "biod
 const NOME_COMB = { diesel_b:"Diesel B (com biodiesel)", gasolina_c:"Gasolina C (com etanol)", etanol_hidratado:"Etanol hidratado", gnv:"GNV (m³)", biodiesel:"Biodiesel (B100)", diesel:"Diesel A" };
 const UNIDADES = { l_100km:"L/100 km", l_h:"L/h" };
 const FONTES_PRECO = { nota:"Nota fiscal", cartao:"Cartão-combustível", bomba:"Preço da bomba", estimado:"Estimado" };
-const COR = { caminhao:"var(--al-t,#7A2214)", carro:"var(--agua,#3D6E8F)", trator:"var(--at-t,#5C3F00)", maquina:"var(--in-t,#1C3550)", outro:"var(--tinta2,#4A4F44)" };
+const COR = { caminhao:"var(--al-t,#7A2214)", carro:"var(--agua,#2F7D5B)", trator:"var(--at-t,#5C3F00)", maquina:"var(--in-t,#4A4F44)", outro:"var(--tinta2,#4A4F44)" };
 const PONTO_EXEMPLO = { lat:-22.5051, lon:-43.1784 };   /* o mesmo ponto de exemplo das demonstrações da Saúde */
 function premissa(id) { try { if (typeof PhysisCalc !== "undefined") { const v = PhysisCalc.premissa(id); if (typeof v === "number" && isFinite(v)) return v; } } catch (e) {} return PREMISSAS_RESERVA[id]; }
 const P = () => Object.fromEntries(Object.keys(PREMISSAS_RESERVA).map(k => [k, premissa(k)]));
@@ -16266,7 +16273,7 @@ function marcador(v, u, sel, F) { const M = F.m, x = M.x(u.lon), y = M.y(u.lat),
   const rot = mov && u.rumo != null ? `<path d="M${x.toFixed(1)} ${(y - s - 7).toFixed(1)} l-4 6 h8 z" transform="rotate(${Math.round(u.rumo)} ${x.toFixed(1)} ${y.toFixed(1)})" style="fill:${cor}"/>` : "";
   const nome = `${v.placa} · ${tx(TIPOS[v.tipo] || v.tipo)} · ${mov ? tx("em movimento") : tx("parado")}`;
   return `<g class="fr-v" id="fr-v-${v.id}" tabindex="0" role="button" aria-pressed="${sel}" aria-label="${E(nome)}" data-fr-v="${v.id}"><title>${E(nome)}</title>${rot}<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${s}" style="fill:${cor};stroke:var(--sup,#FFFFFF)" stroke-width="2.5"/>
-    <text x="${(x + s + 4).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-size="12" font-weight="700" style="fill:var(--tinta,#1C2B21);stroke:var(--sup,#FFFFFF)" stroke-width="3" paint-order="stroke">${E(v.placa)}</text></g>`; }
+    <text x="${(x + s + 4).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-size="12" font-weight="700" style="fill:var(--tinta,#1B1F23);stroke:var(--sup,#FFFFFF)" stroke-width="3" paint-order="stroke">${E(v.placa)}</text></g>`; }
 function mapaSvg(F, opc) { const est = F.est, c = est.centro || centro(), vs = est.veiculos, sel = opc.sel, rota = opc.rota, cercas = est.cercas || [], ed = opc.editar;
   const todos = vs.map(v => v.analise && v.analise.ultima).filter(u => u && u.lat != null).concat(rota && rota.pontos ? rota.pontos.filter(temPos) : []).concat(cercas.flatMap(k => k.poligono.map(p => ({ lat: p[0], lon: p[1] })))).concat(ed ? ed.map(p => ({ lat: p[0], lon: p[1] })) : []);
   const M = moldura(todos, c); F.m = M; U().frMold = M;
@@ -16275,14 +16282,14 @@ function mapaSvg(F, opc) { const est = F.est, c = est.centro || centro(), vs = e
   const vcor = sel != null ? COR[(vs.find(v => v.id === sel) || {}).tipo] || COR.outro : COR.outro;
   const linha = rota && rota.pontos && rota.pontos.filter(temPos).length > 1 ? `<polyline fill="none" style="stroke:${vcor}" stroke-width="3" stroke-linejoin="round" points="${rota.pontos.filter(temPos).map(p => M.x(p.lon).toFixed(1) + "," + M.y(p.lat).toFixed(1)).join(" ")}"/>` : "";
   const ev = (opc.eventos || []).map(a => `<g aria-hidden="true"><circle cx="${M.x(a.lon).toFixed(1)}" cy="${M.y(a.lat).toFixed(1)}" r="11" style="fill:none;stroke:var(--al-t,#7A2214)" stroke-width="2.5"/><path d="M${M.x(a.lon).toFixed(1)} ${(M.y(a.lat) - 6).toFixed(1)}v7m0 3v1" style="stroke:var(--al-t,#7A2214)" stroke-width="2.5"/></g>`).join("");
-  const edit = ed ? `<polyline fill="none" points="${ed.concat(ed.length > 2 ? [ed[0]] : []).map(p => M.x(p[1]).toFixed(1) + "," + M.y(p[0]).toFixed(1)).join(" ")}" style="stroke:var(--acao,#33512F)" stroke-width="2.5"/>${ed.map((p, i) => `<circle cx="${M.x(p[1]).toFixed(1)}" cy="${M.y(p[0]).toFixed(1)}" r="5" style="fill:var(--acao,#33512F)"/><text x="${(M.x(p[1]) + 7).toFixed(1)}" y="${(M.y(p[0]) - 6).toFixed(1)}" font-size="11" style="fill:var(--tinta,#1C2B21)">${i + 1}</text>`).join("")}` : "";
-  const cur = ed && opc.cursor ? `<g aria-hidden="true"><path d="M${M.x(opc.cursor.lon).toFixed(1)} ${(M.y(opc.cursor.lat) - 12).toFixed(1)}v24M${(M.x(opc.cursor.lon) - 12).toFixed(1)} ${M.y(opc.cursor.lat).toFixed(1)}h24" style="stroke:var(--tinta,#1C2B21)" stroke-width="2"/></g>` : "";
+  const edit = ed ? `<polyline fill="none" points="${ed.concat(ed.length > 2 ? [ed[0]] : []).map(p => M.x(p[1]).toFixed(1) + "," + M.y(p[0]).toFixed(1)).join(" ")}" style="stroke:var(--acao,#1A4D2E)" stroke-width="2.5"/>${ed.map((p, i) => `<circle cx="${M.x(p[1]).toFixed(1)}" cy="${M.y(p[0]).toFixed(1)}" r="5" style="fill:var(--acao,#1A4D2E)"/><text x="${(M.x(p[1]) + 7).toFixed(1)}" y="${(M.y(p[0]) - 6).toFixed(1)}" font-size="11" style="fill:var(--tinta,#1B1F23)">${i + 1}</text>`).join("")}` : "";
+  const cur = ed && opc.cursor ? `<g aria-hidden="true"><path d="M${M.x(opc.cursor.lon).toFixed(1)} ${(M.y(opc.cursor.lat) - 12).toFixed(1)}v24M${(M.x(opc.cursor.lon) - 12).toFixed(1)} ${M.y(opc.cursor.lat).toFixed(1)}h24" style="stroke:var(--tinta,#1B1F23)" stroke-width="2"/></g>` : "";
   const marc = vs.filter(v => v.analise && v.analise.ultima && v.analise.ultima.lat != null).map(v => marcador(v, v.analise.ultima, v.id === sel, F)).join("");
   const nome = ed ? tx("Mapa para desenhar a cerca: clique para pôr um vértice; com o teclado, as setas movem a mira e Enter põe o vértice") : tx("Mapa da frota: última posição de cada veículo e a rota do dia escolhido; a tabela abaixo tem a mesma informação");
-  return `<svg id="fr-mapa" viewBox="0 0 ${M.W} ${M.H}" width="100%" style="max-width:${M.W}px;background:var(--sup,#FFFFFF);border:1px solid var(--linha,#D6DBCF);border-radius:10px;touch-action:manipulation" role="group" aria-label="${E(nome)}"${ed ? ' tabindex="0" data-fr-mapa="editar"' : ""}>
-    ${cer}${linha}${ev}${edit}${cur}<circle cx="${M.x(c.lon).toFixed(1)}" cy="${M.y(c.lat).toFixed(1)}" r="6" style="fill:none;stroke:var(--marca,#4B7547)" stroke-width="3"><title>${E(tx(c.exemplo ? "Ponto de exemplo (sem local da instalação)" : "Local da instalação"))}</title></circle>${marc}
-    <text x="${M.W - 16}" y="22" font-size="13" font-weight="700" text-anchor="middle" style="fill:var(--tinta,#1C2B21)">N</text><path d="M${M.W - 16} 26 l-5 12 h10 z" style="fill:var(--tinta,#1C2B21)"/>
-    <line x1="12" y1="${M.H - 14}" x2="${(12 + barra).toFixed(1)}" y2="${M.H - 14}" style="stroke:var(--tinta,#1C2B21)" stroke-width="3"/><text x="12" y="${M.H - 20}" font-size="11" style="fill:var(--tinta,#1C2B21)">${f1(passo, passo < 1 ? 1 : 0)} km</text></svg>`; }
+  return `<svg id="fr-mapa" viewBox="0 0 ${M.W} ${M.H}" width="100%" style="max-width:${M.W}px;background:var(--sup,#FFFFFF);border:1px solid var(--linha,#D9D3C2);border-radius:10px;touch-action:manipulation" role="group" aria-label="${E(nome)}"${ed ? ' tabindex="0" data-fr-mapa="editar"' : ""}>
+    ${cer}${linha}${ev}${edit}${cur}<circle cx="${M.x(c.lon).toFixed(1)}" cy="${M.y(c.lat).toFixed(1)}" r="6" style="fill:none;stroke:var(--marca,#4A8A5A)" stroke-width="3"><title>${E(tx(c.exemplo ? "Ponto de exemplo (sem local da instalação)" : "Local da instalação"))}</title></circle>${marc}
+    <text x="${M.W - 16}" y="22" font-size="13" font-weight="700" text-anchor="middle" style="fill:var(--tinta,#1B1F23)">N</text><path d="M${M.W - 16} 26 l-5 12 h10 z" style="fill:var(--tinta,#1B1F23)"/>
+    <line x1="12" y1="${M.H - 14}" x2="${(12 + barra).toFixed(1)}" y2="${M.H - 14}" style="stroke:var(--tinta,#1B1F23)" stroke-width="3"/><text x="12" y="${M.H - 20}" font-size="11" style="fill:var(--tinta,#1B1F23)">${f1(passo, passo < 1 ? 1 : 0)} km</text></svg>`; }
 
 /* ════════ Peças da tela ════════ */
 const cartao = (id, tit, numero, un) => `<section class="cartao" aria-labelledby="h-${id}"><h3 id="h-${id}" class="t3">${tit}</h3><span class="numero">${numero}</span><span class="t2">${un}</span></section>`;
@@ -16333,10 +16340,10 @@ function graficoConsumo(v) { const am = (v.analise && v.analise.amostras) || [],
   const W = 640, H = 220, m = { l: 48, r: 12, t: 14, b: 30 }, ys = am.map(a => a.valor).concat(nm.mediana != null ? [nm.mediana] : []), y1 = Math.max(...ys) * 1.15 || 1;
   const bw = (W - m.l - m.r) / am.length, sy = y => H - m.b - y / y1 * (H - m.t - m.b);
   const barras = am.map((a, i) => `<rect x="${(m.l + i * bw + bw * 0.15).toFixed(1)}" y="${sy(a.valor).toFixed(1)}" width="${(bw * 0.7).toFixed(1)}" height="${(H - m.b - sy(a.valor)).toFixed(1)}" style="fill:${COR[v.tipo] || COR.outro}"><title>${E(dataBr(a.data) + ": " + f1(a.valor, 1) + " " + un)}</title></rect>`).join("");
-  const ref = nm.mediana != null ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(nm.mediana).toFixed(1)}" y2="${sy(nm.mediana).toFixed(1)}" style="stroke:var(--tinta,#1C2B21)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${W - m.r}" y="${(sy(nm.mediana) - 4).toFixed(1)}" font-size="11" text-anchor="end" style="fill:var(--tinta,#1C2B21)">${E(tx("normal") + " " + f1(nm.mediana, 1))}</text>` : "";
-  const esp = v.consumo_esperado ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(v.consumo_esperado).toFixed(1)}" y2="${sy(v.consumo_esperado).toFixed(1)}" style="stroke:var(--agua,#3D6E8F)" stroke-dasharray="2 3" stroke-width="1.5"/>` : "";
+  const ref = nm.mediana != null ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(nm.mediana).toFixed(1)}" y2="${sy(nm.mediana).toFixed(1)}" style="stroke:var(--tinta,#1B1F23)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${W - m.r}" y="${(sy(nm.mediana) - 4).toFixed(1)}" font-size="11" text-anchor="end" style="fill:var(--tinta,#1B1F23)">${E(tx("normal") + " " + f1(nm.mediana, 1))}</text>` : "";
+  const esp = v.consumo_esperado ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(v.consumo_esperado).toFixed(1)}" y2="${sy(v.consumo_esperado).toFixed(1)}" style="stroke:var(--agua,#2F7D5B)" stroke-dasharray="2 3" stroke-width="1.5"/>` : "";
   return `<figure style="margin:0"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${E(tx("Consumo de") + " " + v.placa + ", " + un + ": " + am.length + " " + tx("amostras"))}">
-    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#D6DBCF)"/><text x="${m.l - 6}" y="${m.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y1, 0)}</text><text x="${m.l - 6}" y="${H - m.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">0</text>
+    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/><text x="${m.l - 6}" y="${m.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y1, 0)}</text><text x="${m.l - 6}" y="${H - m.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">0</text>
     <text x="${m.l}" y="${H - 10}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(dataBr(am[0].data))}</text><text x="${W - m.r}" y="${H - 10}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${E(dataBr(am[am.length - 1].data))}</text>${barras}${ref}${esp}</svg>
     <figcaption class="t2 pq"><span>${E(un)}</span> ${nm.mediana != null ? `<span>Tracejado escuro: normal aprendido (mediana).</span>` : ""} ${v.consumo_esperado ? `<span>Pontilhado azul: consumo esperado do cadastro.</span>` : ""}</figcaption></figure>
     <details><summary>Ver os números do consumo</summary>${tabela("Amostras de consumo: data, valor e de onde veio", ["Data", un, "Fonte"], am.slice().reverse().map(a => `<tr><th scope="row">${E(dataBr(a.data))}</th><td>${f1(a.valor, 2)}</td><td>${E(a.fonte)}</td></tr>`))}</details>`; }
@@ -17321,13 +17328,13 @@ function cartaoModulo(m, p) { const [st, cls] = situacao(m, p), t = m.total;
       <div><button type="button" data-va-mod="${m.modulo}" id="va-ver-${m.modulo}">Ver o módulo</button></div>` : `<p class="t2">${E(m.sem_plano)}</p>`}</section>`; }
 function grafico(m, p) { const ls = m.linhas, un = m.unidade, W = 640, H = 240, mg = { l: 56, r: 12, t: 14, b: 34 }, vals = ls.flatMap(l => [l.planejado, l.medido]).filter(v => v != null), y1 = (Math.max(...vals, 0) || 1) * 1.12;
   const bw = (W - mg.l - mg.r) / ls.length, sy = y => H - mg.b - y / y1 * (H - mg.t - mg.b), cx = i => mg.l + (i + 0.5) * bw;
-  const barras = ls.map((l, i) => l.medido == null ? "" : `<rect x="${(cx(i) - bw * 0.32).toFixed(1)}" y="${sy(l.medido).toFixed(1)}" width="${(bw * 0.64).toFixed(1)}" height="${(H - mg.b - sy(l.medido)).toFixed(1)}" style="fill:var(--marca,#4B7547)${fora(l, p) ? ";stroke:var(--al-t,#7A2214);stroke-width:3" : ""}"><title>${E(mesBr(l.mes) + " · " + f(l.medido, casas(un)) + " " + un)}</title></rect>`).join("");
+  const barras = ls.map((l, i) => l.medido == null ? "" : `<rect x="${(cx(i) - bw * 0.32).toFixed(1)}" y="${sy(l.medido).toFixed(1)}" width="${(bw * 0.64).toFixed(1)}" height="${(H - mg.b - sy(l.medido)).toFixed(1)}" style="fill:var(--marca,#4A8A5A)${fora(l, p) ? ";stroke:var(--al-t,#7A2214);stroke-width:3" : ""}"><title>${E(mesBr(l.mes) + " · " + f(l.medido, casas(un)) + " " + un)}</title></rect>`).join("");
   const pts = ls.map((l, i) => l.planejado == null ? null : `${cx(i).toFixed(1)},${sy(l.planejado).toFixed(1)}`).filter(Boolean).join(" ");
   const marcas = ls.map((l, i) => fora(l, p) ? `<text x="${cx(i).toFixed(1)}" y="${(Math.min(sy(l.medido || 0), l.planejado != null ? sy(l.planejado) : H) - 6).toFixed(1)}" font-size="13" font-weight="700" text-anchor="middle" style="fill:var(--al-t,#7A2214)">!</text>` : "").join("");
   const rot = ls.map((l, i) => i % 2 ? "" : `<text x="${cx(i).toFixed(1)}" y="${H - 12}" font-size="11" text-anchor="middle" style="fill:var(--tinta2,#4A4F44)">${E(l.mes.slice(5, 7) + "/" + l.mes.slice(2, 4))}</text>`).join("");
   return `<figure style="margin:0"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${E(m.nome)}" aria-describedby="va-tab-${m.modulo}">
-    <line x1="${mg.l}" y1="${H - mg.b}" x2="${W - mg.r}" y2="${H - mg.b}" style="stroke:var(--linha,#C9D2C4)"/><text x="${mg.l - 6}" y="${mg.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f(y1, casas(un))}</text><text x="${mg.l - 6}" y="${H - mg.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">0</text>
-    ${barras}<polyline points="${pts}" fill="none" style="stroke:var(--agua,#3D6E8F)" stroke-width="2.5" stroke-dasharray="6 4"/>${ls.map((l, i) => l.planejado == null ? "" : `<circle cx="${cx(i).toFixed(1)}" cy="${sy(l.planejado).toFixed(1)}" r="3.5" style="fill:var(--agua,#3D6E8F)"/>`).join("")}${marcas}${rot}</svg>
+    <line x1="${mg.l}" y1="${H - mg.b}" x2="${W - mg.r}" y2="${H - mg.b}" style="stroke:var(--linha,#D9D3C2)"/><text x="${mg.l - 6}" y="${mg.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f(y1, casas(un))}</text><text x="${mg.l - 6}" y="${H - mg.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">0</text>
+    ${barras}<polyline points="${pts}" fill="none" style="stroke:var(--agua,#2F7D5B)" stroke-width="2.5" stroke-dasharray="6 4"/>${ls.map((l, i) => l.planejado == null ? "" : `<circle cx="${cx(i).toFixed(1)}" cy="${sy(l.planejado).toFixed(1)}" r="3.5" style="fill:var(--agua,#2F7D5B)"/>`).join("")}${marcas}${rot}</svg>
     <figcaption class="t2 pq"><span>${E(un)}</span> <span>Barras: medido.</span> <span>Linha tracejada azul: planejado.</span> <span>Barra com borda e ponto de exclamação: mês fora do limite.</span></figcaption></figure>`; }
 function textoCausa(c) { const ev = c.evidencia || {};
   if (c.codigo === "falha_dado") return pares("Evidência", [["Dias com leitura", `${f(ev.dias, 0)} / ${f(ev.dias_mes, 0)}`], ["Dias com leitura (%)", `${f(ev.cobertura_pct, 0)} %`], ["Mínimo para o mês valer", `${f(ev.cobertura_min_pct, 0)} %`]]);
@@ -17473,8 +17480,8 @@ function parteModelos(F) { const est = F.est, mv = est.mv2 || [], en = est.enpis
     <section class="cartao" aria-labelledby="h-va-enpi"><h2 id="h-va-enpi">Indicadores de desempenho (EnPI) e linha de base energética (EnB)</h2><p class="t2 apoio">No conceito da ISO 50006 (citada só pelo nome): consumo dividido pelo que o explica, no período de base e no de relatório.</p>${tabela("EnPI: base × relatório", ["EnPI", "Base", "Relatório", "Variação", "Normalizador"], linE)}</section>`; }
 function graficoAcumulado(s) { if (!s.length) return ""; const W = 640, H = 200, mg = { l: 60, r: 10, t: 12, b: 26 }, ys = s.map(x => x.acumulada), y0 = Math.min(0, ...ys), y1 = Math.max(0, ...ys) || 1;
   const sx = i => mg.l + i / Math.max(1, s.length - 1) * (W - mg.l - mg.r), sy = y => H - mg.b - (y - y0) / (y1 - y0 || 1) * (H - mg.t - mg.b);
-  return `<figure style="margin:0"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Economia acumulada"><line x1="${mg.l}" x2="${W - mg.r}" y1="${sy(0).toFixed(1)}" y2="${sy(0).toFixed(1)}" style="stroke:var(--linha,#C9D2C4)"/>
-    <polyline points="${s.map((x, i) => sx(i).toFixed(1) + "," + sy(x.acumulada).toFixed(1)).join(" ")}" fill="none" style="stroke:var(--marca,#4B7547)" stroke-width="2.5"/><text x="${mg.l - 6}" y="${mg.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f(y1, 0)}</text><text x="${mg.l - 6}" y="${H - mg.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f(y0, 0)}</text>
+  return `<figure style="margin:0"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Economia acumulada"><line x1="${mg.l}" x2="${W - mg.r}" y1="${sy(0).toFixed(1)}" y2="${sy(0).toFixed(1)}" style="stroke:var(--linha,#D9D3C2)"/>
+    <polyline points="${s.map((x, i) => sx(i).toFixed(1) + "," + sy(x.acumulada).toFixed(1)).join(" ")}" fill="none" style="stroke:var(--marca,#4A8A5A)" stroke-width="2.5"/><text x="${mg.l - 6}" y="${mg.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f(y1, 0)}</text><text x="${mg.l - 6}" y="${H - mg.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f(y0, 0)}</text>
     <text x="${mg.l}" y="${H - 8}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(dataBr2(s[0].dia))}</text><text x="${W - mg.r}" y="${H - 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${E(dataBr2(s[s.length - 1].dia))}</text></svg>
     <figcaption class="t2 pq"><span>Economia acumulada: esperado pela linha de base − medido, dia a dia.</span></figcaption></figure>`; }
 function partePainel(F) { const u = U(), est = F.est, mv = est.mv2 || [], tar = (est.tarefas || []).filter(t => t.situacao === "atrasada"), al = ordenarPorRisco(mv.flatMap(x => (x.alarmes || []).map(a => Object.assign({ nome: x.nome }, a))));
@@ -20524,16 +20531,16 @@ function autoteste(casos) {
 var E = function (s) { return typeof esc === "function" ? esc(s) : String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 var fmt = function (v, c) { return v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("pt-BR", { minimumFractionDigits: c == null ? 2 : c, maximumFractionDigits: c == null ? 2 : c }); };
 var RAMPA_CALOR = ["#EFE8D6", "#E5D5AE", "#C9A227", "#C08A1E", "#A85432", "#7A2214"];
-var RAMPA_AGUA = ["#DBE7F1", "#B8D0E0", "#7FA9C4", "#3D6E8F", "#2C5A6E", "#1C3550"];
-var RAMPA_AR = ["#EEF4EA", "#CDDCC4", "#A8BFA0", "#7FA874", "#4B7547", "#33512F"];
-function cor(v, a, b, rampa) { if (v == null || !isFinite(v)) return "#D6DBCF"; var t = b > a ? (v - a) / (b - a) : 0; t = Math.max(0, Math.min(0.9999, t)); return rampa[Math.floor(t * rampa.length)]; }
+var RAMPA_AGUA = ["#EFE8D6", "#DCEBD8", "#8FB183", "#2F7D5B", "#2F7D5B", "#4A4F44"];
+var RAMPA_AR = ["#EEF4EA", "#CDDCC4", "#A8BFA0", "#7FA874", "#4A8A5A", "#1A4D2E"];
+function cor(v, a, b, rampa) { if (v == null || !isFinite(v)) return "#D9D3C2"; var t = b > a ? (v - a) / (b - a) : 0; t = Math.max(0, Math.min(0.9999, t)); return rampa[Math.floor(t * rampa.length)]; }
 function legenda(a, b, rampa, un) { var cd = Math.abs(b - a) < 0.1 ? 3 : Math.abs(b - a) < 10 ? 2 : 1;
   return "<p class='t2 pq'>" + rampa.map(function (c, i) { var v0 = a + (b - a) * i / rampa.length; return "<span style='display:inline-flex;align-items:center;gap:4px;margin-right:8px'><svg width='14' height='14' aria-hidden='true'><rect width='14' height='14' fill='" + c + "' stroke='#8A9182'/></svg>" + fmt(v0, cd) + "</span>"; }).join("") + E(un) + "</p>"; }
 function svgCampo(id, titulo, desc, nx, ny, vals, M, rampa, un, logar) {
   var cel = Math.min(480 / nx, 360 / ny), W = cel * nx, H = cel * ny, cw = cel, ch = cel, vv = [], i, j, s;
   for (s = 0; s < nx * ny; s++) if ((!M || M[s]) && vals[s] != null && isFinite(vals[s])) vv.push(logar ? Math.log(1 + vals[s]) : vals[s]);
   var a = vv.length ? Math.min.apply(null, vv) : 0, b = vv.length ? Math.max.apply(null, vv) : 1, r = [];
-  for (i = 0; i < ny; i++) for (j = 0; j < nx; j++) { s = i * nx + j; var v = (M && !M[s]) ? null : vals[s]; r.push("<rect x='" + (j * cw).toFixed(2) + "' y='" + (i * ch).toFixed(2) + "' width='" + (cw + 0.3).toFixed(2) + "' height='" + (ch + 0.3).toFixed(2) + "' fill='" + (v == null ? "#F7F8F4" : cor(logar ? Math.log(1 + v) : v, a, b, rampa)) + "'/>"); }
+  for (i = 0; i < ny; i++) for (j = 0; j < nx; j++) { s = i * nx + j; var v = (M && !M[s]) ? null : vals[s]; r.push("<rect x='" + (j * cw).toFixed(2) + "' y='" + (i * ch).toFixed(2) + "' width='" + (cw + 0.3).toFixed(2) + "' height='" + (ch + 0.3).toFixed(2) + "' fill='" + (v == null ? "#FAF9F5" : cor(logar ? Math.log(1 + v) : v, a, b, rampa)) + "'/>"); }
   return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H.toFixed(1) + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t " + id + "-d'><title id='" + id + "-t'>" + E(titulo) + "</title><desc id='" + id + "-d'>" + E(desc) + "</desc>" + r.join("") + "</svg>"
     + legenda(logar ? Math.exp(a) - 1 : a, logar ? Math.exp(b) - 1 : b, rampa, (logar ? " (escala logarítmica) " : " ") + un) + "</figure>";
 }
@@ -20551,18 +20558,18 @@ function svgCst(id, titulo, nos, tris, desl, tens) {
   var dmax = 0; desl.forEach(function (d) { dmax = Math.max(dmax, Math.sqrt(d[0] * d[0] + d[1] * d[1])); });
   var esc = dmax > 0 ? 0.08 * L / dmax : 1, W = 480, H = 320, m = 20, sx = (W - 2 * m) / L, vm = tens.map(function (t) { return t.von_mises; }), a = Math.min.apply(null, vm), b = Math.max.apply(null, vm);
   var P = function (k) { return ((m + (nos[k][0] + esc * desl[k][0] - x0) * sx).toFixed(1)) + "," + ((H - m - (nos[k][1] + esc * desl[k][1] - y0) * sx).toFixed(1)); };
-  var pol = tris.map(function (t, i) { return "<polygon points='" + P(t[0]) + " " + P(t[1]) + " " + P(t[2]) + "' fill='" + cor(vm[i], a, b, RAMPA_CALOR) + "' stroke='#C9D2C4' stroke-width='0.3'/>"; }).join("");
+  var pol = tris.map(function (t, i) { return "<polygon points='" + P(t[0]) + " " + P(t[1]) + " " + P(t[2]) + "' fill='" + cor(vm[i], a, b, RAMPA_CALOR) + "' stroke='#D9D3C2' stroke-width='0.3'/>"; }).join("");
   return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo) + "</title>" + pol + "</svg>" + legenda(a / 1e6, b / 1e6, RAMPA_CALOR, "MPa (von Mises)") + "<figcaption class='t2 pq'>Deformada ampliada " + fmt(esc, 0) + " vezes.</figcaption></figure>";
 }
 function svgBarras(id, titulo, rot, vals, un) {
   var W = 480, H = 200, m = 30, mx = Math.max.apply(null, vals.concat([1e-9])), bw = (W - 2 * m) / vals.length;
-  var r = vals.map(function (v, i) { var h = (H - 2 * m) * v / mx; return "<rect x='" + (m + i * bw + 2).toFixed(1) + "' y='" + (H - m - h).toFixed(1) + "' width='" + (bw - 4).toFixed(1) + "' height='" + h.toFixed(1) + "' fill='#4B7547'/><text x='" + (m + i * bw + bw / 2).toFixed(1) + "' y='" + (H - m + 14) + "' font-size='10' text-anchor='middle' fill='currentColor'>" + E(rot[i]) + "</text>"; }).join("");
+  var r = vals.map(function (v, i) { var h = (H - 2 * m) * v / mx; return "<rect x='" + (m + i * bw + 2).toFixed(1) + "' y='" + (H - m - h).toFixed(1) + "' width='" + (bw - 4).toFixed(1) + "' height='" + h.toFixed(1) + "' fill='#4A8A5A'/><text x='" + (m + i * bw + bw / 2).toFixed(1) + "' y='" + (H - m + 14) + "' font-size='10' text-anchor='middle' fill='currentColor'>" + E(rot[i]) + "</text>"; }).join("");
   return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " (máximo " + fmt(mx, 1) + " " + un + ")") + "</title>" + r + "</svg></figure>";
 }
 function svgLinha(id, titulo, ys, un) {
   var W = 480, H = 200, m = 30, a = Math.min.apply(null, ys), b = Math.max.apply(null, ys); if (b === a) b = a + 1;
   var pts = ys.map(function (y, i) { return (m + (W - 2 * m) * i / Math.max(1, ys.length - 1)).toFixed(1) + "," + (H - m - (H - 2 * m) * (y - a) / (b - a)).toFixed(1); }).join(" ");
-  return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " — de " + fmt(a, 2) + " a " + fmt(b, 2) + " " + un) + "</title><polyline points='" + pts + "' fill='none' stroke='#3D6E8F' stroke-width='2'/></svg></figure>";
+  return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " — de " + fmt(a, 2) + " a " + fmt(b, 2) + " " + un) + "</title><polyline points='" + pts + "' fill='none' stroke='#2F7D5B' stroke-width='2'/></svg></figure>";
 }
 function tabelaKV(cap, linhas) { return "<div class='rolagem'><table><caption>" + E(cap) + "</caption><tbody>" + linhas.map(function (l) { return "<tr><th scope='row'>" + E(l[0]) + "</th><td>" + l[1] + "</td></tr>"; }).join("") + "</tbody></table></div>"; }
 function envelopeHtml(r) {
@@ -20856,16 +20863,16 @@ if (typeof MutationObserver !== "undefined" && global.document && !global.__forn
 const W = 640, H = 610, LON0 = -75, LON1 = -33, LAT0 = 6, LAT1 = -34;
 const px = (lat, lon) => ({ x: (lon - LON0) / (LON1 - LON0) * W, y: (lat - LAT0) / (LAT1 - LAT0) * H });
 const kmPx = km => km / 111.32 * W / (LON1 - LON0);
-const ESTILO_MAPA = `<style>.pf-mapa{max-width:100%;height:auto;background:#F7F9F4;border:1px solid #C9D2C4}.pf-mapa .gr{stroke:#C9D2C4;stroke-width:1}
-.pf-mapa .uf{fill:#FFFFFF;stroke:#4A4F44}.pf-mapa .uf-sel{fill:#DCEBD8;stroke:#1F4A1C;stroke-width:2}.pf-mapa .tx{fill:#1C2B21;font:11px sans-serif}
-.pf-mapa .f{fill:#33512F;stroke:#FFFFFF}.pf-mapa .f-velho{fill:#8A6410;stroke:#FFFFFF}.pf-mapa .raio{fill:#7FA874;fill-opacity:.25;stroke:#33512F}
-.pf-mapa .c-perto{fill:#2C5A6E;stroke:#FFFFFF}.pf-mapa .c-longe{fill:#7A2214;stroke:#FFFFFF}.pf-mapa .nac{fill:#DBE7F1;fill-opacity:.35}
-.pf-mapa [tabindex]:focus{outline:3px solid #1C2B21}
-html[data-tema="escuro"] .pf-mapa{background:#14180F;border-color:#3A4A38}html[data-tema="escuro"] .pf-mapa .gr{stroke:#33372E}
-html[data-tema="escuro"] .pf-mapa .uf{fill:#2A3829;stroke:#A8BFA0}html[data-tema="escuro"] .pf-mapa .uf-sel{fill:#4A5A47;stroke:#8FB183}
-html[data-tema="escuro"] .pf-mapa .tx{fill:#EEF2EA}html[data-tema="escuro"] .pf-mapa .f{fill:#8FB183;stroke:#14180F}html[data-tema="escuro"] .pf-mapa .f-velho{fill:#C9A227;stroke:#14180F}
-html[data-tema="escuro"] .pf-mapa .raio{fill:#7FA874;stroke:#A8BFA0}html[data-tema="escuro"] .pf-mapa .c-perto{fill:#7FA9C4;stroke:#14180F}
-html[data-tema="escuro"] .pf-mapa .c-longe{fill:#FF8A80;stroke:#14180F}html[data-tema="escuro"] .pf-mapa .nac{fill:#1C3550}html[data-tema="escuro"] .pf-mapa [tabindex]:focus{outline-color:#EEF2EA}</style>`;
+const ESTILO_MAPA = `<style>.pf-mapa{max-width:100%;height:auto;background:#FAF9F5;border:1px solid #D9D3C2}.pf-mapa .gr{stroke:#D9D3C2;stroke-width:1}
+.pf-mapa .uf{fill:#FFFFFF;stroke:#4A4F44}.pf-mapa .uf-sel{fill:#DCEBD8;stroke:#1F4A1C;stroke-width:2}.pf-mapa .tx{fill:#1B1F23;font:11px sans-serif}
+.pf-mapa .f{fill:#1A4D2E;stroke:#FFFFFF}.pf-mapa .f-velho{fill:#8A6410;stroke:#FFFFFF}.pf-mapa .raio{fill:#7FA874;fill-opacity:.25;stroke:#1A4D2E}
+.pf-mapa .c-perto{fill:#2F7D5B;stroke:#FFFFFF}.pf-mapa .c-longe{fill:#7A2214;stroke:#FFFFFF}.pf-mapa .nac{fill:#EFE8D6;fill-opacity:.35}
+.pf-mapa [tabindex]:focus{outline:3px solid #1B1F23}
+html[data-tema="escuro"] .pf-mapa{background:#0B3D2E;border-color:#2F5E4E}html[data-tema="escuro"] .pf-mapa .gr{stroke:#33372E}
+html[data-tema="escuro"] .pf-mapa .uf{fill:#0F4535;stroke:#D9A58C}html[data-tema="escuro"] .pf-mapa .uf-sel{fill:#2F5E4E;stroke:#8FB183}
+html[data-tema="escuro"] .pf-mapa .tx{fill:#F4F1EA}html[data-tema="escuro"] .pf-mapa .f{fill:#8FB183;stroke:#0B3D2E}html[data-tema="escuro"] .pf-mapa .f-velho{fill:#C9A227;stroke:#0B3D2E}
+html[data-tema="escuro"] .pf-mapa .raio{fill:#7FA874;stroke:#D9A58C}html[data-tema="escuro"] .pf-mapa .c-perto{fill:#8FB183;stroke:#0B3D2E}
+html[data-tema="escuro"] .pf-mapa .c-longe{fill:#FF8A80;stroke:#0B3D2E}html[data-tema="escuro"] .pf-mapa .nac{fill:#33372E}html[data-tema="escuro"] .pf-mapa [tabindex]:focus{outline-color:#F4F1EA}</style>`;
 function svgMapa(d){
   const selUF = new Set(); d.fornecedores.forEach(f => f.regioes.forEach(r => { if (r.uf !== "BR") selUF.add(r.uf); }));
   const nac = d.fornecedores.filter(f => f.abrangencia === "nacional").length;
@@ -21558,7 +21565,7 @@ function blocoPedido(){ const f = ui.pedForm, e = ui.pedEnviado;
   if (e) return `<div class="faixa ok" id="pd-ok" tabindex="-1"><strong>Pedido ${esc(e.numero)} ${e.entregue ? "entregue à Physis" : "registrado"}.</strong> ${e.entregue ? "Ele já aparece na Gestão Physis, na aba Propostas, e a direção é avisada." : "Nesta demonstração sem servidor, o pedido não é enviado de verdade."}${e.arqTotal ? (e.entregue ? (e.arqOk === e.arqTotal ? " " + e.arqOk + (e.arqOk === 1 ? " arquivo foi junto." : " arquivos foram juntos.") : " Só " + e.arqOk + " de " + e.arqTotal + " arquivos chegaram; envie os outros de novo.") : " Os arquivos anexados também não são enviados.") : ""} ${e.email ? "A resposta vai para " + esc(e.email) + "." : "Guarde o número do pedido."}<div style="margin-top:8px"><button type="button" data-compra="outro-pedido">Fazer outro pedido</button></div></div>`;
   return `<fieldset><legend>Seu projeto personalizado</legend>
     <div><label for="pd-texto">Explique, com detalhes, o que você precisa</label><p id="aj-pd" class="t2 pq">Ajuda a responder melhor: onde é e de que tamanho; o que quer medir, controlar ou resolver; o que já existe no lugar; se há internet e energia; e para quando. O que você marcou acima vai junto.</p>
-      <textarea id="pd-texto" rows="7" data-pd="texto" aria-describedby="aj-pd" style="width:100%;font:inherit;padding:10px 12px;border:1px solid #8A9284;border-radius:8px;background:var(--sup);color:var(--tinta)">${esc(f.texto)}</textarea></div>
+      <textarea id="pd-texto" rows="7" data-pd="texto" aria-describedby="aj-pd" style="width:100%;font:inherit;padding:10px 12px;border:1px solid #8A8270;border-radius:8px;background:var(--sup);color:var(--tinta)">${esc(f.texto)}</textarea></div>
     <fieldset><legend>Áreas do projeto (opcional)</legend><p class="t2 pq">Marque as que tiverem a ver com o seu pedido. Pode marcar uma, várias ou nenhuma.</p><div style="display:flex;flex-wrap:wrap;gap:0 18px">${AREAS_PED.map((a, k) => `<label class="opc" style="flex:0 1 auto"><input type="checkbox" id="pd-area-${k}" data-pd-area="${k}" ${(f.areas || {})[k] ? "checked" : ""}><span>${a}</span></label>`).join("")}</div></fieldset>
     <div><strong id="h-pd-arq">Arquivos de apoio (Excel, PDF e Word)</strong><p id="aj-pd-arq" class="t2 pq">Se ajudar, anexe contas, plantas, levantamentos ou o que já tiver escrito. Até 10 arquivos, de 20 MB cada.</p>
       ${ui.pedArquivos.length ? `<ul class="limpa" aria-labelledby="h-pd-arq">${ui.pedArquivos.map((a, k) => `<li><span style="flex:1 1 220px;min-width:0;overflow-wrap:anywhere"><strong>${esc(a.name)}</strong><br><span class="t2 pq">${/\.(xlsx|xls|xlsm|csv)$/i.test(a.name) ? "Excel" : /\.pdf$/i.test(a.name) ? "PDF" : "Word"} · ${a.size >= 1048576 ? (a.size / 1048576).toFixed(1).replace(".", ",") + " MB" : Math.max(1, Math.round(a.size / 1024)) + " kB"}</span></span><button type="button" id="pd-arq-r-${k}" data-compra="arq-del:${k}" aria-label="Remover ${esc(a.name)}">Remover</button></li>`).join("")}</ul>` : ""}
@@ -21877,7 +21884,7 @@ function anel(pct, cor, tit, sub){ const p = Math.max(0, Math.min(100, Math.roun
   return `<div class="cartao anel"><svg class="grafico" width="84" height="84" viewBox="0 0 84 84" aria-hidden="true" focusable="false"><circle cx="42" cy="42" r="30" fill="none" stroke="var(--trilho)" stroke-width="11"/><circle cx="42" cy="42" r="30" fill="none" stroke="${cor}" stroke-width="11" stroke-dasharray="${(c * p / 100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 42 42)"/></svg><div><span class="numero" style="font-size:1.6em">${p}%</span><br><strong>${tit}</strong><br><span class="t2 pq">${sub}</span></div></div>`; }
 /* Mapa vivo, no desenho do Physis PDI. O desenho é decorativo; quem navega usa os botões logo abaixo dele. */
 function mapaVivo(pts){ const pos = { campo:[430,318], zonas:[690,318], animais:[170,300], sustainkit:[250,150], supervisao:[690,150], agua:[640,196], painel:[150,96], inicio:[150,96], gestao:[730,318] };
-  const rot = pts.map(p => { const [x, y] = pos[p.id] || [430, 200], w = p.nome.length * 8.4 + 40; return `<g><rect x="${x - w / 2}" y="${y - 16}" width="${w}" height="32" rx="16" fill="${p.at ? "var(--det-f)" : "var(--sup)"}" stroke="${p.at ? "#C9B98F" : "var(--linha)"}"/><circle cx="${x - w / 2 + 16}" cy="${y}" r="5" fill="${p.at ? "none" : "var(--acao)"}" stroke="${p.at ? "#C9B98F" : "none"}" stroke-width="3"/><text x="${x - w / 2 + 28}" y="${y + 5}" font-size="14" font-weight="600" font-family="Inter, system-ui, sans-serif" fill="${p.at ? "#EEF2EA" : "var(--tinta)"}">${esc(p.nome)}</text></g>`; }).join("");
+  const rot = pts.map(p => { const [x, y] = pos[p.id] || [430, 200], w = p.nome.length * 8.4 + 40; return `<g><rect x="${x - w / 2}" y="${y - 16}" width="${w}" height="32" rx="16" fill="${p.at ? "var(--det-f)" : "var(--sup)"}" stroke="${p.at ? "#C9B98F" : "var(--linha)"}"/><circle cx="${x - w / 2 + 16}" cy="${y}" r="5" fill="${p.at ? "none" : "var(--acao)"}" stroke="${p.at ? "#C9B98F" : "none"}" stroke-width="3"/><text x="${x - w / 2 + 28}" y="${y + 5}" font-size="14" font-weight="600" font-family="Inter, system-ui, sans-serif" fill="${p.at ? "#F4F1EA" : "var(--tinta)"}">${esc(p.nome)}</text></g>`; }).join("");
   return `<svg viewBox="0 0 860 380" role="img" aria-label="Desenho do lugar: uma árvore ao centro, com as raízes ligando os dispositivos, uma casa, um reservatório e o sol." class="grafico">
     <rect width="860" height="380" fill="var(--ceu)"/><circle cx="770" cy="70" r="36" fill="var(--sol)" stroke="var(--sol-b)" stroke-dasharray="3 5"/>
     <ellipse cx="240" cy="262" rx="420" ry="78" fill="var(--colina)"/><ellipse cx="690" cy="270" rx="360" ry="62" fill="var(--colina2)"/>
@@ -22015,7 +22022,7 @@ function telaInicio(d){ const por = t => d.nos.filter(n => n.tipo === t), on = l
   </div></div>`; }
 
 function linhaDoTempo(h){ if (!h || h.length < 2) return '<p class="d2 pq">O gráfico aparece depois de algumas leituras.</p>'; const mn = Math.min(...h) - 1, mx = Math.max(...h) + 1, r = mx - mn; const pts = h.map((v,i) => (i * (300/(h.length-1))).toFixed(1) + "," + (74 - ((v - mn)/r) * 66).toFixed(1)).join(" ");
-  return `<svg class="grafico" role="img" aria-label="Últimas ${h.length} leituras, de ${f1(h[0])} a ${f1(h[h.length-1])}" viewBox="0 0 300 80" style="width:100%;height:84px;display:block"><path d="M0 79.5H300" stroke="#3A4A38" fill="none"/><polyline points="${pts}" fill="none" stroke="#C9B98F" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  return `<svg class="grafico" role="img" aria-label="Últimas ${h.length} leituras, de ${f1(h[0])} a ${f1(h[h.length-1])}" viewBox="0 0 300 80" style="width:100%;height:84px;display:block"><path d="M0 79.5H300" stroke="#2F5E4E" fill="none"/><polyline points="${pts}" fill="none" stroke="#C9B98F" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
   <details><summary class="d2">Ver em tabela</summary><table style="min-width:0"><caption class="so-leitor">Leituras recentes</caption><tbody>${h.slice(-8).map((v,i,a) => `<tr><th scope="row" style="font-weight:500">${i === a.length-1 ? "agora" : (a.length-1-i) + " leituras atrás"}</th><td style="text-align:right">${f1(v)}</td></tr>`).join("")}</tbody></table></details>`; }
 
 function blocoComando(n){ const c = ui.cmd, nome = "Nó " + dois(n.id); const ult = (ui.dados.comandos || []).find(x => x.destino === n.id);
@@ -22785,7 +22792,7 @@ function mapaCalorSolar(lat, lon){ const g = ui.gisSolar; if (!g || !g.regiao ||
   const cel = g.regiao.map(p => `<rect x="${((p.lon - x0) * sx).toFixed(1)}" y="${((y1 - p.lat) * sy).toFixed(1)}" width="${(passoX * sx + 0.5).toFixed(1)}" height="${(passoY * sy + 0.5).toFixed(1)}" fill="${cor(p.anual)}"><title>${n2(p.anual, 2)} kWh/m²·dia</title></rect>`).join("");
   const mx = (lon - x0 + passoX / 2) * sx, my = (y1 - lat + passoY / 2) * sy;
   return `<section class="cartao" aria-labelledby="h-so-calor"><h2 id="h-so-calor">Mapa de calor do sol na região</h2>
-    <svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="Irradiação média anual na região: de ${n2(v0, 2)} a ${n2(v1, 2)} kWh por m² por dia; o ponto marca o lugar">${cel}<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="none" stroke="#1C2B21" stroke-width="3"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="#1C2B21"/></svg>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="Irradiação média anual na região: de ${n2(v0, 2)} a ${n2(v1, 2)} kWh por m² por dia; o ponto marca o lugar">${cel}<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="none" stroke="#1B1F23" stroke-width="3"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="#1B1F23"/></svg>
     <p class="t2 pq"><span style="display:inline-block;width:80px;height:10px;background:linear-gradient(90deg,rgb(255,237,160),rgb(254,178,76),rgb(240,59,32),rgb(128,0,38));vertical-align:middle"></span> ${n2(v0, 2)} a ${n2(v1, 2)} kWh/m²·dia (média anual) · círculo = o lugar · ${esc(g.fonte || "")}, guardada no servidor.</p></section>`; }
 /* Energia solar: tela e conta em sistema/physis-solar.js (window.SOLAR). Carbono, Custos e o ranking de investimentos leem os mesmos campos. */
 function solarCalc(){ if (window.SOLAR && SOLAR.compat) return SOLAR.compat(); if (latDoLugar() == null) return { semLocal:true, lat:null, kwp:0, placas:0, area:0, ger:0, rend:0, H:[], hpsMin:0, invest:null, econ:null, bat:0, consumo:0 }; const o = calcLer("solar"), lat = cNum(o, "lat", latDoLugar()), kt = cNum(o, "kt", 0.5), pr = cNum(o, "pr", 0.78);
@@ -22899,16 +22906,16 @@ function sbnCombinar(texto){ /* "4 × Biri (cana-índica), 2 × Papiro-brasileir
   if (depois) depois.split(",").forEach(t => { const m = t.trim().match(/^(\d+)\s+(.+)$/); if (!m) return; const p = achar(m[2]); if (p && +m[1] > 0 && !r.some(([n]) => n === p.n)) r.push([p.n, +m[1]]); }); return r; }
 /* Cor e retrato de cada planta: a foto vem do banco de imagens (campo "imagem" da base) quando existir;
    sem foto, um selo com as iniciais na cor da planta. A mesma cor marca a planta no mapa do plano. */
-const SBN_CORES = ["#33512F","#4B7547","#7FA36B","#2C5A6E","#5B8FA8","#9A6A3A","#C29A4B","#8A6410","#6B4F8A","#A0526E","#3F7F6E","#B7793B"];
+const SBN_CORES = ["#1A4D2E","#4A8A5A","#8FB183","#2F7D5B","#B07A12","#BB6B4A","#C9A227","#8A6410","#C2410C","#A85432","#5F6659","#D9A58C"];
 const sbnCor = n => SBN_CORES[Math.abs(+n || 0) % SBN_CORES.length];
-const sbnTinta = n => { const v = parseInt(sbnCor(n).slice(1), 16), f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }, L = .2126 * f(v >> 16 & 255) + .7152 * f(v >> 8 & 255) + .0722 * f(v & 255); return 1.05 / (L + .05) >= (L + .05) / .0585 ? "#FFFFFF" : "#14180F"; };
+const sbnTinta = n => { const v = parseInt(sbnCor(n).slice(1), 16), f = x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }, L = .2126 * f(v >> 16 & 255) + .7152 * f(v >> 8 & 255) + .0722 * f(v & 255); return 1.05 / (L + .05) >= (L + .05) / .0585 ? "#FFFFFF" : "#1B1F23"; };
 const sbnRetrato = (p, tam) => { tam = tam || 28; return p && p.imagem ? `<img src="${esc(p.imagem)}" alt="" width="${tam}" height="${tam}" style="border-radius:50%;object-fit:cover;vertical-align:middle">` : `<span aria-hidden="true" style="display:inline-grid;place-items:center;width:${tam}px;height:${tam}px;border-radius:50%;background:${sbnCor(p ? p.n : 0)};color:${sbnTinta(p ? p.n : 0)};font-size:${Math.round(tam * 0.4)}px;font-weight:600;vertical-align:middle">${esc(((p && p.nome) || "?").split(/[\s(-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase())}</span>`; };
 /* mapa gráfico do plano: cada espaço com as plantas incluídas, desenhadas na quantidade escolhida */
 function sbnMapa(s){ const porEsp = {}; s.plano.forEach(x => { const k = String(x.espaco || "sem"); (porEsp[k] = porEsp[k] || []).push(x); });
   const quadros = Object.entries(porEsp).map(([k, itens]) => { const e = SBN.espacos.find(z => String(z.n) === k), tot = itens.reduce((t, x) => t + (numBr(x.qtd) || 0), 0), escala = tot > 120 ? 120 / tot : 1;
     const pontos = []; itens.forEach(x => { const q = Math.max(1, Math.round((numBr(x.qtd) || 0) * escala)); for (let i = 0; i < q; i++) pontos.push(x.n); });
     const col = 12, W = 300, passo = W / col, H = Math.max(1, Math.ceil(pontos.length / col)) * passo + 6;
-    const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;background:#EEF2EA;border-radius:8px" role="img" aria-label="${esc((e ? e.nome : "Sem espaço") + ": " + itens.map(x => (numBr(x.qtd) || 0) + " " + ((SBN_P[x.n] || {}).nome || "consórcio")).join(", "))}">${pontos.map((n, i) => `<circle cx="${(i % col) * passo + passo / 2}" cy="${Math.floor(i / col) * passo + passo / 2 + 3}" r="${passo * 0.38}" fill="${sbnCor(n)}"/>`).join("")}</svg>`;
+    const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;background:#F4F1EA;border-radius:8px" role="img" aria-label="${esc((e ? e.nome : "Sem espaço") + ": " + itens.map(x => (numBr(x.qtd) || 0) + " " + ((SBN_P[x.n] || {}).nome || "consórcio")).join(", "))}">${pontos.map((n, i) => `<circle cx="${(i % col) * passo + passo / 2}" cy="${Math.floor(i / col) * passo + passo / 2 + 3}" r="${passo * 0.38}" fill="${sbnCor(n)}"/>`).join("")}</svg>`;
     const legenda = itens.map(x => { const p = SBN_P[x.n]; return `<li>${sbnRetrato(p, 20)} ${numBr(x.qtd) || 0} × ${esc(p ? p.nome : "consórcio")}</li>`; }).join("");
     return `<section class="cartao" aria-label="${esc(e ? e.nome : "Sem espaço")}"><h3 class="t3">${e ? e.n + " · " + esc(e.nome) : "Sem espaço definido"}</h3>${svg}<ul style="list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px">${legenda}</ul>${escala < 1 ? `<span class="t2 pq">Desenho em escala: cada bolinha vale ${n2(1 / escala, 1)} plantas.</span>` : ""}</section>`; }).join("");
   return quadros ? `<section aria-labelledby="h-sb-mapa"><h2 id="h-sb-mapa">Mapa do plano</h2><p class="t2 pq">Cada bolinha é uma planta incluída, na cor dela. O desenho no terreno real é feito no Planejador.</p><div class="grade">${quadros}</div></section>` : ""; }function telaSbn(){ const s = sbnLer(), sub = SBN_SUB.some(x => x[0] === ui.sbnSub) ? ui.sbnSub : "seletor", c = sbnLugar(), bioLugar = c.bioma || null, f = ui.sbnF || (ui.sbnF = { fun:[], luz:"", nativa:false, txt:"", bioma:"todas", app:false, semInv:true, solo:"", estrato:"", ciclo:"", regiao:"", uf:"", textura:"", za:false, madeira:false, clima:false });
@@ -23092,7 +23099,7 @@ function mapaCalor(camada, titulo, paleta, conv, unConv){ const L = gisLugar(); 
   const W = 300, H = Math.round(W * ((y1 - y0 + py) / (x1 - x0 + px))), sx = W / (x1 - x0 + px), sy = H / (y1 - y0 + py), c = GIS_PALETAS[paleta] || GIS_PALETAS.quente;
   const cor = v => { const t = v1 > v0 ? (v - v0) / (v1 - v0) : 0.5, i = Math.min(2, Math.floor(t * 3)), f = t * 3 - i, m = (a, b) => Math.round(a + (b - a) * f); return `rgb(${m(c[i][0], c[i + 1][0])},${m(c[i][1], c[i + 1][1])},${m(c[i][2], c[i + 1][2])})`; };
   const un = unConv || g.unidade, mx = (L.lon - x0 + px / 2) * sx, my = (y1 - L.lat + py / 2) * sy, aqui = g.ponto ? conv(g.ponto.anual) : null;
-  return `<section class="cartao" aria-label="${esc(titulo)}"><h3 class="t3">${esc(titulo)}</h3><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="${esc(titulo)}: de ${n2(v0, 1)} a ${n2(v1, 1)} ${esc(un)} na região${aqui != null ? "; no lugar, " + n2(aqui, 1) : ""}">${g.regiao.map(p => `<rect x="${((p.lon - x0) * sx).toFixed(1)}" y="${((y1 - p.lat) * sy).toFixed(1)}" width="${(px * sx + 0.5).toFixed(1)}" height="${(py * sy + 0.5).toFixed(1)}" fill="${cor(conv(p.anual))}"><title>${n2(conv(p.anual), 1)} ${esc(un)}</title></rect>`).join("")}<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="none" stroke="#1C2B21" stroke-width="3"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="#1C2B21"/></svg>
+  return `<section class="cartao" aria-label="${esc(titulo)}"><h3 class="t3">${esc(titulo)}</h3><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="${esc(titulo)}: de ${n2(v0, 1)} a ${n2(v1, 1)} ${esc(un)} na região${aqui != null ? "; no lugar, " + n2(aqui, 1) : ""}">${g.regiao.map(p => `<rect x="${((p.lon - x0) * sx).toFixed(1)}" y="${((y1 - p.lat) * sy).toFixed(1)}" width="${(px * sx + 0.5).toFixed(1)}" height="${(py * sy + 0.5).toFixed(1)}" fill="${cor(conv(p.anual))}"><title>${n2(conv(p.anual), 1)} ${esc(un)}</title></rect>`).join("")}<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="none" stroke="#1B1F23" stroke-width="3"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="#1B1F23"/></svg>
     <span class="t2 pq"><span style="display:inline-block;width:70px;height:9px;background:linear-gradient(90deg,${c.map(x => `rgb(${x})`).join(",")});vertical-align:middle"></span> ${n2(v0, 1)} a ${n2(v1, 1)} ${esc(un)}${aqui != null ? ` · no lugar: <strong>${n2(aqui, 1)}</strong>` : ""}</span><span class="t2 pq">NASA POWER, média de longo prazo, guardada no servidor.</span></section>`; }
 const gradeGis = itens => `<section aria-label="Mapas de calor do lugar"><h2>Mapas de calor do lugar (GIS)</h2><div class="grade">${itens.join("")}</div></section>`;
 /* bioma do lugar pelas coordenadas (regras aproximadas da base; no servidor, trocar pelos polígonos do IBGE) */
@@ -23116,8 +23123,8 @@ function curvasDeNivel(e, n, W, passoM){ const mn = Math.min(...e), mx = Math.ma
   for (let nivel = Math.ceil(mn / passoM) * passoM; nivel <= mx; nivel += passoM){ for (let i = 0; i < n - 1; i++) for (let k = 0; k < n - 1; k++){
     const v = [e[i * n + k], e[i * n + k + 1], e[(i + 1) * n + k + 1], e[(i + 1) * n + k]], p = [[k, i], [k + 1, i], [k + 1, i + 1], [k, i + 1]], pts = [];
     for (let a = 0; a < 4; a++){ const b = (a + 1) % 4; if ((v[a] - nivel) * (v[b] - nivel) < 0){ const t = (nivel - v[a]) / (v[b] - v[a]); pts.push([(p[a][0] + (p[b][0] - p[a][0]) * t) * cel, (p[a][1] + (p[b][1] - p[a][1]) * t) * cel]); } }
-    if (pts.length >= 2) linhas.push(`<line x1="${pts[0][0].toFixed(1)}" y1="${pts[0][1].toFixed(1)}" x2="${pts[1][0].toFixed(1)}" y2="${pts[1][1].toFixed(1)}" stroke="#3b2f1e" stroke-opacity=".55" stroke-width="${nivel % (passoM * 5) === 0 ? 1.6 : 0.7}"/>`);
-    if (pts.length === 4) linhas.push(`<line x1="${pts[2][0].toFixed(1)}" y1="${pts[2][1].toFixed(1)}" x2="${pts[3][0].toFixed(1)}" y2="${pts[3][1].toFixed(1)}" stroke="#3b2f1e" stroke-opacity=".55" stroke-width=".7"/>`); } }
+    if (pts.length >= 2) linhas.push(`<line x1="${pts[0][0].toFixed(1)}" y1="${pts[0][1].toFixed(1)}" x2="${pts[1][0].toFixed(1)}" y2="${pts[1][1].toFixed(1)}" stroke="#33372E" stroke-opacity=".55" stroke-width="${nivel % (passoM * 5) === 0 ? 1.6 : 0.7}"/>`);
+    if (pts.length === 4) linhas.push(`<line x1="${pts[2][0].toFixed(1)}" y1="${pts[2][1].toFixed(1)}" x2="${pts[3][0].toFixed(1)}" y2="${pts[3][1].toFixed(1)}" stroke="#33372E" stroke-opacity=".55" stroke-width=".7"/>`); } }
   return linhas.join(""); }
 function mapaRelevo(){ const g = gisX("relevo"); if (!g) return `<section class="cartao"><h3 class="t3">Relevo e curvas de nível</h3><p class="t2">Informe a localização do lugar.</p></section>`;
   if (g.carregando) return `<section class="cartao"><h3 class="t3">Relevo e curvas de nível</h3><p class="t2">Carregando o relevo…</p></section>`;
@@ -23126,7 +23133,7 @@ function mapaRelevo(){ const g = gisX("relevo"); if (!g) return `<section class=
   const amp = g.max - g.min, passoM = amp > 200 ? 20 : amp > 80 ? 10 : 5, quad = [];
   for (let i = 0; i < n; i++) for (let k = 0; k < n; k++) quad.push(`<rect x="${(k * cel - cel / 2).toFixed(1)}" y="${(i * cel - cel / 2).toFixed(1)}" width="${(cel + 0.5).toFixed(1)}" height="${(cel + 0.5).toFixed(1)}" fill="${cor(g.elev[i * n + k])}"><title>${g.elev[i * n + k]} m</title></rect>`);
   const app = g.decl_max_pct >= 100, enc = g.decl_max_pct >= 30;
-  return `<section class="cartao" aria-label="Relevo e curvas de nível"><h3 class="t3">Relevo e curvas de nível (cerca de 2 km em volta)</h3><svg viewBox="${-cel / 2} ${-cel / 2} ${W + cel} ${W + cel}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="Altitude de ${g.min} a ${g.max} m, curvas a cada ${passoM} m; declividade média ${n2(g.decl_media_pct, 0)}%, máxima ${n2(g.decl_max_pct, 0)}%">${quad.join("")}${curvasDeNivel(g.elev, n, W, passoM)}<circle cx="${(4.5 * cel).toFixed(1)}" cy="${(4.5 * cel).toFixed(1)}" r="6" fill="none" stroke="#1C2B21" stroke-width="3"/></svg>
+  return `<section class="cartao" aria-label="Relevo e curvas de nível"><h3 class="t3">Relevo e curvas de nível (cerca de 2 km em volta)</h3><svg viewBox="${-cel / 2} ${-cel / 2} ${W + cel} ${W + cel}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="Altitude de ${g.min} a ${g.max} m, curvas a cada ${passoM} m; declividade média ${n2(g.decl_media_pct, 0)}%, máxima ${n2(g.decl_max_pct, 0)}%">${quad.join("")}${curvasDeNivel(g.elev, n, W, passoM)}<circle cx="${(4.5 * cel).toFixed(1)}" cy="${(4.5 * cel).toFixed(1)}" r="6" fill="none" stroke="#1B1F23" stroke-width="3"/></svg>
     <span class="t2 pq">Altitude ${g.min} a ${g.max} m · curvas a cada ${passoM} m · declividade média ${n2(g.decl_media_pct, 0)}%, máxima ${n2(g.decl_max_pct, 0)}%.</span>${enc ? `<span class="selo ${app ? "al" : "at"}">${app ? "Há encostas acima de 45° (100%): área de preservação (Lei 12.651/2012)" : "Há encostas acima de 30%: conferir estabilidade (NBR 11682)"}</span>` : ""}<span class="t2 pq">${esc(g.fonte || "")}. Para o terreno, use a topografia do levantamento no Planejador.</span></section>`; }
 function cartaoSolo(){ const g = gisX("solo"); if (!g) return ""; if (g.carregando) return `<section class="cartao"><h3 class="t3">Solo</h3><p class="t2">Carregando o solo…</p></section>`;
   if (!g.ok) return `<section class="cartao"><h3 class="t3">Solo</h3><p class="t2">${esc((g.avisos || ["Solo indisponível agora."])[0])}</p></section>`;
@@ -23140,7 +23147,7 @@ function cartaoEnchente(){ const g = gisX("rio"); if (!g) return ""; if (g.carre
   if (!g.ok) return `<section class="cartao"><h3 class="t3">Rio e enchente</h3><p class="t2">${esc((g.avisos || ["Dados do rio indisponíveis agora."])[0])}</p></section>`;
   const h = g.historico || {}, p = g.previsao || {}, pico = Math.max(...(p.vazao || []).filter(x => x != null), 0), extremo = Math.max(...(p.vazao_max || []).filter(x => x != null), 0), N = { alerta:["al","Alerta: a previsão central passa da maior vazão em 1% dos dias desde 2000"], atencao:["at","Atenção: a previsão central está entre as 10% maiores vazões desde 2000"], normal:["ok","Previsão central dentro do normal"] }[g.nivel] || null;
   const W = 300, H = 90, vs = (p.vazao || []).map(x => x || 0), ex = (p.vazao_max || []).map(x => x || 0), mx = Math.max(...vs, ...ex, h.p99 || 0, 0.01), x = i => (i / Math.max(1, vs.length - 1)) * W, y = v => H - v / mx * (H - 8);
-  const svg = vs.length ? `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Vazão prevista nos próximos ${vs.length} dias (linha cheia: previsão central; pontilhada fina: pior cenário), comparada aos limites históricos"><polyline fill="none" stroke="#2C5A6E" stroke-opacity=".35" stroke-dasharray="2 2" stroke-width="1" points="${ex.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ")}"/><polyline fill="none" stroke="#2C5A6E" stroke-width="2" points="${vs.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ")}"/>${h.p90 ? `<line x1="0" x2="${W}" y1="${y(h.p90).toFixed(1)}" y2="${y(h.p90).toFixed(1)}" stroke="#C29A4B" stroke-dasharray="4 3"/>` : ""}${h.p99 ? `<line x1="0" x2="${W}" y1="${y(h.p99).toFixed(1)}" y2="${y(h.p99).toFixed(1)}" stroke="#A0526E" stroke-dasharray="4 3"/>` : ""}</svg>` : "";
+  const svg = vs.length ? `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Vazão prevista nos próximos ${vs.length} dias (linha cheia: previsão central; pontilhada fina: pior cenário), comparada aos limites históricos"><polyline fill="none" stroke="#2F7D5B" stroke-opacity=".35" stroke-dasharray="2 2" stroke-width="1" points="${ex.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ")}"/><polyline fill="none" stroke="#2F7D5B" stroke-width="2" points="${vs.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ")}"/>${h.p90 ? `<line x1="0" x2="${W}" y1="${y(h.p90).toFixed(1)}" y2="${y(h.p90).toFixed(1)}" stroke="#C9A227" stroke-dasharray="4 3"/>` : ""}${h.p99 ? `<line x1="0" x2="${W}" y1="${y(h.p99).toFixed(1)}" y2="${y(h.p99).toFixed(1)}" stroke="#A85432" stroke-dasharray="4 3"/>` : ""}</svg>` : "";
   return `<section class="cartao" aria-label="Rio e enchente"><h3 class="t3">Rio e enchente (rio mais próximo)</h3>${svg}<span class="t2 pq">Previsão central, pico em 16 dias: <strong>${n2(pico, 1)} m³/s</strong> (pior cenário entre os membros da previsão: ${n2(extremo, 1)}) · média histórica ${h.media != null ? n2(h.media, 1) : "—"} · 10% maiores acima de ${h.p90 != null ? n2(h.p90, 1) : "—"} · 1% maiores acima de ${h.p99 != null ? n2(h.p99, 1) : "—"} m³/s</span>${N ? `<span class="selo ${N[0]}">${esc(N[1])}</span>` : ""}<span class="t2 pq">${esc(g.fonte || "")}. Rios pequenos podem não aparecer nesta grade; siga a Defesa Civil.</span></section>`; }
 
 /* ════════ Mapeamento: todas as camadas GIS do lugar numa tela só (etapa 1 do trabalho) ════════
@@ -23160,7 +23167,7 @@ function mapaSoloRegiao(){ const L = gisLugar(), prop = SOLO_MAPA.some(p => p[0]
   const cor = v => { const t = v1 > v0 ? (v - v0) / (v1 - v0) : 0.5, i = Math.min(2, Math.floor(t * 3)), f = t * 3 - i, m = (a, b) => Math.round(a + (b - a) * f); return `rgb(${m(c[i][0], c[i + 1][0])},${m(c[i][1], c[i + 1][1])},${m(c[i][2], c[i + 1][2])})`; };
   const cel = []; for (let i = 0; i < h; i++) for (let k = 0; k < w; k++){ const v = g.valores[i * w + k]; cel.push(`<rect x="${(k * cw).toFixed(1)}" y="${(i * chh).toFixed(1)}" width="${(cw + 0.4).toFixed(1)}" height="${(chh + 0.4).toFixed(1)}" fill="${v == null ? "#E6EBE1" : cor(v)}"/>`); }
   const mx = (L.lon - g.lon0) / g.passo_lon * cw, my = (g.lat0 - L.lat) / g.passo_lat * chh, un = g.unidade && g.unidade !== "pH" ? " " + g.unidade : "";
-  return `<section class="cartao" aria-label="Mapa de solo da região">${tit}${sel}<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="${esc(nome)}: de ${n2(v0, 1)} a ${n2(v1, 1)}${esc(un)} na região; o círculo marca o lugar">${cel.join("")}<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="none" stroke="#1C2B21" stroke-width="3"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="#1C2B21"/></svg>
+  return `<section class="cartao" aria-label="Mapa de solo da região">${tit}${sel}<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;border-radius:8px" role="img" aria-label="${esc(nome)}: de ${n2(v0, 1)} a ${n2(v1, 1)}${esc(un)} na região; o círculo marca o lugar">${cel.join("")}<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="none" stroke="#1B1F23" stroke-width="3"/><circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="#1B1F23"/></svg>
     <span class="t2 pq"><span style="display:inline-block;width:70px;height:9px;background:linear-gradient(90deg,${c.map(x => `rgb(${x})`).join(",")});vertical-align:middle"></span> ${n2(v0, 1)} a ${n2(v1, 1)}${esc(un)} · cinza: sem dado (área urbana, água ou rocha)</span><span class="t2 pq">${esc(g.fonte || "")}. Estimativa de mapa: confirme com análise de solo.</span></section>`; }
 function cartaoZonas(){ const g = gisX("zonas"); if (!g) return `<p class="t2">Informe a localização do lugar.</p>`;
   if (g.carregando) return `<p class="t2">Carregando as zonas do lugar…</p>`;
@@ -25420,10 +25427,10 @@ PxPref.iniciar({ lugar: "#pxp-lugar", conteudo: "#px-conteudo", menu: "#abas", t
   function aviso() {
     if (mostrado || !document.body) return; mostrado = true;
     var b = document.createElement("div"); b.id = "pxp-versao"; b.setAttribute("role", "status");
-    b.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:2147482600;max-width:min(92vw,520px);display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:#1C2B21;color:#EEF2EA;font:15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.25)";
+    b.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:2147482600;max-width:min(92vw,520px);display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:#1B1F23;color:#F4F1EA;font:15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.25)";
     var s = document.createElement("span"); s.textContent = en() ? "New version available" : "Nova versão disponível";
     var r = document.createElement("button"); r.type = "button"; r.textContent = en() ? "Reload" : "Recarregar";
-    r.style.cssText = "font:inherit;font-weight:600;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #DCEBD8;background:#DCEBD8;color:#1C2B21;cursor:pointer";
+    r.style.cssText = "font:inherit;font-weight:600;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #DCEBD8;background:#DCEBD8;color:#1B1F23;cursor:pointer";
     r.addEventListener("click", function () { location.reload(); });
     b.appendChild(s); b.appendChild(document.createTextNode(" · ")); b.appendChild(r); document.body.appendChild(b);
   }
