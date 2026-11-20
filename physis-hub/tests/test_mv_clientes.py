@@ -60,6 +60,18 @@ class TestClientes(unittest.TestCase):
         self.assertIn("Nada foi enviado", p["resultado"])
         self.assertTrue(self.c.lancamentos("estermic")[-1]["nf"].startswith("rascunho:") or self.c.lancamentos("estermic")[0]["nf"])
 
+    def test_projeto_novo_entra_no_monitoramento_e_nos_editais(self):
+        r = self.c.salvar({"nome": "Biogás Serra", "tipo": "futuro", "core": "biodigestor e hidrogênio verde em fazendas"})
+        t = self.mv.tarefa("conta-biogas-serra-ficha")
+        self.assertEqual((t["projeto"], t["estado"]), ("Biogás Serra", "a_fazer"))
+        self.assertIn("conta-biogas-serra-ficha", [x["id"] for x in self.mv.gantt()])
+        self.assertTrue(any(a["ref"] == "biogas-serra" for a in self.mv.alertas()))
+        from physis_hub import mv_editais
+        ed = mv_editais.Editais(self.mv)
+        self.mv.db.execute("INSERT INTO mv_edital (id,titulo,temas,criado,atualizado) VALUES ('ed:x','Chamada hidrogenio verde','energia',0,0)")
+        self.assertIn("biogas-serra", next(d for d in ed.listar() if d["id"] == "ed:x")["contas_relacionadas"])
+        self.assertTrue(self.mv.tarefa("conta-estermic-sp1-ficha") is None and self.mv.tarefa("conta-estermic-sp1"))
+
     def test_analisar_vai_para_fila(self):
         r = self.c.analisar("estermic")
         self.assertEqual((r["tipo"], r["estado"], r["origem"]), ("claude", "na_fila", "conta:estermic"))

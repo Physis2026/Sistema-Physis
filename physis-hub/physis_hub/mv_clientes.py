@@ -36,7 +36,11 @@ CREATE TABLE IF NOT EXISTS mv_subprojeto (
   id TEXT PRIMARY KEY, conta TEXT NOT NULL, nome TEXT NOT NULL, escopo TEXT NOT NULL DEFAULT '[MARCADOR]',
   contrato TEXT NOT NULL DEFAULT '[MARCADOR]', valor TEXT NOT NULL DEFAULT '[MARCADOR]', fases TEXT NOT NULL DEFAULT '[]',
   prazo TEXT NOT NULL DEFAULT '', estado TEXT NOT NULL DEFAULT 'a_definir', criado REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS mv_palavra (palavra TEXT NOT NULL, conta TEXT NOT NULL, PRIMARY KEY (palavra, conta));
 """
+PARADAS = set("para com sem pela pelo pelos pelas uma umas uns como mais menos entre sobre ainda depois antes cada todo toda todos "
+              "todas outro outra projeto projetos cliente clientes contrato direto modulo modulos módulo módulos marcador conferir "
+              "plataforma sistema physis fase fases versao versão final interna loja".split())
 TIPOS = {"cliente_direto": "Cliente · contrato direto", "cliente_loja": "Cliente da plataforma (loja)", "parceiro": "Parceria",
          "interno": "Projeto interno", "futuro": "Projeto futuro (em cadastro)"}
 TEMPLATES = {"cliente": "Só logo, fontes e paleta do cliente", "parceria": "Logos juntas e cores intermediárias (inclui Physis)",
@@ -61,9 +65,9 @@ CONTAS = [
      "moeda": "BRL", "impostos": "NF de serviço pelo Simples (ISS no DAS) [CONFERIR]", "template": "cliente", "responsavel": "Ryan (equipe Physis, cocriação)",
      "core": "Projetos AVAC personalizados (cópia do módulo AVAC): BIM, GIS, fabricantes, IFC, lista de equipamentos, relatório e memorial de cálculo",
      "proximos": "Versão final interna ao Ryan 23/11 13h59; prioridade 0 até 24/11 (doc 44)"},
-    {"id": "gsa", "nome": "Global South Alliance", "tipo": "parceiro", "contrato": "Parceria (documentos na pasta de projetos)", "template": "parceria",
+    {"id": "gsa", "nome": "Global South Alliance", "tipo": "parceiro", "frente": "transversal", "contrato": "Parceria (documentos na pasta de projetos)", "template": "parceria",
      "core": "Aliança Sul Global (concept note GS Alliance × AWPI, 19/10/2026)", "proximos": "Alimentar após a reunião de alinhamento de 25/11"},
-    {"id": "rede-tacas-turbinas", "nome": "Rede Taças e Turbinas", "tipo": "parceiro", "contrato": "Parceria com contrato/patrocínio [MARCADOR] valores",
+    {"id": "rede-tacas-turbinas", "nome": "Rede Taças e Turbinas", "tipo": "parceiro", "frente": "inovastem", "contrato": "Parceria com contrato/patrocínio [MARCADOR] valores",
      "template": "parceria", "core": "Eventos: aula de empreendedorismo com estruturas de PDI e apresentação da Physis / lançamento 0 da InovaSTEM",
      "responsavel": "Rafaella (aprova)", "proximos": "21/11: revisão interna 14h, envio externo 18h"},
     {"id": "fazenda-mf", "nome": "Fazenda MF", "tipo": "cliente_loja", "contrato": "Cliente da plataforma (módulos da loja)", "template": "cliente",
@@ -84,6 +88,42 @@ class Clientes:
         mv.db.commit()
 
     # ------------------------------------------------------------ semente
+    # ------------------------------------------------------------ integração automática (dona, 20/11/2026)
+    def integrar(self, cid: str) -> dict:
+        """Todo projeto/cliente/parceiro adicionado entra sozinho no monitoramento: tarefa de ficha (Visão geral, Cronograma,
+        Projetos, Tarefas, Pendências), tarefas dos subprojetos, alerta do que falta esclarecer e palavras-chave nos editais."""
+        import unicodedata
+        c = self.conta(cid)
+        pend = [r["item"] for r in c["resumo"] if r["pendente"]]
+        fr = c["frente"] if c["frente"] in ("casa", "engineering", "instituto", "inovastem", "transversal") else "engineering"
+        tid = f"conta-{cid}-ficha"
+        ant = self.mv.tarefa(tid)
+        self.mv.salvar_tarefa({"id": tid, "frente": fr, "projeto": c["nome"],
+                               "titulo": f"{c['nome']}: esclarecer a ficha ({len(pend)} item(ns): {', '.join(pend) or 'nenhum'})",
+                               "responsavel": c["responsavel"] or "Rafaella", "estado": "feita" if not pend else (ant["estado"] if ant and ant["estado"] != "feita" else "a_fazer"),
+                               "inicio": (ant or {}).get("inicio") or date.today().isoformat(), "fim": (ant or {}).get("fim"),
+                               "duracao_d": (ant or {}).get("duracao_d") or 7, "data_estimada": True, "fonte": "Clientes e projetos (M&A)"},
+                              origem="conta")
+        for s in c["subprojetos"]:
+            sid = f"conta-{s['id']}"
+            a2 = self.mv.tarefa(sid)
+            self.mv.salvar_tarefa({"id": sid, "frente": fr, "projeto": c["nome"], "titulo": f"{s['nome']}: definir escopo, contrato e fases",
+                                   "responsavel": c["responsavel"] or "Rafaella", "estado": (a2 or {}).get("estado") or "a_fazer",
+                                   "inicio": (a2 or {}).get("inicio") or date.today().isoformat(), "fim": (a2 or {}).get("fim"),
+                                   "duracao_d": (a2 or {}).get("duracao_d") or 14, "data_estimada": True, "depende_de": [tid],
+                                   "fonte": "Clientes e projetos (M&A)"}, origem="conta")
+        if pend:
+            self.mv.alertar("contas", "ficha_pendente", cid, "atencao", f"{c['nome']}: {len(pend)} item(ns) a esclarecer ({', '.join(pend)})",
+                            "Abrir Clientes e projetos → resumo a conferir; anexar documentos e usar o bot de análise")
+        else:
+            self.mv.db.execute("UPDATE mv_alerta SET resolvido=? WHERE bot='contas' AND ref=? AND resolvido IS NULL", (time.time(), cid))
+        txt = "".join(ch for ch in unicodedata.normalize("NFKD", f"{c['nome']} {c['core']}") if not unicodedata.combining(ch)).lower()
+        palavras = {w for w in re.findall(r"[a-z0-9]{4,}", txt) if w not in PARADAS and not w.isdigit()}
+        self.mv.db.execute("DELETE FROM mv_palavra WHERE conta=?", (cid,))
+        self.mv.db.executemany("INSERT OR IGNORE INTO mv_palavra VALUES (?,?)", [(w, cid) for w in sorted(palavras)])
+        self.mv.db.commit()
+        return {"conta": cid, "tarefas": 1 + len(c["subprojetos"]), "pendentes": len(pend), "palavras": sorted(palavras)}
+
     def semear(self) -> dict:
         n = m = s = 0
         agora = time.time()
@@ -106,6 +146,8 @@ class Clientes:
                                                 for f in FASES_PADRAO], ensure_ascii=False), agora))
                 s += 1
         self.mv.db.commit()
+        for c in self.contas():
+            self.integrar(c["id"])
         return {"cnpjs": n, "contas": m, "subprojetos": s}
 
     # ------------------------------------------------------------ leitura
@@ -146,7 +188,9 @@ class Clientes:
 
     # ------------------------------------------------------------ inclusão de projetos (futuros) e confirmação
     def salvar(self, d: dict) -> dict:
-        cid = str(d.get("id") or re.sub(r"[^a-z0-9]+", "-", str(d.get("nome", "")).lower()).strip("-"))[:60]
+        import unicodedata
+        base = "".join(ch for ch in unicodedata.normalize("NFKD", str(d.get("nome", ""))) if not unicodedata.combining(ch))
+        cid = str(d.get("id") or re.sub(r"[^a-z0-9]+", "-", base.lower()).strip("-"))[:60]
         if not _ID.match(cid):
             raise ErroMV("nome/id inválido")
         if not str(d.get("nome") or "").strip():
@@ -179,6 +223,7 @@ class Clientes:
                                (cid, campos["nome"], tipo, campos["frente"], campos["cnpj_emissor"], campos["contrato"], campos["moeda"],
                                 campos["impostos"], tpl, campos["core"], campos["responsavel"], campos["contato"], campos["proximos"], estado, agora, agora))
         self.mv.db.commit()
+        self.integrar(cid)
         return self.conta(cid)
 
     def propor(self, cid: str, campos: dict, origem: str = "bot") -> dict:
@@ -202,6 +247,7 @@ class Clientes:
                 "contrato", "moeda", "impostos", "core", "responsavel", "contato", "proximos") else None
         self.mv.db.execute("UPDATE mv_conta SET propostas=?, atualizado=? WHERE id=?", (json.dumps(c["propostas"], ensure_ascii=False), time.time(), cid))
         self.mv.db.commit()
+        self.integrar(cid)
         return self.conta(cid)
 
     # ------------------------------------------------------------ financeiro em níveis

@@ -113,7 +113,24 @@ class Editais:
         self.mv.db.commit()
         return {"novos": n_novo, "atualizados": n_atual}
 
+    def _relacionadas(self, d: dict) -> list[str]:
+        """Clientes/projetos/parceiros cujas palavras-chave aparecem no edital (integração automática, 20/11/2026)."""
+        if not getattr(self, "_palavras", None):
+            try:
+                self._palavras = {}
+                for r in self.mv.db.execute("SELECT palavra, conta FROM mv_palavra"):
+                    self._palavras.setdefault(r["palavra"], set()).add(r["conta"])
+            except Exception:  # noqa: BLE001 — sem a tabela (banco antigo): nada a relacionar
+                self._palavras = {}
+        if not self._palavras:
+            return []
+        import unicodedata
+        t = "".join(ch for ch in unicodedata.normalize("NFKD", f"{d['titulo']} {d['temas']} {d['motivo']}") if not unicodedata.combining(ch)).lower()
+        ws = set(re.findall(r"[a-z0-9]{4,}", t))
+        return sorted({c for w in ws & set(self._palavras) for c in self._palavras[w]})
+
     def listar(self) -> list[dict]:
+        self._palavras = None
         hoje = mvmod.HOJE()
         out = []
         for r in self.mv.db.execute("SELECT * FROM mv_edital"):
@@ -122,6 +139,7 @@ class Editais:
             d["perguntas"] = json.loads(d["perguntas"])
             m = re.match(r"(\d{4}-\d{2}-\d{2})", d["prazo"])
             d["dias"] = (date.fromisoformat(m.group(1)) - hoje).days if m else None
+            d["contas_relacionadas"] = self._relacionadas(d)
             tot = len(d["necessidades"])
             d["pronto_pct"] = round(100 * sum(1 for x in d["necessidades"] if x["feito"]) / tot) if tot else 0
             out.append(d)
