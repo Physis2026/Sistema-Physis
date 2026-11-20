@@ -2065,10 +2065,10 @@ window.PhysisScadaDemo = {
 
   /* textos da própria barra, nas duas línguas (a página não precisa traduzir) */
   var UI = {
-    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro", auto: "Automático",
+    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro (verde)", auto: "Automático",
       conforto: "Modo de conforto", ligado: "ligado", a11y: "Acessibilidade (PcD)", fechar: "Fechar", padrao: "Voltar ao padrão",
       confT: "Modo de conforto", confD: "Para autismo, TDAH, dislexia e para quem se cansa com telas cheias. Vale para todas as telas da Physis e fica guardado neste aparelho.",
-      confLiga: "Ligar o modo de conforto", confLigaD: "Fundo verde, menos estímulo e mais espaçamento de uma vez.",
+      confLiga: "Ligar o modo de conforto", confLigaD: "Tema escuro (verde), menos estímulo e mais espaçamento de uma vez.",
       verde: "Fundo verde", verdeD: "Cor de fundo suave, que cansa menos a vista.", texto: "Texto maior", t0: "Normal", t1: "Maior", t2: "Muito maior", aviso: "Tempo dos avisos que somem sozinhos", a4: "4 segundos", a8: "8 segundos", a15: "15 segundos",
       espaco: "Mais espaçamento", espacoD: "Mais espaço entre linhas, letras e palavras.",
       calma: "Menos estímulo", calmaD: "Sem animação nem transição, nada piscando, cores mais calmas, nada toca sozinho e menos janelas que se abrem.",
@@ -2097,9 +2097,9 @@ window.PhysisScadaDemo = {
       decD: "Estas telas seguem a Lei Brasileira de Inclusão (Lei 13.146/2015), o eMAG e as diretrizes de acessibilidade digital do gov.br, a WCAG 2.2 nível AA e a ABNT NBR 17225.",
       pular: "Pular para o conteúdo", ok: "Preferência aplicada.", aEn: "English on. Texts not yet translated stay in Portuguese.", aPt: "Português ligado.",
       aEsc: "Tema escuro ligado.", aClaro: "Tema claro ligado.", aAuto: "Tema automático: segue o aparelho.",
-      aConfOn: "Modo de conforto ligado: fundo verde, menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
+      aConfOn: "Modo de conforto ligado: tema escuro (verde), menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
       lido: "Lendo a tela.", lidoFim: "Leitura parada." },
-    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark", auto: "Automatic",
+    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark (green)", auto: "Automatic",
       conforto: "Comfort mode", ligado: "on", a11y: "Accessibility (disability)", fechar: "Close", padrao: "Back to default",
       confT: "Comfort mode", confD: "For autism, ADHD, dyslexia and anyone tired by busy screens. Applies to every Physis screen and is saved on this device.",
       confLiga: "Turn comfort mode on", confLigaD: "Green background, less stimulation and more spacing at once.",
@@ -2211,13 +2211,14 @@ window.PhysisScadaDemo = {
     var e = copia(PADRAO);
     if (o && typeof o === "object") {
       for (var x in o) if (tem(o, x) && !tem(PADRAO, x) && x !== "legivel" && x !== "fundoVerde") e[x] = o[x];   /* guarda o que outras telas gravam */
-      if (o.fundoVerde) e.verde = true;
+      if (o.fundoVerde) e.tema = "escuro";
       if (o.idioma === "en" || o.idioma === "pt") e.idioma = o.idioma;
       if (o.tema === "claro" || o.tema === "escuro" || o.tema === "auto") e.tema = o.tema;
       var t = parseInt(o.texto, 10); if (t === 0 || t === 1 || t === 2) e.texto = t; else if (o.texto === true) e.texto = 1;
       var av = parseInt(o.aviso, 10); if (av === 4 || av === 8 || av === 15) e.aviso = av;   /* tempo dos avisos (s), lido pelas telas que mostram avisos que somem */
       BOOL.forEach(function (k) { if (k in o) e[k] = !!o[k]; });
       if (o.legivel) e.dislexia = true;            /* nome da v1 */
+      if (e.verde) { e.tema = "escuro"; e.verde = false; }   /* 20/11/2026: "fundo verde" e tema escuro viraram uma opção só */
     }
     return e;
   }
@@ -2231,7 +2232,7 @@ window.PhysisScadaDemo = {
     var e = copia(PADRAO);
     if (ler("physis-idioma") === "en") e.idioma = "en";
     if (ler("physis-conforto") === "1") { e.conforto = true; e.espaco = true; e.calma = true; }
-    if (ler("physis-fundo") === "verde") e.verde = true;
+    if (ler("physis-fundo") === "verde") e.tema = "escuro";
     try { var pp = JSON.parse(ler("physis-passaporte") || "null"); if (pp) { e.texto = pp.texto ? 1 : 0; e.espaco = e.espaco || !!pp.espaco; e.contraste = !!pp.contraste; e.calma = e.calma || !!pp.calma; e.foco = !!pp.foco; } } catch (x) {}
     var t = ler("physis-pref-tema"); if (t === "claro" || t === "escuro" || t === "auto") e.tema = t;
     return e;
@@ -2347,7 +2348,8 @@ window.PhysisScadaDemo = {
         if (t.name === "pp-texto") return mudar({ texto: parseInt(t.value, 10) }, "ok");
         if (t.name === "pp-aviso") return mudar({ aviso: parseInt(t.value, 10) }, "ok");
         if (!k) return;
-        if (k === "conforto") { patch = { conforto: t.checked, verde: t.checked, calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
+        if (t.name === "pp-tema") return mudar({ tema: t.value }, t.value === "auto" ? "aAuto" : t.value === "escuro" ? "aEsc" : "aClaro");
+        if (k === "conforto") { patch = { conforto: t.checked, tema: t.checked ? "escuro" : "auto", calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
         patch[k] = t.checked; mudar(patch, k === "libras" && t.checked ? "librasOn" : "ok");
       });
       p.addEventListener("click", function (ev) {
@@ -2385,7 +2387,10 @@ window.PhysisScadaDemo = {
     f.appendChild(criar("h2", { id: "pp-conf-t" }, [txt("confT")]));
     f.appendChild(criar("p", null, [txt("confD")]));
     f.appendChild(caixa("conforto", "confLiga", "confLigaD"));
-    f.appendChild(caixa("verde", "verde", "verdeD"));
+    /* tema dentro do modo de conforto: a mesma escolha da barra (o escuro é o verde do guia) */
+    var ft = criar("fieldset", null, [criar("legend", null, [txt("tema")])]);
+    ["claro", "escuro", "auto"].forEach(function (v) { ft.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-tema", value: v, id: "pp-tema-" + v }), criar("span", null, [txt(v)])])); });
+    f.appendChild(ft);
     var fs = criar("fieldset", null, [criar("legend", null, [txt("texto")])]);
     [0, 1, 2].forEach(function (n) { fs.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-texto", value: String(n), id: "pp-texto-" + n }), criar("span", null, [txt("t" + n)])])); });
     f.appendChild(fs);
@@ -2445,7 +2450,8 @@ window.PhysisScadaDemo = {
     var u = P.ui, e = P.estado;
     [u.pConf, u.pA11y].forEach(function (p) {
       p.querySelectorAll("input").forEach(function (i) {
-        if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
+        if (i.name === "pp-tema") i.checked = i.value === e.tema;
+        else if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
         else if (i.name === "pp-aviso") i.checked = parseInt(i.value, 10) === (e.aviso || 4);
         else if (i.getAttribute("data-pp")) i.checked = !!e[i.getAttribute("data-pp")];
       });

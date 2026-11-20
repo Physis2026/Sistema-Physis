@@ -219,6 +219,7 @@ def fabricar(mv: MV):
                              "/api/mv/conta": lambda: cli.conta(q.get("id", "")),
                              "/api/mv/fin": lambda: cli.financeiro(q.get("nivel", "conta"), q.get("filtro") or None),
                              "/api/mv/lancs": lambda: cli.lancamentos(q.get("conta") or None),
+                             "/api/mv/anteriores/sugestoes": lambda: cli.sugerir_anteriores(),
                              "/api/mv/paginas": lambda: __import__("physis_hub.mv_paginas", fromlist=["x"]).listar(mv)}
                     if p in rotas:
                         return self._json(200, rotas[p]())
@@ -265,6 +266,8 @@ def fabricar(mv: MV):
                         return self._json(200, {"id": cli.lancar(corpo)})
                     if p == "/api/mv/conta":
                         return self._json(200, cli.salvar(corpo))
+                    if p == "/api/mv/anterior":
+                        return self._json(200, cli.criar_anterior(corpo))
                     if p == "/api/mv/conta/confirmar":
                         return self._json(200, cli.confirmar(str(corpo.get("id")), str(corpo.get("campo")), bool(corpo.get("aceitar", True))))
                     if p == "/api/mv/conta/analisar":

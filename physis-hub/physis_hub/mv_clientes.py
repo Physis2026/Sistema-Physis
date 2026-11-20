@@ -14,6 +14,7 @@ Regras:
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import re
 import time
 from datetime import date
@@ -42,7 +43,20 @@ PARADAS = set("para com sem pela pelo pelos pelas uma umas uns como mais menos e
               "todas outro outra projeto projetos cliente clientes contrato direto modulo modulos módulo módulos marcador conferir "
               "plataforma sistema physis fase fases versao versão final interna loja".split())
 TIPOS = {"cliente_direto": "Cliente · contrato direto", "cliente_loja": "Cliente da plataforma (loja)", "parceiro": "Parceria",
-         "interno": "Projeto interno", "futuro": "Projeto futuro (em cadastro)"}
+         "interno": "Projeto interno", "futuro": "Projeto futuro (em cadastro)", "anterior": "Projeto anterior (concluído)"}
+DOCS_RAIZ = Path.home() / "OneDrive - Physis Engineering" / "Documents"
+# grupos de palavras que identificam projetos anteriores nos nomes de arquivos/pastas (o bot PROPÕE; a dona confirma)
+GRUPOS_ANTERIORES = [
+    ("GIZ ADVANCE · Egito (eficiência de recursos)", ["giz advance", "egypt", "sharky", "lion tex", "energya", "marcyrl"], "GIZ", "Egito"),
+    ("WWF · MecfinUC (proposta técnica e comercial)", ["wwf", "mecfinuc"], "WWF", "Brasil"),
+    ("PHES · Jordânia (proposta técnica)", ["phes", "jordan"], "[CONFERIR]", "Jordânia"),
+    ("Palestina (relatórios de empresas)", ["palestine", "al hana", "al-taj", "alhana", "alnkhubah", "ahmadakram", "gbs_stones"], "[CONFERIR]", "Palestina"),
+    ("Botuporã-BA", ["botupor"], "[CONFERIR]", "Brasil"),
+    ("EMS · treinamento WP2", ["ems", "wp2-ems"], "[CONFERIR]", "[CONFERIR]"),
+    ("OLACDE · curso H2V", ["olacde", "h2v"], "OLACDE", "[CONFERIR]"),
+    ("EPC · ToR 81319865", ["81319865", "tor for epc"], "[CONFERIR]", "[CONFERIR]"),
+    ("FAETEC · apresentação DIC", ["faetec"], "FAETEC", "Brasil"),
+]
 TEMPLATES = {"cliente": "Só logo, fontes e paleta do cliente", "parceria": "Logos juntas e cores intermediárias (inclui Physis)",
              "physis": "Identidade Physis (tipo B/A)"}
 FASES_PADRAO = ["Fase 0 · diagnóstico", "Fase 1 · projeto", "Fase 2 · entrega", "Fase 3 · acompanhamento"]
@@ -95,10 +109,13 @@ class Clientes:
         import unicodedata
         c = self.conta(cid)
         pend = [r["item"] for r in c["resumo"] if r["pendente"]]
+        if c["tipo"] == "anterior":           # projeto concluído: só palavras-chave (editais) e portfólio; sem tarefas nem alertas
+            pend = []
         fr = c["frente"] if c["frente"] in ("casa", "engineering", "instituto", "inovastem", "transversal") else "engineering"
         tid = f"conta-{cid}-ficha"
         ant = self.mv.tarefa(tid)
-        self.mv.salvar_tarefa({"id": tid, "frente": fr, "projeto": c["nome"],
+        if c["tipo"] != "anterior":
+          self.mv.salvar_tarefa({"id": tid, "frente": fr, "projeto": c["nome"],
                                "titulo": f"{c['nome']}: esclarecer a ficha ({len(pend)} item(ns): {', '.join(pend) or 'nenhum'})",
                                "responsavel": c["responsavel"] or "Rafaella", "estado": "feita" if not pend else (ant["estado"] if ant and ant["estado"] != "feita" else "a_fazer"),
                                "inicio": (ant or {}).get("inicio") or date.today().isoformat(), "fim": (ant or {}).get("fim"),
@@ -199,6 +216,8 @@ class Clientes:
         if tipo not in TIPOS:
             raise ErroMV("tipo inválido")
         tpl = d.get("template") or ("cliente" if tipo.startswith("cliente") else "parceria" if tipo == "parceiro" else "physis")
+        if tipo == "anterior":
+            tpl = "physis"
         if tpl not in TEMPLATES:
             raise ErroMV("template inválido")
         if d.get("cnpj_emissor") and not self.mv.db.execute("SELECT 1 FROM mv_cnpj WHERE id=?", (d["cnpj_emissor"],)).fetchone():
@@ -269,6 +288,35 @@ class Clientes:
             d["oficial" if r["conferido"] else "a_conferir"][r["tipo"]] = round(r["s"], 2)
             d["lancamentos"] += r["n"]
         return sorted(out.values(), key=lambda x: x["chave"])
+
+    def sugerir_anteriores(self, raiz: Path | None = None) -> list[dict]:
+        """Lê os nomes de arquivos e pastas dos Documentos e PROPÕE projetos anteriores com caixas pré-preenchidas
+        (nome, cliente/financiador, país, ano, documentos de origem). Nada é gravado: a dona revisa e confirma."""
+        raiz = Path(raiz or DOCS_RAIZ)
+        if not raiz.is_dir():
+            return []
+        itens = []
+        for p in list(raiz.iterdir()) + [q for d in raiz.iterdir() if d.is_dir() for q in d.iterdir()][:2000]:
+            itens.append(p)
+        ja = {c["nome"] for c in self.contas()}
+        out = []
+        for nome, chaves, cliente, pais in GRUPOS_ANTERIORES:
+            arqs = sorted({str(p.relative_to(raiz)) for p in itens if any(k in p.name.lower() for k in chaves)})
+            if not arqs or nome in ja:
+                continue
+            anos = sorted({m for a in arqs for m in re.findall(r"(?<!\d)(20[12]\d)(?!\d)", a)} |
+                          {"20" + m[:2] for a in arqs for m in re.findall(r"(?<!\d)(2[0-6][01]\d[0-3]\d)(?!\d)", a)})
+            out.append({"nome": nome, "cliente": cliente, "pais": pais, "ano": ", ".join(anos[-3:]) or "[CONFERIR]",
+                        "escopo": "[CONFERIR] (resumo a partir dos documentos)", "arquivos": arqs[:40], "total_arquivos": len(arqs)})
+        return out
+
+    def criar_anterior(self, d: dict) -> dict:
+        """Confirma um projeto anterior revisado pela dona (estado concluído; documentos de origem registrados)."""
+        arqs = [str(a)[:300] for a in (d.get("arquivos") or [])][:60]
+        core = f"Cliente/financiador: {d.get('cliente') or '[CONFERIR]'} · país: {d.get('pais') or '[CONFERIR]'} · ano: {d.get('ano') or '[CONFERIR]'} · escopo: {d.get('escopo') or '[CONFERIR]'}"
+        r = self.salvar({"nome": d.get("nome"), "tipo": "anterior", "estado": "concluido", "template": "physis", "core": core,
+                         "contrato": d.get("contrato") or "[CONFERIR]", "proximos": "Documentos de origem: " + ("; ".join(arqs) or "nenhum")})
+        return r
 
     def lancar(self, l: dict) -> int:
         """Lançamento com os níveis do mapeamento (conta, subprojeto, sistema, loja, membro, CNPJ emissor, contrato)."""
