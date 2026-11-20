@@ -50,7 +50,14 @@ def azul(h: str) -> bool:
     return ss > 0.25 and 0.5 < hh < 0.72 and 0.12 < ll < 0.92     # matiz entre ciano e azul, com saturação
 
 
-def conferir(html: str, nome: str, pal: set[str]) -> list[dict]:
+def barra_original(raiz: Path) -> str:
+    try:
+        return (raiz / "sistema" / "physis-preferencias.js").read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError:
+        return ""
+
+
+def conferir(html: str, nome: str, pal: set[str], original: str = "") -> list[dict]:
     """Devolve a lista de itens do checklist com ok True/False e o motivo."""
     sem_scripts = re.sub(r"(?is)<script\b[^>]*>.*?</script>", "", html)
     # telas montadas por script (plataforma, Gestão): o texto da própria tela conta; os módulos comuns embutidos não contam
@@ -67,6 +74,10 @@ def conferir(html: str, nome: str, pal: set[str]) -> list[dict]:
     item("rodape", "Rodapé (<footer>)", re.search(r"<footer\b", html, re.I))
     item("preferencias", "Barra única de idioma, tema, conforto e acessibilidade (PcD)",
          re.search(r'<script id="physis-preferencias">\s*/\*\s*physis-preferencias\.js', html))
+    if original:
+        m = re.search(r'<script id="physis-preferencias">\n(.*?)</script>', html.replace("\r\n", "\n"), re.S)
+        item("barra-igual", "Idioma, Modo de conforto e Acessibilidade iguais em todas as páginas (barra idêntica à original)",
+             bool(m) and m.group(1) == original, "" if m else "sem a barra")
     item("pular", "\"Pular para o conteúdo\" (teclado e leitor de tela)", re.search(r"Pular para o conte[uú]do|#conteudo", html, re.I))
     item("escuro", "Tema escuro (tipo A)", re.search(r'data-tema="?escuro|data-tema=escuro|prefers-color-scheme:\s*dark', html, re.I))
     item("fontes", "Fontes do guia (Josefin Sans nos títulos, Lora no corpo)", re.search(r"Josefin", html) and re.search(r"Lora", html))
@@ -102,7 +113,7 @@ def rodar(mv: MV, raiz: Path | None = None, extras: list[tuple[str, str]] | None
         p = raiz / rel
         if not p.is_file():
             continue
-        itens = conferir(p.read_text(encoding="utf-8", errors="replace"), rel, pal)
+        itens = conferir(p.read_text(encoding="utf-8", errors="replace"), rel, pal, barra_original(raiz))
         ok = sum(i["ok"] for i in itens)
         falhas = [i for i in itens if not i["ok"]]
         mv.db.execute("INSERT OR REPLACE INTO mv_pagina VALUES (?,?,?,?,?,?,?)",
