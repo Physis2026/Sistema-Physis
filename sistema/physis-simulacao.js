@@ -1051,16 +1051,16 @@ function autoteste(casos) {
 var E = function (s) { return typeof esc === "function" ? esc(s) : String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 var fmt = function (v, c) { return v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("pt-BR", { minimumFractionDigits: c == null ? 2 : c, maximumFractionDigits: c == null ? 2 : c }); };
 var RAMPA_CALOR = ["#EFE8D6", "#E5D5AE", "#C9A227", "#C08A1E", "#A85432", "#7A2214"];
-var RAMPA_AGUA = ["#DBE7F1", "#B8D0E0", "#7FA9C4", "#3D6E8F", "#2C5A6E", "#1C3550"];
-var RAMPA_AR = ["#EEF4EA", "#CDDCC4", "#A8BFA0", "#7FA874", "#4B7547", "#33512F"];
-function cor(v, a, b, rampa) { if (v == null || !isFinite(v)) return "#D6DBCF"; var t = b > a ? (v - a) / (b - a) : 0; t = Math.max(0, Math.min(0.9999, t)); return rampa[Math.floor(t * rampa.length)]; }
+var RAMPA_AGUA = ["#EFE8D6", "#DCEBD8", "#8FB183", "#2F7D5B", "#2F7D5B", "#4A4F44"];
+var RAMPA_AR = ["#EEF4EA", "#CDDCC4", "#A8BFA0", "#7FA874", "#4A8A5A", "#1A4D2E"];
+function cor(v, a, b, rampa) { if (v == null || !isFinite(v)) return "#D9D3C2"; var t = b > a ? (v - a) / (b - a) : 0; t = Math.max(0, Math.min(0.9999, t)); return rampa[Math.floor(t * rampa.length)]; }
 function legenda(a, b, rampa, un) { var cd = Math.abs(b - a) < 0.1 ? 3 : Math.abs(b - a) < 10 ? 2 : 1;
   return "<p class='t2 pq'>" + rampa.map(function (c, i) { var v0 = a + (b - a) * i / rampa.length; return "<span style='display:inline-flex;align-items:center;gap:4px;margin-right:8px'><svg width='14' height='14' aria-hidden='true'><rect width='14' height='14' fill='" + c + "' stroke='#8A9182'/></svg>" + fmt(v0, cd) + "</span>"; }).join("") + E(un) + "</p>"; }
 function svgCampo(id, titulo, desc, nx, ny, vals, M, rampa, un, logar) {
   var cel = Math.min(480 / nx, 360 / ny), W = cel * nx, H = cel * ny, cw = cel, ch = cel, vv = [], i, j, s;
   for (s = 0; s < nx * ny; s++) if ((!M || M[s]) && vals[s] != null && isFinite(vals[s])) vv.push(logar ? Math.log(1 + vals[s]) : vals[s]);
   var a = vv.length ? Math.min.apply(null, vv) : 0, b = vv.length ? Math.max.apply(null, vv) : 1, r = [];
-  for (i = 0; i < ny; i++) for (j = 0; j < nx; j++) { s = i * nx + j; var v = (M && !M[s]) ? null : vals[s]; r.push("<rect x='" + (j * cw).toFixed(2) + "' y='" + (i * ch).toFixed(2) + "' width='" + (cw + 0.3).toFixed(2) + "' height='" + (ch + 0.3).toFixed(2) + "' fill='" + (v == null ? "#F7F8F4" : cor(logar ? Math.log(1 + v) : v, a, b, rampa)) + "'/>"); }
+  for (i = 0; i < ny; i++) for (j = 0; j < nx; j++) { s = i * nx + j; var v = (M && !M[s]) ? null : vals[s]; r.push("<rect x='" + (j * cw).toFixed(2) + "' y='" + (i * ch).toFixed(2) + "' width='" + (cw + 0.3).toFixed(2) + "' height='" + (ch + 0.3).toFixed(2) + "' fill='" + (v == null ? "#FAF9F5" : cor(logar ? Math.log(1 + v) : v, a, b, rampa)) + "'/>"); }
   return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H.toFixed(1) + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t " + id + "-d'><title id='" + id + "-t'>" + E(titulo) + "</title><desc id='" + id + "-d'>" + E(desc) + "</desc>" + r.join("") + "</svg>"
     + legenda(logar ? Math.exp(a) - 1 : a, logar ? Math.exp(b) - 1 : b, rampa, (logar ? " (escala logarítmica) " : " ") + un) + "</figure>";
 }
@@ -1078,18 +1078,18 @@ function svgCst(id, titulo, nos, tris, desl, tens) {
   var dmax = 0; desl.forEach(function (d) { dmax = Math.max(dmax, Math.sqrt(d[0] * d[0] + d[1] * d[1])); });
   var esc = dmax > 0 ? 0.08 * L / dmax : 1, W = 480, H = 320, m = 20, sx = (W - 2 * m) / L, vm = tens.map(function (t) { return t.von_mises; }), a = Math.min.apply(null, vm), b = Math.max.apply(null, vm);
   var P = function (k) { return ((m + (nos[k][0] + esc * desl[k][0] - x0) * sx).toFixed(1)) + "," + ((H - m - (nos[k][1] + esc * desl[k][1] - y0) * sx).toFixed(1)); };
-  var pol = tris.map(function (t, i) { return "<polygon points='" + P(t[0]) + " " + P(t[1]) + " " + P(t[2]) + "' fill='" + cor(vm[i], a, b, RAMPA_CALOR) + "' stroke='#C9D2C4' stroke-width='0.3'/>"; }).join("");
+  var pol = tris.map(function (t, i) { return "<polygon points='" + P(t[0]) + " " + P(t[1]) + " " + P(t[2]) + "' fill='" + cor(vm[i], a, b, RAMPA_CALOR) + "' stroke='#D9D3C2' stroke-width='0.3'/>"; }).join("");
   return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo) + "</title>" + pol + "</svg>" + legenda(a / 1e6, b / 1e6, RAMPA_CALOR, "MPa (von Mises)") + "<figcaption class='t2 pq'>Deformada ampliada " + fmt(esc, 0) + " vezes.</figcaption></figure>";
 }
 function svgBarras(id, titulo, rot, vals, un) {
   var W = 480, H = 200, m = 30, mx = Math.max.apply(null, vals.concat([1e-9])), bw = (W - 2 * m) / vals.length;
-  var r = vals.map(function (v, i) { var h = (H - 2 * m) * v / mx; return "<rect x='" + (m + i * bw + 2).toFixed(1) + "' y='" + (H - m - h).toFixed(1) + "' width='" + (bw - 4).toFixed(1) + "' height='" + h.toFixed(1) + "' fill='#4B7547'/><text x='" + (m + i * bw + bw / 2).toFixed(1) + "' y='" + (H - m + 14) + "' font-size='10' text-anchor='middle' fill='currentColor'>" + E(rot[i]) + "</text>"; }).join("");
+  var r = vals.map(function (v, i) { var h = (H - 2 * m) * v / mx; return "<rect x='" + (m + i * bw + 2).toFixed(1) + "' y='" + (H - m - h).toFixed(1) + "' width='" + (bw - 4).toFixed(1) + "' height='" + h.toFixed(1) + "' fill='#4A8A5A'/><text x='" + (m + i * bw + bw / 2).toFixed(1) + "' y='" + (H - m + 14) + "' font-size='10' text-anchor='middle' fill='currentColor'>" + E(rot[i]) + "</text>"; }).join("");
   return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " (máximo " + fmt(mx, 1) + " " + un + ")") + "</title>" + r + "</svg></figure>";
 }
 function svgLinha(id, titulo, ys, un) {
   var W = 480, H = 200, m = 30, a = Math.min.apply(null, ys), b = Math.max.apply(null, ys); if (b === a) b = a + 1;
   var pts = ys.map(function (y, i) { return (m + (W - 2 * m) * i / Math.max(1, ys.length - 1)).toFixed(1) + "," + (H - m - (H - 2 * m) * (y - a) / (b - a)).toFixed(1); }).join(" ");
-  return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " — de " + fmt(a, 2) + " a " + fmt(b, 2) + " " + un) + "</title><polyline points='" + pts + "' fill='none' stroke='#3D6E8F' stroke-width='2'/></svg></figure>";
+  return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " — de " + fmt(a, 2) + " a " + fmt(b, 2) + " " + un) + "</title><polyline points='" + pts + "' fill='none' stroke='#2F7D5B' stroke-width='2'/></svg></figure>";
 }
 function tabelaKV(cap, linhas) { return "<div class='rolagem'><table><caption>" + E(cap) + "</caption><tbody>" + linhas.map(function (l) { return "<tr><th scope='row'>" + E(l[0]) + "</th><td>" + l[1] + "</td></tr>"; }).join("") + "</tbody></table></div>"; }
 function envelopeHtml(r) {

@@ -159,7 +159,8 @@ class TemaEscuro(unittest.TestCase):
                  ("--det-t", "--det-f"), ("--sup", "--acao"), ("--al-t", "--sup"), ("--tinta", "--tinte")]
         for a, b in pares:
             self.assertGreaterEqual(contraste(v[a], v[b]), 4.5, f"painel {a} sobre {b}")
-        comum = {"--px-tinta": "#EEF2EA", "--px-fraca": "#D9D3C2", "--px-acao": "#B9CDB3", "--px-alerta": "#FF8A80", "--px-atencao": "#C9A227", "--px-info": "#7FA9C4"}
+        # guia de identidade (versão de teste, 20/11/2026): escuro = tipo A (verde profundo), sem azul na informação
+        comum = {"--px-tinta": "#F4F1EA", "--px-fraca": "#C3D0BD", "--px-acao": "#D9A58C", "--px-alerta": "#FF8A80", "--px-atencao": "#C9A227", "--px-info": "#E5D5AE"}
         for arq in SISTEMA.values():
             vs = variaveis(estilo_tema("x", ler(arq)))
             for k, cor in comum.items():
@@ -168,8 +169,8 @@ class TemaEscuro(unittest.TestCase):
                 self.assertGreaterEqual(contraste(cor, vs["--px-fundo"]), 4.5, k)
             # cores fixas da tela que viram texto no escuro
             for k, cor in vs.items():
-                if k.startswith("--tx-") and cor not in ("#14180F",):
-                    self.assertGreaterEqual(contraste(cor, "#1C2B21"), 4.5, f"{arq.name} {k}")
+                if k.startswith("--tx-") and cor not in ("#0B3D2E",):   # #0B3D2E: texto sobre botão claro no escuro
+                    self.assertGreaterEqual(contraste(cor, "#0F4535"), 4.5, f"{arq.name} {k}")
 
     def test_programas_embutidos_seguem_o_tema(self):
         p = ler(PAINEL)

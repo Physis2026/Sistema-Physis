@@ -19,9 +19,9 @@ const traduzRotulo = s => { try { if (/^en/i.test(document.documentElement.lang 
 const CAT = {
   aterro:["Aterro (sanitário ou não informado)", "#7A2214", "quad"], aterro_controlado:["Aterro controlado", "#A85432", "quad"],
   lixao:["Lixão (vazadouro a céu aberto)", "#2A1215", "cruz"], transbordo:["Estação de transbordo", "#8A6410", "quad"],
-  cooperativa:["Cooperativa ou associação de catadores", "#1F4A1C", "circ"], reciclagem:["Centro de reciclagem ou triagem", "#4B7547", "circ"],
-  ecoponto:["Ecoponto", "#3D6E8F", "diam"], pev:["Ponto de entrega voluntária (PEV)", "#2C5A6E", "circ"], sucata:["Ferro-velho ou sucata", "#546A7B", "diam"],
-  compostagem:["Compostagem", "#8A6A1F", "tri"], rcc:["Resíduos da construção (RCC, ATT)", "#5F6659", "diam"], ete:["Estação de tratamento de esgoto", "#1C3550", "tri"] };
+  cooperativa:["Cooperativa ou associação de catadores", "#1F4A1C", "circ"], reciclagem:["Centro de reciclagem ou triagem", "#4A8A5A", "circ"],
+  ecoponto:["Ecoponto", "#2F7D5B", "diam"], pev:["Ponto de entrega voluntária (PEV)", "#2F7D5B", "circ"], sucata:["Ferro-velho ou sucata", "#4A4F44", "diam"],
+  compostagem:["Compostagem", "#8A6A1F", "tri"], rcc:["Resíduos da construção (RCC, ATT)", "#5F6659", "diam"], ete:["Estação de tratamento de esgoto", "#4A4F44", "tri"] };
 /* destino do plano -> categorias que recebem (espelho de residuos_gis.CATEGORIAS_POR_DESTINO) */
 const POR_DESTINO = { reciclagem:["cooperativa", "reciclagem", "ecoponto", "sucata", "pev"], reversa:["ecoponto", "pev", "reciclagem"],
   compostagem:["compostagem"], aterro2:["aterro", "aterro_controlado", "transbordo"] };
@@ -73,12 +73,12 @@ function indicadores(plano, pontos, cfg) { const linhas = [], porRota = {}; let 
     temCo2:linhas.some(l => l.co2 && l.co2.kg_co2_mes != null) }; }
 
 /* ════════ Fluxo dos resíduos: geração por tipo → separação → rota → destino (distância e CO₂) ════════ */
-const COR_GRUPO = { "Orgânicos":"#8A6A1F", "Recicláveis":"#4B7547", "Obra e madeira":"#5F6659", "Perigosos e logística reversa":"#7A2214", "Rejeito":"#4A4F44", "Outros":"#546A7B" };
+const COR_GRUPO = { "Orgânicos":"#8A6A1F", "Recicláveis":"#4A8A5A", "Obra e madeira":"#5F6659", "Perigosos e logística reversa":"#7A2214", "Rejeito":"#4A4F44", "Outros":"#4A4F44" };
 function destinoDe(l) { return l.interno ? "No próprio lugar" : l.alvo ? (l.alvo.nome || (CAT[l.alvo.categoria] || [l.alvo.categoria])[0]) : l.semCategoria ? "Empresa licenciada (a contratar)" : "Destino a definir (nenhum no raio)"; }
 function fluxo(I) { const L = I.linhas.filter(l => l.kg > 0); if (!L.length) return null;
   const col = [{}, {}, {}, {}], lig = [{}, {}, {}], soma = (o, k, v, extra) => { o[k] = o[k] || Object.assign({ v:0 }, extra || {}); o[k].v += v; };
-  L.forEach(l => { const ks = [l.tipo, l.grupo, l.rota, destinoDe(l)], cor = COR_GRUPO[l.grupo] || "#546A7B";
-    soma(col[0], ks[0], l.kg, { cor }); soma(col[1], ks[1], l.kg, { cor }); soma(col[2], ks[2], l.kg, { cor:"#33512F" });
+  L.forEach(l => { const ks = [l.tipo, l.grupo, l.rota, destinoDe(l)], cor = COR_GRUPO[l.grupo] || "#4A4F44";
+    soma(col[0], ks[0], l.kg, { cor }); soma(col[1], ks[1], l.kg, { cor }); soma(col[2], ks[2], l.kg, { cor:"#1A4D2E" });
     soma(col[3], ks[3], l.kg, { cor:l.interno ? "#1F4A1C" : "#8A6410", dist:l.dist, co2:0 }); if (l.co2 && l.co2.kg_co2_mes) col[3][ks[3]].co2 += l.co2.kg_co2_mes;
     for (let i = 0; i < 3; i++) soma(lig[i], ks[i] + "→" + ks[i + 1], l.kg, { a:ks[i], b:ks[i + 1], cor }); });
   return { col, lig, tot:L.reduce((s, l) => s + l.kg, 0), L }; }
@@ -90,7 +90,7 @@ function sankeySvg(F) { const W = 900, H = 300, nw = 12, pad = 10, xs = [8, 200,
   F.lig.forEach((ls, i) => Object.values(ls).sort((a, b) => b.v - a.v).forEach(l => { const A = pos[i][l.a], B = pos[i + 1][l.b], t = l.v * k, x0 = xs[i] + nw, x1 = xs[i + 1], y0 = A.y + A.sa, y1 = B.y + B.ea, xm = (x0 + x1) / 2; A.sa += t; B.ea += t;
     fitas += `<path d="M${x0} ${y0.toFixed(1)}C${xm} ${y0.toFixed(1)} ${xm} ${y1.toFixed(1)} ${x1} ${y1.toFixed(1)}L${x1} ${(y1 + t).toFixed(1)}C${xm} ${(y1 + t).toFixed(1)} ${xm} ${(y0 + t).toFixed(1)} ${x0} ${(y0 + t).toFixed(1)}Z" fill="${l.cor}" fill-opacity="0.35"><title>${esc(l.a)} → ${esc(l.b)}: ${f1(l.v, 0)} kg/mês</title></path>`; }));
   const nos = pos.map((c, i) => Object.entries(c).map(([n, p]) => { const ult = i === 3, tx = xs[i] + nw + 4, extra = ult && p.x.dist != null ? ` · ${f1(p.x.dist, 1)} km${p.x.co2 ? " · " + f1(p.x.co2, 1) + " kg CO₂e" : ""}` : "";
-    return `<rect x="${xs[i]}" y="${p.y.toFixed(1)}" width="${nw}" height="${p.h.toFixed(1)}" fill="${p.x.cor}"><title>${esc(n)}: ${f1(p.x.v, 0)} kg/mês${esc(extra)}</title></rect><text x="${tx}" y="${(p.y + p.h / 2 + 4).toFixed(1)}" font-size="11" fill="#1C2B21" text-anchor="start">${esc(corta(n, ult ? 30 : 24))} (${f1(p.x.v, 0)})${esc(extra)}</text>`; }).join("")).join("");
+    return `<rect x="${xs[i]}" y="${p.y.toFixed(1)}" width="${nw}" height="${p.h.toFixed(1)}" fill="${p.x.cor}"><title>${esc(n)}: ${f1(p.x.v, 0)} kg/mês${esc(extra)}</title></rect><text x="${tx}" y="${(p.y + p.h / 2 + 4).toFixed(1)}" font-size="11" fill="#1B1F23" text-anchor="start">${esc(corta(n, ult ? 30 : 24))} (${f1(p.x.v, 0)})${esc(extra)}</text>`; }).join("")).join("");
   const cab = ["Geração", "Separação", "Rota", "Destino"].map((t, i) => `<text x="${xs[i]}" y="8" font-size="10" font-weight="700" fill="#4A4F44">${t}</text>`).join("");
   return `<svg viewBox="0 -6 ${W} ${H + 6}" width="100%" style="max-width:${W}px" role="img" aria-label="Fluxo dos resíduos em kg por mês: geração por tipo, separação, rota e destino; os números estão na tabela">${cab}${fitas}${nos}</svg>`; }
 function secaoFluxo(I) { const F = fluxo(I); if (!F) return "";
@@ -132,15 +132,15 @@ const descr = p => `${p.nome || "Sem nome"}, ${(CAT[p.categoria] || [p.categoria
 
 function mapaSvg(d, pontos, raio, sel) { const S = 360, c = S / 2, Rp = 160, lat0 = d.lat, lon0 = d.lon, kx = 111.32 * Math.cos(lat0 * Math.PI / 180), ky = 110.574;
   const pos = p => [c + (p.lon - lon0) * kx / raio * Rp, c - (p.lat - lat0) * ky / raio * Rp];
-  const aneis = [0.25, 0.5, 0.75, 1].map(f => `<circle cx="${c}" cy="${c}" r="${(Rp * f).toFixed(1)}" fill="none" stroke="#C9D2C4" stroke-dasharray="${f === 1 ? "0" : "3 3"}"/><text x="${(c + 3).toFixed(1)}" y="${(c - Rp * f - 3).toFixed(1)}" font-size="10" fill="#4A4F44">${f1(raio * f, raio * f < 10 && raio * f % 1 ? 1 : 0)} km</text>`).join("");
+  const aneis = [0.25, 0.5, 0.75, 1].map(f => `<circle cx="${c}" cy="${c}" r="${(Rp * f).toFixed(1)}" fill="none" stroke="#D9D3C2" stroke-dasharray="${f === 1 ? "0" : "3 3"}"/><text x="${(c + 3).toFixed(1)}" y="${(c - Rp * f - 3).toFixed(1)}" font-size="10" fill="#4A4F44">${f1(raio * f, raio * f < 10 && raio * f % 1 ? 1 : 0)} km</text>`).join("");
   const ord = pontos.slice().sort((a, b) => b.dist_km - a.dist_km);   /* os mais perto por cima */
   const foco = new Set(pontos.slice(0, MAX_FOCO).map(p => p.id));
   const pts = ord.map(p => { const [x, y] = pos(p), [nome, cor, f] = CAT[p.categoria] || [p.categoria, "#4A4F44", "circ"], i = pontos.indexOf(p), s = p.id === sel ? 8 : 5.5;
     return foco.has(p.id) ? `<g class="rcm-p" tabindex="0" role="button" aria-pressed="${p.id === sel}" aria-label="${esc(descr(p))}" data-rcm-p="${i}"><title>${esc(descr(p))}</title>${forma(f, x, y, s, cor)}</g>`
       : `<g aria-hidden="true">${forma(f, x, y, 4, cor)}</g>`; }).join("");
-  return `<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:${S}px;background:#F7F9F4;border:1px solid #C9D2C4;border-radius:10px" role="group" aria-label="Mapa dos destinos em volta do lugar, raio de ${raio} km, ${pontos.length} pontos; a lista completa está na tabela abaixo">
-    ${aneis}<text x="${S - 14}" y="22" font-size="13" font-weight="700" text-anchor="middle" fill="#1C2B21">N</text><path d="M${S - 14} 26 l-5 12 h10 z" fill="#1C2B21"/>
-    ${pts}<circle cx="${c}" cy="${c}" r="9" fill="none" stroke="#33512F" stroke-width="3"/><circle cx="${c}" cy="${c}" r="3.5" fill="#33512F"/><text x="${c}" y="${c + 24}" font-size="11" text-anchor="middle" fill="#33512F" font-weight="700" stroke="#F7F9F4" stroke-width="3" paint-order="stroke">o lugar</text></svg>`; }
+  return `<svg viewBox="0 0 ${S} ${S}" width="100%" style="max-width:${S}px;background:#FAF9F5;border:1px solid #D9D3C2;border-radius:10px" role="group" aria-label="Mapa dos destinos em volta do lugar, raio de ${raio} km, ${pontos.length} pontos; a lista completa está na tabela abaixo">
+    ${aneis}<text x="${S - 14}" y="22" font-size="13" font-weight="700" text-anchor="middle" fill="#1B1F23">N</text><path d="M${S - 14} 26 l-5 12 h10 z" fill="#1B1F23"/>
+    ${pts}<circle cx="${c}" cy="${c}" r="9" fill="none" stroke="#1A4D2E" stroke-width="3"/><circle cx="${c}" cy="${c}" r="3.5" fill="#1A4D2E"/><text x="${c}" y="${c + 24}" font-size="11" text-anchor="middle" fill="#1A4D2E" font-weight="700" stroke="#FAF9F5" stroke-width="3" paint-order="stroke">o lugar</text></svg>`; }
 
 function legenda(grupos) { const ks = Object.keys(CAT).filter(k => grupos[k]);
   return ks.length ? `<ul class="rcm-leg" aria-label="Legenda do mapa">${ks.map(k => `<li><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">${forma(CAT[k][2], 9, 9, 5.5, CAT[k][1])}</svg> ${esc(CAT[k][0])} (${grupos[k].n})</li>`).join("")}</ul>` : ""; }
@@ -148,8 +148,8 @@ function legenda(grupos) { const ks = Object.keys(CAT).filter(k => grupos[k]);
 /* barras horizontais, com a tabela como alternativa */
 function hbarras(titulo, itens, un, casas, meta) { if (!itens.length) return ""; const W = 360, lh = 26, H = itens.length * lh + 10, L = 130, mx = Math.max(1e-9, ...itens.map(x => x.v), meta || 0);
   const b = itens.map((x, i) => { const w = (W - L - 60) * x.v / mx, y = 5 + i * lh;
-    return `<text x="${L - 6}" y="${y + 15}" font-size="11" text-anchor="end" fill="#1C2B21">${esc(traduzRotulo(x.rot).length > 22 ? traduzRotulo(x.rot).slice(0, 21) + "…" : traduzRotulo(x.rot))}</text><rect x="${L}" y="${y + 3}" width="${Math.max(0, w).toFixed(1)}" height="16" fill="${x.cor || "#4B7547"}"><title>${esc(x.rot)}: ${f1(x.v, casas)} ${esc(un)}</title></rect><text x="${(L + w + 4).toFixed(1)}" y="${y + 15}" font-size="11" fill="#4A4F44">${f1(x.v, casas)}</text>`; }).join("");
-  const m = meta ? `<line x1="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y1="2" x2="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y2="${H - 2}" stroke="#1C2B21" stroke-dasharray="4 3"/>` : "";
+    return `<text x="${L - 6}" y="${y + 15}" font-size="11" text-anchor="end" fill="#1B1F23">${esc(traduzRotulo(x.rot).length > 22 ? traduzRotulo(x.rot).slice(0, 21) + "…" : traduzRotulo(x.rot))}</text><rect x="${L}" y="${y + 3}" width="${Math.max(0, w).toFixed(1)}" height="16" fill="${x.cor || "#4A8A5A"}"><title>${esc(x.rot)}: ${f1(x.v, casas)} ${esc(un)}</title></rect><text x="${(L + w + 4).toFixed(1)}" y="${y + 15}" font-size="11" fill="#4A4F44">${f1(x.v, casas)}</text>`; }).join("");
+  const m = meta ? `<line x1="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y1="2" x2="${(L + (W - L - 60) * meta / mx).toFixed(1)}" y2="${H - 2}" stroke="#1B1F23" stroke-dasharray="4 3"/>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${esc(titulo)}; os números estão na tabela">${b}${m}</svg>`; }
 
 function campo(o, k, rot, ph, ajuda) { return `<div><label for="rcm-${k}">${rot}</label><input id="rcm-${k}" type="text" inputmode="decimal" data-rcm-k="${k}" value="${esc(o[k] == null ? "" : o[k])}" placeholder="${esc(ph)}" style="width:100%"${ajuda ? ` aria-describedby="rcm-${k}-a"` : ""}>${ajuda ? `<span id="rcm-${k}-a" class="t2 pq">${ajuda}</span>` : ""}</div>`; }
@@ -167,7 +167,7 @@ function telaCircularMapa(dados) { const o = cfgLer(), raio = RAIOS.includes(+o.
   if (ok) {
     const info = sel ? `<p class="faixa in" role="status" aria-live="polite"><strong>${esc(sel.nome || "Sem nome")}</strong> · ${esc((CAT[sel.categoria] || [sel.categoria])[0])} · ${f1(sel.dist_km, 1)} km em linha reta a ${rumoTxt(sel.rumo || 0)}${sel.materiais && sel.materiais.length ? " · recebe " + esc(sel.materiais.join(", ")) : ""}${sel.operador ? " · " + esc(sel.operador) : ""}${sel.horario ? " · horário " + esc(sel.horario) : ""} · fonte: ${esc(sel.fonte || "")}</p>`
       : `<p class="t2 pq" role="status" aria-live="polite">Escolha um ponto no mapa (Tab e Enter) para ver os detalhes.</p>`;
-    const fundo = (typeof window !== "undefined") ? `<div><button type="button" data-rcm-fundo="1" aria-pressed="${!!ui.rcmFundo}">${ui.rcmFundo ? "Fechar o mapa com fundo" : "Abrir o mapa com fundo da região"}</button></div>${ui.rcmFundo ? `<div id="rcm-ml" role="region" aria-label="Mapa com fundo da região (visual; a mesma informação está nas tabelas)" style="height:360px;border:1px solid #C9D2C4;border-radius:10px;margin-top:8px"></div><p id="rcm-ml-aviso" class="t2 pq" role="status"></p>` : ""}` : "";
+    const fundo = (typeof window !== "undefined") ? `<div><button type="button" data-rcm-fundo="1" aria-pressed="${!!ui.rcmFundo}">${ui.rcmFundo ? "Fechar o mapa com fundo" : "Abrir o mapa com fundo da região"}</button></div>${ui.rcmFundo ? `<div id="rcm-ml" role="region" aria-label="Mapa com fundo da região (visual; a mesma informação está nas tabelas)" style="height:360px;border:1px solid #D9D3C2;border-radius:10px;margin-top:8px"></div><p id="rcm-ml-aviso" class="t2 pq" role="status"></p>` : ""}` : "";
     const maisProx = Object.keys(CAT).filter(k => grupos[k]).map(k => { const p = grupos[k].mais_proximo;
       return `<tr><th scope="row">${esc(CAT[k][0])}</th><td>${grupos[k].n}</td><td>${esc(p.nome || "Sem nome")}</td><td>${f1(p.dist_km, 1)} km a ${rumoTxt(p.rumo || 0)}</td></tr>`; }).join("");
     const lista = pontos.map(p => `<tr><th scope="row">${esc(p.nome || "Sem nome")}</th><td>${esc((CAT[p.categoria] || [p.categoria])[0])}</td><td>${f1(p.dist_km, 1)}</td><td>${rumoTxt(p.rumo || 0)}</td><td>${esc((p.materiais || []).join(", ") || "—")}</td><td>${esc(p.fonte || "")}</td></tr>`).join("");
@@ -195,7 +195,7 @@ function telaCircularMapa(dados) { const o = cfgLer(), raio = RAIOS.includes(+o.
       <div class="rolagem"><table><caption>Transporte de cada resíduo até o destino mais próximo do tipo certo</caption><thead><tr><th scope="col">Resíduo</th><th scope="col">Rota</th><th scope="col">kg/mês</th><th scope="col">Destino mais próximo</th><th scope="col">Distância (km)</th><th scope="col">t·km/mês</th><th scope="col">kg CO₂e/mês</th></tr></thead><tbody>${tabTrans || `<tr><td colspan="7">Todas as rotas são no lugar: sem transporte.</td></tr>`}</tbody></table></div>
       <p class="t2 pq">CO₂ = t·km × fator; ou viagens (⌈t ÷ carga⌉) × distância × 2 ÷ consumo × ${n2(DIESEL_KG_L, 3)} kg CO₂e/L de diesel (premissa da Physis). Estimativa de planejamento; o destino precisa ter licença e o MTR (SINIR) segue valendo.</p>`
       : `<p class="t2">Acrescente os resíduos do lugar acima para ver os indicadores.</p>`}</section>`;
-  const estilo = `<style>.rcm-p{cursor:pointer;outline:none}.rcm-p:focus .rcm-f,.rcm-p:hover .rcm-f{stroke:#1C2B21;stroke-width:3}.rcm-p:focus-visible .rcm-f{stroke:#1C2B21;stroke-width:3.5}.rcm-leg{list-style:none;padding:0;margin:0 0 8px}.rcm-leg li{display:flex;align-items:center;gap:6px;margin:2px 0}</style>`;
+  const estilo = `<style>.rcm-p{cursor:pointer;outline:none}.rcm-p:focus .rcm-f,.rcm-p:hover .rcm-f{stroke:#1B1F23;stroke-width:3}.rcm-p:focus-visible .rcm-f{stroke:#1B1F23;stroke-width:3.5}.rcm-leg{list-style:none;padding:0;margin:0 0 8px}.rcm-leg li{display:flex;align-items:center;gap:6px;margin:2px 0}</style>`;
   if (ui.rcmFundo && ok) setTimeout(() => montarFundo(d, pontos), 0);
   return `<section aria-labelledby="h-rcm">${estilo}<h2 id="h-rcm">Mapa e indicadores</h2><p class="t2 apoio">Aterros, cooperativas, ecopontos, compostagem e áreas de entulho em volta do lugar, e os números do plano de resíduos.</p>
     <section class="cartao" aria-labelledby="h-rcm-mapa"><h3 id="h-rcm-mapa" class="t3">Destinos em volta</h3>${ctrl}${estado ? `<p class="t2" role="status">${esc(estado)}</p>` : ""}${mapa}</section>${secaoFluxo(I)}${painel}${metodoCircular()}</section>`; }
@@ -209,10 +209,10 @@ async function montarFundo(d, pontos) { const div = el("rcm-ml"), aviso = el("rc
     let fundo = false; try { const r = await fetch("/mapas/regiao.pmtiles", { method:"HEAD" }); fundo = r.ok; } catch (e) {}
     const gj = { type:"FeatureCollection", features:pontos.map(p => ({ type:"Feature", properties:{ nome:p.nome || "", cor:(CAT[p.categoria] || [0, "#4A4F44"])[1] }, geometry:{ type:"Point", coordinates:[p.lon, p.lat] } })) };
     const fontes = { pts:{ type:"geojson", data:gj }, lugar:{ type:"geojson", data:{ type:"Feature", properties:{}, geometry:{ type:"Point", coordinates:[d.lon, d.lat] } } } };
-    const camadas = [{ id:"fundo", type:"background", paint:{ "background-color":"#EEF2EA" } }];
-    if (fundo) { fontes.osm = { type:"vector", url:"pmtiles:///mapas/regiao.pmtiles" }; camadas.push({ id:"agua", type:"fill", source:"osm", "source-layer":"water", paint:{ "fill-color":"#B8D0E0" } }, { id:"vias", type:"line", source:"osm", "source-layer":"roads", paint:{ "line-color":"#C9B98F", "line-width":1 } }); }
+    const camadas = [{ id:"fundo", type:"background", paint:{ "background-color":"#F4F1EA" } }];
+    if (fundo) { fontes.osm = { type:"vector", url:"pmtiles:///mapas/regiao.pmtiles" }; camadas.push({ id:"agua", type:"fill", source:"osm", "source-layer":"water", paint:{ "fill-color":"#DCEBD8" } }, { id:"vias", type:"line", source:"osm", "source-layer":"roads", paint:{ "line-color":"#C9B98F", "line-width":1 } }); }
     camadas.push({ id:"pts", type:"circle", source:"pts", paint:{ "circle-radius":6, "circle-color":["get", "cor"], "circle-stroke-color":"#FFFFFF", "circle-stroke-width":1.5 } },
-      { id:"lugar", type:"circle", source:"lugar", paint:{ "circle-radius":8, "circle-color":"#FFFFFF", "circle-stroke-color":"#33512F", "circle-stroke-width":3 } });
+      { id:"lugar", type:"circle", source:"lugar", paint:{ "circle-radius":8, "circle-color":"#FFFFFF", "circle-stroke-color":"#1A4D2E", "circle-stroke-width":3 } });
     const kx = (d.raio_km || 20) / (111.32 * Math.cos(d.lat * Math.PI / 180)), ky = (d.raio_km || 20) / 110.574;
     const m = new maplibregl.Map({ container:div, style:{ version:8, sources:fontes, layers:camadas }, attributionControl:false });
     m.addControl(new maplibregl.NavigationControl({ showCompass:true })); m.addControl(new maplibregl.ScaleControl({ unit:"metric" }));

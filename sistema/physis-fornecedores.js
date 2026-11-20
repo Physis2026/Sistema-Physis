@@ -187,16 +187,16 @@ if (typeof MutationObserver !== "undefined" && global.document && !global.__forn
 const W = 640, H = 610, LON0 = -75, LON1 = -33, LAT0 = 6, LAT1 = -34;
 const px = (lat, lon) => ({ x: (lon - LON0) / (LON1 - LON0) * W, y: (lat - LAT0) / (LAT1 - LAT0) * H });
 const kmPx = km => km / 111.32 * W / (LON1 - LON0);
-const ESTILO_MAPA = `<style>.pf-mapa{max-width:100%;height:auto;background:#F7F9F4;border:1px solid #C9D2C4}.pf-mapa .gr{stroke:#C9D2C4;stroke-width:1}
-.pf-mapa .uf{fill:#FFFFFF;stroke:#4A4F44}.pf-mapa .uf-sel{fill:#DCEBD8;stroke:#1F4A1C;stroke-width:2}.pf-mapa .tx{fill:#1C2B21;font:11px sans-serif}
-.pf-mapa .f{fill:#33512F;stroke:#FFFFFF}.pf-mapa .f-velho{fill:#8A6410;stroke:#FFFFFF}.pf-mapa .raio{fill:#7FA874;fill-opacity:.25;stroke:#33512F}
-.pf-mapa .c-perto{fill:#2C5A6E;stroke:#FFFFFF}.pf-mapa .c-longe{fill:#7A2214;stroke:#FFFFFF}.pf-mapa .nac{fill:#DBE7F1;fill-opacity:.35}
-.pf-mapa [tabindex]:focus{outline:3px solid #1C2B21}
-html[data-tema="escuro"] .pf-mapa{background:#14180F;border-color:#3A4A38}html[data-tema="escuro"] .pf-mapa .gr{stroke:#33372E}
-html[data-tema="escuro"] .pf-mapa .uf{fill:#2A3829;stroke:#A8BFA0}html[data-tema="escuro"] .pf-mapa .uf-sel{fill:#4A5A47;stroke:#8FB183}
-html[data-tema="escuro"] .pf-mapa .tx{fill:#EEF2EA}html[data-tema="escuro"] .pf-mapa .f{fill:#8FB183;stroke:#14180F}html[data-tema="escuro"] .pf-mapa .f-velho{fill:#C9A227;stroke:#14180F}
-html[data-tema="escuro"] .pf-mapa .raio{fill:#7FA874;stroke:#A8BFA0}html[data-tema="escuro"] .pf-mapa .c-perto{fill:#7FA9C4;stroke:#14180F}
-html[data-tema="escuro"] .pf-mapa .c-longe{fill:#FF8A80;stroke:#14180F}html[data-tema="escuro"] .pf-mapa .nac{fill:#1C3550}html[data-tema="escuro"] .pf-mapa [tabindex]:focus{outline-color:#EEF2EA}</style>`;
+const ESTILO_MAPA = `<style>.pf-mapa{max-width:100%;height:auto;background:#FAF9F5;border:1px solid #D9D3C2}.pf-mapa .gr{stroke:#D9D3C2;stroke-width:1}
+.pf-mapa .uf{fill:#FFFFFF;stroke:#4A4F44}.pf-mapa .uf-sel{fill:#DCEBD8;stroke:#1F4A1C;stroke-width:2}.pf-mapa .tx{fill:#1B1F23;font:11px sans-serif}
+.pf-mapa .f{fill:#1A4D2E;stroke:#FFFFFF}.pf-mapa .f-velho{fill:#8A6410;stroke:#FFFFFF}.pf-mapa .raio{fill:#7FA874;fill-opacity:.25;stroke:#1A4D2E}
+.pf-mapa .c-perto{fill:#2F7D5B;stroke:#FFFFFF}.pf-mapa .c-longe{fill:#7A2214;stroke:#FFFFFF}.pf-mapa .nac{fill:#EFE8D6;fill-opacity:.35}
+.pf-mapa [tabindex]:focus{outline:3px solid #1B1F23}
+html[data-tema="escuro"] .pf-mapa{background:#0B3D2E;border-color:#2F5E4E}html[data-tema="escuro"] .pf-mapa .gr{stroke:#33372E}
+html[data-tema="escuro"] .pf-mapa .uf{fill:#0F4535;stroke:#D9A58C}html[data-tema="escuro"] .pf-mapa .uf-sel{fill:#2F5E4E;stroke:#8FB183}
+html[data-tema="escuro"] .pf-mapa .tx{fill:#F4F1EA}html[data-tema="escuro"] .pf-mapa .f{fill:#8FB183;stroke:#0B3D2E}html[data-tema="escuro"] .pf-mapa .f-velho{fill:#C9A227;stroke:#0B3D2E}
+html[data-tema="escuro"] .pf-mapa .raio{fill:#7FA874;stroke:#D9A58C}html[data-tema="escuro"] .pf-mapa .c-perto{fill:#8FB183;stroke:#0B3D2E}
+html[data-tema="escuro"] .pf-mapa .c-longe{fill:#FF8A80;stroke:#0B3D2E}html[data-tema="escuro"] .pf-mapa .nac{fill:#33372E}html[data-tema="escuro"] .pf-mapa [tabindex]:focus{outline-color:#F4F1EA}</style>`;
 function svgMapa(d){
   const selUF = new Set(); d.fornecedores.forEach(f => f.regioes.forEach(r => { if (r.uf !== "BR") selUF.add(r.uf); }));
   const nac = d.fornecedores.filter(f => f.abrangencia === "nacional").length;
