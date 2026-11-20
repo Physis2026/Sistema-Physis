@@ -126,5 +126,48 @@ class TestPerguntasSemComandos(unittest.TestCase):
         self.assertFalse(mv_comandos.perguntar(mv, "Teste?", ["Sim"], "cli", ["instituto"])["ja_existia"])
 
 
+class TestRedeLocal(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.mv = MV(Path(self.tmp.name) / "mv.db")
+
+    def tearDown(self):
+        self.mv.db.close()
+        self.tmp.cleanup()
+
+    def test_padrao_so_local_e_rede_com_senha(self):
+        srv = mv_servidor.servir(self.mv, 0)
+        self.assertEqual(srv.server_address[0], "127.0.0.1")
+        srv.server_close()
+        ips = mv_servidor.ips_locais()
+        if not ips:
+            self.skipTest("sem rede local nesta máquina")
+        srv = mv_servidor.servir(self.mv, 0, rede_local=True)
+        porta = srv.server_address[1]
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            ip = sorted(ips)[0]
+            senha = (Path(self.tmp.name) / "senha-teste-rede.txt").read_text(encoding="utf-8").strip()
+            self.assertGreaterEqual(len(senha), 10)
+            with self.assertRaises(urllib.error.HTTPError) as e:
+                urllib.request.urlopen(f"http://{ip}:{porta}/api/mv/saude")
+            self.assertEqual(e.exception.code, 401)
+            cab = {"Authorization": "Basic " + base64.b64encode(f"teste:{senha}".encode()).decode()}
+            with urllib.request.urlopen(urllib.request.Request(f"http://{ip}:{porta}/api/mv/saude", headers=cab)) as r:
+                self.assertIn("frentes", json.loads(r.read()))
+            ruim = {"Authorization": "Basic " + base64.b64encode(b"teste:errada").decode()}
+            with self.assertRaises(urllib.error.HTTPError):
+                urllib.request.urlopen(urllib.request.Request(f"http://{ip}:{porta}/api/mv/saude", headers=ruim))
+            with urllib.request.urlopen(f"http://127.0.0.1:{porta}/api/mv/aprovacoes") as r:     # neste PC: sem senha
+                self.assertTrue(len(json.loads(r.read())) >= 10)
+            with urllib.request.urlopen(f"http://127.0.0.1:{porta}/vendor/three.min.js") as r:
+                self.assertEqual(r.status, 200)
+            with self.assertRaises(urllib.error.HTTPError):
+                urllib.request.urlopen(f"http://127.0.0.1:{porta}/vendor/../physis_hub/mv.py")
+        finally:
+            srv.shutdown()
+            srv.server_close()
+
+
 if __name__ == "__main__":
     unittest.main()
