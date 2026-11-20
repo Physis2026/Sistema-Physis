@@ -121,7 +121,9 @@ def montar_real(caminho: str | Path | None = None) -> dict:
 
 def gerar(saida: str | Path, real: bool = False) -> Path:
     dados = montar_real() if real else montar()
-    icone = WEB / "app" / "icone-192.png"
+    icone = WEB / "logo-physis.png"
+    if not icone.is_file():
+        icone = WEB / "app" / "icone-192.png"
     if icone.is_file():
         dados["logo"] = "data:image/png;base64," + base64.b64encode(icone.read_bytes()).decode()
     html = (WEB / "mv.html").read_text(encoding="utf-8")

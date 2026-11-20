@@ -128,6 +128,8 @@ def fabricar(mv: MV):
                 with _TRAVA:
                     if p in ("/", "/mv", "/mv/"):
                         return self._bytes((WEB / "mv.html").read_bytes(), "text/html; charset=utf-8")
+                    if p == "/logo.png" and (WEB / "logo-physis.png").is_file():   # logo atualizado (árvore, 19/11/2026)
+                        return self._bytes((WEB / "logo-physis.png").read_bytes(), "image/png")
                     if p == "/icone.png" and (WEB / "app" / "icone-192.png").is_file():   # logo Physis no cabeçalho
                         return self._bytes((WEB / "app" / "icone-192.png").read_bytes(), "image/png")
                     rotas = {"/api/mv/saude": lambda: mv.saude(), "/api/mv/gantt": lambda: mv.gantt(fr),

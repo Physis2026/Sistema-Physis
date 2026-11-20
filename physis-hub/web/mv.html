@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Physis M&amp;V · versão de teste</title>
+<title>Physis M&amp;A · versão de teste</title>
 <style>
 :root{--fundo:#F4F6F1;--sup:#FFFFFF;--texto:#1C2B21;--texto2:#4A4F44;--logo:#4B7547;--acao:#33512F;--linha:#C9D2C4;
 --areia:#EFE8D6;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#1C3550;--inf:#DBE7F1;--ok:#1F4A1C;--okf:#DCEBD8;
@@ -69,8 +69,8 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 </head>
 <body>
 <header>
-  <div class="marca"><img id="logo" src="/icone.png" alt="Physis Engineering" onerror="this.hidden=true">
-    <div><h1>Physis M&amp;V <span class="selo">versão de teste</span></h1><p class="assina">Physis Engineering · gestão e monitoramento integrados</p></div></div>
+  <div class="marca"><img id="logo" src="/logo.png" alt="Physis Engineering" onerror="this.hidden=true">
+    <div><h1>Physis M&amp;A <span class="selo">versão de teste</span></h1><p class="assina">Physis Engineering · gestão e monitoramento integrados</p></div></div>
   <div class="ferr" style="margin:0">
     <label>Idioma <select id="idioma"><option value="pt">Português</option><option value="en">English</option></select></label>
     <label>Frente <select id="frente"><option value="">Todas as frentes</option></select></label>
@@ -94,7 +94,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
   <section id="v-saude" role="tabpanel"></section>
   <section id="v-gantt" role="tabpanel" hidden>
     <div class="ferr">
-      <label>Origem <select id="origem"><option value="semente">Plano Fase 0 + M&amp;V</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2 (577)</option><option value="">Todas</option></select></label>
+      <label>Origem <select id="origem"><option value="semente">Plano Fase 0 + M&amp;A</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2 (577)</option><option value="">Todas</option></select></label>
       <label><input type="checkbox" id="soCrit"> Só críticas, atrasadas ou em risco</label>
       <label>Escala <select id="escala"><option value="6">Dia (6 px)</option><option value="14">Dia (14 px)</option><option value="2">Mês (2 px/dia)</option></select></label>
       <span class="exp" data-vista="gantt"></span>
@@ -103,7 +103,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
     <div class="gantt" id="gantt"></div>
   </section>
   <section id="v-kanban" role="tabpanel" hidden>
-    <div class="ferr"><label>Origem <select id="origemK"><option value="semente">Plano Fase 0 + M&amp;V</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2</option><option value="">Todas</option></select></label>
+    <div class="ferr"><label>Origem <select id="origemK"><option value="semente">Plano Fase 0 + M&amp;A</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2</option><option value="">Todas</option></select></label>
       <label>Buscar <input type="text" id="busca" placeholder="título ou pessoa"></label></div>
     <div class="kanban" id="kanban"></div>
   </section>
@@ -138,7 +138,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
     </form>
   </section>
 </main>
-<footer>Physis Engineering · Physis M&amp;V · Casa Physis · Instituto Physis · InovaSTEM</footer>
+<footer>Physis Engineering · Physis M&amp;A · Casa Physis · Instituto Physis · InovaSTEM</footer>
 <script>
 "use strict";
 const $=s=>document.querySelector(s), H={"X-Physis-MV":"1","Content-Type":"application/json"};
@@ -163,7 +163,7 @@ const post=(p,b)=>MOCK?Promise.resolve(mockPost(p,b)):fetch(p,{method:"POST",hea
 if(MOCK){document.body.insertAdjacentHTML("afterbegin",MOCK.modo==="real"
     ?`<p class="demo" role="note">CÓPIA DE LEITURA · dados reais de ${esc(MOCK.gerado_em||"")} · alterações aqui não são gravadas no sistema</p>`
     :'<p class="demo" role="note">DEMONSTRAÇÃO · dados fictícios · nada é gravado</p>');
-  const lg=document.getElementById("logo");if(lg&&MOCK.logo)lg.src=MOCK.logo;}
+  const lg=document.getElementById("logo");if(lg&&MOCK.logo){lg.src=MOCK.logo;lg.hidden=false;}}
 // Idioma PT/EN: traduz textos fixos e frases da interface (os dados — títulos de tarefas, editais — ficam no idioma original)
 const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Automatic","Claro":"Light","Escuro":"Dark","Rodar bots agora":"Run bots now",
 "Todas as frentes":"All fronts","versão de teste":"test version","Physis Engineering · gestão e monitoramento integrados":"Physis Engineering · integrated management and monitoring",
@@ -184,9 +184,9 @@ const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Aut
 "Adicionar":"Add","Registrar pergunta":"Log question","Perguntas à dona":"Questions for the owner","Nenhuma":"None","Novo lançamento":"New entry","Entidade":"Entity",
 "Data":"Date","Valor (R$)":"Amount (R$)","Descrição":"Description","Fonte":"Source","Lançar (a conferir)":"Post (to be checked)","oficial":"official","a conferir":"to be checked",
 "Pessoa física (lote)":"Individual (plot)","Casa Physis":"Casa Physis","Physis Engineering":"Physis Engineering","Instituto Physis":"Instituto Physis","InovaSTEM":"InovaSTEM",
-"Transversal (M&V)":"Cross-cutting (M&V)","DEMONSTRAÇÃO · dados fictícios · nada é gravado":"DEMO · fictitious data · nothing is saved","Baixar ODS":"Download ODS",
+"Transversal (M&V)":"Cross-cutting (M&V)","Transversal (M&A)":"Cross-cutting (M&V)","Physis M&A":"Physis M&V","Plano Fase 0 + M&A":"Phase 0 plan + M&V","DEMONSTRAÇÃO · dados fictícios · nada é gravado":"DEMO · fictitious data · nothing is saved","Baixar ODS":"Download ODS",
 "Baixar ODT":"Download ODT","Baixar PDF":"Download PDF","Necessidades":"Needs","Nova necessidade":"New need","Nova pergunta":"New question","Decisão e justificativa":"Decision and rationale",
-"Notas":"Notes","Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM":"Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM"};
+"Notas":"Notes","Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM":"Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM","Physis Engineering · Physis M&A · Casa Physis · Instituto Physis · InovaSTEM":"Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM"};
 const EN_RE=[[/^Atualizado em (.+?)\. Datas marcadas \[CONFERIR\] são estimativas até o responsável confirmar\.$/,"Updated $1. Dates marked [TO CHECK] are estimates until the owner confirms."],
 [/^(\d+) pedem intervenção$/,"$1 need intervention"],[/^(\d+) atenção$/,"$1 attention"],[/^(\d+) informação$/,"$1 info"],[/^(\d+) com falha$/,"$1 with issues"],
 [/^(\d+) vencidos$/,"$1 outdated"],[/^(\d+) em dia$/,"$1 up to date"],[/^(.+) \((\d+)\)$/,null],[/^(\d+) edital\(is\)\. Clique no título para abrir a ficha com as necessidades\.$/,"$1 call(s). Click a title to open its needs sheet."],
@@ -199,12 +199,17 @@ function trTexto(s){const k=s.trim();if(!k)return s;if(EN[k])return s.replace(k,
   for(const [re,rep] of EN_RE){if(rep&&re.test(k))return s.replace(k,k.replace(re,rep));
     if(!rep){const m=k.match(re);if(m&&EN[m[1]])return s.replace(k,EN[m[1]]+" ("+m[2]+")");}}
   let r=s;for(const [re,rep] of EN_GERAL)r=r.replace(re,rep);return r;}
-function traduz(raiz){if(IDI!=="en")return;const w=document.createTreeWalker(raiz,NodeFilter.SHOW_TEXT);let n;
+// PT: a ferramenta se chama Physis M&A (decisão de 19/11/2026); o M&V de energia (IPMVP) não muda.
+const PT_MA=[[/Physis M&V/g,"Physis M&A"],[/Transversal \(M&V\)/g,"Transversal (M&A)"],[/o próprio M&V/g,"o próprio M&A"],[/\+ M&V/g,"+ M&A"],[/^M&V e bots/,"M&A e bots"],[/Migrar M&V/g,"Migrar M&A"]];
+function ptTexto(s){let r=s;for(const [re,rep] of PT_MA)r=r.replace(re,rep);return r;}
+function ptMA(raiz){const w=document.createTreeWalker(raiz,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){const t=ptTexto(n.data);if(t!==n.data)n.data=t;}}
+function traduz(raiz){if(IDI!=="en"){ptMA(raiz);return;}const w=document.createTreeWalker(raiz,NodeFilter.SHOW_TEXT);let n;
   while((n=w.nextNode())){if(n.parentElement&&/^(SCRIPT|STYLE)$/.test(n.parentElement.tagName))continue;const t=trTexto(n.data);if(t!==n.data)n.data=t;}
   raiz.querySelectorAll&&raiz.querySelectorAll("[placeholder],[aria-label]").forEach(e=>{["placeholder","aria-label"].forEach(a=>{const v=e.getAttribute(a);if(v&&EN[v])e.setAttribute(a,EN[v]);});});}
-new MutationObserver(ms=>{if(IDI!=="en")return;ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)traduz(n);else if(n.nodeType===3){const t=trTexto(n.data);if(t!==n.data)n.data=t;}}));})
+new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)traduz(n);else if(n.nodeType===3){const t=IDI==="en"?trTexto(n.data):ptTexto(n.data);if(t!==n.data)n.data=t;}}));})
   .observe(document.body,{childList:true,subtree:true});
 document.documentElement.lang=IDI==="en"?"en":"pt-BR";
+if(IDI==="en")document.title="Physis M&V · test version";
 function status(t){$("#status").textContent=t;}
 function tema(v){try{localStorage.setItem("physis-pref-tema",v)}catch(e){}
   const esc=v==="escuro"||(v==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);
@@ -267,7 +272,7 @@ async function render(v){
     $("#financeiro").innerHTML=Object.entries(s.financeiro).map(([e,d])=>`<div class="card"><strong>${nomes[e]}</strong><p class="muted">${d.lancamentos} lançamento(s)</p>
     ${["oficial","a_conferir"].map(k=>`<p><span class="pill ${k==="oficial"?"g-ok":"g-atencao"}">${k==="oficial"?"oficial":"a conferir"}</span> ${Object.entries(d[k]).map(([t,vl])=>`${esc(t)}: R$ ${vl.toLocaleString("pt-BR",{minimumFractionDigits:2})}`).join(" · ")||"—"}</p>`).join("")}</div>`).join("");}
   status("Atualizado em "+new Date().toLocaleString("pt-BR")+". Datas marcadas [CONFERIR] são estimativas até o responsável confirmar.");
-  }catch(e){status("Não consegui ler o servidor do M&V: "+e);}
+  }catch(e){status("Não consegui ler o servidor do M&A: "+e);}
 }
 function kanban(){const o=$("#origemK").value,b=$("#busca").value.toLowerCase();
   $("#kanban").innerHTML=META.estados.map(e=>{const ts=CACHE.k[e.id].filter(t=>(!o||origemDe(t)===o)&&(!b||(t.titulo+" "+t.responsavel).toLowerCase().includes(b)));
