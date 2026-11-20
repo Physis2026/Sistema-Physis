@@ -419,6 +419,36 @@ BACKUP_MAX_H = 26      # R-02 (auditoria 39): cópia diária; mais de 26 h sem c
 RESUMO_MAX_H = 26
 
 
+NOS_DIR = Path(os.environ.get("PHYSIS_MV_NOS") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "nos"))
+NO_MUDO_H = 2      # dona, 20/11/2026: nó sem sinal por mais de 2 h vira alerta
+
+
+def sinal_de_vida(mv: MV, pasta: Path | None = None, agora: float | None = None) -> dict:
+    """Dois nós 24h (notebook Acer + este notebook; dona, 20/11/2026). Cada nó grava, a cada rodada, um sinal de vida numa
+    pasta sincronizada e confere os sinais dos outros: nó mudo há mais de 2 h vira alerta no M&A. Os pedidos ficam na fila e
+    rodam quando o nó volta."""
+    import socket
+    agora = agora or time.time()
+    pasta = Path(pasta or NOS_DIR)
+    pasta.mkdir(parents=True, exist_ok=True)
+    eu = re.sub(r"[^A-Za-z0-9_.-]", "_", socket.gethostname())[:60] or "no"
+    (pasta / f"{eu}.json").write_text(mvmod.json.dumps({"no": eu, "quando": agora, "bots": sorted(BOTS)}), encoding="utf-8")
+    inicio = mv.nova_rodada()
+    nos = {}
+    for f in pasta.glob("*.json"):
+        try:
+            d = mvmod.json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        h = round((agora - float(d.get("quando", 0))) / 3600, 1)
+        nos[d.get("no", f.stem)] = h
+        if h > NO_MUDO_H:
+            mv.alertar("nos", "no_mudo", d.get("no", f.stem), "alerta", f"Nó {d.get('no', f.stem)} sem sinal há {h:.1f} h",
+                       "Conferir energia, internet e o serviço do M&A nesse computador (Eric); os pedidos ficam na fila")
+    mv.fechar_alertas_nao_vistos("nos", inicio)
+    return {"eu": eu, "nos": nos}
+
+
 def conferir_rotina(mv: MV, pasta_backup: Path | None = None, agora: float | None = None) -> dict:
     """Confere se a rotina diária está viva: idade da cópia de segurança mais nova e da última execução do resumo.
     Roda a cada chamada de rodar() (barato); sem isso uma agenda parada passava em silêncio (A-03 da auditoria 39)."""
@@ -481,6 +511,10 @@ def rodar(mv: MV, quais: list[str] | None = None) -> dict:
             out["programados"] = prog
     except Exception as e:  # noqa: BLE001
         out["programados"] = {"erro": repr(e)}
+    try:
+        out["nos"] = sinal_de_vida(mv)
+    except Exception as e:  # noqa: BLE001
+        out["nos"] = {"erro": repr(e)}
     try:
         out["rotina"] = conferir_rotina(mv)
     except Exception as e:  # noqa: BLE001
