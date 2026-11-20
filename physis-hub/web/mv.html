@@ -63,6 +63,11 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 .barra{height:8px;background:var(--linha);border-radius:99px;overflow:hidden}.barra i{display:block;height:100%;background:var(--logo)}
 .muted{color:var(--texto2);font-size:.88rem}
 .aviso{background:var(--inf);color:var(--in);padding:.6rem .8rem;border-radius:10px;margin-bottom:1rem}
+.upl{margin:1rem 0}.upl h2{margin-top:0}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;min-height:96px;padding:1rem;border:2px dashed var(--linha);border-radius:12px;background:var(--areia);cursor:pointer;text-align:center}
+.drop.sobre{border-color:var(--acao);background:var(--sup)}
+.drop input[type=file]{max-width:100%}
+.previa{margin-top:.75rem}
 [hidden]{display:none!important}
 @media (max-width:700px){.kanban{grid-template-columns:repeat(5,80vw)}}
 </style>
@@ -110,7 +115,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
   <section id="v-matriz" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="tarefas"></span></div><div class="tabwrap" id="matriz"></div></section>
   <section id="v-roadmap" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="saude"></span></div><div id="roadmap" class="roadmap"></div></section>
   <section id="v-alertas" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="alertas"></span></div><div class="tabwrap" id="alertas"></div></section>
-  <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div class="tabwrap" id="documentos"></div></section>
+  <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div id="upDocumentos"></div><div class="tabwrap" id="documentos"></div></section>
   <section id="v-editais" role="tabpanel" hidden>
     <p class="muted">Cada proposta tem etapa, necessidades (documentos exigidos, exigências formais, parceiro e documentos-padrão), responsável e decisão. Nada é enviado pelo sistema: "Enviada" é marcada por quem enviou, depois da autorização da dona.</p>
     <div class="ferr">
@@ -122,6 +127,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
     </div>
     <div class="tabwrap" id="editais"></div>
     <div id="edFicha" class="card" hidden style="margin-top:1rem"></div>
+    <div id="upEditais"></div>
   </section>
   <section id="v-financeiro" role="tabpanel" hidden>
     <p class="muted">Cada entidade é mostrada separada e nunca somada às outras. "A conferir" só vira "oficial" depois que o contador confere (D70).</p>
@@ -136,6 +142,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
       <label>Fonte <input type="text" name="fonte" placeholder="contrato, invoice, planilha…"></label>
       <button class="btn prim">Lançar (a conferir)</button>
     </form>
+    <div id="upFinancas"></div>
   </section>
 </main>
 <footer>Physis Engineering · Physis M&amp;A · Casa Physis · Instituto Physis · InovaSTEM</footer>
@@ -219,13 +226,14 @@ $("#tema").onchange=e=>{tema(e.target.value);render(atual)};
 document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=MOCK?'<span class="muted">Downloads ODS/ODT/PDF na versão com servidor.</span>':["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}&idioma=${IDI}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
 $("#idioma").value=IDI;$("#idioma").onchange=e=>{try{localStorage.setItem("physis-pref-idioma",e.target.value)}catch(x){}location.reload();};
 EN["Downloads ODS/ODT/PDF na versão com servidor."]="ODS/ODT/PDF downloads in the server version.";
+EN["Enviar editais (CSV do banco) ou o arquivo do edital"]="Upload calls (bank CSV) or the call document";EN["Anexar documentos"]="Attach documents";EN["Importar lançamentos ou guardar extratos"]="Import entries or store statements";EN["Arraste arquivos aqui ou clique para escolher"]="Drag files here or click to choose";EN["Vincular a"]="Link to";EN["(sem vínculo)"]="(no link)";EN["Baixar modelo CSV"]="Download CSV template";EN["Arquivo"]="File";EN["Vínculo"]="Link";EN["Enviado"]="Uploaded";EN["Situação"]="Status";EN["Ações"]="Actions";EN["Ver prévia"]="Preview";EN["Baixar"]="Download";EN["Descartar"]="Discard";EN["aguardando prévia"]="awaiting preview";EN["guardado"]="stored";EN["aplicado"]="applied";EN["descartado"]="discarded";EN["Nenhum arquivo enviado ainda."]="No files uploaded yet.";EN["Prévia (versão de teste: nada foi gravado ainda)"]="Preview (test version: nothing saved yet)";EN["Aplicar (gravar no banco)"]="Apply (save to database)";EN["Fechar prévia"]="Close preview";EN["Linhas com erro (não entram)"]="Rows with errors (not imported)";EN["Arquivos deste edital (PDF, anexos, rascunhos)"]="Files for this call (PDF, annexes, drafts)";EN["Upload disponível só na versão local com servidor (os arquivos ficam guardados fora do OneDrive)."]="Upload is available only in the local server version (files are stored outside OneDrive).";
 traduz(document.body);
 let atual="saude";
 document.querySelectorAll(".aba").forEach(b=>b.onclick=()=>abrir(b.dataset.v));
 document.querySelector("[role=tablist]").addEventListener("keydown",e=>{const a=[...document.querySelectorAll(".aba")],i=a.indexOf(document.activeElement);
   if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();const n=a[(i+(e.key==="ArrowRight"?1:-1)+a.length)%a.length];n.focus();abrir(n.dataset.v);}});
 function abrir(v){atual=v;document.querySelectorAll(".aba").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
-  document.querySelectorAll("[role=tabpanel]").forEach(s=>s.hidden=s.id!=="v-"+v);render(v);}
+  document.querySelectorAll("[role=tabpanel]").forEach(s=>s.hidden=s.id!=="v-"+v);render(v);montarUploads(v);}
 const fr=()=>$("#frente").value;
 function origemDe(t){return t.origem==="semente"?"semente":(t.origem||"").startsWith("bot")?"bot":t.origem;}
 async function render(v){
@@ -309,6 +317,64 @@ function gantt(ts,marcos){const o=$("#origem").value,sc=+$("#escala").value,so=$
   $("#gantt").innerHTML=s+"</svg>";}
 ["#origem","#escala","#soCrit"].forEach(i=>$(i).onchange=()=>render("gantt"));
 let ED=[];
+// ---------------------------------------------------------------- caixas de upload (19/11/2026)
+const UPL={editais:{t:"Enviar editais (CSV do banco) ou o arquivo do edital",ac:".csv,.pdf,.odt,.ods,.docx,.xlsx",
+    d:"CSV no formato do banco (separador ;) passa por prévia e só entra com Aplicar. PDF/ODT/DOCX ficam guardados e vinculados ao edital."},
+  documentos:{t:"Anexar documentos",ac:".pdf,.odt,.ods,.odp,.docx,.xlsx,.pptx,.csv,.txt,.md,.png,.jpg,.jpeg",
+    d:"Comprovantes, atas, rascunhos e imagens, vinculados a uma tarefa ou a um documento."},
+  financas:{t:"Importar lançamentos ou guardar extratos",ac:".csv,.ods,.pdf,.png,.jpg,.jpeg",
+    d:"CSV/ODS com as colunas entidade; data; tipo; valor; descricao; projeto; fonte. Passa por prévia e entra como \"a conferir\". PDF e imagens ficam só guardados."}};
+const ESTADO_ARQ={recebido:"aguardando prévia",guardado:"guardado",aplicado:"aplicado",descartado:"descartado"};
+const kb=n=>n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB";
+function caixa(alvo,destino,o={}){const el=typeof alvo==="string"?$(alvo):alvo;if(!el)return;const c=UPL[destino],uid="u"+Math.random().toString(36).slice(2,8);
+  if(MOCK){el.innerHTML=`<div class="card upl"><h2>${esc(o.titulo||c.t)}</h2><p class="muted">Upload disponível só na versão local com servidor (os arquivos ficam guardados fora do OneDrive).</p></div>`;return;}
+  const refCampo=o.refFixa!=null?"":o.refOpcoes?`<label>Vincular a <select id="${uid}r"><option value="">(sem vínculo)</option>${o.refOpcoes.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("")}</select></label>`
+    :`<label>Vincular a <input type="text" id="${uid}r" list="${uid}l" placeholder="tarefa ou documento (opcional)"></label><datalist id="${uid}l"></datalist>`;
+  el.innerHTML=`<div class="card upl"><h2>${esc(o.titulo||c.t)}</h2><p class="muted">${esc(c.d)} Até 10 MB por arquivo; o mesmo arquivo não é duplicado.</p>
+    <label class="drop" id="${uid}d"><strong>Arraste arquivos aqui ou clique para escolher</strong><span class="muted">${esc(c.ac.replaceAll(","," "))}</span><input type="file" id="${uid}f" multiple accept="${c.ac}"></label>
+    <div class="ferr" style="margin-top:.5rem">${refCampo}${destino==="financas"?'<a class="btn" href="/api/mv/arquivo/modelo-financas.csv">Baixar modelo CSV</a>':""}</div>
+    <p class="muted" id="${uid}s" role="status" aria-live="polite"></p><div class="tabwrap" id="${uid}t" style="max-height:40vh"></div><div class="previa" id="${uid}p"></div></div>`;
+  const ref=()=>o.refFixa!=null?o.refFixa:(($("#"+uid+"r")||{}).value||"").trim(),st=t=>$("#"+uid+"s").textContent=t;
+  if(o.refLista)o.refLista().then(ls=>{const dl=$("#"+uid+"l");if(dl)dl.innerHTML=ls.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("");}).catch(()=>{});
+  async function lista(){const ls=await get(`/api/mv/arquivos?destino=${destino}`+(o.refFixa!=null?"&ref="+encodeURIComponent(o.refFixa):""));
+    $("#"+uid+"t").innerHTML=ls.length?`<table><thead><tr><th>Arquivo</th><th>Vínculo</th><th>Enviado</th><th>Situação</th><th>Ações</th></tr></thead><tbody>`+ls.map(a=>`<tr>
+      <td>${esc(a.nome)} <span class="muted">(${kb(a.tamanho)})</span></td><td>${esc(a.ref||"—")}</td><td>${esc(a.quando)}</td>
+      <td><span class="pill g-${a.estado==="aplicado"?"ok":a.estado==="recebido"?"atencao":"info"}">${esc(ESTADO_ARQ[a.estado]||a.estado)}</span>${a.resumo?`<div class="muted">${esc(a.resumo)}</div>`:""}</td>
+      <td>${a.importavel&&a.estado==="recebido"?`<button class="btn" data-prev="${esc(a.id)}">Ver prévia</button> `:""}<a class="btn" href="/api/mv/arquivo/baixar?id=${encodeURIComponent(a.id)}">Baixar</a>${a.estado!=="aplicado"&&a.estado!=="descartado"?` <button class="btn" data-desc="${esc(a.id)}">Descartar</button>`:""}</td></tr>`).join("")+`</tbody></table>`
+      :'<p class="muted" style="padding:.5rem">Nenhum arquivo enviado ainda.</p>';
+    el.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>previa(b.dataset.prev));
+    el.querySelectorAll("[data-desc]").forEach(b=>b.onclick=async()=>{const r=await post("/api/mv/arquivo/descartar",{id:b.dataset.desc});st(r.erro?"Erro: "+r.erro:"Arquivo descartado (continua guardado para auditoria).");$("#"+uid+"p").innerHTML="";lista();});}
+  async function previa(id){const pv=$("#"+uid+"p");pv.innerHTML='<p class="muted">Lendo a planilha…</p>';const r=await get("/api/mv/arquivo/previa?id="+encodeURIComponent(id));
+    if(r.erro){pv.innerHTML=`<p class="aviso">Erro: ${esc(r.erro)}</p>`;return;}
+    let h=`<h3>Prévia (versão de teste: nada foi gravado ainda)</h3>`;
+    if(r.destino==="editais"){h+=`<p><span class="pill g-ok">${r.novos} novo(s)</span><span class="pill g-info">${r.atualizados} atualiza(m) ficha existente</span> de ${r.total} linha(s). Etapas, decisões e necessidades já trabalhadas são mantidas.</p>
+      <div class="tabwrap" style="max-height:40vh"><table><thead><tr><th>Edital</th><th>Prazo</th><th>Situação</th></tr></thead><tbody>${r.itens.map(i=>`<tr><td>${esc(i.titulo)}</td><td>${esc(i.prazo)}</td><td>${esc(i.situacao)}</td></tr>`).join("")}</tbody></table></div>`;}
+    else{h+=`<p><span class="pill g-ok">${r.validas} válida(s)</span><span class="pill g-info">${r.ja_lancados} já lançada(s), serão ignoradas</span><span class="pill g-alerta">${r.invalidas.length} com erro</span></p><p class="muted">${esc(r.aviso)}</p>
+      <div class="tabwrap" style="max-height:40vh"><table><thead><tr><th>Linha</th><th>Entidade</th><th>Data</th><th>Tipo</th><th>Valor (R$)</th><th>Descrição</th><th>Fonte</th><th></th></tr></thead><tbody>${r.itens.map(i=>`<tr><td>${i.linha}</td><td>${esc(i.entidade)}</td><td>${esc(i.data)}</td><td>${esc(i.tipo)}</td>
+      <td>${i.valor.toLocaleString("pt-BR",{minimumFractionDigits:2})}</td><td>${esc(i.descricao)}</td><td>${esc(i.fonte)}</td><td>${i.ja_lancado?'<span class="pill g-info">já lançado</span>':""}</td></tr>`).join("")}</tbody></table></div>`+
+      (r.invalidas.length?`<h3>Linhas com erro (não entram)</h3><ul>${r.invalidas.map(x=>`<li>Linha ${x.linha}: ${esc(x.erro)}</li>`).join("")}</ul>`:"");}
+    h+=`<div class="ferr"><button class="btn prim" id="${uid}a">Aplicar (gravar no banco)</button><button class="btn" id="${uid}x">Fechar prévia</button></div>`;pv.innerHTML=h;
+    $("#"+uid+"x").onclick=()=>pv.innerHTML="";
+    $("#"+uid+"a").onclick=async()=>{$("#"+uid+"a").disabled=true;const a=await post("/api/mv/arquivo/aplicar",{id});
+      if(a.erro){st("Erro: "+a.erro);$("#"+uid+"a").disabled=false;return;}st("Aplicado: "+a.resultado);pv.innerHTML="";lista();if(o.depois)o.depois();};}
+  async function enviar(files){for(const f of files){st(`Enviando ${f.name}…`);
+      if(f.size>10*1048576){st(`${f.name}: maior que 10 MB, não enviado.`);continue;}
+      const b64=await new Promise((ok,er)=>{const fr=new FileReader();fr.onload=()=>ok(String(fr.result).split(",")[1]||"");fr.onerror=er;fr.readAsDataURL(f);});
+      const r=await fetch("/api/mv/arquivo/enviar",{method:"POST",headers:H,body:JSON.stringify({destino,nome:f.name,conteudo:b64,ref:ref()})}).then(x=>x.json()).catch(e=>({erro:String(e)}));
+      st(r.erro?`${f.name}: ${r.erro}`:r.duplicado?`${f.name}: já estava guardado (mesmo conteúdo).`:`${f.name}: recebido.`+(r.importavel?" Confira a prévia antes de aplicar.":""));
+      if(!r.erro&&r.importavel&&!r.duplicado)await previa(r.id);}
+    lista();}
+  const fi=$("#"+uid+"f"),dz=$("#"+uid+"d");fi.onchange=()=>{enviar([...fi.files]);fi.value="";};
+  ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("sobre");}));
+  ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("sobre");}));
+  dz.addEventListener("drop",e=>enviar([...e.dataTransfer.files]));
+  lista();}
+const tarefasRef=()=>get("/api/mv/gantt").then(ts=>ts.map(t=>[t.id,t.titulo]));
+const montadas={};
+function montarUploads(v){if(montadas[v])return;montadas[v]=true;
+  if(v==="editais")caixa("#upEditais","editais",{depois:editais});
+  if(v==="documentos")caixa("#upDocumentos","documentos",{refLista:tarefasRef});
+  if(v==="financeiro")caixa("#upFinancas","financas",{refOpcoes:[["casa","Casa Physis"],["engineering","Physis Engineering"],["instituto","Instituto Physis"],["pessoa_fisica","Pessoa física (lote)"]],depois:()=>{CACHE.saude=null;render("financeiro");}});}
 async function editais(){ED=await get("/api/mv/editais");tabelaEditais();}
 function tabelaEditais(){const et=$("#edEtapa").value,ad=$("#edAd").value,pz=$("#edPrazo").value,b=$("#edBusca").value.toLowerCase();
   const ls=ED.filter(d=>(!fr()||d.frente===fr())&&(!et||["decidir","preparar","revisao","enviada"].includes(d.etapa))&&(!ad||["alta","media"].includes(d.aderencia))
@@ -338,6 +404,7 @@ function ficha(id){const d=ED.find(x=>x.id===id);if(!d)return;const f=$("#edFich
   f.querySelectorAll("[data-necr]").forEach(c=>c.onchange=()=>up({necessidade:{id:c.dataset.necr,responsavel:c.value}}));
   $("#fAdd").onclick=()=>{const t=$("#fNova").value.trim();if(t)up({necessidade:{novo:t}});};
   $("#fAddP").onclick=()=>{const t=$("#fPerg").value.trim();if(t)up({pergunta:t});};
+  f.insertAdjacentHTML("beforeend",'<div id="fUp"></div>');caixa("#fUp","editais",{refFixa:id,titulo:"Arquivos deste edital (PDF, anexos, rascunhos)"});
   f.scrollIntoView({behavior:"smooth"});}
 const ETP={};["#edEtapa","#edAd","#edPrazo"].forEach(i=>$(i).onchange=tabelaEditais);$("#edBusca").oninput=tabelaEditais;
 $("#frente").onchange=()=>render(atual);

@@ -17,12 +17,14 @@ from urllib.parse import parse_qs, urlparse
 
 from . import documentos
 from . import mv_bots
+from . import mv_arquivos
 from . import mv_editais
 from .mv import ESTADOS, FRENTES, MV, NOMES_ESTADO, ErroMV
 
 WEB = Path(__file__).resolve().parents[1] / "web"
 PORTA = int(os.environ.get("PHYSIS_MV_PORTA") or 8710)
 CORPO_MAX = 256 * 1024
+CORPO_UPLOAD = 15 * 1024 * 1024      # 10 MB em base64
 _TRAVA = threading.Lock()
 NOME_FRENTE = {f[0]: f[1] for f in FRENTES}
 
@@ -86,6 +88,7 @@ def exportar(mv: MV, vista: str, formato: str) -> tuple[bytes, str, str]:
 
 def fabricar(mv: MV):
     ed = mv_editais.Editais(mv)
+    arq = mv_arquivos.Arquivos(mv)
     class H(BaseHTTPRequestHandler):
         server_version = "PhysisMV/teste"
 
@@ -139,9 +142,16 @@ def fabricar(mv: MV):
                              "/api/mv/meta": lambda: {"frentes": [{"id": a, "nome": b, "descricao": c} for a, b, c in FRENTES],
                                                       "estados": [{"id": e, "nome": NOMES_ESTADO[e]} for e in ESTADOS],
                                                       "etapas": [{"id": e, "nome": mv_editais.NOMES_ETAPA[e]} for e in mv_editais.ETAPAS]},
-                             "/api/mv/editais": lambda: ed.listar()}
+                             "/api/mv/editais": lambda: ed.listar(),
+                             "/api/mv/arquivos": lambda: arq.listar(q.get("destino") or None, q.get("ref") or None),
+                             "/api/mv/arquivo/previa": lambda: arq.previa(q.get("id", ""))}
                     if p in rotas:
                         return self._json(200, rotas[p]())
+                    if p == "/api/mv/arquivo/baixar":
+                        b, nome = arq.conteudo(q.get("id", ""))
+                        return self._bytes(b, "application/octet-stream", mv_arquivos.nome_seguro(nome))
+                    if p == "/api/mv/arquivo/modelo-financas.csv":
+                        return self._bytes(mv_arquivos.MODELO_FINANCAS.encode("utf-8-sig"), "text/csv; charset=utf-8", "modelo-financas.csv")
                     if p == "/api/mv/exportar":
                         b, tipo, nome = exportar(mv, q.get("vista", "tarefas"), q.get("formato", "ods"))
                         return self._bytes(b, tipo, nome)
@@ -152,14 +162,14 @@ def fabricar(mv: MV):
         def do_POST(self):  # noqa: N802
             if not self._host_ok() or self.headers.get("X-Physis-MV") != "1":
                 return self._json(403, {"erro": "pedido recusado"})
+            p = urlparse(self.path).path
             n = int(self.headers.get("Content-Length") or 0)
-            if n > CORPO_MAX:
+            if n > (CORPO_UPLOAD if p == "/api/mv/arquivo/enviar" else CORPO_MAX):
                 return self._json(413, {"erro": "corpo grande demais"})
             try:
                 corpo = json.loads(self.rfile.read(n) or b"{}")
             except ValueError:
                 return self._json(400, {"erro": "JSON inválido"})
-            p = urlparse(self.path).path
             try:
                 with _TRAVA:
                     if p == "/api/mv/estado":
@@ -174,6 +184,13 @@ def fabricar(mv: MV):
                         mv.db.execute("UPDATE mv_alerta SET resolvido=strftime('%s','now') WHERE id=?", (str(corpo.get("id")),))
                         mv.db.commit()
                         return self._json(200, {"ok": True})
+                    if p == "/api/mv/arquivo/enviar":
+                        return self._json(200, arq.enviar(str(corpo.get("destino")), str(corpo.get("nome") or ""),
+                                                          str(corpo.get("conteudo") or ""), str(corpo.get("ref") or "")))
+                    if p == "/api/mv/arquivo/aplicar":
+                        return self._json(200, arq.aplicar(str(corpo.get("id"))))
+                    if p == "/api/mv/arquivo/descartar":
+                        return self._json(200, arq.descartar(str(corpo.get("id"))))
                     if p == "/api/mv/bots/rodar":
                         quais = [x for x in (corpo.get("quais") or []) if x in mv_bots.BOTS] or None
                         return self._json(200, mv_bots.rodar(mv, quais))
