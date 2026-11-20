@@ -35,6 +35,14 @@ PAGINAS = [  # (caminho relativo, tipo)
     ("app-nativo/site/baixar.html", "app · download"),
 ]
 INOVASTEM = re.compile(r"inovastem", re.I)
+# sistema do Instituto (outro repositório): as mesmas regras, e a barra tem de ser IDÊNTICA à original da Physis (dona, 20/11/2026)
+INSTITUTO = Path(os.environ.get("PHYSIS_RAIZ_INSTITUTO") or r"C:\physis\instituto-physis")
+PAGINAS_INSTITUTO = [
+    ("physis-hub/web/site.html", "Instituto · site"), ("physis-hub/web/painel.html", "Instituto · plataforma"),
+    ("physis-hub/web/documento.html", "Instituto · documento"), ("physis-hub/web/municipio.html", "Instituto · municípios"),
+    ("sistema/gestao-interna-physis.html", "Instituto · Gestão"), ("sistema/SustainKit_Definitivo.html", "Instituto · SustainKit"),
+    ("sistema/physis-scada-demo.html", "Instituto · SCADA"),
+]
 
 
 def paleta() -> set[str]:
@@ -103,17 +111,21 @@ def conferir(html: str, nome: str, pal: set[str], original: str = "") -> list[di
     return itens
 
 
-def rodar(mv: MV, raiz: Path | None = None, extras: list[tuple[str, str]] | None = None) -> dict:
+def rodar(mv: MV, raiz: Path | None = None, extras: list[tuple[str, str]] | None = None, instituto: Path | None = None) -> dict:
     mv.db.executescript(ESQUEMA)
     raiz = Path(raiz or RAIZ)
     pal = paleta()
+    original = barra_original(raiz)
     inicio = mv.nova_rodada()
     out = []
-    for rel, tipo in PAGINAS + list(extras or []):
-        p = raiz / rel
+    inst = Path(instituto or INSTITUTO)
+    alvos = [(raiz / rel, rel, tipo) for rel, tipo in PAGINAS + list(extras or [])]
+    if inst.is_dir():
+        alvos += [(inst / rel, "instituto:" + rel, tipo) for rel, tipo in PAGINAS_INSTITUTO]
+    for p, rel, tipo in alvos:
         if not p.is_file():
             continue
-        itens = conferir(p.read_text(encoding="utf-8", errors="replace"), rel, pal, barra_original(raiz))
+        itens = conferir(p.read_text(encoding="utf-8", errors="replace"), rel, pal, original)
         ok = sum(i["ok"] for i in itens)
         falhas = [i for i in itens if not i["ok"]]
         mv.db.execute("INSERT OR REPLACE INTO mv_pagina VALUES (?,?,?,?,?,?,?)",
