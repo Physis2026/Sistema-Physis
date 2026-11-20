@@ -11,6 +11,7 @@ import base64
 import hmac
 import ipaddress
 import json
+import re
 import os
 import secrets
 import socket
@@ -195,6 +196,10 @@ def fabricar(mv: MV):
                         return self._bytes((WEB / "mv.html").read_bytes(), "text/html; charset=utf-8")
                     if p == "/logo.png" and (WEB / "logo-physis.png").is_file():   # logo atualizado (árvore, 19/11/2026)
                         return self._bytes((WEB / "logo-physis.png").read_bytes(), "image/png")
+                    m_logo = re.match(r"^/logos/([a-z-]+_(?:clara|escura)\.(svg|png))$", p)
+                    if m_logo and (WEB / "logos" / m_logo.group(1)).is_file():   # logos vazadas aprovadas (20/11/2026)
+                        return self._bytes((WEB / "logos" / m_logo.group(1)).read_bytes(),
+                                           "image/svg+xml" if m_logo.group(2) == "svg" else "image/png")
                     if p.startswith("/vendor/") and p[8:] in VENDOR_OK and (VENDOR / p[8:]).is_file():
                         return self._bytes((VENDOR / p[8:]).read_bytes(), "text/javascript; charset=utf-8")
                     if p == "/icone.png" and (WEB / "app" / "icone-192.png").is_file():   # logo Physis no cabeçalho

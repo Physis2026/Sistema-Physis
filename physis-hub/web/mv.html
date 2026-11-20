@@ -30,7 +30,8 @@ h2{font:600 1.2rem/1.25 var(--f-titulo);letter-spacing:.02em;margin:1.2rem 0 .5r
 h3{font:700 1rem/1.3 var(--f-corpo);margin:.6rem 0 .35rem}
 header{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:4px solid var(--semente);background:var(--sup)}
 .marca{display:flex;align-items:center;gap:.75rem}
-.marca img{width:44px;height:44px;border-radius:10px}
+.marca img{width:52px;height:56px;object-fit:contain}
+.logo-escura{display:none}html[data-tema="escuro"] .logo-clara{display:none}html[data-tema="escuro"] .logo-escura{display:block}
 .assina{font-size:.8rem;color:var(--texto2);letter-spacing:.04em;margin:.1rem 0 0}
 footer{border-top:1px solid var(--linha);padding:1rem 1.25rem;color:var(--texto2);font-size:.85rem;text-align:center;background:var(--sup)}
 .demo{background:#F6EAD0;color:#8A6410;padding:.5rem 1.25rem;font-weight:600;text-align:center}
@@ -112,7 +113,7 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="faixa"><span>Physis Engineering · Physis M&amp;A</span><span>versão de teste · nada é enviado para fora sem aprovação</span></div>
 <header>
-  <div class="marca"><img id="logo" src="/logo.png" alt="Physis Engineering" onerror="this.hidden=true">
+  <div class="marca"><img id="logo" class="logo-clara" src="/logos/physis-engineering_clara.svg" alt="Physis Engineering"><img class="logo-escura" src="/logos/physis-engineering_escura.svg" alt="" aria-hidden="true">
     <div><h1>Physis M&amp;A <span class="selo">versão de teste</span></h1><p class="assina">Physis Engineering · gestão e monitoramento integrados</p></div></div>
   <div id="pp-lugar" data-physis-preferencias="lugar"></div>
   <div class="ferr" style="margin:0">
@@ -270,7 +271,7 @@ const post=(p,b)=>MOCK?Promise.resolve(mockPost(p,b)):fetch(p,{method:"POST",hea
 if(MOCK){document.body.insertAdjacentHTML("afterbegin",MOCK.modo==="real"
     ?`<p class="demo" role="note">CÓPIA DE LEITURA · dados reais de ${esc(MOCK.gerado_em||"")} · alterações aqui não são gravadas no sistema</p>`
     :'<p class="demo" role="note">DEMONSTRAÇÃO · dados fictícios · nada é gravado</p>');
-  const lg=document.getElementById("logo");if(lg&&MOCK.logo){lg.src=MOCK.logo;lg.hidden=false;}}
+  const lg=document.getElementById("logo");if(lg&&MOCK.logo&&!MOCK.logo_vazadas){lg.src=MOCK.logo;lg.hidden=false;}}
 // Idioma PT/EN: traduz textos fixos e frases da interface (os dados — títulos de tarefas, editais — ficam no idioma original)
 const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Automatic","Claro":"Light","Escuro":"Dark","Rodar bots agora":"Run bots now",
 "Todas as frentes":"All fronts","versão de teste":"test version","Physis Engineering · gestão e monitoramento integrados":"Physis Engineering · integrated management and monitoring",
