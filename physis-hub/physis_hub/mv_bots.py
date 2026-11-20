@@ -21,7 +21,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from . import mv as mvmod
-from .mv import MV, HOJE
+from .mv import MV
 
 DOCS = Path(os.environ.get("PHYSIS_DOCS") or (Path.home() / "OneDrive - Physis Engineering" / "Documents"))
 RAIZES = ("Casa Physis", "Sistema Physis", "Instituto Physis")
@@ -156,7 +156,7 @@ def conferir_texto(texto: str) -> tuple[list[dict], int]:
 # ---------------------------------------------------------------------------------------------- bot de documentos
 def bot_documentos(mv: MV, raizes: list[Path] | None = None, hoje: date | None = None) -> dict:
     inicio = mv.nova_rodada()
-    hoje = hoje or HOJE()
+    hoje = hoje or mvmod.HOJE()
     raizes = raizes or [DOCS / r for r in RAIZES]
     vistos, falhas_n, vencidos, modelos = 0, 0, {}, {}
     for raiz in raizes:
@@ -182,7 +182,7 @@ def bot_documentos(mv: MV, raizes: list[Path] | None = None, hoje: date | None =
                 gerador = isinstance(interna, tuple)
                 if not gerador and interna and interna < mod:   # cópia recente de conteúdo antigo: vale a data de dentro
                     mod = interna
-                idade = (hoje - mod).days
+                idade = max(0, (hoje - mod).days)
                 tipo = tipo_de(a, ext)
                 fr = frente_de(str(p))
                 falhas, marc = ([], 0) if SEM_REGRAS.match(a) else conferir_texto(texto_de(p))
@@ -259,7 +259,7 @@ def marcos_estourados_por(t: dict, k: dict, marcos: dict) -> list[tuple[str, str
 
 def bot_atrasos(mv: MV, hoje: date | None = None) -> dict:
     inicio = mv.nova_rodada()
-    hoje = hoje or HOJE()
+    hoje = hoje or mvmod.HOJE()
     cpm = mv.cpm()
     crit = set(cpm["criticos"])
     ts = {t["id"]: t for t in mv.tarefas()}
@@ -325,7 +325,7 @@ def bot_atrasos(mv: MV, hoje: date | None = None) -> dict:
 # ------------------------------------------------------------------------------------------------- resumo diário
 def resumo(mv: MV, saida: Path | None = None, hoje: date | None = None) -> dict:
     inicio = mv.nova_rodada()
-    hoje = hoje or HOJE()
+    hoje = hoje or mvmod.HOJE()
     saida = Path(saida or SAIDA) / "resumos"
     saida.mkdir(parents=True, exist_ok=True)
     s = mv.saude()
@@ -371,7 +371,51 @@ def resumo(mv: MV, saida: Path | None = None, hoje: date | None = None) -> dict:
     return r
 
 
-BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo}
+# ------------------------------------------------------------------------------------------- cópia de segurança
+BACKUP_DIR = Path(os.environ.get("PHYSIS_MV_BACKUP") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "backup"))
+BACKUP_DIAS = 30
+
+
+def backup(mv: MV, destino: Path | None = None, hoje: date | None = None) -> dict:
+    """Cópia diária consistente do banco (VACUUM INTO) numa pasta do OneDrive, mantendo 30 dias (doc 32, item 6.6, decisão de
+    18/11/2026). Confere a cópia com integrity_check; aos domingos (e na 1ª cópia) testa a restauração comparando as contagens
+    das tabelas. O banco ativo continua fora do OneDrive (a sincronização corrompe SQLite em uso)."""
+    import sqlite3
+    inicio = mv.nova_rodada()
+    hoje = hoje or mvmod.HOJE()
+    pasta = Path(destino or BACKUP_DIR)
+    pasta.mkdir(parents=True, exist_ok=True)
+    primeira = not any(pasta.glob("physis-mv-*.db"))
+    alvo = pasta / f"physis-mv-{hoje.isoformat()}.db"
+    tmp = pasta / f"physis-mv-{hoje.isoformat()}.tmp"
+    tmp.unlink(missing_ok=True)
+    mv.db.execute("VACUUM INTO ?", (str(tmp),))
+    c = sqlite3.connect(tmp)
+    ok = c.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    restauro = None
+    if hoje.weekday() == 6 or primeira:
+        tabelas = [r[0] for r in mv.db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'mv_%'")]
+        restauro = all(mv.db.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] ==
+                       c.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in tabelas)
+    c.close()
+    if not ok or restauro is False:
+        tmp.unlink(missing_ok=True)
+        mv.alertar("backup", "falha", hoje.isoformat(), "alerta", f"Cópia de segurança de {hoje} falhou na conferência",
+                   "Ver o disco e o OneDrive; rodar de novo")
+        r = {"ok": False}
+    else:
+        tmp.replace(alvo)
+        antigas = sorted(pasta.glob("physis-mv-*.db"))[:-BACKUP_DIAS]
+        for a in antigas:
+            a.unlink(missing_ok=True)
+        mv.fechar_alertas_nao_vistos("backup", inicio)
+        r = {"ok": True, "arquivo": str(alvo), "mb": round(alvo.stat().st_size / 1e6, 2), "restauracao_testada": restauro,
+             "removidas": len(antigas)}
+    mv.registrar_execucao("backup", inicio, mvmod.json.dumps(r))
+    return r
+
+
+BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup}
 
 
 def rodar(mv: MV, quais: list[str] | None = None) -> dict:

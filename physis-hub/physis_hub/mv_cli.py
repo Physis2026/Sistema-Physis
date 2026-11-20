@@ -25,7 +25,7 @@ def comandos_agenda() -> list[list[str]]:
     base = f'cmd /c cd /d "{RAIZ_HUB}" && "{py}" -m physis_hub.mv_cli'
     return [
         ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots atrasos documentos"],
-        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo"],
+        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo backup"],
         ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\painel", "/TR", f"{base} servir"],
     ]
 
@@ -37,6 +37,8 @@ def main(argv=None) -> int:
     i = sub.add_parser("importar")
     i.add_argument("arquivo")
     i.add_argument("--frente", default="engineering")
+    ie = sub.add_parser("importar-editais")
+    ie.add_argument("arquivo")
     b = sub.add_parser("bots")
     b.add_argument("quais", nargs="*")
     s = sub.add_parser("servir")
@@ -58,6 +60,9 @@ def main(argv=None) -> int:
         n = mv.importar_gestao(a.arquivo, frente=a.frente)
         print(json.dumps({"frente": a.frente, "importadas": n,
                           "ausentes_do_arquivo": mv.ausentes_da_gestao(a.arquivo, a.frente)}, ensure_ascii=False))
+    elif a.cmd == "importar-editais":
+        from . import mv_editais
+        print(json.dumps(mv_editais.Editais(mv).importar_csv(a.arquivo), ensure_ascii=False))
     elif a.cmd == "bots":
         print(json.dumps(mv_bots.rodar(mv, a.quais or None), ensure_ascii=False, indent=1))
     elif a.cmd == "servir":

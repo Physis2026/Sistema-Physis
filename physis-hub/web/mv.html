@@ -15,7 +15,12 @@ html[data-tema="escuro"]{--fundo:#1C2B21;--sup:#2A3829;--texto:#EEF2EA;--texto2:
 body{margin:0;background:var(--fundo);color:var(--texto);font:15px/1.45 Inter,system-ui,"Segoe UI",sans-serif}
 h1{font:600 1.6rem/1.2 Fraunces,Georgia,serif;color:var(--acao);margin:0}
 h2{font:600 1.15rem Fraunces,Georgia,serif;margin:1.2rem 0 .5rem}
-header{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--linha);background:var(--sup)}
+header{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:4px solid #B9A97F;background:var(--sup)}
+.marca{display:flex;align-items:center;gap:.75rem}
+.marca img{width:44px;height:44px;border-radius:10px}
+.assina{font-size:.8rem;color:var(--texto2);letter-spacing:.04em;margin:.1rem 0 0}
+footer{border-top:1px solid var(--linha);padding:1rem 1.25rem;color:var(--texto2);font-size:.85rem;text-align:center;background:var(--sup)}
+.demo{background:#F6EAD0;color:#8A6410;padding:.5rem 1.25rem;font-weight:600;text-align:center}
 .selo{display:inline-block;font-size:.75rem;padding:.15rem .5rem;border-radius:99px;background:var(--atf);color:var(--at);margin-left:.5rem;vertical-align:middle;font-family:Inter,system-ui,sans-serif}
 nav[role=tablist]{display:flex;flex-wrap:wrap;gap:.25rem;padding:.5rem 1.25rem;background:var(--sup);border-bottom:1px solid var(--linha)}
 button,select,input{font:inherit;color:inherit}
@@ -32,6 +37,12 @@ select,input[type=text]{min-height:44px;padding:.35rem .5rem;border:1px solid va
 .card{background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:.9rem}
 .nota{font:600 2rem Fraunces,Georgia,serif}
 .pill{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.78rem;margin:.1rem .15rem 0 0}
+/* cores das marcas (PALETA.md, 19/11/2026): faixa ou etiqueta, sempre com o texto indicado */
+.fr{display:inline-block;padding:.05rem .5rem;border-radius:6px;font-size:.78rem;font-weight:600;color:#FFFFFF;background:#4A4F44}
+.fr-engineering{background:#33512F}.fr-instituto{background:#0B3D2E}.fr-casa{background:#2F7D5B}
+.fr-inovastem{background:#F97316;color:#1C1E22}.fr-delas{background:#7C3AED}.fr-transversal{background:#4A4F44}
+.card.fb-engineering{border-top:6px solid #33512F}.card.fb-instituto{border-top:6px solid #0B3D2E}.card.fb-casa{border-top:6px solid #2F7D5B}
+.card.fb-inovastem{border-top:6px solid #F97316}.card.fb-transversal{border-top:6px solid #4A4F44}
 .g-alerta{background:var(--alf);color:var(--al)}.g-atencao{background:var(--atf);color:var(--at)}.g-info{background:var(--inf);color:var(--in)}.g-ok{background:var(--okf);color:var(--ok)}
 table{border-collapse:collapse;width:100%;background:var(--sup)}
 th,td{border-bottom:1px solid var(--linha);padding:.4rem .5rem;text-align:left;vertical-align:top}
@@ -58,8 +69,10 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 </head>
 <body>
 <header>
-  <h1>Physis M&amp;V <span class="selo">versão de teste</span></h1>
+  <div class="marca"><img id="logo" src="/icone.png" alt="Physis Engineering" onerror="this.hidden=true">
+    <div><h1>Physis M&amp;V <span class="selo">versão de teste</span></h1><p class="assina">Physis Engineering · gestão e monitoramento integrados</p></div></div>
   <div class="ferr" style="margin:0">
+    <label>Idioma <select id="idioma"><option value="pt">Português</option><option value="en">English</option></select></label>
     <label>Frente <select id="frente"><option value="">Todas as frentes</option></select></label>
     <label>Tema <select id="tema"><option value="auto">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
     <button class="btn prim" id="rodar">Rodar bots agora</button>
@@ -74,6 +87,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
   <button class="aba" role="tab" data-v="alertas" aria-selected="false">Alertas e intervenções</button>
   <button class="aba" role="tab" data-v="documentos" aria-selected="false">Documentos</button>
   <button class="aba" role="tab" data-v="financeiro" aria-selected="false">Financeiro</button>
+  <button class="aba" role="tab" data-v="editais" aria-selected="false">Editais e propostas</button>
 </nav>
 <main>
   <p class="aviso" id="status" role="status">Carregando…</p>
@@ -97,6 +111,18 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
   <section id="v-roadmap" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="saude"></span></div><div id="roadmap" class="roadmap"></div></section>
   <section id="v-alertas" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="alertas"></span></div><div class="tabwrap" id="alertas"></div></section>
   <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div class="tabwrap" id="documentos"></div></section>
+  <section id="v-editais" role="tabpanel" hidden>
+    <p class="muted">Cada proposta tem etapa, necessidades (documentos exigidos, exigências formais, parceiro e documentos-padrão), responsável e decisão. Nada é enviado pelo sistema: "Enviada" é marcada por quem enviou, depois da autorização da dona.</p>
+    <div class="ferr">
+      <label>Etapa <select id="edEtapa"><option value="ativas">Em andamento (decidir a enviada)</option><option value="">Todas</option></select></label>
+      <label>Aderência <select id="edAd"><option value="am">Alta e média</option><option value="">Todas</option></select></label>
+      <label>Prazo <select id="edPrazo"><option value="">Qualquer</option><option value="30">Até 30 dias</option><option value="90">Até 90 dias</option></select></label>
+      <label>Buscar <input type="text" id="edBusca" placeholder="título, financiador, tema"></label>
+      <span class="exp" data-vista="editais"></span>
+    </div>
+    <div class="tabwrap" id="editais"></div>
+    <div id="edFicha" class="card" hidden style="margin-top:1rem"></div>
+  </section>
   <section id="v-financeiro" role="tabpanel" hidden>
     <p class="muted">Cada entidade é mostrada separada e nunca somada às outras. "A conferir" só vira "oficial" depois que o contador confere (D70).</p>
     <div class="cards" id="financeiro"></div>
@@ -112,20 +138,80 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
     </form>
   </section>
 </main>
+<footer>Physis Engineering · Physis M&amp;V · Casa Physis · Instituto Physis · InovaSTEM</footer>
 <script>
 "use strict";
 const $=s=>document.querySelector(s), H={"X-Physis-MV":"1","Content-Type":"application/json"};
 const FR={},EST={};let META=null,CACHE={};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const get=p=>fetch(p,{cache:"no-store"}).then(r=>r.json());
-const post=(p,b)=>fetch(p,{method:"POST",headers:H,body:JSON.stringify(b)}).then(r=>r.json());
+// Modo DEMO (mock): com window.MV_MOCK a tela funciona sem servidor, com dados fictícios embutidos (ferramenta mv_mock.py)
+const MOCK=window.MV_MOCK||null;
+function mockGet(p){const u=new URL(p,"http://x/"),fr=u.searchParams.get("frente"),d=JSON.parse(JSON.stringify(MOCK[u.pathname]));
+  if(fr&&Array.isArray(d))return d.filter(t=>t.frente===fr);
+  if(fr&&u.pathname==="/api/mv/kanban"){for(const k in d)d[k]=d[k].filter(t=>t.frente===fr);}return d;}
+function mockPost(p,b){if(p==="/api/mv/estado"){for(const k in MOCK["/api/mv/kanban"]){const L=MOCK["/api/mv/kanban"][k],i=L.findIndex(t=>t.id===b.id);
+    if(i>=0){const t=L.splice(i,1)[0];t.estado=b.estado;t.bloqueio=b.bloqueio||"";MOCK["/api/mv/kanban"][b.estado].push(t);return t;}}}
+  if(p==="/api/mv/edital"){const e=MOCK["/api/mv/editais"].find(x=>x.id===b.id);if(b.etapa)e.etapa=b.etapa;["responsavel","decisao","notas"].forEach(k=>{if(k in b)e[k]=b[k]});
+    if(b.necessidade){const n=e.necessidades.find(x=>x.id===b.necessidade.id);if(n&&"feito" in b.necessidade)n.feito=b.necessidade.feito;
+      if(b.necessidade.novo)e.necessidades.push({id:String(Date.now()),item:b.necessidade.novo,origem:"manual",feito:false,responsavel:""});}
+    if(b.pergunta)e.perguntas.push({texto:b.pergunta,quando:new Date().toISOString().slice(0,10)});
+    e.pronto_pct=Math.round(100*e.necessidades.filter(x=>x.feito).length/Math.max(1,e.necessidades.length));return e;}
+  if(p==="/api/mv/alerta/resolver"){MOCK["/api/mv/alertas"]=MOCK["/api/mv/alertas"].filter(a=>a.id!==b.id);return {ok:true};}
+  return {demo:"Demonstração: os bots e os lançamentos só rodam na versão com servidor."};}
+const get=p=>MOCK?Promise.resolve(mockGet(p)):fetch(p,{cache:"no-store"}).then(r=>r.json());
+const post=(p,b)=>MOCK?Promise.resolve(mockPost(p,b)):fetch(p,{method:"POST",headers:H,body:JSON.stringify(b)}).then(r=>r.json());
+if(MOCK){document.body.insertAdjacentHTML("afterbegin",'<p class="demo" role="note">DEMONSTRAÇÃO · dados fictícios · nada é gravado</p>');
+  const lg=document.getElementById("logo");if(lg&&MOCK.logo)lg.src=MOCK.logo;}
+// Idioma PT/EN: traduz textos fixos e frases da interface (os dados — títulos de tarefas, editais — ficam no idioma original)
+const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Automatic","Claro":"Light","Escuro":"Dark","Rodar bots agora":"Run bots now",
+"Todas as frentes":"All fronts","versão de teste":"test version","Physis Engineering · gestão e monitoramento integrados":"Physis Engineering · integrated management and monitoring",
+"Saúde":"Health","Gantt e caminho crítico":"Gantt and critical path","Kanban":"Kanban","Matriz de pendências":"Pending matrix","Roadmap 2027–2031":"Roadmap 2027–2031",
+"Alertas e intervenções":"Alerts and interventions","Documentos":"Documents","Financeiro":"Finance","Editais e propostas":"Calls and proposals","Carregando…":"Loading…",
+"Origem":"Source","Plano Fase 0 + M&V":"Phase 0 plan + M&V","Correções (bots)":"Fixes (bots)","Gestão Fase 2 (577)":"Phase 2 management","Gestão Fase 2":"Phase 2 management","Todas":"All",
+"Só críticas, atrasadas ou em risco":"Only critical, late or at risk","Escala":"Scale","Dia (6 px)":"Day (6 px)","Dia (14 px)":"Day (14 px)","Mês (2 px/dia)":"Month (2 px/day)",
+"Planejada":"Planned","Caminho crítico":"Critical path","Prazo em risco":"Deadline at risk","Atrasada":"Late","Feita":"Done","Buscar":"Search",
+"◆ marco · linha azul = hoje · tracejado = data [CONFERIR]":"◆ milestone · blue line = today · dashed = date [TO CHECK]",
+"A fazer":"To do","Fazendo":"Doing","Bloqueada":"Blocked","Em revisão":"In review","nota de saúde":"health score","Alertas abertos":"Open alerts",
+"Últimas execuções dos bots":"Latest bot runs","Bot":"Bot","Quando":"When","Resumo":"Summary","Gravidade":"Severity","Alerta":"Alert","Intervenção sugerida":"Suggested intervention",
+"Marcar como resolvido":"Mark as resolved","intervir":"intervene","atenção":"attention","info":"info","Situação":"Status","Documento":"Document","Tipo":"Type","Idade":"Age",
+"Marcadores":"Placeholders","Falhas":"Issues","Pessoa":"Person","Total":"Total","Etapa":"Stage","Aderência":"Fit","Prazo":"Deadline","Qualquer":"Any",
+"Até 30 dias":"Up to 30 days","Até 90 dias":"Up to 90 days","Em andamento (decidir a enviada)":"In progress (decide to sent)","Alta e média":"High and medium",
+"Edital":"Call","Parceria":"Partnership","Pronto":"Ready","Verificado":"Verified","conferir":"check","não":"no","sim":"yes","Triagem":"Screening","Decidir":"Decide",
+"Preparar":"Prepare","Enviada":"Sent","Aprovada":"Approved","Reprovada":"Rejected","Arquivada":"Archived","Responsável":"Owner","Salvar etapa e responsável":"Save stage and owner",
+"Adicionar":"Add","Registrar pergunta":"Log question","Perguntas à dona":"Questions for the owner","Nenhuma":"None","Novo lançamento":"New entry","Entidade":"Entity",
+"Data":"Date","Valor (R$)":"Amount (R$)","Descrição":"Description","Fonte":"Source","Lançar (a conferir)":"Post (to be checked)","oficial":"official","a conferir":"to be checked",
+"Pessoa física (lote)":"Individual (plot)","Casa Physis":"Casa Physis","Physis Engineering":"Physis Engineering","Instituto Physis":"Instituto Physis","InovaSTEM":"InovaSTEM",
+"Transversal (M&V)":"Cross-cutting (M&V)","DEMONSTRAÇÃO · dados fictícios · nada é gravado":"DEMO · fictitious data · nothing is saved","Baixar ODS":"Download ODS",
+"Baixar ODT":"Download ODT","Baixar PDF":"Download PDF","Necessidades":"Needs","Nova necessidade":"New need","Nova pergunta":"New question","Decisão e justificativa":"Decision and rationale",
+"Notas":"Notes","Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM":"Physis Engineering · Physis M&V · Casa Physis · Instituto Physis · InovaSTEM"};
+const EN_RE=[[/^Atualizado em (.+?)\. Datas marcadas \[CONFERIR\] são estimativas até o responsável confirmar\.$/,"Updated $1. Dates marked [TO CHECK] are estimates until the owner confirms."],
+[/^(\d+) pedem intervenção$/,"$1 need intervention"],[/^(\d+) atenção$/,"$1 attention"],[/^(\d+) informação$/,"$1 info"],[/^(\d+) com falha$/,"$1 with issues"],
+[/^(\d+) vencidos$/,"$1 outdated"],[/^(\d+) em dia$/,"$1 up to date"],[/^(.+) \((\d+)\)$/,null],[/^(\d+) edital\(is\)\. Clique no título para abrir a ficha com as necessidades\.$/,"$1 call(s). Click a title to open its needs sheet."],
+[/^(\d+) d$/,"$1 d"],[/^encerrado$/,"closed"],[/^Nada para mostrar com esses filtros\.$/,"Nothing to show with these filters."]];
+let IDI="pt";try{IDI=localStorage.getItem("physis-pref-idioma")||"pt"}catch(e){}
+Object.assign(EN,{"Estado":"Status","título ou pessoa":"title or person","título, financiador, tema":"title, funder, topic","prazo":"due","sem responsável":"no owner"});
+const EN_GERAL=[[/ · prazo /g," · due "],[/\bprazo (\d{4}-)/g,"due $1"],[/\[CONFERIR\]/g,"[TO CHECK]"],[/sem responsável/g,"no owner"],[/ feitas \(/g," done ("],
+  [/ atrasadas · /g," late · "],[/ bloqueadas · /g," blocked · "],[/ em risco · /g," at risk · "],[/ datas \[TO CHECK\]/g," dates [TO CHECK]"]];
+function trTexto(s){const k=s.trim();if(!k)return s;if(EN[k])return s.replace(k,EN[k]);
+  for(const [re,rep] of EN_RE){if(rep&&re.test(k))return s.replace(k,k.replace(re,rep));
+    if(!rep){const m=k.match(re);if(m&&EN[m[1]])return s.replace(k,EN[m[1]]+" ("+m[2]+")");}}
+  let r=s;for(const [re,rep] of EN_GERAL)r=r.replace(re,rep);return r;}
+function traduz(raiz){if(IDI!=="en")return;const w=document.createTreeWalker(raiz,NodeFilter.SHOW_TEXT);let n;
+  while((n=w.nextNode())){if(n.parentElement&&/^(SCRIPT|STYLE)$/.test(n.parentElement.tagName))continue;const t=trTexto(n.data);if(t!==n.data)n.data=t;}
+  raiz.querySelectorAll&&raiz.querySelectorAll("[placeholder],[aria-label]").forEach(e=>{["placeholder","aria-label"].forEach(a=>{const v=e.getAttribute(a);if(v&&EN[v])e.setAttribute(a,EN[v]);});});}
+new MutationObserver(ms=>{if(IDI!=="en")return;ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)traduz(n);else if(n.nodeType===3){const t=trTexto(n.data);if(t!==n.data)n.data=t;}}));})
+  .observe(document.body,{childList:true,subtree:true});
+document.documentElement.lang=IDI==="en"?"en":"pt-BR";
 function status(t){$("#status").textContent=t;}
 function tema(v){try{localStorage.setItem("physis-pref-tema",v)}catch(e){}
   const esc=v==="escuro"||(v==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.tema=esc?"escuro":"claro";}
 let t0="auto";try{t0=localStorage.getItem("physis-pref-tema")||"auto"}catch(e){} $("#tema").value=t0;tema(t0);
 $("#tema").onchange=e=>{tema(e.target.value);render(atual)};
-document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
+document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=MOCK?'<span class="muted">Downloads ODS/ODT/PDF na versão com servidor.</span>':["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}&idioma=${IDI}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
+$("#idioma").value=IDI;$("#idioma").onchange=e=>{try{localStorage.setItem("physis-pref-idioma",e.target.value)}catch(x){}location.reload();};
+EN["Downloads ODS/ODT/PDF na versão com servidor."]="ODS/ODT/PDF downloads in the server version.";
+traduz(document.body);
 let atual="saude";
 document.querySelectorAll(".aba").forEach(b=>b.onclick=()=>abrir(b.dataset.v));
 document.querySelector("[role=tablist]").addEventListener("keydown",e=>{const a=[...document.querySelectorAll(".aba")],i=a.indexOf(document.activeElement);
@@ -141,7 +227,7 @@ async function render(v){
     let h=`<div class="cards">`;
     for(const [id,f] of Object.entries(s.frentes)){if(fr()&&fr()!==id)continue;
       const g=f.nota>=80?"ok":f.nota>=50?"atencao":"alerta";
-      h+=`<div class="card"><div class="muted">${esc(f.nome)}</div><div class="nota">${f.nota}</div><span class="pill g-${g}">nota de saúde</span>
+      h+=`<div class="card fb-${id}"><div><span class="fr fr-${id}">${esc(f.nome)}</span></div><div class="nota">${f.nota}</div><span class="pill g-${g}">nota de saúde</span>
       <p class="muted">${f.feitas}/${f.total} feitas (${f.progresso_pct}%) · ${f.atrasadas} atrasadas · ${f.bloqueadas} bloqueadas · ${f.em_risco} em risco · ${f.datas_estimadas} datas [CONFERIR]</p></div>`;}
     h+=`</div><h2>Alertas abertos</h2><p><span class="pill g-alerta">${al.alerta||0} pedem intervenção</span><span class="pill g-atencao">${al.atencao||0} atenção</span><span class="pill g-info">${al.info||0} informação</span></p>
     <h2>Documentos</h2><p><span class="pill g-alerta">${d.falha||0} com falha</span><span class="pill g-atencao">${d.vencido||0} vencidos</span><span class="pill g-ok">${d.ok||0} em dia</span></p>
@@ -173,6 +259,7 @@ async function render(v){
     $("#documentos").innerHTML=`<table><thead><tr><th>Situação</th><th>Documento</th><th>Tipo</th><th>Idade</th><th>Marcadores</th><th>Falhas</th></tr></thead><tbody>`+
     ds.map(d=>`<tr><td><span class="pill g-${d.situacao==="falha"?"alerta":d.situacao==="vencido"?"atencao":"ok"}">${esc(d.situacao)}</span></td><td>${esc(d.caminho)}</td><td>${esc(d.tipo)}</td>
     <td>${d.idade_d} d (validade ${d.validade_d})</td><td>${d.marcadores}</td><td>${d.falhas.map(f=>esc(f.texto+" ("+f.decisao+")")).join("<br>")}</td></tr>`).join("")+`</tbody></table>`;}
+  if(v==="editais"){await editais();}
   if(v==="financeiro"){const s=CACHE.saude||await get("/api/mv/saude");const nomes={casa:"Casa Physis",engineering:"Physis Engineering",instituto:"Instituto Physis",pessoa_fisica:"Pessoa física (lote)"};
     $("#financeiro").innerHTML=Object.entries(s.financeiro).map(([e,d])=>`<div class="card"><strong>${nomes[e]}</strong><p class="muted">${d.lancamentos} lançamento(s)</p>
     ${["oficial","a_conferir"].map(k=>`<p><span class="pill ${k==="oficial"?"g-ok":"g-atencao"}">${k==="oficial"?"oficial":"a conferir"}</span> ${Object.entries(d[k]).map(([t,vl])=>`${esc(t)}: R$ ${vl.toLocaleString("pt-BR",{minimumFractionDigits:2})}`).join(" · ")||"—"}</p>`).join("")}</div>`).join("");}
@@ -182,7 +269,7 @@ async function render(v){
 function kanban(){const o=$("#origemK").value,b=$("#busca").value.toLowerCase();
   $("#kanban").innerHTML=META.estados.map(e=>{const ts=CACHE.k[e.id].filter(t=>(!o||origemDe(t)===o)&&(!b||(t.titulo+" "+t.responsavel).toLowerCase().includes(b)));
     return `<div class="col"><h3>${esc(e.nome)} (${ts.length})</h3>`+ts.slice(0,150).map(t=>`<div class="tc${t.atrasada?" atr":""}"><strong>${esc(t.titulo)}</strong>
-    <div class="muted">${esc(FR[t.frente])} · ${esc(t.responsavel||"sem responsável")} · prazo ${esc(t.fim||"—")}${t.data_estimada?" [CONFERIR]":""}</div>
+    <div class="muted"><span class="fr fr-${esc(t.frente)}">${esc(FR[t.frente])}</span> ${esc(t.responsavel||"sem responsável")} · prazo ${esc(t.fim||"—")}${t.data_estimada?" [CONFERIR]":""}</div>
     ${t.atrasada?'<span class="pill g-alerta">atrasada</span>':""}${t.bloqueio?`<div class="muted">Bloqueio: ${esc(t.bloqueio)}</div>`:""}
     <label class="muted">Estado <select data-id="${esc(t.id)}">${META.estados.map(x=>`<option value="${x.id}"${x.id===t.estado?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></label></div>`).join("")+(ts.length>150?`<p class="muted">+${ts.length-150} (use a busca)</p>`:"")+`</div>`}).join("");
   $("#kanban").querySelectorAll("select[data-id]").forEach(s=>s.onchange=async()=>{let bl="";if(s.value==="bloqueada"){bl=prompt("O que bloqueia e de quem depende?")||"";}
@@ -213,12 +300,44 @@ function gantt(ts,marcos){const o=$("#origem").value,sc=+$("#escala").value,so=$
       s+=`<path d="M${xa} ${ya} H${xa+6} V${y+RH/2} H${x1}" fill="none" stroke="${c("--texto2")}" stroke-width="1"/>`;}});
   $("#gantt").innerHTML=s+"</svg>";}
 ["#origem","#escala","#soCrit"].forEach(i=>$(i).onchange=()=>render("gantt"));
+let ED=[];
+async function editais(){ED=await get("/api/mv/editais");tabelaEditais();}
+function tabelaEditais(){const et=$("#edEtapa").value,ad=$("#edAd").value,pz=$("#edPrazo").value,b=$("#edBusca").value.toLowerCase();
+  const ls=ED.filter(d=>(!fr()||d.frente===fr())&&(!et||["decidir","preparar","revisao","enviada"].includes(d.etapa))&&(!ad||["alta","media"].includes(d.aderencia))
+    &&(!pz||(d.dias!=null&&d.dias>=0&&d.dias<=+pz))&&(!b||(d.titulo+" "+d.financiador+" "+d.temas).toLowerCase().includes(b)));
+  const cor=d=>d.dias==null?"info":d.dias<0?"info":d.dias<=7?"alerta":d.dias<=21?"atencao":"ok";
+  $("#editais").innerHTML=`<table><caption class="muted">${ls.length} edital(is). Clique no título para abrir a ficha com as necessidades.</caption><thead><tr><th>Prazo</th><th>Edital</th><th>Frente</th><th>Aderência</th><th>Parceria</th><th>Etapa</th><th>Pronto</th><th>Verificado</th></tr></thead><tbody>`+
+  ls.map(d=>`<tr><td><span class="pill g-${cor(d)}">${esc(d.prazo||"—")}${d.dias!=null?` · ${d.dias<0?"encerrado":d.dias+" d"}`:""}</span></td>
+  <td><button class="btn" style="min-height:36px;text-align:left" data-ed="${esc(d.id)}">${esc(d.titulo)}</button><div class="muted">${esc(d.financiador)} ${d.valor?"· "+esc(d.valor+" "+d.moeda):""}</div></td>
+  <td><span class="fr fr-${esc(d.frente==="gsa"?"transversal":d.frente)}">${esc(FR[d.frente]||(d.frente==="gsa"?"GSA":d.frente))}</span></td><td>${esc(d.aderencia)}</td><td>${d.via_parceria?"sim: "+esc(d.perfil_parceiro):"não"}</td><td>${esc(ETP[d.etapa])}</td>
+  <td><div class="barra" role="img" aria-label="${d.pronto_pct}% pronto"><i style="width:${d.pronto_pct}%"></i></div>${d.pronto_pct}%</td><td>${d.verificado?"sim":'<span class="pill g-atencao">conferir</span>'}</td></tr>`).join("")+`</tbody></table>`;
+  $("#editais").querySelectorAll("[data-ed]").forEach(x=>x.onclick=()=>ficha(x.dataset.ed));}
+function ficha(id){const d=ED.find(x=>x.id===id);if(!d)return;const f=$("#edFicha");f.hidden=false;
+  f.innerHTML=`<h2>${esc(d.titulo)}</h2><p class="muted">${esc(d.financiador)} · prazo ${esc(d.prazo||"—")} · ${esc(d.tipo)} · ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">abrir edital</a>`:"sem link"}</p>
+  <p><strong>Quem pode propor:</strong> ${esc(d.quem_pode)}<br><strong>Território:</strong> ${esc(d.territorio)}<br><strong>Critérios e pesos:</strong> ${esc(d.criterios)}<br><strong>Por que essa aderência:</strong> ${esc(d.motivo)}<br><strong>Lição para a Physis:</strong> ${esc(d.licao)}${d.proxima_edicao?`<br><strong>Próxima edição:</strong> ${esc(d.proxima_edicao)}`:""}</p>
+  <div class="ferr"><label>Etapa <select id="fEtapa">${META.etapas.map(e=>`<option value="${e.id}"${e.id===d.etapa?" selected":""}>${esc(e.nome)}</option>`).join("")}</select></label>
+  <label>Responsável <input type="text" id="fResp" value="${esc(d.responsavel)}"></label><button class="btn prim" id="fSalvar">Salvar etapa e responsável</button></div>
+  <label class="muted" style="display:block">Decisão e justificativa<br><textarea id="fDec" rows="2" style="width:100%">${esc(d.decisao)}</textarea></label>
+  <label class="muted" style="display:block">Notas<br><textarea id="fNotas" rows="3" style="width:100%">${esc(d.notas)}</textarea></label>
+  <h2>Necessidades (${d.necessidades.filter(x=>x.feito).length}/${d.necessidades.length})</h2>
+  <ul style="list-style:none;padding:0">${d.necessidades.map(it=>`<li style="margin:.3rem 0"><label><input type="checkbox" data-nec="${esc(it.id)}"${it.feito?" checked":""}> ${esc(it.item)}</label> <span class="pill g-info">${esc(it.origem)}</span> <input type="text" aria-label="Responsável por ${esc(it.item)}" data-necr="${esc(it.id)}" value="${esc(it.responsavel)}" placeholder="responsável" style="min-height:36px;width:10rem"></li>`).join("")}</ul>
+  <div class="ferr"><label>Nova necessidade <input type="text" id="fNova"></label><button class="btn" id="fAdd">Adicionar</button></div>
+  <h2>Perguntas à dona</h2><ul>${d.perguntas.map(q=>`<li>${esc(q.texto)} <span class="muted">(${esc(q.quando)})</span></li>`).join("")||"<li class='muted'>Nenhuma</li>"}</ul>
+  <div class="ferr"><label>Nova pergunta <input type="text" id="fPerg" style="min-width:20rem"></label><button class="btn" id="fAddP">Registrar pergunta</button></div>`;
+  const up=async b=>{const r=await post("/api/mv/edital",{id,...b});if(r.erro){alert(r.erro);return;}const i=ED.findIndex(x=>x.id===id);ED[i]=r;tabelaEditais();ficha(id);};
+  $("#fSalvar").onclick=()=>up({etapa:$("#fEtapa").value,responsavel:$("#fResp").value,decisao:$("#fDec").value,notas:$("#fNotas").value});
+  f.querySelectorAll("[data-nec]").forEach(c=>c.onchange=()=>up({necessidade:{id:c.dataset.nec,feito:c.checked}}));
+  f.querySelectorAll("[data-necr]").forEach(c=>c.onchange=()=>up({necessidade:{id:c.dataset.necr,responsavel:c.value}}));
+  $("#fAdd").onclick=()=>{const t=$("#fNova").value.trim();if(t)up({necessidade:{novo:t}});};
+  $("#fAddP").onclick=()=>{const t=$("#fPerg").value.trim();if(t)up({pergunta:t});};
+  f.scrollIntoView({behavior:"smooth"});}
+const ETP={};["#edEtapa","#edAd","#edPrazo"].forEach(i=>$(i).onchange=tabelaEditais);$("#edBusca").oninput=tabelaEditais;
 $("#frente").onchange=()=>render(atual);
 $("#rodar").onclick=async()=>{status("Rodando bots (documentos, atrasos, resumo)…");$("#rodar").disabled=true;
   const r=await post("/api/mv/bots/rodar",{});$("#rodar").disabled=false;status("Bots rodaram: "+JSON.stringify(r).slice(0,300));render(atual);};
 $("#fLanc").onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));f.valor=parseFloat(String(f.valor).replace(/\./g,"").replace(",","."));
   const r=await post("/api/mv/lanc",f);if(r.erro)alert(r.erro);else{e.target.reset();CACHE.saude=null;render("financeiro");}};
-get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#frente").insertAdjacentHTML("beforeend",`<option value="${f.id}">${esc(f.nome)}</option>`)});m.estados.forEach(e=>EST[e.id]=e.nome);render("saude");});
+get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#frente").insertAdjacentHTML("beforeend",`<option value="${f.id}">${esc(f.nome)}</option>`)});m.estados.forEach(e=>EST[e.id]=e.nome);(m.etapas||[]).forEach(e=>ETP[e.id]=e.nome);render("saude");});
 </script>
 </body>
 </html>

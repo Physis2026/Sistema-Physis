@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, urlparse
 
 from . import documentos
 from . import mv_bots
+from . import mv_editais
 from .mv import ESTADOS, FRENTES, MV, NOMES_ESTADO, ErroMV
 
 WEB = Path(__file__).resolve().parents[1] / "web"
@@ -27,6 +28,8 @@ NOME_FRENTE = {f[0]: f[1] for f in FRENTES}
 
 
 def tabelas_exportacao(mv: MV, vista: str) -> tuple[str, list[dict]]:
+    if vista == "editais":
+        return "Physis M&V · propostas e editais", mv_editais.Editais(mv).planilha()
     if vista == "gantt" or vista == "tarefas":
         ts = mv.gantt()
         cab = ["Frente", "Projeto", "Tarefa", "Responsável", "Início (plano)", "Fim (plano)", "Prazo", "Folga (d)",
@@ -82,6 +85,7 @@ def exportar(mv: MV, vista: str, formato: str) -> tuple[bytes, str, str]:
 
 
 def fabricar(mv: MV):
+    ed = mv_editais.Editais(mv)
     class H(BaseHTTPRequestHandler):
         server_version = "PhysisMV/teste"
 
@@ -124,12 +128,16 @@ def fabricar(mv: MV):
                 with _TRAVA:
                     if p in ("/", "/mv", "/mv/"):
                         return self._bytes((WEB / "mv.html").read_bytes(), "text/html; charset=utf-8")
+                    if p == "/icone.png" and (WEB / "app" / "icone-192.png").is_file():   # logo Physis no cabeçalho
+                        return self._bytes((WEB / "app" / "icone-192.png").read_bytes(), "image/png")
                     rotas = {"/api/mv/saude": lambda: mv.saude(), "/api/mv/gantt": lambda: mv.gantt(fr),
                              "/api/mv/kanban": lambda: mv.kanban(fr), "/api/mv/matriz": lambda: mv.matriz(),
                              "/api/mv/roadmap": lambda: mv.roadmap(), "/api/mv/alertas": lambda: mv.alertas(),
                              "/api/mv/documentos": lambda: mv.documentos(), "/api/mv/cpm": lambda: mv.cpm(fr),
                              "/api/mv/meta": lambda: {"frentes": [{"id": a, "nome": b, "descricao": c} for a, b, c in FRENTES],
-                                                      "estados": [{"id": e, "nome": NOMES_ESTADO[e]} for e in ESTADOS]}}
+                                                      "estados": [{"id": e, "nome": NOMES_ESTADO[e]} for e in ESTADOS],
+                                                      "etapas": [{"id": e, "nome": mv_editais.NOMES_ETAPA[e]} for e in mv_editais.ETAPAS]},
+                             "/api/mv/editais": lambda: ed.listar()}
                     if p in rotas:
                         return self._json(200, rotas[p]())
                     if p == "/api/mv/exportar":
@@ -156,6 +164,8 @@ def fabricar(mv: MV):
                         return self._json(200, mv.mudar_estado(str(corpo.get("id")), str(corpo.get("estado")), str(corpo.get("bloqueio") or "")))
                     if p == "/api/mv/tarefa":
                         return self._json(200, mv.salvar_tarefa(corpo))
+                    if p == "/api/mv/edital":
+                        return self._json(200, ed.atualizar(str(corpo.get("id")), corpo))
                     if p == "/api/mv/lanc":
                         return self._json(200, {"id": mv.lancar(corpo)})
                     if p == "/api/mv/alerta/resolver":
