@@ -99,6 +99,17 @@ class TestR02(unittest.TestCase):
         mv_bots.conferir_rotina(self.mv, self.dir / "bk", agora=velho)
         self.assertIn("backup_atrasado", {a["tipo"] for a in self.mv.alertas()})
 
+    def test_dois_nos_e_alerta_de_no_mudo(self):
+        pasta = self.dir / "nos"
+        pasta.mkdir()
+        (pasta / "acer.json").write_text(json.dumps({"no": "acer", "quando": time.time() - 3 * 3600}), encoding="utf-8")
+        r = mv_bots.sinal_de_vida(self.mv, pasta)
+        self.assertIn(r["eu"], r["nos"])
+        self.assertTrue(any(a["tipo"] == "no_mudo" and a["ref"] == "acer" for a in self.mv.alertas()))
+        (pasta / "acer.json").write_text(json.dumps({"no": "acer", "quando": time.time()}), encoding="utf-8")
+        mv_bots.sinal_de_vida(self.mv, pasta)
+        self.assertFalse(any(a["tipo"] == "no_mudo" for a in self.mv.alertas()))
+
     def test_falha_da_cli_fica_registrada(self):
         antes = os.environ.get("PHYSIS_MV_DADOS")
         os.environ["PHYSIS_MV_DADOS"] = str(self.dir / "dados")

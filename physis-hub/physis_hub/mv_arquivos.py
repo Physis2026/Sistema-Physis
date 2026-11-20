@@ -31,10 +31,13 @@ from . import mv_editais
 from .mv import ENTIDADES_FIN, MV, TIPOS_LANC, ErroMV, pasta_padrao
 
 TAMANHO_MAX = 10 * 1024 * 1024
+TAMANHO_MAX_3D = 40 * 1024 * 1024     # modelos 3D e IFC costumam ser maiores
 DESTINOS = {
     "editais": {"csv", "pdf", "odt", "ods", "docx", "xlsx"},
     "documentos": {"pdf", "odt", "ods", "odp", "docx", "xlsx", "pptx", "csv", "txt", "md", "png", "jpg", "jpeg"},
     "financas": {"csv", "ods", "pdf", "png", "jpg", "jpeg"},
+    # modelagem 3D (20/11/2026): visualizador, galeria, fila de impressão e escaneamento; IFC abre no Planejador (BIM)
+    "modelos3d": {"stl", "obj", "3mf", "glb", "ply", "ifc"},
 }
 IMPORTAVEIS = {("editais", "csv"), ("financas", "csv"), ("financas", "ods")}
 ESQUEMA = """
@@ -72,6 +75,18 @@ def conferir_tipo(dados: bytes, ext: str) -> None:
           "jpeg": dados[:3] == b"\xff\xd8\xff"}.get(ext)
     if ext in _ZIP:
         ok = dados[:4] == b"PK\x03\x04" and zipfile.is_zipfile(io.BytesIO(dados))
+    if ext == "stl":
+        ok = dados[:5].lower() == b"solid" or (len(dados) >= 84 and len(dados) == 84 + 50 * int.from_bytes(dados[80:84], "little"))
+    if ext in ("obj",):
+        ok = b"\x00" not in dados[:4096] and bool(re.search(rb"^\s*v\s", dados[:200000], re.M))
+    if ext == "3mf":
+        ok = dados[:4] == b"PK\x03\x04" and zipfile.is_zipfile(io.BytesIO(dados))
+    if ext == "glb":
+        ok = dados[:4] == b"glTF"
+    if ext == "ply":
+        ok = dados[:3] == b"ply"
+    if ext == "ifc":
+        ok = dados[:12].upper().startswith(b"ISO-10303-21")
     if ext in _TEXTO:
         ok = b"\x00" not in dados[:4096]
         if ok:
@@ -166,7 +181,15 @@ class Arquivos:
         mv.db.commit()
 
     # ------------------------------------------------------------ receber
-    def enviar(self, destino: str, nome: str, conteudo_b64: str, ref: str = "") -> dict:
+    def enviar(self, destino: str, nome: str, conteudo_b64: str, ref: str = "", origem: str = "upload") -> dict:
+        try:
+            dados = base64.b64decode(conteudo_b64 or "", validate=True)
+        except ValueError:
+            raise ErroMV("conteúdo inválido (base64)")
+        return self.guardar(destino, nome, dados, ref, origem)
+
+    def guardar(self, destino: str, nome: str, dados: bytes, ref: str = "", origem: str = "upload") -> dict:
+        """Guarda bytes já lidos (upload ou documento gerado por bot), com as mesmas conferências."""
         if destino not in DESTINOS:
             raise ErroMV("destino inválido (editais, documentos ou financas)")
         if not _REF.match(str(ref or "")):
@@ -175,14 +198,11 @@ class Arquivos:
         ext = ns.rsplit(".", 1)[-1] if "." in ns else ""
         if ext not in DESTINOS[destino]:
             raise ErroMV(f"tipo .{ext or '?'} não aceito aqui; aceitos: {', '.join(sorted(DESTINOS[destino]))}")
-        try:
-            dados = base64.b64decode(conteudo_b64 or "", validate=True)
-        except ValueError:
-            raise ErroMV("conteúdo inválido (base64)")
         if not dados:
             raise ErroMV("arquivo vazio")
-        if len(dados) > TAMANHO_MAX:
-            raise ErroMV("arquivo maior que 10 MB")
+        lim = TAMANHO_MAX_3D if destino == "modelos3d" else TAMANHO_MAX
+        if len(dados) > lim:
+            raise ErroMV(f"arquivo maior que {lim // (1024 * 1024)} MB")
         conferir_tipo(dados, ext)
         sha = hashlib.sha256(dados).hexdigest()
         ja = self.mv.db.execute("SELECT * FROM mv_arquivo WHERE destino=? AND sha256=? AND estado!='descartado'", (destino, sha)).fetchone()
@@ -195,10 +215,10 @@ class Arquivos:
         sub.mkdir(parents=True, exist_ok=True)
         caminho = sub / f"{sha[:12]}_{ns}"
         caminho.write_bytes(dados)
-        self.mv.db.execute("INSERT INTO mv_arquivo (id,destino,ref,nome,caminho,extensao,tamanho,sha256,estado,criado) "
-                           "VALUES (?,?,?,?,?,?,?,?,?,?)",
+        self.mv.db.execute("INSERT INTO mv_arquivo (id,destino,ref,nome,caminho,extensao,tamanho,sha256,estado,criado,origem) "
+                           "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                            (aid, destino, str(ref or ""), Path(str(nome)).name[:200], str(caminho), ext, len(dados), sha,
-                            "recebido" if (destino, ext) in IMPORTAVEIS else "guardado", time.time()))
+                            "recebido" if (destino, ext) in IMPORTAVEIS else "guardado", time.time(), str(origem or "upload")[:40]))
         self.mv.db.commit()
         return self.arquivo(aid)
 

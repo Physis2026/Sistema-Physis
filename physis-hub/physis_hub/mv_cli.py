@@ -28,7 +28,7 @@ def comandos_agenda() -> list[list[str]]:
     base = f'cmd /c cd /d "{RAIZ_HUB}" && "{py}" -m physis_hub.mv_cli'
     return [
         ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots atrasos documentos"],
-        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo backup"],
+        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo backup paginas inovacao"],
         ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\painel", "/TR", f"{base} servir"],
         # R-02 (auditoria 39): rodar depois se o computador estava desligado às 7h, e também na bateria
         ["powershell", "-NoProfile", "-Command",
@@ -81,6 +81,16 @@ def _main(argv=None) -> int:
     b.add_argument("quais", nargs="*")
     s = sub.add_parser("servir")
     s.add_argument("--porta", type=int, default=None)
+    s.add_argument("--rede", action="store_true", help="teste na rede local com senha (sem internet pública)")
+    pg = sub.add_parser("pergunta", help="registra uma pergunta à dona no M&A (ou devolve a resposta já dada)")
+    pg.add_argument("texto")
+    pg.add_argument("--opcoes", default="", help="opções separadas por |")
+    pg.add_argument("--origem", default="sessao")
+    pg.add_argument("--aplica", default="", help="sistemas separados por vírgula: " + ",".join(("sistema-physis", "instituto", "inovastem", "casa", "m&a", "templates", "documentos")))
+    pg.add_argument("--prazo", default="")
+    pl = sub.add_parser("perguntas", help="lista perguntas e respostas centralizadas no M&A")
+    pl.add_argument("--abertas", action="store_true")
+    pl.add_argument("--sistema", default="")
     g = sub.add_parser("agenda")
     g.add_argument("--criar", action="store_true")
     a = ap.parse_args(argv)
@@ -99,6 +109,13 @@ def _main(argv=None) -> int:
             n = mv.importar_gestao(a.arquivo, frente=a.frente)
             print(json.dumps({"frente": a.frente, "importadas": n,
                               "ausentes_do_arquivo": mv.ausentes_da_gestao(a.arquivo, a.frente)}, ensure_ascii=False))
+        elif a.cmd == "pergunta":
+            from . import mv_comandos
+            print(json.dumps(mv_comandos.perguntar(mv, a.texto, [o for o in a.opcoes.split("|") if o], a.origem,
+                                                   [s for s in a.aplica.split(",") if s], a.prazo), ensure_ascii=False, indent=1))
+        elif a.cmd == "perguntas":
+            from . import mv_comandos
+            print(json.dumps(mv_comandos.perguntas(mv, True if a.abertas else None, a.sistema or None), ensure_ascii=False, indent=1))
         elif a.cmd == "importar-editais":
             from . import mv_editais
             print(json.dumps(mv_editais.Editais(mv).importar_csv(a.arquivo), ensure_ascii=False))
@@ -106,8 +123,11 @@ def _main(argv=None) -> int:
             print(json.dumps(mv_bots.rodar(mv, a.quais or None), ensure_ascii=False, indent=1))
         elif a.cmd == "servir":
             from . import mv_servidor
-            srv = mv_servidor.servir(mv, a.porta or mv_servidor.PORTA)
-            print(f"Physis M&V (teste) em http://127.0.0.1:{srv.server_address[1]}/")
+            srv = mv_servidor.servir(mv, a.porta or mv_servidor.PORTA, rede_local=a.rede)
+            print(f"Physis M&A (teste) em http://127.0.0.1:{srv.server_address[1]}/")
+            for ip in getattr(srv, "ips", []):
+                print(f"  rede local: http://{ip}:{srv.server_address[1]}/  (usuário teste; senha em "
+                      f"{Path(mv.caminho).parent / 'senha-teste-rede.txt'})")
             try:
                 srv.serve_forever()
             except KeyboardInterrupt:
