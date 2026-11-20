@@ -7,30 +7,30 @@
 <meta name="description" content="App Physis para Android e iPhone: loja, download direto do APK com conferência ou instalação pelo navegador.">
 <link rel="manifest" href="/app/manifest-plataforma.webmanifest">
 <style>
-:root { --fundo:#F4F6F1; --sup:#FFFFFF; --texto:#1C2B21; --texto2:#4A4F44; --acao:#33512F; --logo:#4B7547; --linha:#C9D2C4;
-  --areia:#EFE8D6; --at-t:#8A6410; --at-f:#F6EAD0; --in-t:#1C3550; --in-f:#DBE7F1; }
+:root { --fundo:#F4F1EA; --sup:#FFFFFF; --texto:#1B1F23; --texto2:#4A4F44; --acao:#1A4D2E; --logo:#2F7D5B; --linha:#D9D3C2;
+  --areia:#EFE8D6; --at-t:#8A6410; --at-f:#F6EAD0; --in-t:#4A4F44; --in-f:#EFE8D6; }
 /* tema escuro (barra de preferências): variantes da paleta */
-html[data-tema="escuro"] { color-scheme: dark; --fundo:#1C2B21; --sup:#2A3829; --texto:#EEF2EA; --texto2:#D9D3C2; --acao:#B9CDB3; --logo:#A8BFA0; --linha:#4A5A47;
-  --areia:#33372E; --at-t:#E5D5AE; --at-f:#33372E; --in-t:#DBE7F1; --in-f:#1C3550; }
-html[data-tema="escuro"] .botao { color: #1C2B21; }
+html[data-tema="escuro"] { color-scheme: dark; --fundo:#0B3D2E; --sup:#0F4535; --texto:#F4F1EA; --texto2:#C3D0BD; --acao:#D9A58C; --logo:#D9A58C; --linha:#2F5E4E;
+  --areia:#33372E; --at-t:#E5D5AE; --at-f:#33372E; --in-t:#E5D5AE; --in-f:#33372E; }
+html[data-tema="escuro"] .botao:not(.sec) { background: #C2410C; border-color: #C2410C; color: #FFFFFF; }
 html[data-tema="escuro"] .botao.sec { color: var(--acao); }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--fundo); color: var(--texto); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+html, body { margin: 0; background: var(--fundo); color: var(--texto); font: 16px/1.55 Lora,Georgia,"Times New Roman",serif; }
 .pular { position: absolute; left: -999px; top: 0; background: var(--sup); color: var(--acao); padding: 8px 12px; }
 .pular:focus { left: 16px; top: 8px; z-index: 2; }
 header.faixa { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center;
   max-width: 64rem; margin: 0 auto; padding: 12px 16px; }
-.marca { font-family: Fraunces, Georgia, serif; color: var(--acao); font-size: 1.25rem; font-weight: 600; text-decoration: none; }
+.marca { font-family: "Josefin Sans","Century Gothic","Segoe UI",sans-serif; color: var(--acao); font-size: 1.25rem; font-weight: 600; text-decoration: none; }
 main { max-width: 64rem; margin: 0 auto; padding: 0 16px 40px; }
-h1 { font-family: Fraunces, Georgia, serif; color: var(--acao); font-weight: 600; font-size: clamp(1.75rem, 5vw, 2.4rem); margin: 8px 0 8px; }
+h1 { font-family: "Josefin Sans","Century Gothic","Segoe UI",sans-serif; color: var(--acao); font-weight: 600; font-size: clamp(1.75rem, 5vw, 2.4rem); margin: 8px 0 8px; }
 h2 { font-size: 1.25rem; margin: 0 0 8px; }
 h3 { font-size: 1.05rem; margin: 16px 0 6px; }
 .intro { color: var(--texto2); max-width: 44rem; margin: 0 0 24px; }
 .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 16px; }
 section.cartao { background: var(--sup); border: 1px solid var(--linha); border-radius: 12px; padding: 16px; min-width: 0; }
 .botao { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 8px 18px;
-  border-radius: 8px; font-weight: 600; text-decoration: none; background: var(--acao); color: #FFFFFF; border: 1px solid var(--acao); margin: 4px 8px 4px 0; }
-.botao.sec { background: var(--sup); color: var(--acao); }
+  border-radius: 8px; font-weight: 600; text-decoration: none; background: #C2410C; color: #FFFFFF; border: 1px solid #C2410C; margin: 4px 8px 4px 0; }   /* botão do guia de identidade */
+.botao.sec { background: var(--sup); color: var(--acao); border-color: var(--acao); }
 button.botao { font: inherit; font-weight: 600; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--in-t); outline-offset: 2px; }
 .qr { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 8px 0; }

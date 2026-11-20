@@ -12,19 +12,19 @@
 <style>
 :root{
   color-scheme:light;
-  --verde:#33512F;--escuro:#1C2B21;--fundo:#F4F6F1;--sup:#FFFFFF;--linha:#C9D2C4;--tinta2:#4A4F44;--marca:#4B7547;
-  --ok-f:#DCEBD8;--ok-t:#1F4A1C;--al-f:#F5E2D7;--al-t:#7A2214;--at-f:#F6EAD0;--at-t:#8A6410;--in-f:#DBE7F1;--in-t:#1C3550;
-  --titulo:Fraunces,Georgia,"Times New Roman",serif;
-  --fonte:Lexend,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  --sobre-verde:#FFFFFF;--suave:#EEF2EA;--campo:#FFFFFF;--borda-campo:#8A9284;
-  --r1:#DCEBD8;--r2:#F6EAD0;--r3:#F5E2D7;--r4:#E3C4BD;--mapa:#F7F9F4;--rio:#3D6E8F;
+  --verde:#1A4D2E;--escuro:#1B1F23;--fundo:#F4F1EA;--sup:#FFFFFF;--linha:#D9D3C2;--tinta2:#4A4F44;--marca:#C2410C;
+  --ok-f:#DCEBD8;--ok-t:#1F4A1C;--al-f:#F5E2D7;--al-t:#7A2214;--at-f:#F6EAD0;--at-t:#8A6410;--in-f:#EFE8D6;--in-t:#4A4F44;
+  --titulo:"Josefin Sans","Century Gothic","Segoe UI",sans-serif;
+  --fonte:Lora,Georgia,"Times New Roman",serif;
+  --sobre-verde:#FFFFFF;--suave:#F4F1EA;--campo:#FFFFFF;--borda-campo:#8A8270;
+  --r1:#DCEBD8;--r2:#F6EAD0;--r3:#F5E2D7;--r4:#E3C4BD;--mapa:#FAF9F5;--rio:#2F7D5B;
 }
 html[data-tema="escuro"]{
   color-scheme:dark;
-  --verde:#B9CDB3;--escuro:#EEF2EA;--fundo:#1C2B21;--sup:#2A3829;--linha:#4A5A47;--tinta2:#D9D3C2;--marca:#A8BFA0;
-  --ok-f:#1F4A1C;--ok-t:#DCEBD8;--al-f:#5C2B2E;--al-t:#FF8A80;--at-f:#33372E;--at-t:#E5D5AE;--in-f:#1C3550;--in-t:#DBE7F1;
-  --sobre-verde:#1C2B21;--suave:#33372E;--campo:#1C2B21;--borda-campo:#8A9182;
-  --r1:#1F4A1C;--r2:#5C3F00;--r3:#5C2B2E;--r4:#2A1215;--mapa:#14180F;--rio:#7FA9C4;
+  --verde:#D9A58C;--escuro:#F4F1EA;--fundo:#0B3D2E;--sup:#0F4535;--linha:#2F5E4E;--tinta2:#C3D0BD;--marca:#D9A58C;
+  --ok-f:#1F4A1C;--ok-t:#DCEBD8;--al-f:#5C2B2E;--al-t:#FF8A80;--at-f:#33372E;--at-t:#E5D5AE;--in-f:#33372E;--in-t:#E5D5AE;
+  --sobre-verde:#0F4535;--suave:#33372E;--campo:#0F4535;--borda-campo:#8A9182;
+  --r1:#1F4A1C;--r2:#5C3F00;--r3:#5C2B2E;--r4:#2A1215;--mapa:#0B3D2E;--rio:#8FB183;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--fundo);color:var(--escuro);font:1rem/1.55 var(--fonte)}
@@ -46,6 +46,7 @@ main section{margin:20px 0}
 .grade{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .botao{display:inline-flex;align-items:center;justify-content:center;font:inherit;font-weight:600;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--verde);background:var(--verde);color:var(--sobre-verde);cursor:pointer;text-decoration:none}
 .botao.sec{background:transparent;color:var(--verde)}
+.botao:not(.sec){background:#C2410C;border-color:#C2410C;color:#FFFFFF}   /* botão do guia de identidade */
 .botao.peq{min-height:36px;padding:0 12px;font-size:.92rem}
 .botao[disabled]{opacity:.6;cursor:wait}
 .acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
@@ -95,7 +96,7 @@ footer{border-top:1px solid var(--linha);margin-top:28px;padding:16px 0 28px;col
   <div class="in">
     <div class="ferramentas" id="pp-lugar" data-physis-preferencias="lugar"></div>
     <div class="titulo">
-      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M20 3c-7 0-12 5-12 11 0 4 2 7 5 9-2 1-3 3-3 5 0 3 3 5 6 5h2v4h4v-4h2c3 0 6-2 6-5 0-2-1-4-3-5 3-2 5-5 5-9 0-6-5-11-12-11z" fill="#4B7547"/></svg>
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M20 3c-7 0-12 5-12 11 0 4 2 7 5 9-2 1-3 3-3 5 0 3 3 5 6 5h2v4h4v-4h2c3 0 6-2 6-5 0-2-1-4-3-5 3-2 5-5 5-9 0-6-5-11-12-11z" fill="#4A8A5A"/></svg>
       <h1 id="titulo" data-t="titulo">Resiliência municipal</h1>
     </div>
     <p class="sub" id="sub"></p>
