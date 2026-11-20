@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estermic · AVAC (versão de teste)</title>
+<!-- VERSÃO DE TESTE (20/11/2026). Ferramenta INTERNA da Physis para o contrato direto com a Estermic (sem loja).
+     Tela clara tipo B e escura tipo A (physis-hub/docs/PALETA.md, "Tipos de tela"). Sem internet: todos os scripts são locais.
+     Os documentos ao cliente saem no template do CLIENTE (marca da Estermic; neutro até recebermos logo, fontes e paleta). -->
+<style>
+:root{--fundo:#F4F1EA;--sup:#FFFFFF;--faixa:#0B3D2E;--faixa-t:#FFFFFF;--linha:#D9D3C2;--t:#1B1F23;--t2:#4A4F44;--dest:#C2410C;--num:#C2410C;
+  --bt:#C2410C;--bt-t:#FFFFFF;--cont:#1A4D2E;--terra:#BB6B4A;--at-f:#F6EAD0;--at-t:#8A6410;--al-f:#F5E2D7;--al-t:#7A2214;--ok-f:#DCEBD8;--ok-t:#1F4A1C;--foco:#C2410C}
+html[data-tema="escuro"]{--fundo:#0B3D2E;--sup:#0F4535;--faixa:#0C2C21;--faixa-t:#F4F1EA;--linha:#2F5E4E;--t:#F4F1EA;--t2:#C3D0BD;--dest:#D9A58C;--num:#F97316;
+  --bt:#C2410C;--bt-t:#FFFFFF;--cont:#D9A58C;--terra:#D9A58C;--at-f:#33372E;--at-t:#E5D5AE;--al-f:#33372E;--al-t:#F5E2D7;--ok-f:#2F5E4E;--ok-t:#F4F1EA;--foco:#D9A58C}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--t);font:16px/1.55 Lora,Georgia,serif}
+a{color:var(--dest)}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.topo{background:var(--faixa);color:var(--faixa-t);padding:.6rem 1rem;border-bottom:3px solid var(--terra)}
+.topo p{margin:0;font-size:.9rem}
+h1{font-family:"Josefin Sans",Lora,Georgia,serif;font-size:1.8rem;margin:.6rem 0 .2rem}
+h2{font-family:Lora,Georgia,serif;font-size:1.3rem;margin:1rem 0 .5rem}
+h2::before{content:"";display:block;width:2.5rem;height:3px;background:var(--terra);margin-bottom:.35rem}
+h3,.t3{font-size:1.05rem;margin:.6rem 0 .3rem}
+.envelope{max-width:1180px;margin:0 auto;padding:0 1rem 2rem}
+.selo-teste{display:inline-block;background:var(--at-f);color:var(--at-t);border-left:4px solid var(--terra);padding:.2rem .6rem;font-weight:bold}
+nav[aria-label="Partes do módulo"]{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}
+button,.botao{min-height:44px;min-width:44px;padding:.45rem .9rem;border-radius:6px;border:2px solid var(--cont);background:transparent;color:var(--t);font:inherit;cursor:pointer}
+button.principal{background:var(--bt);border-color:var(--bt);color:var(--bt-t)}
+button[aria-pressed="true"],[role=tab][aria-selected="true"]{background:var(--cont);color:var(--fundo);border-color:var(--cont)}
+button:disabled{opacity:.55;cursor:not-allowed}
+input,select,textarea{font:inherit;color:var(--t);background:var(--sup);border:1px solid var(--t2);border-radius:4px;min-height:40px;padding:.3rem .45rem;max-width:100%}
+textarea{width:100%;min-height:6rem}
+label{display:block;font-size:.92rem;color:var(--t2);margin-top:.35rem}
+.cartao{background:var(--sup);border:1px solid var(--linha);border-radius:8px;padding: .8rem 1rem;margin:.7rem 0}
+.grade,.precos{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.4rem .9rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.rolagem{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.3rem 0}
+caption{text-align:left;font-weight:bold;padding:.3rem 0}
+th,td{border:1px solid var(--linha);padding:.3rem .45rem;text-align:left;vertical-align:top}
+thead th{background:var(--faixa);color:var(--faixa-t)}
+.t2{color:var(--t2)}.pq{font-size:.88rem}.apoio{margin-top:0}
+.numero{font-size:1.8rem;color:var(--num);font-weight:bold}
+.faixa{padding:.5rem .8rem;border-radius:6px;border-left:5px solid var(--terra);margin:.5rem 0}
+.faixa.at,.atencao{background:var(--at-f);color:var(--at-t)}.faixa.al,.alerta{background:var(--al-f);color:var(--al-t)}.faixa.in,.pendente{background:var(--sup);color:var(--t)}
+.faixa.ok{background:var(--ok-f);color:var(--ok-t)}
+.selo{display:inline-block;padding:0 .4rem;border-radius:4px;font-size:.85rem}.selo.ok{background:var(--ok-f);color:var(--ok-t)}.selo.at{background:var(--at-f);color:var(--at-t)}.selo.al{background:var(--al-f);color:var(--al-t)}.selo.in{border:1px solid var(--linha)}
+.so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.marcador{color:var(--dest);font-weight:bold}
+.kpis .marcador{font-size:1rem;overflow-wrap:anywhere}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem}
+footer{background:var(--faixa);color:var(--faixa-t);border-top:3px solid var(--terra);padding:1rem;font-size:.9rem}
+footer a{color:var(--faixa-t)}
+ul.alertas{list-style:none;padding:0;margin:.3rem 0}ul.alertas li{padding:.35rem .6rem;margin:.2rem 0;border-left:5px solid var(--terra);border-radius:4px}
+@media (max-width:420px){h1{font-size:1.45rem}.envelope{padding:0 .6rem 2rem}}
+</style>
+<!-- módulos locais (sem internet). A cópia personalizada do AVAC define window.AVAC; a carga térmica, window.CARGA_TERMICA. -->
+<script src="../../sistema/physis-preferencias.js"></script>
+<script src="avac-estermic-copia.js"></script>
+<script src="../../sistema/physis-cargatermica.js"></script>
+<script src="../../sistema/physis-ifc.js"></script>
+<script src="../../sistema/physis-mapa-local.js"></script>
+<script src="estermic-avac.js"></script>
+</head>
+<body>
+<div id="pp-lugar"></div>
+<header class="topo"><p>Physis Engineering · ferramenta interna · contrato direto (sem loja)</p></header>
+<div class="envelope">
+<h1>Estermic · AVAC</h1>
+<p><span class="selo-teste">VERSÃO DE TESTE</span> <span class="t2">Revisão interna (Ryan, equipe Physis) em 23/11 às 13h59; prioridade 0 até 24/11.</span></p>
+<nav aria-label="Partes do módulo" id="abas"></nav>
+<main id="conteudo" tabindex="-1"><p>Carregando…</p></main>
+<div id="aviso-vivo" class="so-leitor" role="status" aria-live="polite"></div>
+</div>
+<footer>
+<p><strong>Physis Engineering</strong> · CNPJ 44.982.448/0001-23 (provisório [CONFERIR]) · Simples Nacional · Petrópolis/RJ</p>
+<p>Contato: [MARCADOR] · <a href="#privacidade">Política de privacidade (LGPD)</a> [MARCADOR] · <a href="#termos">Termos de uso</a> [MARCADOR]</p>
+<p>Nada sai desta tela sem aprovação: o pedido de nota ao contador é só RASCUNHO. Dados guardados neste navegador e no arquivo que você exportar.</p>
+</footer>
+<script>
+"use strict";
+/* ═══ globais que o módulo AVAC e a carga térmica usam na hora de desenhar (mesmas definições do painel.html) ═══ */
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const numBr = v => { const s = String(v == null ? "" : v).trim(); if (!s) return null; const n = Number(s.replace(/\./g, "").replace(",", ".")); return isNaN(n) ? (isNaN(Number(s)) ? null : Number(s)) : n; };
+const n2 = (v, c) => Number(v).toLocaleString("pt-BR", { minimumFractionDigits:c, maximumFractionDigits:c });
+const brl = v => v == null ? "[MARCADOR]" : "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits:2, maximumFractionDigits:2 });
+const el = id => document.getElementById(id);
+const ui = { cliente:null, aba:"projeto", sub:0, base:null, baseMsg:"", rascunho:null, msg:"" };
+const E = window.ESTERMIC, CHAVE = "physis-estermic-avac";
+let estado = E.padrao();
+try { const g = localStorage.getItem(CHAVE); if (g) estado = E.normalizar(JSON.parse(g)); } catch (x) { /* sem armazenamento: segue com o padrão */ }
+function salvar() { try { localStorage.setItem(CHAVE, JSON.stringify(estado)); } catch (x) {} }
+const subAtual = () => estado.subprojetos[ui.sub] || estado.subprojetos[0];
+/* calcLer/calcGravar: cada subprojeto guarda o próprio estado das contas (avac, cargatermica) */
+const calcLer = k => { const d = subAtual().dados[k]; return d ? JSON.parse(JSON.stringify(d)) : {}; };
+const calcGravar = (k, v) => { subAtual().dados[k] = JSON.parse(JSON.stringify(v)); salvar(); };
+const localDaInstalacao = () => { const l = subAtual().local; return l.municipio || l.uf ? { municipio:l.municipio, uf:l.uf, lat:l.lat, lon:l.lon } : null; };
+function desenhar() { render(); }
+const fala = t => { const a = el("aviso-vivo"); if (a) a.textContent = t; ui.msg = t; };
+const mkv = v => (v == null || String(v).trim() === "") ? '<span class="marcador">[MARCADOR]</span>' : esc(v);
+
+/* ═══ campos ligados ao estado por caminho (data-e-k) ═══ */
+function getPath(o, p) { return String(p).split(".").reduce((c, k) => c == null ? c : c[k], o); }
+function setPath(o, p, v) { const ps = String(p).split("."); let c = o; for (let i = 0; i < ps.length - 1; i++) { if (c[ps[i]] == null) c[ps[i]] = /^\d+$/.test(ps[i + 1]) ? [] : {}; c = c[ps[i]]; } c[ps[ps.length - 1]] = v; }
+let nId = 0;
+function campo(p, rot, tipo, op) { op = op || {}; const id = "c-" + String(p).replace(/[^A-Za-z0-9]/g, "_"), v = getPath(estado, p);
+  const ph = op.ph || "[MARCADOR]", aj = op.ajuda ? `<span class="t2 pq" id="${id}-aj">${esc(op.ajuda)}</span>` : "", desc = op.ajuda ? ` aria-describedby="${id}-aj"` : "";
+  let ctl;
+  if (tipo === "area") ctl = `<textarea id="${id}" data-e-k="${esc(p)}" data-e-t="s" placeholder="${esc(ph)}"${desc}>${esc(v == null ? "" : v)}</textarea>`;
+  else if (tipo === "sel") ctl = `<select id="${id}" data-e-k="${esc(p)}" data-e-t="s"${desc}>${op.ops.map(o => `<option value="${esc(o[0])}"${String(o[0]) === String(v) ? " selected" : ""}>${esc(o[1])}</option>`).join("")}</select>`;
+  else if (tipo === "bool") ctl = `<input type="checkbox" id="${id}" data-e-k="${esc(p)}" data-e-t="b"${v ? " checked" : ""}${desc}>`;
+  else ctl = `<input id="${id}" type="${tipo === "data" ? "date" : "text"}" ${tipo === "n" || tipo === "d" ? 'inputmode="decimal"' : ""} data-e-k="${esc(p)}" data-e-t="${tipo === "n" || tipo === "d" ? tipo : "s"}" value="${esc(v == null ? "" : (tipo === "n" ? String(v).replace(".", ",") : v))}" placeholder="${esc(ph)}"${op.lista ? ` list="${op.lista}"` : ""}${desc}>`;
+  return tipo === "bool" ? `<div><label for="${id}" style="display:flex;gap:.5rem;align-items:center;min-height:44px">${ctl} ${esc(rot)}</label>${aj}</div>` : `<div><label for="${id}">${esc(rot)}</label>${ctl}${aj}</div>`; }
+document.addEventListener("change", ev => { const t = ev.target; if (!t || !t.dataset || t.dataset.eK == null) return;
+  let v = t.dataset.eT === "b" ? t.checked : t.value; if (t.dataset.eT === "n") v = numBr(v);
+  if (t.dataset.eT === "d") { const s = String(v).trim().replace(",", "."); v = s === "" || !isFinite(Number(s)) ? null : Number(s); }   /* coordenadas: ponto ou vírgula decimal, sem milhar */
+  setPath(estado, t.dataset.eK, v); salvar(); const id = t.id; render(); const n = el(id); if (n) n.focus(); });
+
+/* ═══ abas ═══ */
+const ABAS = [["projeto", "Projeto e contratos"], ["calculo", "Cálculo AVAC"], ["equip", "Equipamentos"], ["bimgis", "BIM e GIS"], ["fin", "Financeiro"], ["emissao", "Emissão"], ["pend", "Pendências e aprendizados"]];
+function seletorSub() { return `<div class="chips" role="group" aria-label="Subprojeto">${estado.subprojetos.map((s, i) => `<button type="button" id="sub-${i}" data-sub="${i}" aria-pressed="${i === ui.sub}">${esc(E.nomeSub(s, i))}</button>`).join("")}<button type="button" id="sub-novo" data-acao="sub-novo">Incluir subprojeto</button></div>`; }
+
+function telaCliente() {
+  return `<section class="cartao" aria-labelledby="h-cli"><h2 id="h-cli">Selecionar cliente</h2>
+  <p class="t2">Contrato direto no Brasil (PJ para PJ, nota fiscal de serviço, ISS, em reais), sem a loja. Escolha o cliente para abrir a inclusão de projeto.</p>
+  <label for="sel-cliente">Cliente</label><select id="sel-cliente"><option value="estermic">Estermic</option></select>
+  <h3>Como funcionam as atividades da Estermic (core)</h3>
+  ${campo("cliente.explicacao", "Explicação do funcionamento core das atividades do cliente", "area", { ajuda:"Ainda não informado pela dona: fica [MARCADOR] até ser preenchido." })}
+  <p class="t2 pq">Como o módulo trabalha para este cliente: cada subprojeto tem contrato próprio (número, valor, fases, prazos e condições de pagamento),
+  cálculo AVAC próprio (contas do módulo base da Physis, sem mudança), local e modelo (GIS e BIM), lista de equipamentos com peças, e emissão de EP [CONFERIR], IFC, lista (ODS), relatório e memorial no template da Estermic.</p>
+  <p><button type="button" class="principal" id="abrir-cliente" data-acao="abrir-cliente">Abrir inclusão de projeto</button></p></section>`; }
+
+function telaProjeto() { const s = subAtual(), i = ui.sub, p = "subprojetos." + i;
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-proj"><h2 id="h-proj">${esc(E.nomeSub(s, i))}</h2><div class="grade">
+    ${campo(p + ".nome", "Nome do subprojeto", "s")}${campo(p + ".contrato.numero", "Número do contrato", "s")}${campo(p + ".contrato.valor", "Valor do contrato (R$)", "n")}
+    ${campo(p + ".contrato.assinatura", "Data de assinatura", "data")}${campo(p + ".contrato.prazoFinal", "Prazo final do contrato", "data")}${campo(p + ".contrato.iss", "ISS: município e alíquota", "s", { ph:"[MARCADOR] conferir com o contador" })}</div>
+    ${campo(p + ".escopo", "Escopo do subprojeto", "area")}${campo(p + ".contrato.condicoes", "Condições de pagamento", "area")}
+    <h3>Fases e prazos</h3>${tabelaFases(i, false)}<p><button type="button" id="fase-add" data-acao="fase-add">Acrescentar fase</button></p></section>
+    <section class="cartao" aria-labelledby="h-cli2"><h2 id="h-cli2">Dados do cliente e do contador</h2><div class="grade">
+    ${campo("cliente.cnpj", "CNPJ da Estermic", "s")}${campo("cliente.contato", "Contato na Estermic", "s")}${campo("contador.email", "E-mail do Robson (contador)", "s")}</div>
+    <p class="t2 pq">Emissor: ${esc(estado.emissor.nome)} · CNPJ ${esc(estado.emissor.cnpj)} (${esc(estado.emissor.cnpjSituacao)} [CONFERIR]) · ${esc(estado.emissor.regime)}.</p></section>`; }
+
+function tabelaFases(i, financeiro) { const s = estado.subprojetos[i], F = E.financeiro(s), p = "subprojetos." + i + ".fases.";
+  if (!s.fases.length) return `<p class="t2">Nenhuma fase: <span class="marcador">[MARCADOR]</span> (fases, valores e prazos ainda não informados).</p>`;
+  const td = (k, j, rot, t) => { const id = "c-" + (p + j + "." + k).replace(/[^A-Za-z0-9]/g, "_"), v = s.fases[j][k];
+    return `<td><label class="so-leitor" for="${id}">${esc(rot + " da fase " + (j + 1))}</label><input id="${id}" type="${t === "data" ? "date" : "text"}" ${t === "n" ? 'inputmode="decimal"' : ""} data-e-k="${p + j + "." + k}" data-e-t="${t === "n" ? "n" : "s"}" value="${esc(v == null ? "" : (t === "n" ? String(v).replace(".", ",") : v))}" placeholder="[MARCADOR]" style="width:${t === "data" ? "10em" : "8em"}"></td>`; };
+  const cols = financeiro ? ["Fase", "Valor (R$)", "Prazo de faturar", "Faturado (R$)", "NF", "Vencimento", "Recebido (R$)", "Situação", "Ação"] : ["Fase", "Descrição", "Valor (R$)", "Prazo", "Ação"];
+  return `<div class="rolagem"><table><caption>Fases do ${esc(E.nomeSub(s, i))}</caption><thead><tr>${cols.map(c => `<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>${s.fases.map((f, j) => `<tr>${td("nome", j, "Nome", "s")}`
+    + (financeiro ? td("valor", j, "Valor", "n") + td("prazo", j, "Prazo", "data") + td("faturado", j, "Faturado", "n") + td("nf", j, "Nota fiscal", "s") + td("vencimento", j, "Vencimento", "data") + td("recebido", j, "Recebido", "n")
+      + `<td>${esc(F.porFase[j].situacao)}</td><td><button type="button" class="principal" id="nota-${i}-${j}" data-acao="nota" data-j="${j}">Pedir nota ao contador</button></td>`
+      : td("descricao", j, "Descrição", "s") + td("valor", j, "Valor", "n") + td("prazo", j, "Prazo", "data") + `<td><button type="button" id="fase-del-${j}" data-acao="fase-del" data-j="${j}" aria-label="Remover a fase ${j + 1}">Remover</button></td>`) + "</tr>").join("")}</tbody></table></div>`; }
+
+function telaCalculo() { const s = subAtual(), i = ui.sub;
+  let corpo = typeof telaAvac === "function" ? telaAvac() : `<p class="faixa al">Módulo AVAC não carregado.</p>`;
+  corpo = corpo.replace(/<h1>([^<]*)<\/h1>/, '<h2 id="h-avac-base">$1 (módulo base, cópia Estermic)</h2>');   /* um título só por tela */
+  return seletorSub() + (s.dadosConfirmados ? `<p class="faixa ok">Dados de cálculo confirmados como do projeto.</p>`
+    : `<p class="faixa at">Enquanto não confirmar, os números abaixo são o EXEMPLO da planilha PHYSIS_AVAC-5 (não são da Estermic) e os documentos saem marcados como EXEMPLO.</p>`)
+    + campo("subprojetos." + i + ".dadosConfirmados", "Os dados de cálculo deste subprojeto são do projeto (não do exemplo)", "bool") + corpo; }
+
+function telaEquip() { const s = subAtual(), i = ui.sub, p = "subprojetos." + i + ".equipamentos.";
+  const base = ui.base, aviso = base ? `<p class="t2 pq">Base de equipamentos da Physis carregada (${base.itens.length} itens, classes genéricas sem marca).</p>`
+    : `<div class="faixa at"><p>Base de equipamentos não carregada${ui.baseMsg ? " (" + esc(ui.baseMsg) + ")" : ""}. Aberta como arquivo, a tela não lê o JSON sozinha: envie sistema/physis-equipamentos.json.</p>
+       <label for="up-base">Enviar a base de equipamentos (JSON)</label><input type="file" id="up-base" accept=".json,application/json"></div>`;
+  const linhas = s.equipamentos.map((q, j) => { const sg = E.sugerirDaBase(base, q), dl = "fab-" + j;
+    const td = (k, rot, w, lista) => { const id = "c-" + (p + j + "." + k).replace(/[^A-Za-z0-9]/g, "_"), v = q[k];
+      return `<td><label class="so-leitor" for="${id}">${esc(rot + " de " + (q.tag || "item " + (j + 1)))}</label><input id="${id}" data-e-k="${p + j + "." + k}" data-e-t="${k === "qtd" || k === "cap" ? "n" : "s"}" value="${esc(v == null ? "" : v)}" placeholder="[MARCADOR]" style="width:${w}"${lista ? ` list="${lista}"` : ""}></td>`; };
+    const selBase = `<td><label class="so-leitor" for="base-${j}">Referência na base Physis para ${esc(q.tag || "item")}</label><select id="base-${j}" data-e-k="${p + j}.baseId" data-e-t="s"><option value="">— escolher —</option>${sg.itens.map(b => `<option value="${esc(b.id)}"${b.id === q.baseId ? " selected" : ""}>${esc(b.descricao)}</option>`).join("")}</select></td>`;
+    const pecas = (q.pecas || []).map((pc, k) => { const pp = p + j + ".pecas." + k + ".", c = (kk, rot, w) => { const id = "c-" + (pp + kk).replace(/[^A-Za-z0-9]/g, "_");
+        return `<label class="so-leitor" for="${id}">${esc(rot + " da peça " + (k + 1) + " de " + (q.tag || "item"))}</label><input id="${id}" data-e-k="${pp + kk}" data-e-t="${kk === "qtd" ? "n" : "s"}" value="${esc(pc[kk] == null ? "" : pc[kk])}" placeholder="${kk === "codigo" ? "[MARCADOR] part number" : "[MARCADOR]"}" style="width:${w}">`; };
+      return `<li>${c("descricao", "Descrição", "12em")} ${c("codigo", "Código", "10em")} ${c("qtd", "Quantidade", "4em")} <button type="button" id="peca-del-${j}-${k}" data-acao="peca-del" data-j="${j}" data-k="${k}" aria-label="Remover peça ${k + 1} de ${esc(q.tag || "item")}">Remover</button></li>`; }).join("");
+    return `<tr><th scope="row">${j + 1}</th>${td("tag", "TAG", "5em")}<td>${esc(q.sistema || "")}</td>${td("descricao", "Descrição", "14em")}${td("qtd", "Quantidade", "4em")}<td>${q.cap == null ? "—" : esc(n2(q.cap, Number.isInteger(q.cap) ? 0 : 2))} ${esc(q.un || "")}</td>
+      ${td("fabricante", "Fabricante", "9em", dl)}<datalist id="${dl}">${sg.fabricantes.map(f => `<option value="${esc(f)}">`).join("")}</datalist>${td("modelo", "Modelo", "9em")}${selBase}
+      <td><ul style="margin:0;padding-left:1rem">${pecas}</ul><button type="button" id="peca-add-${j}" data-acao="peca-add" data-j="${j}">Acrescentar peça</button></td>
+      <td><button type="button" id="eq-del-${j}" data-acao="eq-del" data-j="${j}" aria-label="Remover ${esc(q.tag || "item " + (j + 1))}">Remover</button></td></tr>`; }).join("");
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-eq"><h2 id="h-eq">Fabricantes, equipamentos e peças</h2>${aviso}
+    <p class="chips"><button type="button" class="principal" id="eq-calc" data-acao="eq-calc">Trazer do cálculo AVAC</button><button type="button" id="eq-add" data-acao="eq-add">Acrescentar item à mão</button></p>
+    <p class="t2 pq">Cada item recebe TAG (AC-01, VE-01…). Fabricantes sugeridos vêm da aba Fabricantes da planilha (base Physis); modelo e código das peças (part number) ficam [MARCADOR] até haver dado real.</p>
+    ${s.equipamentos.length ? `<div class="rolagem"><table><caption>Lista de equipamentos e sistemas — ${esc(E.nomeSub(s, i))}</caption><thead><tr>${["Nº", "TAG", "Sistema", "Descrição", "Qtd.", "Capacidade", "Fabricante", "Modelo", "Base Physis", "Peças (código)", "Ação"].map(c => `<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>${linhas}</tbody></table></div>` : `<p class="t2">Lista vazia.</p>`}</section>`; }
+
+function telaBimGis() { const s = subAtual(), i = ui.sub, p = "subprojetos." + i + ".local.";
+  let mapa = ""; try { if (window.PhysisMapaLocal) mapa = PhysisMapaLocal.html({ lat:s.local.lat, lon:s.local.lon, id:"mapa-sp" + i, rotulo:"Local do " + E.nomeSub(s, i), botaoSalvar:true,
+    aoSalvar:(lat, lon) => { s.local.lat = lat; s.local.lon = lon; salvar(); setTimeout(render, 0); return { ok:true }; } }); } catch (x) { mapa = ""; }
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-gis"><h2 id="h-gis">Localização (GIS)</h2><div class="grade">
+    ${campo(p + "endereco", "Endereço", "s")}${campo(p + "municipio", "Município", "s")}${campo(p + "uf", "UF", "s")}
+    ${campo(p + "lat", "Latitude (graus decimais)", "d")}${campo(p + "lon", "Longitude (graus decimais)", "d")}${campo(p + "altitude", "Altitude (m)", "d")}</div>
+    <div id="mapa-lugar">${mapa}</div>
+    <p class="chips"><button type="button" id="baixar-geojson" data-acao="geojson">Baixar GeoJSON (todos os subprojetos)</button></p></section>
+    <section class="cartao" aria-labelledby="h-bim"><h2 id="h-bim">Modelo (BIM, IFC4)</h2>
+    <p class="t2">O IFC leva o terreno com latitude e longitude, a edificação e um elemento por equipamento da lista (TAG, fabricante, modelo, capacidade e peças como propriedades). Geometria: só posição; o modelo 3D detalhado é [MARCADOR].</p>
+    <p class="chips"><button type="button" class="principal" id="baixar-ifc" data-acao="ifc">Baixar IFC do subprojeto</button></p></section>`; }
+
+function telaFin() { const A = E.alertas(estado, new Date());
+  const kpi = (t, v) => `<div class="cartao"><p class="t2 pq" style="margin:0">${esc(t)}</p><span class="numero">${v == null ? '<span class="marcador">[MARCADOR]</span>' : esc(brl(v))}</span></div>`;
+  return `<section class="cartao" aria-labelledby="h-al"><h2 id="h-al">Alertas e prazos</h2>${A.length ? `<ul class="alertas">${A.map(a => `<li class="${a.nivel}"><strong>${a.nivel === "alerta" ? "Alerta" : a.nivel === "atencao" ? "Atenção" : "Pendente"}:</strong> ${esc(a.texto)}</li>`).join("")}</ul>` : `<p class="faixa ok">Sem alertas.</p>`}
+    ${campo("config.diasAviso", "Avisar com antecedência de (dias)", "n", { ajuda:"Preferência de uso da tela." })}</section>`
+    + estado.subprojetos.map((s, i) => { const F = E.financeiro(s);
+      return `<section class="cartao" aria-labelledby="h-fin-${i}"><h2 id="h-fin-${i}">${esc(E.nomeSub(s, i))} · contrato ${mkv(s.contrato.numero)}</h2>
+      <div class="kpis">${kpi("Contratado", F.contratado)}${kpi("Faturado", F.faturado)}${kpi("A faturar", F.aFaturar)}${kpi("Recebido", F.recebido)}${kpi("A receber", F.aReceber)}</div>
+      ${F.divergeFases ? `<p class="faixa at">A soma das fases (${esc(brl(F.somaFases))}) difere do valor do contrato.</p>` : ""}
+      ${tabelaFases(i, true)}</section>`; }).join("")
+    + (ui.rascunho ? `<section class="cartao" role="region" aria-labelledby="h-rasc"><h2 id="h-rasc">Rascunho do pedido de nota (não enviado)</h2>
+      <p class="faixa at">Só rascunho: o sistema nunca envia. Confira, copie ou baixe e envie você mesmo.</p>
+      <p><strong>Para:</strong> ${esc(ui.rascunho.para)}<br><strong>Assunto:</strong> ${esc(ui.rascunho.assunto)}</p>
+      <label for="rasc-corpo">Texto do e-mail</label><textarea id="rasc-corpo" readonly rows="14">${esc(ui.rascunho.corpo)}</textarea>
+      <p class="chips"><button type="button" id="rasc-copiar" data-acao="rasc-copiar">Copiar texto</button><button type="button" id="rasc-eml" data-acao="rasc-eml">Baixar rascunho (.eml)</button><button type="button" id="rasc-fechar" data-acao="rasc-fechar">Fechar</button></p></section>` : ""); }
+
+function telaEmissao() { const s = subAtual(), i = ui.sub, M = E.marcaEfetiva(estado.marcaCliente);
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-em"><h2 id="h-em">Emitir arquivos — ${esc(E.nomeSub(s, i))}</h2>
+    ${s.dadosConfirmados ? "" : `<p class="faixa at">Dados de cálculo não confirmados: os documentos saem marcados como EXEMPLO.</p>`}
+    <div class="chips">
+      <button type="button" class="principal" id="em-ep" data-acao="em" data-doc="ep">EP [CONFERIR] (ODT)</button>
+      <button type="button" class="principal" id="em-memorial" data-acao="em" data-doc="memorial">Memorial de cálculo (ODT)</button>
+      <button type="button" class="principal" id="em-relatorio" data-acao="em" data-doc="relatorio">Relatório descritivo (ODT)</button>
+      <button type="button" class="principal" id="em-lista" data-acao="em" data-doc="lista">Lista de equipamentos (ODS)</button>
+      <button type="button" class="principal" id="em-ifc" data-acao="ifc">Modelo IFC</button>
+      <button type="button" id="em-pdfa" data-acao="pdfa">Relatório em PDF/A (servidor)</button>
+      <button type="button" id="em-fin" data-acao="em" data-doc="financeiro">Financeiro por fase (ODS, uso interno)</button></div>
+    <p class="t2 pq">EP tratado como Especificação de Projeto até a dona confirmar a sigla [CONFERIR]. PDF/A: só com o servidor Physis (LibreOffice); aberta como arquivo, use o ODT.</p></section>
+    <section class="cartao" aria-labelledby="h-marca"><h2 id="h-marca">Template do cliente (marca da Estermic)</h2>
+    <p class="t2">Os documentos ao cliente usam só logo, fontes e paleta da Estermic, com "Elaborado por Physis Engineering" no rodapé. ${M.neutra ? '<span class="marcador">Marca ainda não recebida: valores neutros em uso.</span>' : ""}</p>
+    <div class="grade">${campo("marcaCliente.nome", "Nome no cabeçalho", "s")}${campo("marcaCliente.corPrincipal", "Cor principal (#RRGGBB)", "s")}${campo("marcaCliente.corTexto", "Cor do texto (#RRGGBB)", "s")}
+    ${campo("marcaCliente.corLinha", "Cor das linhas (#RRGGBB)", "s")}${campo("marcaCliente.fonteTitulo", "Fonte de título", "s")}${campo("marcaCliente.fonteTexto", "Fonte de texto", "s")}</div>
+    <label for="up-logo">Logo do cliente (PNG)</label><input type="file" id="up-logo" accept="image/png">${estado.marcaCliente.logoPng ? ' <span class="t2">logo carregado</span>' : ""}</section>
+    <section class="cartao" aria-labelledby="h-dados"><h2 id="h-dados">Guardar e trazer os dados</h2>
+    <p class="chips"><button type="button" id="exp-estado" data-acao="exp-estado">Exportar dados (JSON)</button></p>
+    <label for="up-estado">Importar dados (JSON exportado por esta tela)</label><input type="file" id="up-estado" accept=".json,application/json"></section>`; }
+
+function telaPend() { const P = E.pendencias(estado);
+  return `<section class="cartao" aria-labelledby="h-pend"><h2 id="h-pend">Pendências (${P.length})</h2><ul>${P.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
+  <section class="cartao" aria-labelledby="h-apr"><h2 id="h-apr">Aprendizados para o módulo padrão</h2>
+  <p class="t2">Cada melhoria feita para a Estermic que deve voltar aos módulos técnicos vendidos pela Physis. A lista-mestra está em modulos/estermic/aprendizados-modulo-padrao.json; os registrados aqui saem no JSON exportado.</p>
+  <div class="grade"><div><label for="apr-area">Área</label><select id="apr-area"><option>cálculo</option><option>equipamentos</option><option>documentos</option><option>BIM/GIS</option><option>financeiro</option><option>tela</option></select></div>
+  <div><label for="apr-desc">O que melhorou</label><input id="apr-desc" type="text"></div></div>
+  <p class="chips"><button type="button" id="apr-add" data-acao="apr-add">Registrar aprendizado</button><button type="button" id="apr-exp" data-acao="apr-exp">Exportar aprendizados (JSON)</button></p>
+  ${estado.aprendizados.length ? `<ul>${estado.aprendizados.map(a => `<li>${esc(a.data)} · ${esc(a.area)} · ${esc(a.descricao)}</li>`).join("")}</ul>` : `<p class="t2">Nenhum registrado nesta tela.</p>`}</section>`; }
+
+function render() {
+  const nav = el("abas"), main = el("conteudo");
+  if (!ui.cliente) { nav.innerHTML = ""; main.innerHTML = telaCliente(); return; }
+  nav.innerHTML = ABAS.map(([k, n]) => `<button type="button" id="aba-${k}" data-aba="${k}" aria-pressed="${k === ui.aba}">${esc(n)}</button>`).join("");
+  const A = E.alertas(estado, new Date()), nA = A.filter(a => a.nivel === "alerta").length;
+  const topo = `<p class="t2 pq">Cliente: <strong>Estermic</strong> · ${estado.subprojetos.length} subprojetos · ${nA ? `<strong>${nA} alerta(s)</strong> · ` : ""}${E.pendencias(estado).length} pendência(s)${ui.msg ? " · " + esc(ui.msg) : ""}</p>`;
+  const f = { projeto:telaProjeto, calculo:telaCalculo, equip:telaEquip, bimgis:telaBimGis, fin:telaFin, emissao:telaEmissao, pend:telaPend }[ui.aba] || telaProjeto;
+  main.innerHTML = topo + f();
+  if (ui.aba === "bimgis" && window.PhysisMapaLocal && PhysisMapaLocal.ligar) { try { const s = subAtual(); PhysisMapaLocal.ligar(el("mapa-lugar"), { lat:s.local.lat, lon:s.local.lon }); } catch (x) {} }
+}
+
+/* ═══ arquivos ═══ */
+function baixar(nome, dados, tipo) { const b = new Blob([dados], { type:tipo }), a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nome;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); fala("Arquivo gerado: " + nome); }
+const nomeArq = (doc, ext) => ("estermic-" + (subAtual().nome || "subprojeto-" + (ui.sub + 1)) + "-" + doc).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-") + "-TESTE." + ext;
+const meta = t => ({ titulo:t, teste:estado.teste, elaboradoPor:estado.emissor.nome });
+function blocosDe(doc) { if (doc === "ep") return E.ep(estado, ui.sub, ui.base); if (doc === "memorial") return E.memorial(estado, ui.sub, window.AVAC, window.CARGA_TERMICA); return E.relatorio(estado, ui.sub, window.AVAC); }
+function emitir(doc) {
+  if (doc === "lista") { const T = E.tabelaEquipamentos(estado, ui.sub); return baixar(nomeArq("lista-equipamentos", "ods"), E.ods([T], estado.marcaCliente, meta("Lista de equipamentos")), "application/vnd.oasis.opendocument.spreadsheet"); }
+  if (doc === "financeiro") return baixar(nomeArq("financeiro-interno", "ods"), E.ods([E.tabelaFinanceiro(estado)], { nome:"Physis Engineering · uso interno" }, meta("Financeiro por fase")), "application/vnd.oasis.opendocument.spreadsheet");
+  const tit = { ep:"EP [CONFERIR]", memorial:"Memorial de cálculo", relatorio:"Relatório descritivo" }[doc];
+  baixar(nomeArq(doc, "odt"), E.odt(blocosDe(doc), estado.marcaCliente, meta(tit)), "application/vnd.oasis.opendocument.text"); }
+function lerArquivo(inp, comoTexto) { return new Promise((ok, erro) => { const f = inp.files && inp.files[0]; if (!f) return erro(new Error("nenhum arquivo"));
+  const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => erro(r.error); if (comoTexto) r.readAsText(f, "utf-8"); else r.readAsDataURL(f); }); }
+document.addEventListener("change", ev => { const t = ev.target; if (!t || !t.id) return;
+  if (t.id === "up-base") lerArquivo(t, true).then(s => { const b = JSON.parse(s); if (!Array.isArray(b.itens)) throw new Error("não é a base de equipamentos"); ui.base = b; fala("Base de equipamentos carregada."); render(); }).catch(x => { ui.baseMsg = x.message; render(); });
+  if (t.id === "up-logo") lerArquivo(t, false).then(u => { estado.marcaCliente.logoPng = String(u).split(",")[1] || null; salvar(); fala("Logo do cliente carregado."); render(); });
+  if (t.id === "up-estado") lerArquivo(t, true).then(s => { estado = E.normalizar(JSON.parse(s)); salvar(); fala("Dados importados."); render(); }).catch(x => fala("Arquivo inválido: " + x.message)); });
+
+document.addEventListener("click", ev => { const b = ev.target && ev.target.closest ? ev.target.closest("button") : null; if (!b) return;
+  if (b.dataset.aba) { ui.aba = b.dataset.aba; render(); const n = el("aba-" + ui.aba); if (n) n.focus(); return; }
+  if (b.dataset.sub != null) { ui.sub = +b.dataset.sub; ui.rascunho = null; render(); const n = el("sub-" + ui.sub); if (n) n.focus(); return; }
+  const a = b.dataset.acao; if (!a) return; const s = subAtual(), j = +b.dataset.j, id = b.id;
+  try {
+    if (a === "abrir-cliente") { ui.cliente = "estermic"; ui.aba = "projeto"; }
+    else if (a === "sub-novo") { estado.subprojetos.push(E.normalizar({ subprojetos:[{}] }).subprojetos[0]); estado.subprojetos[estado.subprojetos.length - 1].id = "sp" + estado.subprojetos.length; ui.sub = estado.subprojetos.length - 1; }
+    else if (a === "fase-add") s.fases.push({ nome:"", descricao:"", valor:null, prazo:"", faturado:null, nf:"", vencimento:"", recebido:null });
+    else if (a === "fase-del") { if (!confirm("Remover a fase " + (j + 1) + "?")) return; s.fases.splice(j, 1); }
+    else if (a === "eq-calc") { const novos = E.equipamentosDoCalculo(s, window.AVAC), manuais = s.equipamentos.filter(q => q.origem !== "calculo");
+      if (s.equipamentos.some(q => q.origem === "calculo") && !confirm("Substituir os itens que vieram do cálculo (fabricante, modelo e peças desses itens serão perdidos)?")) return;
+      s.equipamentos = novos.concat(manuais); fala(novos.length + " item(ns) trazidos do cálculo AVAC."); }
+    else if (a === "eq-add") s.equipamentos.push({ tag:"EQ-" + String(s.equipamentos.length + 1).padStart(2, "0"), origem:"manual", sistema:"", descricao:"", qtd:1, cap:null, un:"", fabricante:"", modelo:"", baseId:"", pecas:[] });
+    else if (a === "eq-del") { if (!confirm("Remover o item " + (s.equipamentos[j].tag || j + 1) + "?")) return; s.equipamentos.splice(j, 1); }
+    else if (a === "peca-add") (s.equipamentos[j].pecas = s.equipamentos[j].pecas || []).push({ descricao:"", codigo:"", qtd:1 });
+    else if (a === "peca-del") s.equipamentos[j].pecas.splice(+b.dataset.k, 1);
+    else if (a === "nota") { ui.rascunho = E.rascunhoNota(estado, ui.sub = +String(id).split("-")[1], j); fala("Rascunho gerado; nada foi enviado."); }
+    else if (a === "rasc-copiar") { const t = el("rasc-corpo"); if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(() => fala("Texto copiado."), () => { t.select(); fala("Selecione e copie."); }); else { t.select(); fala("Selecione e copie."); } return; }
+    else if (a === "rasc-eml") { baixar("rascunho-nota-estermic.eml", ui.rascunho.eml, "message/rfc822"); return; }
+    else if (a === "rasc-fechar") ui.rascunho = null;
+    else if (a === "geojson") { baixar("estermic-subprojetos-TESTE.geojson", JSON.stringify(E.geojson(estado), null, 1), "application/geo+json"); return; }
+    else if (a === "ifc") { const txt = PhysisIFC.escrever(E.ifcDados(estado, ui.sub)); baixar(nomeArq("modelo", "ifc"), txt, "application/x-step"); return; }
+    else if (a === "em") { emitir(b.dataset.doc); return; }
+    else if (a === "pdfa") { if (!/^https?:/.test(location.protocol)) { fala("PDF/A precisa do servidor Physis; aberta como arquivo, baixe o ODT."); render(); return; }
+      const u8 = E.odt(blocosDe("relatorio"), estado.marcaCliente, meta("Relatório descritivo"));
+      fetch("/api/documentos/pdfa", { method:"POST", credentials:"same-origin", headers:{ "Content-Type":"application/vnd.oasis.opendocument.text" }, body:u8 })
+        .then(r => r.ok ? r.arrayBuffer().then(x => baixar(nomeArq("relatorio", "pdf"), new Uint8Array(x), "application/pdf")) : fala("O servidor não gerou o PDF/A (" + r.status + ")."), () => fala("Servidor indisponível."));
+      return; }
+    else if (a === "exp-estado") { baixar("estermic-avac-dados-TESTE.json", JSON.stringify(estado, null, 1), "application/json"); return; }
+    else if (a === "apr-add") { const d = el("apr-desc").value.trim(); if (!d) { fala("Descreva o aprendizado."); return; }
+      estado.aprendizados.push({ data:new Date().toISOString().slice(0, 10), area:el("apr-area").value, descricao:d, origem:"estermic", levar_para:"[CONFERIR]", estado:"proposto" }); fala("Aprendizado registrado."); }
+    else if (a === "apr-exp") { baixar("aprendizados-estermic-TESTE.json", JSON.stringify(estado.aprendizados, null, 1), "application/json"); return; }
+    else return;
+  } catch (x) { fala("Não foi possível: " + x.message); }
+  salvar(); render(); const n = el(id) || el("conteudo"); if (n) n.focus(); });
+
+/* base de equipamentos: lida do sistema quando servida por http(s); aberta como arquivo, pelo envio acima */
+if (/^https?:/.test(location.protocol)) fetch("../../sistema/physis-equipamentos.json").then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))).then(b => { ui.base = b; render(); }, x => { ui.baseMsg = x.message; });
+if (/[?&]cliente=estermic\b/.test(location.search)) ui.cliente = "estermic";
+const ab = /[?&]aba=(\w+)/.exec(location.search); if (ab) ui.aba = ab[1];
+render();
+try { PhysisPreferencias.iniciar({ chave:"physis-pref", ondeColocar:"#pp-lugar", conteudo:"#conteudo", menu:"#abas", escalaPorZoom:true,
+  excecoes:["Estermic", "Physis Engineering", "AVAC", "IFC", "GeoJSON", "ODT", "ODS", "PDF/A", "EP"],
+  dicionario:{ "Selecionar cliente":"Select client", "Cliente":"Client", "Abrir inclusão de projeto":"Open project intake", "Projeto e contratos":"Project and contracts",
+    "Cálculo AVAC":"HVAC calculation", "Equipamentos":"Equipment", "BIM e GIS":"BIM and GIS", "Financeiro":"Finance", "Emissão":"Issue files",
+    "Pendências e aprendizados":"Open items and learnings", "Incluir subprojeto":"Add subproject", "Acrescentar fase":"Add phase", "Fases e prazos":"Phases and deadlines",
+    "Pedir nota ao contador":"Ask the accountant for an invoice", "Alertas e prazos":"Alerts and deadlines", "Trazer do cálculo AVAC":"Bring from HVAC calculation",
+    "Acrescentar item à mão":"Add item manually", "Acrescentar peça":"Add part", "Remover":"Remove", "Localização (GIS)":"Location (GIS)", "Modelo (BIM, IFC4)":"Model (BIM, IFC4)",
+    "Baixar IFC do subprojeto":"Download subproject IFC", "Baixar GeoJSON (todos os subprojetos)":"Download GeoJSON (all subprojects)", "Memorial de cálculo (ODT)":"Calculation report (ODT)",
+    "Relatório descritivo (ODT)":"Descriptive report (ODT)", "Lista de equipamentos (ODS)":"Equipment list (ODS)", "Modelo IFC":"IFC model", "Copiar texto":"Copy text",
+    "Baixar rascunho (.eml)":"Download draft (.eml)", "Fechar":"Close", "Registrar aprendizado":"Record learning", "Exportar dados (JSON)":"Export data (JSON)",
+    "Template do cliente (marca da Estermic)":"Client template (Estermic brand)", "Guardar e trazer os dados":"Save and load data", "Sem alertas.":"No alerts.",
+    "Contratado":"Contracted", "Faturado":"Invoiced", "A faturar":"To invoice", "Recebido":"Received", "A receber":"Receivable", "VERSÃO DE TESTE":"TEST VERSION" },
+  aoMudar:() => {} }); } catch (x) { /* sem a barra de preferências a tela segue funcionando */ }
+</script>
+</body>
+</html>
