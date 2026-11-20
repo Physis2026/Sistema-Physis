@@ -44,6 +44,12 @@ PADRAO = ["Cartão CNPJ e contrato social/estatuto", "Certidões (federal, estad
 _ID = re.compile(r"^[A-Za-z0-9_.:-]{1,80}$")
 
 
+def link_seguro(v: str) -> str:
+    """Só http(s): um link 'javascript:' ou 'data:' vindo de um CSV não pode virar um clique perigoso na tela (R-04)."""
+    t = str(v or "").strip()
+    return t if re.match(r"^https?://[^\s<>\"]+$", t, re.I) else ""
+
+
 def _sim(v: str) -> int:
     return 1 if str(v).strip().lower() in ("sim", "s", "yes", "true", "1") else 0
 
@@ -82,7 +88,7 @@ class Editais:
         for r in csv.DictReader(open(caminho, encoding="utf-8-sig"), delimiter=";"):
             eid = "ed:" + hashlib.sha1((r.get("chave") or r.get("titulo", "")).encode()).hexdigest()[:10]
             ant = self.mv.db.execute("SELECT * FROM mv_edital WHERE id=?", (eid,)).fetchone()
-            campos = dict(titulo=r.get("titulo", "")[:300] or "(sem título)", financiador=r.get("financiador", ""), link=r.get("link", ""),
+            campos = dict(titulo=r.get("titulo", "")[:300] or "(sem título)", financiador=r.get("financiador", ""), link=link_seguro(r.get("link", "")),
                           tipo=r.get("tipo", ""), prazo=r.get("prazo", ""), valor=r.get("valor", ""), moeda=r.get("moeda", ""),
                           quem_pode=r.get("quem_pode_propor", ""), territorio=r.get("restricao_territorial", ""), temas=r.get("temas", ""),
                           status=r.get("status", ""), frente=r.get("frente_mais_aderente", ""), aderencia=r.get("aderencia", ""),

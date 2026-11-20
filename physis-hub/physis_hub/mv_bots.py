@@ -335,7 +335,7 @@ def resumo(mv: MV, saida: Path | None = None, hoje: date | None = None) -> dict:
     linhas = [f"# Physis M&V · resumo de {hoje.strftime('%d/%m/%Y')} (versão de teste)", "",
               "## Saúde por frente", "", "| Frente | Nota | Feitas | Atrasadas | Bloqueadas | Datas a conferir |", "|---|---|---|---|---|---|"]
     for f in s["frentes"].values():
-        linhas.append(f"| {f['nome']} | {f['nota']} | {f['feitas']}/{f['total']} | {f['atrasadas']} | {f['bloqueadas']} | {f['datas_estimadas']} |")
+        linhas.append(f"| {f['nome']} | {f['nota'] if f['nota'] is not None else 'sem dados'} (confiança {f['confianca_pct']} %) | {f['feitas']}/{f['total']} | {f['atrasadas']} | {f['bloqueadas']} | {f['datas_estimadas']} |")
     linhas += ["", f"Fim previsto do plano atual: {cpm['fim_previsto']}", "", "## Alertas que pedem intervenção", ""]
     for a in [x for x in al if x["gravidade"] == "alerta"][:25]:
         linhas.append(f"- **{a['texto']}** → {a['acao']}")
@@ -415,6 +415,32 @@ def backup(mv: MV, destino: Path | None = None, hoje: date | None = None) -> dic
     return r
 
 
+BACKUP_MAX_H = 26      # R-02 (auditoria 39): cópia diária; mais de 26 h sem cópia nova vira alerta
+RESUMO_MAX_H = 26
+
+
+def conferir_rotina(mv: MV, pasta_backup: Path | None = None, agora: float | None = None) -> dict:
+    """Confere se a rotina diária está viva: idade da cópia de segurança mais nova e da última execução do resumo.
+    Roda a cada chamada de rodar() (barato); sem isso uma agenda parada passava em silêncio (A-03 da auditoria 39)."""
+    agora = agora or time.time()
+    inicio = mv.nova_rodada()
+    pasta = Path(pasta_backup or BACKUP_DIR)
+    copias = sorted(pasta.glob("physis-mv-*.db"), key=lambda p: p.stat().st_mtime) if pasta.is_dir() else []
+    idade_b = round((agora - copias[-1].stat().st_mtime) / 3600, 1) if copias else None
+    ult = mv.db.execute("SELECT MAX(fim) FROM mv_execucao WHERE bot='resumo' AND erro=''").fetchone()[0]
+    idade_r = round((agora - ult) / 3600, 1) if ult else None
+    if idade_b is None or idade_b > BACKUP_MAX_H:
+        mv.alertar("rotina", "backup_atrasado", "backup", "alerta",
+                   "Nenhuma cópia de segurança" + (f" há {idade_b:.0f} h" if idade_b is not None else " encontrada"),
+                   "Rodar: python -m physis_hub.mv_cli bots backup; conferir a tarefa PhysisMV\\resumo_7h e o registro mv_cli.log")
+    if idade_r is None or idade_r > RESUMO_MAX_H:
+        mv.alertar("rotina", "resumo_atrasado", "resumo", "atencao",
+                   "Resumo diário não roda" + (f" há {idade_r:.0f} h" if idade_r is not None else " desde a instalação"),
+                   "Conferir a tarefa PhysisMV\\resumo_7h (rodar quando o computador ligar e na bateria)")
+    mv.fechar_alertas_nao_vistos("rotina", inicio)
+    return {"backup_h": idade_b, "resumo_h": idade_r}
+
+
 BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup}
 
 
@@ -428,4 +454,8 @@ def rodar(mv: MV, quais: list[str] | None = None) -> dict:
             mv.registrar_execucao(nome, t0, "", repr(e))
             mv.alertar("mv", "bot_falhou", nome, "alerta", f"O bot {nome} falhou: {e!r}", "Ver o registro e corrigir")
             out[nome] = {"erro": repr(e)}
+    try:
+        out["rotina"] = conferir_rotina(mv)
+    except Exception as e:  # noqa: BLE001
+        out["rotina"] = {"erro": repr(e)}
     return out

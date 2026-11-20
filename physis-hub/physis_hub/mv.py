@@ -18,6 +18,7 @@ Regras:
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import sqlite3
@@ -73,6 +74,7 @@ CREATE TABLE IF NOT EXISTS mv_execucao (
   id INTEGER PRIMARY KEY AUTOINCREMENT, bot TEXT NOT NULL, inicio REAL NOT NULL, fim REAL, resumo TEXT NOT NULL DEFAULT '',
   erro TEXT NOT NULL DEFAULT '');
 """
+CONFIANCA_MIN = 50   # % mínimo de datas confirmadas para a nota de saúde valer como número (R-01)
 ENTIDADES_FIN = ("casa", "engineering", "instituto", "pessoa_fisica")   # nunca somadas entre si (D70)
 TIPOS_LANC = ("receita", "despesa", "doacao", "edital", "rateio")
 _ID = re.compile(r"^[A-Za-z0-9_.:-]{1,80}$")
@@ -114,7 +116,9 @@ class MV:
         return self._marca
 
     # ------------------------------------------------------------------ tarefas
-    def salvar_tarefa(self, t: dict, origem: str = "manual") -> dict:
+    def salvar_tarefa(self, t: dict, origem: str = "manual", conferir_deps: bool = False) -> dict:
+        """Grava uma tarefa. Entradas são validadas antes (R-03, auditoria 39): um valor com tipo errado não pode chegar ao
+        banco e derrubar as leituras do painel. `conferir_deps` (pedidos da tela) exige que as dependências existam."""
         tid = str(t.get("id") or "").strip()
         if not _ID.match(tid):
             raise ErroMV("id inválido")
@@ -123,19 +127,44 @@ class MV:
         titulo = str(t.get("titulo") or "").strip()
         if not titulo:
             raise ErroMV("título vazio")
+        if len(titulo) > 500:
+            raise ErroMV("título com mais de 500 caracteres")
         estado = t.get("estado") or "a_fazer"
         if estado not in ESTADOS:
             raise ErroMV("estado inválido")
         for k in ("inicio", "fim"):
-            if t.get(k) and not _DATA.match(str(t[k])):
-                raise ErroMV(f"{k} deve ser AAAA-MM-DD")
+            if t.get(k):
+                if not _DATA.match(str(t[k])) or len(str(t[k])) != 10:
+                    raise ErroMV(f"{k} deve ser AAAA-MM-DD")
+                try:
+                    date.fromisoformat(str(t[k]))
+                except ValueError:
+                    raise ErroMV(f"{k} não é uma data real: {t[k]}")
         dep = t.get("depende_de") or []
         if isinstance(dep, str):
             dep = [x for x in re.split(r"[,\s]+", dep) if x]
+        if not isinstance(dep, list) or not all(isinstance(x, str) and _ID.match(x) for x in dep):
+            raise ErroMV("depende_de deve ser uma lista de ids de tarefa")
+        if conferir_deps:
+            faltam = [x for x in dep if x != tid and not self.db.execute("SELECT 1 FROM mv_tarefa WHERE id=?", (x,)).fetchone()]
+            if faltam:
+                raise ErroMV(f"dependência desconhecida: {', '.join(faltam)}")
         ini, fim = _d(t.get("inicio")), _d(t.get("fim"))
-        dur = int(t.get("duracao_d") or ((fim - ini).days + 1 if ini and fim else 1))
-        if dur < 1:
-            raise ErroMV("duração menor que 1 dia")
+        try:
+            dur = int(t.get("duracao_d") or ((fim - ini).days + 1 if ini and fim else 1))
+        except (TypeError, ValueError):
+            raise ErroMV("duração deve ser um número inteiro de dias")
+        if not 1 <= dur <= 3650:
+            raise ErroMV("duração deve ficar entre 1 e 3650 dias")
+        pr = t.get("prioridade")
+        try:
+            pr = 3 if pr in (None, "") else int(pr)
+        except (TypeError, ValueError):
+            raise ErroMV("prioridade deve ser um número de 0 a 9")
+        if not 0 <= pr <= 9:
+            raise ErroMV("prioridade deve ser um número de 0 a 9")
+        if (t.get("versao") or "teste") not in ("teste", "oficial"):
+            raise ErroMV("versão deve ser 'teste' ou 'oficial'")
         agora = time.time()
         ant = self.db.execute("SELECT criado, concluida_em FROM mv_tarefa WHERE id=?", (tid,)).fetchone()
         concl = (ant["concluida_em"] if ant else None) or (HOJE().isoformat() if estado == "feita" else None)
@@ -146,7 +175,7 @@ class MV:
                depende_de,meta,marco,fonte,data_estimada,versao,bloqueio,origem,criado,atualizado,concluida_em)
                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (tid, t["frente"], str(t.get("projeto") or ""), titulo, str(t.get("responsavel") or ""), t.get("inicio"),
-             t.get("fim"), dur, estado, int(3 if t.get("prioridade") in (None, "") else t["prioridade"]), json.dumps(dep), t.get("meta"), t.get("marco"),
+             t.get("fim"), dur, estado, pr, json.dumps(dep), t.get("meta"), t.get("marco"),
              str(t.get("fonte") or ""), 1 if t.get("data_estimada") else 0, t.get("versao") or "teste",
              str(t.get("bloqueio") or ""), origem, ant["criado"] if ant else agora, agora, concl))
         self.db.commit()
@@ -314,9 +343,14 @@ class MV:
             # nota 0–100: começa em 100 e perde, proporcionalmente às abertas, até 50 por atraso, 30 por bloqueio e
             # 20 por prazo em risco (regra simples, explicada na tela)
             abertas = max(1, tot - feitas)
-            nota = 100 if tot == 0 else max(0, round(100 - 50 * atras / abertas - 30 * bloq / abertas - 20 * emr / abertas))
+            calc = max(0, round(100 - 50 * atras / abertas - 30 * bloq / abertas - 20 * emr / abertas))
+            # R-01 (auditoria 39; doc 30 §6c "nunca esconder a qualidade da estimativa"): confiança = abertas com data confirmada.
+            # Sem tarefas, ou com menos de 50 % de datas confirmadas, a nota não é mostrada como número ("sem dados").
+            n_abertas = tot - feitas
+            conf = 100 if n_abertas == 0 else round(100 * (n_abertas - est) / n_abertas)
+            nota = None if tot == 0 or conf < CONFIANCA_MIN else calc
             por[fid] = {"nome": nome, "total": tot, "feitas": feitas, "atrasadas": atras, "bloqueadas": bloq, "em_risco": emr,
-                        "datas_estimadas": est, "nota": nota,
+                        "datas_estimadas": est, "nota": nota, "nota_calculada": calc, "confianca_pct": conf,
                         "progresso_pct": round(100 * feitas / tot, 1) if tot else 0.0}
         docs = self.db.execute("SELECT situacao, COUNT(*) n FROM mv_documento GROUP BY situacao").fetchall()
         al = self.db.execute("SELECT gravidade, COUNT(*) n FROM mv_alerta WHERE resolvido IS NULL GROUP BY gravidade").fetchall()
@@ -332,7 +366,13 @@ class MV:
             raise ErroMV("tipo inválido")
         if not _DATA.match(str(l.get("data") or "")):
             raise ErroMV("data deve ser AAAA-MM-DD")
-        v = float(l["valor"])
+        try:
+            date.fromisoformat(str(l["data"])[:10])
+            v = float(l["valor"])
+        except (TypeError, ValueError, KeyError):
+            raise ErroMV("data ou valor inválido")
+        if not math.isfinite(v) or abs(v) > 1e12:
+            raise ErroMV("valor fora do intervalo")
         cur = self.db.execute(
             "INSERT INTO mv_lanc (entidade,data,tipo,valor,descricao,projeto,fonte,conferido,criado) VALUES (?,?,?,?,?,?,?,?,?)",
             (l["entidade"], l["data"], l["tipo"], v, str(l.get("descricao") or ""), str(l.get("projeto") or ""),
@@ -425,10 +465,13 @@ class MV:
             self.salvar_tarefa({
                 "id": tid, "frente": frente, "projeto": proj.get(t.get("projeto_id"), ""),
                 "titulo": t.get("titulo") or "(sem título)", "responsavel": pes.get(t.get("pessoa_id"), t.get("pessoa_id") or ""),
-                "inicio": ini.isoformat(), "fim": (ini + timedelta(days=dias - 1)).isoformat(), "duracao_d": dias,
+                # R-01 (auditoria 39): tarefa já existente mantém início, fim, duração e data_estimada; só a nova ganha prazo estimado
+                "inicio": ant["inicio"] if ant else ini.isoformat(),
+                "fim": ant["fim"] if ant else (ini + timedelta(days=dias - 1)).isoformat(),
+                "duracao_d": ant["duracao_d"] if ant else dias,
                 "estado": estado, "prioridade": 0 if pr == 0 else (2 if hz == "micro" else 3 if hz == "meso" else 4),
                 "depende_de": dep, "fonte": f"Gestão ({Path(caminho).name})",
-                "data_estimada": True,
+                "data_estimada": bool(ant["data_estimada"]) if ant else True,
                 "meta": ((ant or {}).get("meta") if (ant or {}).get("frente") == frente else None) or meta_padrao},
                 origem="gestao")
             n += 1

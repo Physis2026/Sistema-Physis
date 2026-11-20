@@ -5,29 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Physis M&amp;A · versão de teste</title>
 <style>
-:root{--fundo:#F4F6F1;--sup:#FFFFFF;--texto:#1C2B21;--texto2:#4A4F44;--logo:#4B7547;--acao:#33512F;--linha:#C9D2C4;
---areia:#EFE8D6;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#1C3550;--inf:#DBE7F1;--ok:#1F4A1C;--okf:#DCEBD8;
---barra:#7FA874;--crit:#A63A28;--risco:#C08A1E;--feita:#A8BFA0;--hoje:#3D6E8F}
-html[data-tema="escuro"]{--fundo:#1C2B21;--sup:#2A3829;--texto:#EEF2EA;--texto2:#C3D0BD;--logo:#8FB183;--acao:#A8BFA0;--linha:#4A5A47;
---areia:#33372E;--at:#E5D5AE;--atf:#5C3F00;--al:#E3C4BD;--alf:#5C2B2E;--in:#B8D0E0;--inf:#2C5A6E;--ok:#DCEBD8;--okf:#3A4A38;
---barra:#7FA874;--crit:#FF8A80;--risco:#C9A227;--feita:#5A6154;--hoje:#7FA9C4}
+/* Identity Guide Physis (19/11/2026; PALETA.md "Guia de identidade"): verde-floresta da Physis Engineering, creme, carvão,
+   laranja-semente como destaque e laranja de botão com texto branco. Josefin Sans só no logotipo e nos títulos grandes; Lora no corpo. */
+:root{--fundo:#F4F1EA;--sup:#FFFFFF;--texto:#1B1F23;--texto2:#4A4F44;--logo:#4A8A5A;--acao:#1A4D2E;--sobreacao:#FFFFFF;--botao:#C2410C;
+--linha:#D9D3C2;--semente:#F97316;
+--areia:#EFE8D6;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#4A4F44;--inf:#EFE8D6;--ok:#1F4A1C;--okf:#DCEBD8;
+--barra:#7FA874;--crit:#A63A28;--risco:#C08A1E;--feita:#A8BFA0;--hoje:#BB6B4A;
+--c-feita:#1A4D2E;--c-fazendo:#4A8A5A;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#C2410C;--c-plan:#4A4F44;--c-conc:#1A4D2E;
+--c-ent:#1A4D2E;--c-ent2:#8FB183;--c-sai:#C2410C;--c-sai2:#E3C4BD;
+--h0:#F4F1EA;--h1:#CDDCC4;--h2:#8FB183;--h3:#4B7547;--h4:#1A4D2E;--ht0:#4A4F44;--ht1:#1B1F23;--ht2:#1B1F23;--ht3:#FFFFFF;--ht4:#FFFFFF;
+--f-titulo:"Josefin Sans","Century Gothic","Segoe UI",sans-serif;--f-corpo:Lora,Georgia,"Times New Roman",serif}
+html[data-tema="escuro"]{--fundo:#1B1F23;--sup:#23282D;--texto:#F4F1EA;--texto2:#C3D0BD;--logo:#8FB183;--acao:#8FB183;--sobreacao:#1B1F23;--linha:#4A5A47;
+--areia:#33372E;--at:#E5D5AE;--atf:#5C3F00;--al:#E3C4BD;--alf:#5C2B2E;--in:#E5D5AE;--inf:#33372E;--ok:#DCEBD8;--okf:#3A4A38;
+--barra:#7FA874;--crit:#FF8A80;--risco:#C9A227;--feita:#5A6154;--hoje:#D9A58C;
+--c-feita:#8FB183;--c-fazendo:#4A8A5A;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#FF8A80;--c-plan:#C3D0BD;--c-conc:#8FB183;
+--c-ent:#8FB183;--c-ent2:#4A8A5A;--c-sai:#FF8A80;--c-sai2:#A85432;
+--h0:#23282D;--h1:#3A4A38;--h2:#4A5A47;--h3:#4B7547;--h4:#8FB183;--ht0:#C3D0BD;--ht1:#F4F1EA;--ht2:#F4F1EA;--ht3:#FFFFFF;--ht4:#1B1F23}
 *{box-sizing:border-box}
-body{margin:0;background:var(--fundo);color:var(--texto);font:15px/1.45 Inter,system-ui,"Segoe UI",sans-serif}
-h1{font:600 1.6rem/1.2 Fraunces,Georgia,serif;color:var(--acao);margin:0}
-h2{font:600 1.15rem Fraunces,Georgia,serif;margin:1.2rem 0 .5rem}
-header{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:4px solid #B9A97F;background:var(--sup)}
+body{margin:0;background:var(--fundo);color:var(--texto);font:15px/1.5 var(--f-corpo)}
+h1{font:300 1.7rem/1.15 var(--f-titulo);letter-spacing:.06em;color:var(--acao);margin:0}
+h2{font:600 1.2rem/1.25 var(--f-titulo);letter-spacing:.02em;margin:1.2rem 0 .5rem}
+h3{font:700 1rem/1.3 var(--f-corpo);margin:.6rem 0 .35rem}
+header{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:4px solid var(--semente);background:var(--sup)}
 .marca{display:flex;align-items:center;gap:.75rem}
 .marca img{width:44px;height:44px;border-radius:10px}
 .assina{font-size:.8rem;color:var(--texto2);letter-spacing:.04em;margin:.1rem 0 0}
 footer{border-top:1px solid var(--linha);padding:1rem 1.25rem;color:var(--texto2);font-size:.85rem;text-align:center;background:var(--sup)}
 .demo{background:#F6EAD0;color:#8A6410;padding:.5rem 1.25rem;font-weight:600;text-align:center}
-.selo{display:inline-block;font-size:.75rem;padding:.15rem .5rem;border-radius:99px;background:var(--atf);color:var(--at);margin-left:.5rem;vertical-align:middle;font-family:Inter,system-ui,sans-serif}
+.selo{display:inline-block;font-size:.75rem;padding:.15rem .5rem;border-radius:99px;background:var(--atf);color:var(--at);margin-left:.5rem;vertical-align:middle;font-family:var(--f-corpo);letter-spacing:0}
 nav[role=tablist]{display:flex;flex-wrap:wrap;gap:.25rem;padding:.5rem 1.25rem;background:var(--sup);border-bottom:1px solid var(--linha)}
 button,select,input{font:inherit;color:inherit}
 .aba{min-height:44px;padding:.5rem .9rem;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer}
-.aba[aria-selected=true]{background:var(--acao);color:var(--fundo)}
+.aba[aria-selected=true]{background:var(--acao);color:var(--sobreacao)}
 .btn{display:inline-flex;align-items:center;text-decoration:none;color:var(--texto);min-height:44px;padding:.45rem .9rem;border-radius:8px;border:1px solid var(--linha);background:var(--sup);cursor:pointer}
-.btn.prim{background:var(--acao);color:var(--fundo);border-color:var(--acao)}
+.btn.prim{background:var(--botao);color:#FFFFFF;border-color:var(--botao)}
 :focus-visible{outline:3px solid var(--hoje);outline-offset:2px}
 main{padding:1rem 1.25rem 3rem;max-width:1600px;margin:0 auto}
 .ferr{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.25rem 0 1rem}
@@ -35,14 +46,21 @@ main{padding:1rem 1.25rem 3rem;max-width:1600px;margin:0 auto}
 select,input[type=text]{min-height:44px;padding:.35rem .5rem;border:1px solid var(--linha);border-radius:8px;background:var(--sup)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem}
 .card{background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:.9rem}
-.nota{font:600 2rem Fraunces,Georgia,serif}
+.nota{font:600 2rem var(--f-titulo)}
 .pill{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.78rem;margin:.1rem .15rem 0 0}
 /* cores das marcas (PALETA.md, 19/11/2026): faixa ou etiqueta, sempre com o texto indicado */
-.fr{display:inline-block;padding:.05rem .5rem;border-radius:6px;font-size:.78rem;font-weight:600;color:#FFFFFF;background:#4A4F44}
-.fr-engineering{background:#33512F}.fr-instituto{background:#0B3D2E}.fr-casa{background:#2F7D5B}
-.fr-inovastem{background:#F97316;color:#1C1E22}.fr-delas{background:#7C3AED}.fr-transversal{background:#4A4F44}
-.card.fb-engineering{border-top:6px solid #33512F}.card.fb-instituto{border-top:6px solid #0B3D2E}.card.fb-casa{border-top:6px solid #2F7D5B}
-.card.fb-inovastem{border-top:6px solid #F97316}.card.fb-transversal{border-top:6px solid #4A4F44}
+.fr{display:inline-block;padding:.05rem .5rem;border-radius:6px;font-size:.78rem;font-weight:700;color:#FFFFFF;background:#0B3D2E}
+.fr-engineering{background:#1A4D2E}.fr-casa{background:#2F7D5B}.fr-delas{background:#7C3AED}.fr-transversal{background:#0B3D2E}
+.fr-instituto{background:#DCEBD8;color:#1F4A1C;box-shadow:inset 4px 0 #4A8A5A;padding-left:.6rem}
+.fr-inovastem{background:#F97316;color:#1B1F23}
+.card.fb-engineering{border-top:6px solid #1A4D2E}.card.fb-instituto{border-top:6px solid #4A8A5A}.card.fb-casa{border-top:6px solid #2F7D5B}
+.card.fb-inovastem{border-top:6px solid #F97316}.card.fb-delas{border-top:6px solid #7C3AED}.card.fb-transversal{border-top:6px solid #0B3D2E}
+.graf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,540px),1fr));gap:.9rem;margin:1rem 0}
+.gcard h2{margin-top:0}.gsvg{width:100%;height:auto;display:block}.mini{width:100%;height:20px;display:block;margin:.4rem 0}
+.gt{fill:var(--texto);font:13px var(--f-corpo)}.gt-m{fill:var(--texto2);font-size:12px}.gt-al{fill:var(--crit);font-weight:700}
+.det summary{cursor:pointer;color:var(--texto2);margin-top:.4rem;min-height:32px}
+.card.pj h3{margin-top:.2rem}
+#projeto{max-width:18rem}select{max-width:100%}main{overflow-x:hidden}.gcard{min-width:0}
 .g-alerta{background:var(--alf);color:var(--al)}.g-atencao{background:var(--atf);color:var(--at)}.g-info{background:var(--inf);color:var(--in)}.g-ok{background:var(--okf);color:var(--ok)}
 table{border-collapse:collapse;width:100%;background:var(--sup)}
 th,td{border-bottom:1px solid var(--linha);padding:.4rem .5rem;text-align:left;vertical-align:top}
@@ -79,12 +97,14 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
   <div class="ferr" style="margin:0">
     <label>Idioma <select id="idioma"><option value="pt">Português</option><option value="en">English</option></select></label>
     <label>Frente <select id="frente"><option value="">Todas as frentes</option></select></label>
+    <label>Projeto <select id="projeto"><option value="">Todos os projetos</option></select></label>
     <label>Tema <select id="tema"><option value="auto">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
     <button class="btn prim" id="rodar">Rodar bots agora</button>
   </div>
 </header>
 <nav role="tablist" aria-label="Visões">
   <button class="aba" role="tab" data-v="saude" aria-selected="true">Visão geral</button>
+  <button class="aba" role="tab" data-v="projetos" aria-selected="false">Projetos</button>
   <button class="aba" role="tab" data-v="gantt" aria-selected="false">Cronograma</button>
   <button class="aba" role="tab" data-v="kanban" aria-selected="false">Tarefas</button>
   <button class="aba" role="tab" data-v="matriz" aria-selected="false">Pendências por pessoa</button>
@@ -97,6 +117,13 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 <main>
   <p class="aviso" id="status" role="status">Carregando…</p>
   <section id="v-saude" role="tabpanel"></section>
+  <section id="v-projetos" role="tabpanel" hidden>
+    <p class="muted">Um cartão por projeto: andamento, prazos, riscos e confiança das datas. "Ver cronograma" filtra todas as abas por esse projeto (o filtro "Projeto" fica no topo).</p>
+    <div class="ferr"><label>Buscar <input type="text" id="pjBusca" placeholder="nome do projeto"></label>
+      <label>Ordenar <select id="pjOrdem"><option value="risco">Mais atrasos e riscos primeiro</option><option value="prazo">Prazo final</option><option value="tamanho">Mais tarefas</option><option value="nome">Nome</option></select></label>
+      <span class="muted" id="pjResumo"></span></div>
+    <div class="cards" id="projetos"></div>
+  </section>
   <section id="v-gantt" role="tabpanel" hidden>
     <div class="ferr">
       <label>Origem <select id="origem"><option value="semente">Plano Fase 0 + M&amp;A</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2 (577)</option><option value="">Todas</option></select></label>
@@ -104,7 +131,7 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
       <label>Escala <select id="escala"><option value="6">Dia (6 px)</option><option value="14">Dia (14 px)</option><option value="2">Mês (2 px/dia)</option></select></label>
       <span class="exp" data-vista="gantt"></span>
     </div>
-    <p class="legenda"><span><i class="leg" style="background:var(--barra)"></i>Planejada</span><span><i class="leg" style="background:var(--crit)"></i>Caminho crítico</span><span><i class="leg" style="background:var(--risco)"></i>Prazo em risco</span><span><i class="leg" style="background:var(--al)"></i>Atrasada</span><span><i class="leg" style="background:var(--feita)"></i>Feita</span><span>◆ marco · linha azul = hoje · tracejado = data [CONFERIR]</span></p>
+    <p class="legenda"><span><i class="leg" style="background:var(--barra)"></i>Planejada</span><span><i class="leg" style="background:var(--crit)"></i>Caminho crítico</span><span><i class="leg" style="background:var(--risco)"></i>Prazo em risco</span><span><i class="leg" style="background:var(--al)"></i>Atrasada</span><span><i class="leg" style="background:var(--feita)"></i>Feita</span><span>◆ marco · linha terracota = hoje · tracejado = data [CONFERIR]</span></p>
     <div class="gantt" id="gantt"></div>
   </section>
   <section id="v-kanban" role="tabpanel" hidden>
@@ -180,7 +207,7 @@ const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Aut
 "Origem":"Source","Plano Fase 0 + M&V":"Phase 0 plan + M&V","Correções (bots)":"Fixes (bots)","Gestão Fase 2 (577)":"Phase 2 management","Gestão Fase 2":"Phase 2 management","Todas":"All",
 "Só críticas, atrasadas ou em risco":"Only critical, late or at risk","Escala":"Scale","Dia (6 px)":"Day (6 px)","Dia (14 px)":"Day (14 px)","Mês (2 px/dia)":"Month (2 px/day)",
 "Planejada":"Planned","Caminho crítico":"Critical path","Prazo em risco":"Deadline at risk","Atrasada":"Late","Feita":"Done","Buscar":"Search",
-"◆ marco · linha azul = hoje · tracejado = data [CONFERIR]":"◆ milestone · blue line = today · dashed = date [TO CHECK]",
+"◆ marco · linha terracota = hoje · tracejado = data [CONFERIR]":"◆ milestone · terracotta line = today · dashed = date [TO CHECK]",
 "A fazer":"To do","Fazendo":"Doing","Bloqueada":"Blocked","Em revisão":"In review","nota de saúde":"health score","Alertas abertos":"Open alerts",
 "Últimas execuções dos bots":"Latest bot runs","Bot":"Bot","Quando":"When","Resumo":"Summary","Gravidade":"Severity","Alerta":"Alert","Intervenção sugerida":"Suggested intervention",
 "Marcar como resolvido":"Mark as resolved","intervir":"intervene","atenção":"attention","info":"info","Situação":"Status","Documento":"Document","Tipo":"Type","Idade":"Age",
@@ -226,6 +253,7 @@ $("#tema").onchange=e=>{tema(e.target.value);render(atual)};
 document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=MOCK?'<span class="muted">Downloads ODS/ODT/PDF na versão com servidor.</span>':["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}&idioma=${IDI}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
 $("#idioma").value=IDI;$("#idioma").onchange=e=>{try{localStorage.setItem("physis-pref-idioma",e.target.value)}catch(x){}location.reload();};
 EN["Downloads ODS/ODT/PDF na versão com servidor."]="ODS/ODT/PDF downloads in the server version.";
+EN["Projeto"]="Project";EN["Todos os projetos"]="All projects";EN["Projetos"]="Projects";EN["(sem projeto)"]="(no project)";EN["Andamento por frente"]="Progress by front";EN["Prazos das próximas 8 semanas"]="Deadlines for the next 8 weeks";EN["Evolução: planejado × concluído"]="Progress: planned × done";EN["Editais e finanças"]="Calls and finance";EN["Funil de editais"]="Calls funnel";EN["Finanças por entidade (nunca somadas entre si)"]="Finance by entity (never added together)";EN["Ver os números em tabela"]="See the numbers as a table";EN["Feitas"]="Done";EN["Em revisão"]="In review";EN["Fazendo"]="Doing";EN["A fazer"]="To do";EN["Bloqueadas"]="Blocked";EN["Ver cronograma"]="See schedule";EN["Ver tarefas"]="See tasks";EN["Ordenar"]="Sort";EN["Mais atrasos e riscos primeiro"]="Most delays and risks first";EN["Prazo final"]="Final deadline";EN["Mais tarefas"]="Most tasks";EN["Nome"]="Name";EN["Sem dados para mostrar com estes filtros."]="No data to show with these filters.";EN["Entradas oficiais"]="Official inflows";EN["Entradas a conferir"]="Inflows to check";EN["Saídas oficiais"]="Official outflows";EN["Saídas a conferir"]="Outflows to check";EN["Concluído"]="Done";EN["Escopo total"]="Total scope";EN["Planejado (prazo até a semana, tracejado)"]="Planned (due by the week, dashed)";EN["Editais (prazo de envio)"]="Calls (submission deadline)";EN["Nenhum projeto com esses filtros."]="No projects with these filters.";
 EN["Enviar editais (CSV do banco) ou o arquivo do edital"]="Upload calls (bank CSV) or the call document";EN["Anexar documentos"]="Attach documents";EN["Importar lançamentos ou guardar extratos"]="Import entries or store statements";EN["Arraste arquivos aqui ou clique para escolher"]="Drag files here or click to choose";EN["Vincular a"]="Link to";EN["(sem vínculo)"]="(no link)";EN["Baixar modelo CSV"]="Download CSV template";EN["Arquivo"]="File";EN["Vínculo"]="Link";EN["Enviado"]="Uploaded";EN["Situação"]="Status";EN["Ações"]="Actions";EN["Ver prévia"]="Preview";EN["Baixar"]="Download";EN["Descartar"]="Discard";EN["aguardando prévia"]="awaiting preview";EN["guardado"]="stored";EN["aplicado"]="applied";EN["descartado"]="discarded";EN["Nenhum arquivo enviado ainda."]="No files uploaded yet.";EN["Prévia (versão de teste: nada foi gravado ainda)"]="Preview (test version: nothing saved yet)";EN["Aplicar (gravar no banco)"]="Apply (save to database)";EN["Fechar prévia"]="Close preview";EN["Linhas com erro (não entram)"]="Rows with errors (not imported)";EN["Arquivos deste edital (PDF, anexos, rascunhos)"]="Files for this call (PDF, annexes, drafts)";EN["Upload disponível só na versão local com servidor (os arquivos ficam guardados fora do OneDrive)."]="Upload is available only in the local server version (files are stored outside OneDrive).";
 traduz(document.body);
 let atual="saude";
@@ -242,18 +270,23 @@ async function render(v){
     const al=s.alertas_abertos||{},d=s.documentos||{};
     let h=`<div class="cards">`;
     for(const [id,f] of Object.entries(s.frentes)){if(fr()&&fr()!==id)continue;
-      const g=f.nota>=80?"ok":f.nota>=50?"atencao":"alerta";
-      h+=`<div class="card fb-${id}"><div><span class="fr fr-${id}">${esc(f.nome)}</span></div><div class="nota">${f.nota}</div><span class="pill g-${g}">nota de saúde</span>
+      const sd=f.nota==null,g=sd?"info":f.nota>=80?"ok":f.nota>=50?"atencao":"alerta";
+      h+=`<div class="card fb-${id}"><div><span class="fr fr-${id}">${esc(f.nome)}</span></div><div class="nota">${sd?"sem dados":f.nota}</div><span class="pill g-${g}">nota de saúde</span>
+      <span class="pill g-${f.confianca_pct>=80?"ok":f.confianca_pct>=50?"atencao":"alerta"}">confiança ${f.confianca_pct}%</span>${sd&&f.total?`<p class="muted">Nota calculada ${f.nota_calculada}, mas só ${f.confianca_pct}% das datas abertas estão confirmadas: confirme as datas para a nota valer.</p>`:""}
       <p class="muted">${f.feitas}/${f.total} feitas (${f.progresso_pct}%) · ${f.atrasadas} atrasadas · ${f.bloqueadas} bloqueadas · ${f.em_risco} em risco · ${f.datas_estimadas} datas [CONFERIR]</p></div>`;}
     h+=`</div><h2>Alertas abertos</h2><p><span class="pill g-alerta">${al.alerta||0} pedem intervenção</span><span class="pill g-atencao">${al.atencao||0} atenção</span><span class="pill g-info">${al.info||0} informação</span></p>
     <h2>Documentos</h2><p><span class="pill g-alerta">${d.falha||0} com falha</span><span class="pill g-atencao">${d.vencido||0} vencidos</span><span class="pill g-ok">${d.ok||0} em dia</span></p>
     <h2>Últimas execuções dos bots</h2><table><thead><tr><th>Bot</th><th>Quando</th><th>Resumo</th></tr></thead><tbody>`+
     Object.entries(s.ultima_execucao||{}).map(([b,x])=>`<tr><td>${esc(b)}</td><td>${esc(x.quando)}</td><td><code>${esc(x.erro||x.resumo)}</code></td></tr>`).join("")+`</tbody></table>
-    <p class="muted">Nota: começa em 100 e perde, pela fração das tarefas abertas, até 50 pontos por atraso, 30 por bloqueio e 20 por prazo em risco.</p>`;
-    $("#v-saude").innerHTML=h;}
-  if(v==="gantt"){const ts=await get("/api/mv/gantt"+(fr()?"?frente="+fr():""));const r=await get("/api/mv/roadmap");gantt(ts,r.marcos);}
+    <p class="muted">Nota: começa em 100 e perde, pela fração das tarefas abertas, até 50 pontos por atraso, 30 por bloqueio e 20 por prazo em risco. Confiança: % das tarefas abertas com data confirmada; abaixo de 50% a nota aparece como "sem dados".</p>`;
+    $("#v-saude").innerHTML=(pj()?`<p class="aviso">Projeto: <strong>${esc(nomePj(pj()))}</strong>. Os gráficos abaixo mostram só esse projeto; as notas por frente consideram todos.</p>`:"")+h;
+    const ts=(await todas(true)).filter(t=>(!fr()||t.frente===fr())&&doProjeto(t));preencherProjetos();
+    const eds=await get("/api/mv/editais");
+    $("#v-saude .cards").insertAdjacentHTML("afterend",painel(ts,eds,s.financeiro));}
+  if(v==="projetos"){await projetos();}
+  if(v==="gantt"){const ts=(await get("/api/mv/gantt"+(fr()?"?frente="+fr():""))).filter(doProjeto);const r=await get("/api/mv/roadmap");gantt(ts,r.marcos);}
   if(v==="kanban"){CACHE.k=await get("/api/mv/kanban"+(fr()?"?frente="+fr():""));kanban();}
-  if(v==="matriz"){const m=await get("/api/mv/matriz");const fs=META.frentes.map(f=>f.id).filter(x=>!fr()||x===fr());
+  if(v==="matriz"){const m=pj()?matrizLocal((await todas()).filter(doProjeto)):await get("/api/mv/matriz");const fs=META.frentes.map(f=>f.id).filter(x=>!fr()||x===fr());
     let h=`<table><caption class="muted">Abertas / atrasadas / bloqueadas por pessoa (primeiro responsável) e frente</caption><thead><tr><th>Pessoa</th>${fs.map(f=>`<th>${esc(FR[f])}</th>`).join("")}<th>Total</th></tr></thead><tbody>`;
     const linhas=Object.entries(m).map(([p,c])=>[p,c,fs.reduce((a,f)=>a+((c[f]||{}).abertas||0),0)]).sort((a,b)=>b[2]-a[2]);
     for(const [p,c,tot] of linhas){if(!tot)continue;h+=`<tr><th scope="row">${esc(p)}</th>`+fs.map(f=>{const x=c[f];if(!x)return"<td></td>";
@@ -266,7 +299,8 @@ async function render(v){
       ms.map(m=>{const p=m.tarefas?Math.round(100*m.feitas/m.tarefas):0;return `<div class="card" style="margin:.4rem 0"><strong>${esc(m.titulo)}</strong> <span class="pill g-info">${esc(FR[m.frente])}</span>
       <p class="muted">Indicador: ${esc(m.indicador)} · Alvo: ${esc(m.alvo)} · Fonte: ${esc(m.fonte)}</p><div class="barra" role="img" aria-label="${p}% das tarefas ligadas feitas"><i style="width:${p}%"></i></div><p class="muted">${m.feitas}/${m.tarefas} tarefas ligadas feitas</p></div>`}).join("")+`</div>`;}
     $("#roadmap").innerHTML=h;}
-  if(v==="alertas"){const a=(await get("/api/mv/alertas")).filter(x=>!fr()||x.frente===fr());
+  if(v==="alertas"){const ids=pj()?new Set((await todas()).filter(doProjeto).map(t=>t.id)):null;
+    const a=(await get("/api/mv/alertas")).filter(x=>(!fr()||x.frente===fr())&&(!ids||ids.has(x.ref)||ids.has(String(x.ref||"").replace(/^[a-z]+:/,""))));
     $("#alertas").innerHTML=`<table><thead><tr><th>Gravidade</th><th>Alerta</th><th>Intervenção sugerida</th><th>Bot</th><th></th></tr></thead><tbody>`+
     a.map(x=>`<tr><td><span class="pill g-${x.gravidade}">${{alerta:"intervir",atencao:"atenção",info:"info"}[x.gravidade]}</span></td><td>${esc(x.texto)}</td><td>${esc(x.acao)}</td><td>${esc(x.bot)}</td>
     <td><button class="btn" data-res="${esc(x.id)}">Marcar como resolvido</button></td></tr>`).join("")+`</tbody></table>`;
@@ -283,13 +317,13 @@ async function render(v){
   }catch(e){status("Não consegui ler o servidor do M&A: "+e);}
 }
 function kanban(){const o=$("#origemK").value,b=$("#busca").value.toLowerCase();
-  $("#kanban").innerHTML=META.estados.map(e=>{const ts=CACHE.k[e.id].filter(t=>(!o||origemDe(t)===o)&&(!b||(t.titulo+" "+t.responsavel).toLowerCase().includes(b)));
+  $("#kanban").innerHTML=META.estados.map(e=>{const ts=CACHE.k[e.id].filter(t=>(!o||origemDe(t)===o)&&doProjeto(t)&&(!b||(t.titulo+" "+t.responsavel).toLowerCase().includes(b)));
     return `<div class="col"><h3>${esc(e.nome)} (${ts.length})</h3>`+ts.slice(0,150).map(t=>`<div class="tc${t.atrasada?" atr":""}"><strong>${esc(t.titulo)}</strong>
     <div class="muted"><span class="fr fr-${esc(t.frente)}">${esc(FR[t.frente])}</span> ${esc(t.responsavel||"sem responsável")} · prazo ${esc(t.fim||"—")}${t.data_estimada?" [CONFERIR]":""}</div>
     ${t.atrasada?'<span class="pill g-alerta">atrasada</span>':""}${t.bloqueio?`<div class="muted">Bloqueio: ${esc(t.bloqueio)}</div>`:""}
     <label class="muted">Estado <select data-id="${esc(t.id)}">${META.estados.map(x=>`<option value="${x.id}"${x.id===t.estado?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></label></div>`).join("")+(ts.length>150?`<p class="muted">+${ts.length-150} (use a busca)</p>`:"")+`</div>`}).join("");
   $("#kanban").querySelectorAll("select[data-id]").forEach(s=>s.onchange=async()=>{let bl="";if(s.value==="bloqueada"){bl=prompt("O que bloqueia e de quem depende?")||"";}
-    const r=await post("/api/mv/estado",{id:s.dataset.id,estado:s.value,bloqueio:bl});if(r.erro)alert(r.erro);render("kanban");});}
+    const r=await post("/api/mv/estado",{id:s.dataset.id,estado:s.value,bloqueio:bl});if(r.erro)alert(r.erro);CACHE.todas=null;render("kanban");});}
 $("#origemK").onchange=kanban;$("#busca").oninput=kanban;
 function gantt(ts,marcos){const o=$("#origem").value,sc=+$("#escala").value,so=$("#soCrit").checked;
   ts=ts.filter(t=>(!o||origemDe(t)===o)&&(!so||t.critico||t.atrasada||t.prazo_em_risco)&&t.plan_inicio);
@@ -317,6 +351,122 @@ function gantt(ts,marcos){const o=$("#origem").value,sc=+$("#escala").value,so=$
   $("#gantt").innerHTML=s+"</svg>";}
 ["#origem","#escala","#soCrit"].forEach(i=>$(i).onchange=()=>render("gantt"));
 let ED=[];
+// ---------------------------------------------------------------- projetos e painéis de supervisão (20/11/2026)
+const SEMPJ="__sem";
+const pj=()=>$("#projeto").value;
+const doProjeto=t=>!pj()||(pj()===SEMPJ?!t.projeto:t.projeto===pj());
+const nomePj=k=>k===SEMPJ||!k?"(sem projeto)":k;
+async function todas(forcar){if(forcar||!CACHE.todas)CACHE.todas=await get("/api/mv/gantt");return CACHE.todas;}
+function preencherProjetos(){const sel=$("#projeto"),atual=sel.value,ts=(CACHE.todas||[]).filter(t=>!fr()||t.frente===fr());
+  const c={};ts.forEach(t=>{const k=t.projeto||SEMPJ;c[k]=(c[k]||0)+1;});
+  const ks=Object.keys(c).sort((a,b)=>a===SEMPJ?1:b===SEMPJ?-1:a.localeCompare(b,"pt-BR"));
+  sel.innerHTML=`<option value="">Todos os projetos</option>`+ks.map(k=>`<option value="${esc(k)}">${esc(nomePj(k))} (${c[k]})</option>`).join("");
+  sel.value=c[atual]?atual:"";traduz(sel);}
+const isoD=d=>new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const segunda=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x;};
+const addD=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const ddmm=d=>d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+const tabDet=(cab,linhas)=>`<details class="det"><summary>Ver os números em tabela</summary><div class="tabwrap" style="max-height:40vh"><table><thead><tr>${cab.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${linhas.map(l=>`<tr>${l.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></details>`;
+const cartao=(titulo,corpo)=>`<div class="card gcard"><h2>${esc(titulo)}</h2>${corpo}</div>`;
+const vazio=t=>`<p class="muted">Sem dados para mostrar com estes filtros.</p>`;
+const SERIES=[["feita","Feitas","--c-feita"],["revisao","Em revisão","--c-revisao"],["fazendo","Fazendo","--c-fazendo"],["a_fazer","A fazer","--c-afazer"],["bloqueada","Bloqueadas","--c-bloq"]];
+const confDe=x=>{const ab=x.filter(t=>t.estado!=="feita"),e=ab.filter(t=>t.data_estimada).length;return ab.length?Math.round(100*(ab.length-e)/ab.length):100;};
+function grafAndamento(ts){const fs=META.frentes.filter(f=>!fr()||f.id===fr());
+  const ds=fs.map(f=>{const x=ts.filter(t=>t.frente===f.id),c={};SERIES.forEach(([k])=>c[k]=x.filter(t=>t.estado===k).length);
+    return {f,tot:x.length,c,atr:x.filter(t=>t.atrasada).length,conf:confDe(x)};}).filter(d=>d.tot);
+  if(!ds.length)return cartao("Andamento por frente",vazio());
+  const LW=160,W=660,BW=W-LW-200,RH=38,H=ds.length*RH+6;
+  let s=`<svg viewBox="0 0 ${W} ${H}" class="gsvg" role="img" aria-label="${esc("Andamento por frente: "+ds.map(d=>`${d.f.nome}, ${d.c.feita} de ${d.tot} feitas, ${d.atr} atrasadas`).join("; "))}">`;
+  ds.forEach((d,i)=>{const y=3+i*RH;let x=LW;s+=`<text x="0" y="${y+21}" class="gt">${esc(d.f.nome)}</text>`;
+    s+=`<rect x="${LW}" y="${y+6}" width="${BW}" height="22" rx="4" style="fill:var(--areia)"/>`;
+    SERIES.forEach(([k,n,v])=>{const w=BW*d.c[k]/d.tot;if(w>0){s+=`<rect x="${x.toFixed(1)}" y="${y+6}" width="${w.toFixed(1)}" height="22" style="fill:var(${v});stroke:var(--sup);stroke-width:1"><title>${esc(d.f.nome)}: ${d.c[k]} ${n.toLowerCase()}</title></rect>`;x+=w;}});
+    s+=`<text x="${LW+BW+10}" y="${y+21}" class="gt">${d.c.feita}/${d.tot}${d.atr?"":""}</text>`;
+    if(d.atr)s+=`<text x="${LW+BW+70}" y="${y+21}" class="gt gt-al">${d.atr} atras.</text>`;
+    s+=`<text x="${LW+BW+140}" y="${y+21}" class="gt gt-m">conf. ${d.conf}%</text>`;});
+  s+=`</svg>`;
+  const leg=`<p class="legenda">${SERIES.map(([k,n,v])=>`<span><i class="leg" style="background:var(${v})"></i>${n}</span>`).join("")}</p>`;
+  return cartao("Andamento por frente",s+leg+`<p class="muted">Barra = 100% das tarefas da frente. "conf." = tarefas abertas com data confirmada.</p>`+
+    tabDet(["Frente","Feitas","Em revisão","Fazendo","A fazer","Bloqueadas","Atrasadas","Total","Confiança %"],ds.map(d=>[d.f.nome,d.c.feita,d.c.revisao,d.c.fazendo,d.c.a_fazer,d.c.bloqueada,d.atr,d.tot,d.conf])));}
+function grafPrazos(ts,eds){const s0=segunda(new Date()),sem=[...Array(8)].map((_,i)=>addD(s0,7*i));
+  const fs=META.frentes.filter(f=>!fr()||f.id===fr());let est=0,cont=0;
+  const ls=fs.map(f=>{const x=ts.filter(t=>t.frente===f.id&&t.estado!=="feita"&&t.fim);
+    return {nome:f.nome,atr:x.filter(t=>t.atrasada).length,v:sem.map(a=>{const A=isoD(a),B=isoD(addD(a,7)),y=x.filter(t=>t.fim>=A&&t.fim<B);cont+=y.length;est+=y.filter(t=>t.data_estimada).length;return y.length;})};});
+  if(!pj()){const e=eds.filter(d=>!["arquivada","reprovada","aprovada","enviada"].includes(d.etapa)&&(!fr()||d.frente===fr()));
+    ls.push({nome:"Editais (prazo de envio)",atr:null,v:sem.map(a=>{const A=isoD(a),B=isoD(addD(a,7));return e.filter(d=>{const m=/^\d{4}-\d{2}-\d{2}/.exec(d.prazo||"");return m&&m[0]>=A&&m[0]<B;}).length;})});}
+  const mx=Math.max(1,...ls.flatMap(l=>l.v));
+  const LW=170,CW=56,RH=32,TOP=30,W=LW+CW*9,H=TOP+ls.length*RH+4;
+  let s=`<svg viewBox="0 0 ${W} ${H}" class="gsvg" role="img" aria-label="${esc("Prazos por semana: "+ls.map(l=>`${l.nome}: ${l.v.join(", ")}`).join("; "))}">`;
+  s+=`<text x="${LW+CW/2}" y="18" class="gt gt-m" text-anchor="middle">atrasadas</text>`;
+  sem.forEach((a,i)=>s+=`<text x="${LW+CW*(i+1)+CW/2}" y="18" class="gt gt-m" text-anchor="middle">${ddmm(a)}</text>`);
+  ls.forEach((l,j)=>{const y=TOP+j*RH;s+=`<text x="0" y="${y+20}" class="gt">${esc(l.nome)}</text>`;
+    if(l.atr!=null)s+=`<rect x="${LW+3}" y="${y+2}" width="${CW-6}" height="${RH-6}" rx="5" style="fill:var(${l.atr?"--alf":"--h0"})"/><text x="${LW+CW/2}" y="${y+20}" text-anchor="middle" class="gt" style="fill:var(${l.atr?"--al":"--texto2"});font-weight:700">${l.atr}</text>`;
+    l.v.forEach((v,i)=>{const n=v?Math.min(4,Math.ceil(4*v/mx)):0,x=LW+CW*(i+1);
+      s+=`<rect x="${x+3}" y="${y+2}" width="${CW-6}" height="${RH-6}" rx="5" style="fill:var(--h${n})"><title>${esc(l.nome)} · semana de ${ddmm(sem[i])}: ${v}</title></rect><text x="${x+CW/2}" y="${y+20}" text-anchor="middle" class="gt" style="fill:var(--ht${n});font-weight:700">${v||"·"}</text>`;});});
+  s+=`</svg>`;
+  return cartao("Prazos das próximas 8 semanas",s+`<p class="muted">Cada coluna é uma semana (começa na segunda). Cor mais forte = mais prazos.${cont?` ${Math.round(100*est/cont)}% desses prazos ainda são estimados [CONFERIR].`:""}</p>`+
+    tabDet(["Linha","Atrasadas",...sem.map(ddmm)],ls.map(l=>[l.nome,l.atr==null?"—":l.atr,...l.v])));}
+function grafBurnup(ts){if(!ts.length)return cartao("Evolução: planejado × concluído",vazio());
+  const hoje=new Date(),s0=addD(segunda(hoje),-7*12),N=25,H0=isoD(hoje);
+  const pts=[...Array(N)].map((_,i)=>{const f=addD(s0,7*i+6),F=isoD(f);return {f,plan:ts.filter(t=>t.fim&&t.fim<=F).length,conc:addD(s0,7*i)<=hoje?ts.filter(t=>t.concluida_em&&t.concluida_em<=F).length:null};});
+  const tot=ts.length,W=660,H=250,L=46,R=14,T=16,B=32,x=i=>L+i*(W-L-R)/(N-1),y=v=>T+(H-T-B)*(1-v/tot);
+  let s=`<svg viewBox="0 0 ${W} ${H}" class="gsvg" role="img" aria-label="${esc(`Evolução: ${tot} tarefas no escopo; até hoje ${pts[12].plan} planejadas e ${pts[12].conc} concluídas`)}">`;
+  [0,.25,.5,.75,1].forEach(p=>{const yy=y(tot*p);s+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" style="stroke:var(--linha)"/><text x="${L-6}" y="${yy+4}" text-anchor="end" class="gt gt-m">${Math.round(tot*p)}</text>`;});
+  pts.forEach((p,i)=>{if(i%4===0)s+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" class="gt gt-m">${ddmm(p.f)}</text>`;});
+  s+=`<line x1="${L}" x2="${W-R}" y1="${y(tot)}" y2="${y(tot)}" style="stroke:var(--semente);stroke-width:2"/><text x="${W-R}" y="${y(tot)-5}" text-anchor="end" class="gt gt-m">escopo ${tot}</text>`;
+  s+=`<polyline fill="none" style="stroke:var(--c-plan);stroke-width:2;stroke-dasharray:6 4" points="${pts.map((p,i)=>`${x(i).toFixed(1)},${y(p.plan).toFixed(1)}`).join(" ")}"/>`;
+  const pc=pts.map((p,i)=>p.conc==null?null:`${x(i).toFixed(1)},${y(p.conc).toFixed(1)}`).filter(Boolean);
+  s+=`<polyline fill="none" style="stroke:var(--c-conc);stroke-width:3.5" points="${pc.join(" ")}"/>`;
+  const xh=x(12+((hoje.getDay()+6)%7)/7);s+=`<line x1="${xh}" x2="${xh}" y1="${T}" y2="${H-B}" style="stroke:var(--hoje);stroke-width:2"/><text x="${xh+4}" y="${T+10}" class="gt gt-m">hoje</text>`;
+  s+=`</svg>`;const est=ts.filter(t=>t.estado!=="feita"&&t.data_estimada).length,ab=ts.filter(t=>t.estado!=="feita").length;
+  return cartao("Evolução: planejado × concluído",s+`<p class="legenda"><span><i class="leg" style="background:var(--c-plan)"></i>Planejado (prazo até a semana, tracejado)</span><span><i class="leg" style="background:var(--c-conc)"></i>Concluído</span><span><i class="leg" style="background:var(--semente)"></i>Escopo total</span></p>`+
+    `<p class="muted">12 semanas para trás e 12 para a frente. ${ab?`${Math.round(100*est/ab)}% das tarefas abertas têm prazo estimado [CONFERIR]: a linha planejada é indicativa.`:""} Concluído usa a data em que a tarefa foi marcada como feita.</p>`+
+    tabDet(["Semana até","Planejado acumulado","Concluído acumulado"],pts.map(p=>[isoD(p.f),p.plan,p.conc==null?"—":p.conc])));}
+function grafEditaisFin(eds,fin){const ord=["triagem","decidir","preparar","revisao","enviada","aprovada"];
+  const e=eds.filter(d=>!fr()||d.frente===fr()),c=ord.map(k=>[k,e.filter(d=>d.etapa===k).length]),mx=Math.max(1,...c.map(x=>x[1]));
+  const W=660,LW=130,RH=30,H=c.length*RH+6;
+  let s=`<svg viewBox="0 0 ${W} ${H}" class="gsvg" role="img" aria-label="${esc("Editais por etapa: "+c.map(([k,n])=>`${ETP[k]||k} ${n}`).join(", "))}">`;
+  c.forEach(([k,n],i)=>{const y=3+i*RH,w=(W-LW-60)*n/mx;s+=`<text x="0" y="${y+19}" class="gt">${esc(ETP[k]||k)}</text><rect x="${LW}" y="${y+4}" width="${Math.max(n?3:0,w)}" height="20" rx="4" style="fill:var(--c-feita)"/><text x="${LW+w+8}" y="${y+19}" class="gt">${n}</text>`;});
+  s+=`</svg>`;const fora=`${e.filter(d=>d.etapa==="arquivada").length} arquivado(s) · ${e.filter(d=>d.etapa==="reprovada").length} reprovado(s)`;
+  const nomes={casa:"Casa Physis",engineering:"Physis Engineering",instituto:"Instituto Physis",pessoa_fisica:"Pessoa física (lote)"};
+  const ent=x=>(x.receita||0)+(x.doacao||0)+(x.edital||0),sai=x=>x.despesa||0;
+  const fl=Object.entries(fin||{}).map(([k,d])=>({k,n:nomes[k]||k,eo:ent(d.oficial),ec:ent(d.a_conferir),so:sai(d.oficial),sc:sai(d.a_conferir)}));
+  const fmx=Math.max(0,...fl.flatMap(f=>[f.eo+f.ec,f.so+f.sc]));let f2;
+  if(!fmx)f2=`<p class="muted">Sem lançamentos ainda. Nada é estimado aqui: os valores aparecem quando houver lançamentos (a conferir ou oficiais).</p>`;
+  else{const RW=W-LW-150,RH2=46,H2=fl.length*RH2+4,rs=v=>RW*v/fmx,brl=v=>"R$ "+v.toLocaleString("pt-BR",{maximumFractionDigits:0});
+    f2=`<svg viewBox="0 0 ${W} ${H2}" class="gsvg" role="img" aria-label="${esc("Finanças por entidade, sem somar entidades: "+fl.map(f=>`${f.n}: entradas ${brl(f.eo+f.ec)}, saídas ${brl(f.so+f.sc)}`).join("; "))}">`;
+    fl.forEach((f,i)=>{const y=2+i*RH2;f2+=`<text x="0" y="${y+18}" class="gt">${esc(f.n)}</text>`;
+      [[f.eo,f.ec,"--c-ent","--c-ent2","entradas",y+3],[f.so,f.sc,"--c-sai","--c-sai2","saídas",y+23]].forEach(([o,cf,v1,v2,r,yy])=>{
+        f2+=`<rect x="${LW}" y="${yy}" width="${rs(o).toFixed(1)}" height="16" style="fill:var(${v1})"><title>${r} oficiais: ${brl(o)}</title></rect><rect x="${(LW+rs(o)).toFixed(1)}" y="${yy}" width="${rs(cf).toFixed(1)}" height="16" style="fill:var(${v2})"><title>${r} a conferir: ${brl(cf)}</title></rect><text x="${(LW+rs(o+cf)+8).toFixed(1)}" y="${yy+13}" class="gt gt-m">${r} ${brl(o+cf)}</text>`;});});
+    f2+=`</svg><p class="legenda"><span><i class="leg" style="background:var(--c-ent)"></i>Entradas oficiais</span><span><i class="leg" style="background:var(--c-ent2)"></i>Entradas a conferir</span><span><i class="leg" style="background:var(--c-sai)"></i>Saídas oficiais</span><span><i class="leg" style="background:var(--c-sai2)"></i>Saídas a conferir</span></p>`;}
+  return cartao("Editais e finanças",`<h3>Funil de editais</h3>`+s+`<p class="muted">Fora do funil: ${fora}.</p><h3>Finanças por entidade (nunca somadas entre si)</h3>`+f2+
+    tabDet(["Entidade","Entradas oficiais","Entradas a conferir","Saídas oficiais","Saídas a conferir"],fl.map(f=>[f.n,f.eo,f.ec,f.so,f.sc])));}
+function painel(ts,eds,fin){return `<div class="graf">${grafAndamento(ts)}${grafPrazos(ts,eds)}${grafBurnup(ts)}${grafEditaisFin(eds,fin)}</div>`;}
+function matrizLocal(ts){const m={};ts.forEach(t=>{if(t.estado==="feita")return;const p=((t.responsavel||"(sem responsável)").split(",")[0]||"").trim()||"(sem responsável)";
+  const c=m[p]=m[p]||{};const x=c[t.frente]=c[t.frente]||{abertas:0,atrasadas:0,bloqueadas:0};x.abertas++;x.atrasadas+=t.atrasada?1:0;x.bloqueadas+=t.estado==="bloqueada"?1:0;});return m;}
+async function projetos(){const ts=(await todas(true)).filter(t=>!fr()||t.frente===fr());preencherProjetos();
+  const g={};ts.forEach(t=>{const k=t.projeto||SEMPJ;(g[k]=g[k]||[]).push(t);});
+  const b=($("#pjBusca").value||"").toLowerCase(),ord=$("#pjOrdem").value;
+  let ls=Object.entries(g).map(([k,x])=>{const ab=x.filter(t=>t.estado!=="feita");
+    const ini=x.map(t=>t.plan_inicio||t.inicio).filter(Boolean).sort()[0]||"",fim=x.map(t=>t.fim||t.plan_fim).filter(Boolean).sort().pop()||"";
+    return {k,nome:nomePj(k),tot:x.length,feitas:x.length-ab.length,atr:x.filter(t=>t.atrasada).length,bloq:x.filter(t=>t.estado==="bloqueada").length,
+      risco:x.filter(t=>t.prazo_em_risco).length,crit:ab.filter(t=>t.critico).length,conf:confDe(x),ini,fim,
+      prox:ab.filter(t=>t.fim).sort((a,b)=>a.fim.localeCompare(b.fim))[0],frs:[...new Set(x.map(t=>t.frente))]};}).filter(p=>!b||p.nome.toLowerCase().includes(b));
+  const so={risco:(a,b)=>b.atr-a.atr||b.bloq-a.bloq||b.risco-a.risco||(a.fim||"9").localeCompare(b.fim||"9"),prazo:(a,b)=>(a.fim||"9").localeCompare(b.fim||"9"),
+    tamanho:(a,b)=>b.tot-a.tot,nome:(a,b)=>a.nome.localeCompare(b.nome,"pt-BR")};ls.sort(so[ord]||so.risco);
+  const D=s=>new Date(s+"T12:00:00"),datas=ls.flatMap(p=>[p.ini,p.fim]).filter(Boolean).map(D);
+  const gi=datas.length?Math.min(...datas,Date.now()):Date.now(),gf=datas.length?Math.max(...datas,Date.now()):Date.now()+1,px=v=>Math.max(0,Math.min(300,300*(v-gi)/Math.max(1,gf-gi)));
+  $("#pjResumo").textContent=`${ls.length} projeto(s)`+(ls.length>120?" · mostrando os 120 primeiros (use a busca)":"");
+  $("#projetos").innerHTML=ls.slice(0,120).map(p=>{const pct=p.tot?Math.round(100*p.feitas/p.tot):0,fb=p.frs.length===1?p.frs[0]:"transversal";
+    const x1=p.ini?px(D(p.ini)):0,x2=p.fim?px(D(p.fim)):x1,xh=px(Date.now());
+    return `<div class="card pj fb-${esc(fb)}"><h3>${esc(p.nome)}</h3><div>${p.frs.map(f=>`<span class="fr fr-${esc(f)}">${esc(FR[f]||f)}</span>`).join(" ")}</div>
+    <div class="barra" role="img" aria-label="${pct}% feito" style="margin-top:.5rem"><i style="width:${pct}%"></i></div><p class="muted">${p.feitas}/${p.tot} feitas (${pct}%)</p>
+    <p>${p.atr?`<span class="pill g-alerta">${p.atr} atrasada(s)</span>`:""}${p.bloq?`<span class="pill g-atencao">${p.bloq} bloqueada(s)</span>`:""}${p.risco?`<span class="pill g-atencao">${p.risco} em risco</span>`:""}${p.crit?`<span class="pill g-info">${p.crit} no caminho crítico</span>`:""}<span class="pill g-${p.conf>=80?"ok":p.conf>=50?"atencao":"alerta"}">confiança ${p.conf}%</span></p>
+    <svg viewBox="0 0 300 20" class="mini" role="img" aria-label="${esc(`Período ${p.ini||"?"} a ${p.fim||"?"}`)}"><line x1="0" x2="300" y1="10" y2="10" style="stroke:var(--linha);stroke-width:2"/><rect x="${x1.toFixed(1)}" y="4" width="${Math.max(3,x2-x1).toFixed(1)}" height="12" rx="4" style="fill:var(${p.atr?"--c-bloq":"--c-fazendo"})"/><line x1="${xh.toFixed(1)}" x2="${xh.toFixed(1)}" y1="0" y2="20" style="stroke:var(--hoje);stroke-width:2"/></svg>
+    <p class="muted">${esc(p.ini||"?")} → ${esc(p.fim||"?")}${p.prox?` · próximo prazo ${esc(p.prox.fim)}${p.prox.data_estimada?" [CONFERIR]":""}: ${esc(p.prox.titulo)} (${esc(p.prox.responsavel||"sem responsável")})`:""}</p>
+    <div class="ferr" style="margin:.4rem 0 0"><button class="btn" data-pjg="${esc(p.k)}">Ver cronograma</button><button class="btn" data-pjk="${esc(p.k)}">Ver tarefas</button></div></div>`;}).join("")||`<p class="muted">Nenhum projeto com esses filtros.</p>`;
+  const ir=(k,v)=>{$("#projeto").value=k;$("#origem").value="";$("#origemK").value="";abrir(v);};
+  $("#projetos").querySelectorAll("[data-pjg]").forEach(b=>b.onclick=()=>ir(b.dataset.pjg,"gantt"));
+  $("#projetos").querySelectorAll("[data-pjk]").forEach(b=>b.onclick=()=>ir(b.dataset.pjk,"kanban"));}
 // ---------------------------------------------------------------- caixas de upload (19/11/2026)
 const UPL={editais:{t:"Enviar editais (CSV do banco) ou o arquivo do edital",ac:".csv,.pdf,.odt,.ods,.docx,.xlsx",
     d:"CSV no formato do banco (separador ;) passa por prévia e só entra com Aplicar. PDF/ODT/DOCX ficam guardados e vinculados ao edital."},
@@ -387,7 +537,7 @@ function tabelaEditais(){const et=$("#edEtapa").value,ad=$("#edAd").value,pz=$("
   <td><div class="barra" role="img" aria-label="${d.pronto_pct}% pronto"><i style="width:${d.pronto_pct}%"></i></div>${d.pronto_pct}%</td><td>${d.verificado?"sim":'<span class="pill g-atencao">conferir</span>'}</td></tr>`).join("")+`</tbody></table>`;
   $("#editais").querySelectorAll("[data-ed]").forEach(x=>x.onclick=()=>ficha(x.dataset.ed));}
 function ficha(id){const d=ED.find(x=>x.id===id);if(!d)return;const f=$("#edFicha");f.hidden=false;
-  f.innerHTML=`<h2>${esc(d.titulo)}</h2><p class="muted">${esc(d.financiador)} · prazo ${esc(d.prazo||"—")} · ${esc(d.tipo)} · ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">abrir edital</a>`:"sem link"}</p>
+  f.innerHTML=`<h2>${esc(d.titulo)}</h2><p class="muted">${esc(d.financiador)} · prazo ${esc(d.prazo||"—")} · ${esc(d.tipo)} · ${/^https?:\/\//i.test(d.link||"")?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer">abrir edital</a>`:"sem link"}</p>
   <p><strong>Quem pode propor:</strong> ${esc(d.quem_pode)}<br><strong>Território:</strong> ${esc(d.territorio)}<br><strong>Critérios e pesos:</strong> ${esc(d.criterios)}<br><strong>Por que essa aderência:</strong> ${esc(d.motivo)}<br><strong>Lição para a Physis:</strong> ${esc(d.licao)}${d.proxima_edicao?`<br><strong>Próxima edição:</strong> ${esc(d.proxima_edicao)}`:""}</p>
   <div class="ferr"><label>Etapa <select id="fEtapa">${META.etapas.map(e=>`<option value="${e.id}"${e.id===d.etapa?" selected":""}>${esc(e.nome)}</option>`).join("")}</select></label>
   <label>Responsável <input type="text" id="fResp" value="${esc(d.responsavel)}"></label><button class="btn prim" id="fSalvar">Salvar etapa e responsável</button></div>
@@ -407,7 +557,9 @@ function ficha(id){const d=ED.find(x=>x.id===id);if(!d)return;const f=$("#edFich
   f.insertAdjacentHTML("beforeend",'<div id="fUp"></div>');caixa("#fUp","editais",{refFixa:id,titulo:"Arquivos deste edital (PDF, anexos, rascunhos)"});
   f.scrollIntoView({behavior:"smooth"});}
 const ETP={};["#edEtapa","#edAd","#edPrazo"].forEach(i=>$(i).onchange=tabelaEditais);$("#edBusca").oninput=tabelaEditais;
-$("#frente").onchange=()=>render(atual);
+$("#frente").onchange=()=>{preencherProjetos();render(atual);};
+$("#projeto").onchange=()=>{if(pj()){$("#origem").value="";$("#origemK").value="";}render(atual);};
+$("#pjBusca").oninput=()=>projetos();$("#pjOrdem").onchange=()=>projetos();
 $("#rodar").onclick=async()=>{status("Rodando bots (documentos, atrasos, resumo)…");$("#rodar").disabled=true;
   const r=await post("/api/mv/bots/rodar",{});$("#rodar").disabled=false;status("Bots rodaram: "+JSON.stringify(r).slice(0,300));render(atual);};
 $("#fLanc").onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));f.valor=parseFloat(String(f.valor).replace(/\./g,"").replace(",","."));

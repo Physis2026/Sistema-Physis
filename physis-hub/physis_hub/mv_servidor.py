@@ -53,8 +53,8 @@ def tabelas_exportacao(mv: MV, vista: str) -> tuple[str, list[dict]]:
         return "Physis M&V · documentos", [{"nome": "Documentos", "cab": cab, "linhas": linhas}]
     if vista == "saude":
         s = mv.saude()
-        cab = ["Frente", "Nota", "Total", "Feitas", "Atrasadas", "Bloqueadas", "Datas a conferir", "Progresso %"]
-        linhas = [[f["nome"], f["nota"], f["total"], f["feitas"], f["atrasadas"], f["bloqueadas"], f["datas_estimadas"],
+        cab = ["Frente", "Nota", "Confiança (% datas confirmadas)", "Total", "Feitas", "Atrasadas", "Bloqueadas", "Datas a conferir", "Progresso %"]
+        linhas = [[f["nome"], f["nota"] if f["nota"] is not None else "sem dados", f["confianca_pct"], f["total"], f["feitas"], f["atrasadas"], f["bloqueadas"], f["datas_estimadas"],
                    f["progresso_pct"]] for f in s["frentes"].values()]
         fin = [[e, k, t, v] for e, d in s["financeiro"].items() for k in ("oficial", "a_conferir") for t, v in d[k].items()]
         r = mv.roadmap()
@@ -99,9 +99,21 @@ def fabricar(mv: MV):
             h = (self.headers.get("Host") or "").split(":")[0]
             return h in ("127.0.0.1", "localhost")
 
+        def _seguranca(self) -> None:
+            # R-04 (auditoria 39): o painel não abre dentro de páginas de terceiros nem vaza o endereço
+            self.send_header("X-Frame-Options", "DENY")
+            self.send_header("Referrer-Policy", "no-referrer")
+            self.send_header("X-Content-Type-Options", "nosniff")
+
+        def _de_outro_site(self) -> bool:
+            """GET que custa (exportar, baixar): o navegador informa Sec-Fetch-Site; só aceita o próprio painel ou digitação."""
+            s = self.headers.get("Sec-Fetch-Site")
+            return s is not None and s not in ("same-origin", "none")
+
         def _json(self, cod: int, obj) -> None:
             b = json.dumps(obj, ensure_ascii=False, default=str).encode()
             self.send_response(cod)
+            self._seguranca()
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(b)))
             self.send_header("Cache-Control", "no-store")
@@ -110,14 +122,14 @@ def fabricar(mv: MV):
 
         def _bytes(self, b: bytes, tipo: str, nome: str | None = None) -> None:
             self.send_response(200)
+            self._seguranca()
             self.send_header("Content-Type", tipo)
             self.send_header("Content-Length", str(len(b)))
-            self.send_header("X-Content-Type-Options", "nosniff")
             if nome:
                 self.send_header("Content-Disposition", f'attachment; filename="{nome}"')
             else:
                 self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; "
-                                 "script-src 'self' 'unsafe-inline'; img-src 'self' data:")
+                                 "script-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
             self.end_headers()
             self.wfile.write(b)
 
@@ -127,7 +139,17 @@ def fabricar(mv: MV):
             u = urlparse(self.path)
             q = {k: v[0] for k, v in parse_qs(u.query).items()}
             p, fr = u.path, q.get("frente") or None
+            if p in ("/api/mv/exportar", "/api/mv/arquivo/baixar") and self._de_outro_site():
+                return self._json(403, {"erro": "pedido de outro site recusado"})
             try:
+                if p == "/api/mv/exportar" and q.get("formato") == "pdf":
+                    # R-04: o ODT é montado com a trava; a conversão em PDF (até 2 min) roda fora dela, sem travar a tela
+                    with _TRAVA:
+                        odt, _, nome = exportar(mv, q.get("vista", "tarefas"), "odt")
+                    r = documentos.converter_pdfa(odt)
+                    if r.get("ok") and r.get("pdf"):
+                        return self._bytes(r["pdf"], "application/pdf", nome[:-4] + ".pdf")
+                    raise ErroMV("PDF indisponível: instale o LibreOffice (soffice) ou use ODT/ODS")
                 with _TRAVA:
                     if p in ("/", "/mv", "/mv/"):
                         return self._bytes((WEB / "mv.html").read_bytes(), "text/html; charset=utf-8")
@@ -157,6 +179,8 @@ def fabricar(mv: MV):
                         return self._bytes(b, tipo, nome)
             except ErroMV as e:
                 return self._json(400, {"erro": str(e)})
+            except Exception as e:  # noqa: BLE001 — R-03: erro interno vira JSON 500, sem derrubar a conexão
+                return self._json(500, {"erro": f"erro interno: {type(e).__name__}"})
             return self._json(404, {"erro": "não encontrado"})
 
         def do_POST(self):  # noqa: N802
@@ -170,12 +194,16 @@ def fabricar(mv: MV):
                 corpo = json.loads(self.rfile.read(n) or b"{}")
             except ValueError:
                 return self._json(400, {"erro": "JSON inválido"})
+            if not isinstance(corpo, dict):
+                return self._json(400, {"erro": "corpo deve ser um objeto JSON"})
             try:
                 with _TRAVA:
                     if p == "/api/mv/estado":
                         return self._json(200, mv.mudar_estado(str(corpo.get("id")), str(corpo.get("estado")), str(corpo.get("bloqueio") or "")))
                     if p == "/api/mv/tarefa":
-                        return self._json(200, mv.salvar_tarefa(corpo))
+                        if not isinstance(corpo, dict):
+                            raise ErroMV("corpo deve ser um objeto JSON")
+                        return self._json(200, mv.salvar_tarefa(corpo, conferir_deps=True))
                     if p == "/api/mv/edital":
                         return self._json(200, ed.atualizar(str(corpo.get("id")), corpo))
                     if p == "/api/mv/lanc":
@@ -191,11 +219,21 @@ def fabricar(mv: MV):
                         return self._json(200, arq.aplicar(str(corpo.get("id"))))
                     if p == "/api/mv/arquivo/descartar":
                         return self._json(200, arq.descartar(str(corpo.get("id"))))
-                    if p == "/api/mv/bots/rodar":
-                        quais = [x for x in (corpo.get("quais") or []) if x in mv_bots.BOTS] or None
-                        return self._json(200, mv_bots.rodar(mv, quais))
+                if p == "/api/mv/bots/rodar":
+                    # R-04: bots (até ~1,5 min) rodam numa conexão própria, fora da trava; com banco em memória (testes), na trava
+                    quais = [x for x in ((corpo.get("quais") if isinstance(corpo, dict) else None) or []) if x in mv_bots.BOTS] or None
+                    if mv.caminho == ":memory:":
+                        with _TRAVA:
+                            return self._json(200, mv_bots.rodar(mv, quais))
+                    outro = MV(mv.caminho)
+                    try:
+                        return self._json(200, mv_bots.rodar(outro, quais))
+                    finally:
+                        outro.db.close()
             except (ErroMV, KeyError, TypeError, ValueError) as e:
                 return self._json(400, {"erro": str(e)})
+            except Exception as e:  # noqa: BLE001
+                return self._json(500, {"erro": f"erro interno: {type(e).__name__}"})
             return self._json(404, {"erro": "não encontrado"})
 
     return H
