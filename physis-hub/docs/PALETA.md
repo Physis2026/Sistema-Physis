@@ -59,6 +59,8 @@ laranja, ouro suave ou verdes. "uma iniciativa Physis Engineering" só na InovaS
 Ícones (formas, nunca texto pequeno): terracota `#BB6B4A` / `#D9A58C` (escuro), laranja `#F97316`, ouro suave `#B07A12`,
 verdes `#1A4D2E`, `#4A8A5A`, `#2F7D5B`, `#8FB183` (escuro).
 
+Contraste (WCAG 2.2 AA): no tipo A o laranja `#F97316` dá 4,35:1 sobre `#0B3D2E` e 3,9:1 sobre `#0F4535`, então **só em texto grande** (números, títulos ≥ 24 px ou 18,7 px em negrito); rótulos pequenos em `#D9A58C` (terracota clara). No tipo B, `#C2410C` dá 4,59:1 sobre `#F4F1EA`.
+
 Cores derivadas novas (para conferência de contraste): `#0F4535` `#2F5E4E` `#2E1A47` `#3D2A5C` `#5B4A7A`
 
 ## Cores das marcas (teste de paletas de 19/11/2026, substituído pelo guia acima nas telas novas)
