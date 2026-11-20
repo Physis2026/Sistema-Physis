@@ -104,15 +104,31 @@ def montar() -> dict:
     }
 
 
-def gerar(saida: str | Path) -> Path:
-    dados = montar()
+def montar_real(caminho: str | Path | None = None) -> dict:
+    """Cópia de LEITURA do banco verdadeiro (sem dados fictícios), para abrir o M&V fora do servidor. Mesmas visões da tela."""
+    from datetime import datetime
+    from . import mv_editais
+    mv = MV(caminho)
+    ed = Editais(mv)
+    return {"modo": "real", "gerado_em": datetime.now().strftime("%d/%m/%Y %H:%M"),
+            "/api/mv/meta": {"frentes": [{"id": a, "nome": b, "descricao": c} for a, b, c in mvmod.FRENTES],
+                             "estados": [{"id": e, "nome": mvmod.NOMES_ESTADO[e]} for e in mvmod.ESTADOS],
+                             "etapas": [{"id": e, "nome": mv_editais.NOMES_ETAPA[e]} for e in mv_editais.ETAPAS]},
+            "/api/mv/saude": mv.saude(), "/api/mv/gantt": mv.gantt(), "/api/mv/kanban": mv.kanban(), "/api/mv/matriz": mv.matriz(),
+            "/api/mv/roadmap": mv.roadmap(), "/api/mv/alertas": mv.alertas(), "/api/mv/documentos": mv.documentos(),
+            "/api/mv/editais": ed.listar()}
+
+
+def gerar(saida: str | Path, real: bool = False) -> Path:
+    dados = montar_real() if real else montar()
     icone = WEB / "app" / "icone-192.png"
     if icone.is_file():
         dados["logo"] = "data:image/png;base64," + base64.b64encode(icone.read_bytes()).decode()
     html = (WEB / "mv.html").read_text(encoding="utf-8")
     bloco = "<script>window.MV_MOCK=" + json.dumps(dados, ensure_ascii=False, default=str).replace("</", "<\\/") + ";</script>\n"
     html = html.replace("<script>\n\"use strict\";", bloco + "<script>\n\"use strict\";", 1)
-    html = html.replace("<title>Physis M&amp;V · versão de teste</title>", "<title>Physis M&amp;V · demonstração</title>", 1)
+    html = html.replace("<title>Physis M&amp;V · versão de teste</title>",
+                        "<title>Physis M&amp;V · cópia de leitura</title>" if real else "<title>Physis M&amp;V · demonstração</title>", 1)
     saida = Path(saida)
     saida.write_text(html, encoding="utf-8")
     return saida
@@ -121,4 +137,6 @@ def gerar(saida: str | Path) -> Path:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(prog="physis-mv-mock")
     ap.add_argument("--saida", required=True)
-    print(gerar(ap.parse_args().saida))
+    ap.add_argument("--real", action="store_true", help="cópia de leitura do banco verdadeiro, sem dados fictícios")
+    a = ap.parse_args()
+    print(gerar(a.saida, real=a.real))

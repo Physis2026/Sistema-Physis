@@ -160,7 +160,9 @@ function mockPost(p,b){if(p==="/api/mv/estado"){for(const k in MOCK["/api/mv/kan
   return {demo:"Demonstração: os bots e os lançamentos só rodam na versão com servidor."};}
 const get=p=>MOCK?Promise.resolve(mockGet(p)):fetch(p,{cache:"no-store"}).then(r=>r.json());
 const post=(p,b)=>MOCK?Promise.resolve(mockPost(p,b)):fetch(p,{method:"POST",headers:H,body:JSON.stringify(b)}).then(r=>r.json());
-if(MOCK){document.body.insertAdjacentHTML("afterbegin",'<p class="demo" role="note">DEMONSTRAÇÃO · dados fictícios · nada é gravado</p>');
+if(MOCK){document.body.insertAdjacentHTML("afterbegin",MOCK.modo==="real"
+    ?`<p class="demo" role="note">CÓPIA DE LEITURA · dados reais de ${esc(MOCK.gerado_em||"")} · alterações aqui não são gravadas no sistema</p>`
+    :'<p class="demo" role="note">DEMONSTRAÇÃO · dados fictícios · nada é gravado</p>');
   const lg=document.getElementById("logo");if(lg&&MOCK.logo)lg.src=MOCK.logo;}
 // Idioma PT/EN: traduz textos fixos e frases da interface (os dados — títulos de tarefas, editais — ficam no idioma original)
 const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Automatic","Claro":"Light","Escuro":"Dark","Rodar bots agora":"Run bots now",
