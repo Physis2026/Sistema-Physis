@@ -313,6 +313,12 @@ def _chave(texto: str) -> str:
     return "pg:" + hashlib.sha1(t.encode()).hexdigest()[:12]
 
 
+def _garantir(mv: MV) -> None:
+    """As funções de perguntas podem ser chamadas direto (linha de comando, outras sessões): criam as tabelas se faltarem."""
+    mv.db.executescript(ESQUEMA)
+    mv.db.commit()
+
+
 def _perg(r) -> dict:
     d = dict(r)
     d["opcoes"] = json.loads(d["opcoes"])
@@ -325,6 +331,7 @@ def perguntar(mv: MV, pergunta: str, opcoes: list[str] | None = None, origem: st
               prazo: str = "") -> dict:
     """Registra a pergunta UMA vez. Se a mesma pergunta (mesmo texto, sem acento/pontuação) já existe, devolve a existente com a
     resposta, se houver (ja_existia=True): quem pergunta usa a resposta em vez de perguntar de novo à dona."""
+    _garantir(mv)
     pergunta = str(pergunta or "").strip()
     if not pergunta or len(pergunta) > 1000:
         raise ErroMV("pergunta vazia ou longa demais")
@@ -345,6 +352,7 @@ def perguntar(mv: MV, pergunta: str, opcoes: list[str] | None = None, origem: st
 
 
 def responder(mv: MV, pid: str, resposta: str, nota: str = "") -> dict:
+    _garantir(mv)
     if not mv.db.execute("SELECT 1 FROM mv_pergunta WHERE id=?", (pid,)).fetchone():
         raise ErroMV("pergunta não encontrada")
     if not str(resposta or "").strip():
@@ -355,6 +363,7 @@ def responder(mv: MV, pid: str, resposta: str, nota: str = "") -> dict:
 
 
 def perguntas(mv: MV, abertas: bool | None = None, sistema: str | None = None) -> list[dict]:
+    _garantir(mv)
     out = [_perg(r) for r in mv.db.execute("SELECT * FROM mv_pergunta ORDER BY respondida IS NOT NULL, prazo, criado")]
     if abertas is not None:
         out = [p for p in out if p["aberta"] == abertas]

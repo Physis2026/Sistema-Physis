@@ -119,6 +119,13 @@ class TestPerguntasCentrais(unittest.TestCase):
         self.assertEqual(len(mv_comandos.perguntas(mv, sistema="inovastem")), 1)
 
 
+class TestPerguntasSemComandos(unittest.TestCase):
+    def test_banco_novo_sem_tabela(self):
+        mv = MV(":memory:")
+        self.assertEqual(mv_comandos.perguntas(mv, sistema="instituto"), [])
+        self.assertFalse(mv_comandos.perguntar(mv, "Teste?", ["Sim"], "cli", ["instituto"])["ja_existia"])
+
+
 class TestRedeLocal(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
