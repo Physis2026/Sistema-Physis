@@ -215,7 +215,7 @@ PROVEDORES = {"physis-demo-sustainkit.html": PROVEDOR_SUSTAINKIT, "physis-demo-s
               "physis-demo-monitoramento.html": PROVEDOR_MONITORAMENTO}
 
 ESTILO = """<style id="physis-demo-estilo">
-#physis-demo-faixa{padding:10px 16px;background:#F6EAD0;color:#5C3F00;border-bottom:1px solid #B9A97F;font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;box-sizing:border-box;max-width:100%;overflow-wrap:anywhere}
+#physis-demo-faixa{padding:10px 16px;background:#F6EAD0;color:#5C3F00;border-bottom:1px solid #B9A97F;font:15px/1.45 Lora,Georgia,"Times New Roman",serif;box-sizing:border-box;max-width:100%;overflow-wrap:anywhere}
 #physis-demo-faixa *{box-sizing:border-box}
 #physis-demo-faixa p{margin:4px 0}
 #physis-demo-faixa .pdf-topo{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
@@ -223,39 +223,39 @@ ESTILO = """<style id="physis-demo-estilo">
 #physis-demo-faixa nav{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
 #physis-demo-faixa nav a{color:#5C3F00;font-weight:600;padding:6px 10px;border-radius:6px;min-height:36px;display:inline-flex;align-items:center}
 #physis-demo-faixa nav a[aria-current=page]{background:#5C3F00;color:#FFFFFF;text-decoration:none}
-#physis-demo-faixa .pdf-beneficio{font-size:1.08em;font-weight:700;color:#1C2B21}
+#physis-demo-faixa .pdf-beneficio{font-size:1.08em;font-weight:700;color:#1B1F23}
 #physis-demo-faixa .pdf-vivo{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:#FFFFFF;border:1px solid #B9A97F;border-radius:10px;padding:8px 12px;margin:6px 0}
 #physis-demo-faixa .pdf-textos{flex:1 1 280px;min-width:0}
-#physis-demo-faixa .pdf-resultado{color:#1C2B21}
+#physis-demo-faixa .pdf-resultado{color:#1B1F23}
 #physis-demo-faixa .pdf-resultado strong{color:#1F4A1C;font-size:1.25em}
 #physis-demo-faixa .pdf-linha{color:#4A4F44;font-variant-numeric:tabular-nums;border-radius:6px;padding:2px 6px;margin:2px -6px}
 #physis-demo-faixa .pdf-linha.pdf-alerta{color:#7A2214;background:#F5E2D7;font-weight:600}
 #physis-demo-faixa button{font:inherit;font-weight:600;min-height:44px;min-width:44px;padding:6px 14px;border-radius:8px;border:1px solid #5C3F00;background:#FFFFFF;color:#5C3F00;cursor:pointer}
 #physis-demo-faixa .pdf-convite{color:#5C3F00}
-#physis-demo-faixa a:focus-visible,#physis-demo-faixa button:focus-visible,#physis-demo-compra a:focus-visible{outline:3px solid #1C3550;outline-offset:2px}
-#physis-demo-compra{position:fixed;left:0;right:0;bottom:0;z-index:2147482000;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:8px 16px calc(8px + env(safe-area-inset-bottom));background:#FFFFFF;color:#1C2B21;border-top:2px solid #B9A97F;font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;box-sizing:border-box}
+#physis-demo-faixa a:focus-visible,#physis-demo-faixa button:focus-visible,#physis-demo-compra a:focus-visible{outline:3px solid #BB6B4A;outline-offset:2px}
+#physis-demo-compra{position:fixed;left:0;right:0;bottom:0;z-index:2147482000;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:8px 16px calc(8px + env(safe-area-inset-bottom));background:#FFFFFF;color:#1B1F23;border-top:2px solid #B9A97F;font:15px/1.4 Lora,Georgia,"Times New Roman",serif;box-sizing:border-box}
 #physis-demo-compra .pdf-selo{font-weight:700;color:#5C3F00}
 #physis-demo-compra a{display:inline-flex;align-items:center;min-height:44px;padding:8px 18px;border-radius:8px;font-weight:700;text-decoration:none}
-#physis-demo-compra .pdf-comprar{background:#33512F;color:#FFFFFF}
-#physis-demo-compra .pdf-outra{color:#33512F;text-decoration:underline}
+#physis-demo-compra .pdf-comprar{background:#C2410C;color:#FFFFFF}
+#physis-demo-compra .pdf-outra{color:#1A4D2E;text-decoration:underline}
 #physis-demo-espaco{height:72px}
 @media (max-width:480px){#physis-demo-compra{gap:2px 10px}#physis-demo-compra .pdf-selo{font-size:.9em}#physis-demo-compra .pdf-comprar{order:3;flex-basis:100%;justify-content:center}#physis-demo-compra .pdf-outra{padding:8px 6px;font-size:.9em}#physis-demo-espaco{height:120px}}
 @media (prefers-reduced-motion:no-preference){html:not(.a11y-calma) #physis-demo-faixa .pdf-linha.pdf-nova{animation:pdf-luz 1.6s ease-out}}
 @keyframes pdf-luz{from{background:#ECE0BD}to{background:transparent}}
-html[data-tema=escuro] #physis-demo-faixa{background:#33372E;color:#E5D5AE;border-color:#4A5A47}
+html[data-tema=escuro] #physis-demo-faixa{background:#33372E;color:#E5D5AE;border-color:#2F5E4E}
 html[data-tema=escuro] #physis-demo-faixa nav a,html[data-tema=escuro] #physis-demo-faixa .pdf-convite{color:#E5D5AE}
-html[data-tema=escuro] #physis-demo-faixa nav a[aria-current=page]{background:#E5D5AE;color:#14180F}
-html[data-tema=escuro] #physis-demo-faixa .pdf-beneficio,html[data-tema=escuro] #physis-demo-faixa .pdf-resultado{color:#EEF2EA}
-html[data-tema=escuro] #physis-demo-faixa .pdf-vivo{background:#2A3829;border-color:#4A5A47}
-html[data-tema=escuro] #physis-demo-faixa .pdf-resultado strong{color:#B9CDB3}
+html[data-tema=escuro] #physis-demo-faixa nav a[aria-current=page]{background:#E5D5AE;color:#0B3D2E}
+html[data-tema=escuro] #physis-demo-faixa .pdf-beneficio,html[data-tema=escuro] #physis-demo-faixa .pdf-resultado{color:#F4F1EA}
+html[data-tema=escuro] #physis-demo-faixa .pdf-vivo{background:#0F4535;border-color:#2F5E4E}
+html[data-tema=escuro] #physis-demo-faixa .pdf-resultado strong{color:#D9A58C}
 html[data-tema=escuro] #physis-demo-faixa .pdf-linha{color:#D6DBCF}
 html[data-tema=escuro] #physis-demo-faixa .pdf-linha.pdf-alerta{color:#FF8A80;background:#2A1215}
-html[data-tema=escuro] #physis-demo-faixa button{background:#2A3829;color:#E5D5AE;border-color:#E5D5AE}
-html[data-tema=escuro] #physis-demo-compra{background:#2A3829;color:#EEF2EA;border-color:#4A5A47}
+html[data-tema=escuro] #physis-demo-faixa button{background:#0F4535;color:#E5D5AE;border-color:#E5D5AE}
+html[data-tema=escuro] #physis-demo-compra{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}
 html[data-tema=escuro] #physis-demo-compra .pdf-selo{color:#E5D5AE}
-html[data-tema=escuro] #physis-demo-compra .pdf-comprar{background:#B9CDB3;color:#14180F}
-html[data-tema=escuro] #physis-demo-compra .pdf-outra{color:#B9CDB3}
-html[data-tema=escuro] #physis-demo-faixa a:focus-visible,html[data-tema=escuro] #physis-demo-faixa button:focus-visible,html[data-tema=escuro] #physis-demo-compra a:focus-visible{outline-color:#B8D0E0}
+html[data-tema=escuro] #physis-demo-compra .pdf-comprar{background:#C2410C;color:#FFFFFF}
+html[data-tema=escuro] #physis-demo-compra .pdf-outra{color:#D9A58C}
+html[data-tema=escuro] #physis-demo-faixa a:focus-visible,html[data-tema=escuro] #physis-demo-faixa button:focus-visible,html[data-tema=escuro] #physis-demo-compra a:focus-visible{outline-color:#E5D5AE}
 @media print{#physis-demo-compra,#physis-demo-espaco{display:none}}
 </style>"""
 
