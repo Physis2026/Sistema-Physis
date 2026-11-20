@@ -66,5 +66,28 @@ class TestClientes(unittest.TestCase):
         self.assertIn("[MARCADOR]", r["comando"])
 
 
+class TestInovacao(unittest.TestCase):
+    def test_pesquisa_diaria_sem_claude_e_aprovacao_vira_tarefa(self):
+        from physis_hub import mv_inovacao
+        mv = MV(":memory:")
+        atom = (b'<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>r170 lan\xc3\xa7ado</title>'
+                b'<link href="https://github.com/mrdoob/three.js/releases/tag/r170"/></entry></feed>')
+        fontes = [("three.js", "x", "3D"), ("fora do ar", "y", "z")]
+
+        def buscar(url):
+            if url == "y":
+                raise OSError("sem internet")
+            return atom
+        r = mv_inovacao.rodar(mv, buscar, fontes, agora=1000.0)
+        self.assertEqual((r["novos"], r["erros"]), (1, ["fora do ar: OSError"]))
+        self.assertEqual(mv_inovacao.rodar(mv, buscar, fontes, agora=2000.0)["novos"], 0)   # não repete o mesmo link
+        c = mv_comandos.Comandos(mv)
+        p = [x for x in c.fila() if x["tipo"] == "inovacao"][0]
+        c.decidir_pedido(p["id"], "aprovado")
+        t = mv.tarefa(f"inov-{p['id']}")
+        self.assertIn("three.js", t["titulo"])
+        self.assertEqual(t["frente"], "transversal")
+
+
 if __name__ == "__main__":
     unittest.main()

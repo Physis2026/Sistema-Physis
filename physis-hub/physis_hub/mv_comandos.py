@@ -57,7 +57,7 @@ AJUDA = [
     "/checklist <id da tarefa>: passos e exigências propostos para a tarefa",
     "/revisar <id do arquivo>: confere um anexo (datas, nomes, marcadores, regras dos documentos)",
     "/imprimir <id do arquivo 3D> [material]: pedido de impressão 3D (aguarda aprovação)",
-    "/rodar atrasos|documentos|resumo|backup|paginas: roda um bot agora (paginas = checklist base de toda tela, doc 43)",
+    "/rodar atrasos|documentos|resumo|backup|paginas|inovacao: roda um bot agora (paginas = checklist base, doc 43; inovacao = pesquisa diária aberta)",
     "/programar hora|dia|semana <comando>: repete um comando (bot programável)",
     "/aprovar <id> · /ajustar <id> [nota]: decide um item da lista de aprovações",
     "Texto sem barra: vai para a fila do Claude com o contexto (tarefa: escreva #id da tarefa no texto)",
@@ -102,6 +102,11 @@ class Comandos:
         self.mv.db.execute("UPDATE mv_pedido_bot SET estado=?, resultado=?, atualizado=? WHERE id=?",
                            (estado, p["resultado"] if resultado is None else str(resultado)[:20000], time.time(), int(pid)))
         self.mv.db.commit()
+        if p["tipo"] == "inovacao" and estado == "aprovado" and p["estado"] != "aprovado":
+            # descoberta aprovada → entra como atividade em seguida (diretriz de 20/11/2026)
+            self.mv.salvar_tarefa({"id": f"inov-{int(pid)}", "frente": "transversal", "projeto": "Inovação aberta (pesquisa diária)",
+                                   "titulo": f"Avaliar e integrar: {p['comando'][:180]}", "responsavel": "Rafaella",
+                                   "fonte": "bot inovacao", "data_estimada": True}, origem="bot:inovacao")
         return self.pedido(pid)
 
     # ------------------------------------------------------------ comandos

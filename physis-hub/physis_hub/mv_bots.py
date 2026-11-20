@@ -450,7 +450,18 @@ def bot_paginas(mv: MV) -> dict:
     return r
 
 
-BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup, "paginas": bot_paginas}
+def bot_inovacao(mv: MV) -> dict:
+    """Pesquisa diária de inovações abertas (fontes públicas, sem Claude); novidades viram pedidos para aprovação."""
+    from . import mv_inovacao
+    inicio = mv.nova_rodada()
+    r = mv_inovacao.rodar(mv)
+    if "pulado" not in r:
+        mv.registrar_execucao("inovacao", inicio, mvmod.json.dumps(r))
+    return r
+
+
+BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup, "paginas": bot_paginas,
+        "inovacao": bot_inovacao}
 
 
 def rodar(mv: MV, quais: list[str] | None = None) -> dict:
