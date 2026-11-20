@@ -28,7 +28,7 @@ def comandos_agenda() -> list[list[str]]:
     base = f'cmd /c cd /d "{RAIZ_HUB}" && "{py}" -m physis_hub.mv_cli'
     return [
         ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots atrasos documentos"],
-        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo backup paginas inovacao"],
+        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo backup paginas inovacao links"],
         ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\painel", "/TR", f"{base} servir"],
         # R-02 (auditoria 39): rodar depois se o computador estava desligado às 7h, e também na bateria
         ["powershell", "-NoProfile", "-Command",

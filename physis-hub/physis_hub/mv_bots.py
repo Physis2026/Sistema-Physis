@@ -490,8 +490,17 @@ def bot_inovacao(mv: MV) -> dict:
     return r
 
 
+def bot_links(mv: MV) -> dict:
+    """Links externos de todas as páginas (Physis e Instituto), 1x por dia."""
+    from . import mv_paginas
+    inicio = mv.nova_rodada()
+    r = mv_paginas.verificar_externos(mv)
+    mv.registrar_execucao("links", inicio, mvmod.json.dumps(r))
+    return r
+
+
 BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup, "paginas": bot_paginas,
-        "inovacao": bot_inovacao}
+        "inovacao": bot_inovacao, "links": bot_links}
 
 
 def rodar(mv: MV, quais: list[str] | None = None) -> dict:

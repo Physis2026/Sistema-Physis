@@ -58,6 +58,38 @@ def azul(h: str) -> bool:
     return ss > 0.25 and 0.5 < hh < 0.72 and 0.12 < ll < 0.92     # matiz entre ciano e azul, com saturação
 
 
+HREF = re.compile(r'<a\b[^>]*\bhref="([^"]+)"', re.I)
+
+
+def links_internos(html: str, pasta: Path) -> list[str]:
+    """Âncoras (#id) que não existem na página e arquivos relativos que não existem na pasta (links quebrados internos)."""
+    sem_js = re.sub(r"(?is)<script\b[^>]*>.*?</script>", "", html)
+    ids = set(re.findall(r'\bid="([^"]+)"', html))
+    ruins = []
+    for h in sorted(set(HREF.findall(sem_js))):
+        if "${" in h or h.startswith(("http://", "https://", "mailto:", "tel:", "javascript:", "data:", "blob:", "/api/", "?")):
+            continue
+        if h.startswith("#"):
+            if len(h) > 1 and h[1:] not in ids:
+                ruins.append(h)
+        elif not h.startswith("/"):
+            alvo = (pasta / h.split("#")[0].split("?")[0]).resolve()
+            if h.split("#")[0] and not alvo.exists():
+                ruins.append(h)
+    return ruins
+
+
+IGNORAR_URL = re.compile(r"purl\.org|^http://x/|react\.dev/errors|^https://wa\.me/$|w3\.org|xmlns|schemas\.|example\.(com|org)|localhost|127\.0\.0\.1|\{|\$|\\", re.I)
+
+
+def links_externos(html: str) -> list[str]:
+    """Links externos da página: href do HTML e endereços escritos nos scripts DA PRÓPRIA PÁGINA (os módulos comuns embutidos,
+    <script id="...">, ficam de fora: são conferidos na página de origem)."""
+    proprio = re.sub(r'(?is)<script id="[^"]+">.*?</script>', "", html)
+    achados = set(HREF.findall(proprio)) | set(re.findall(r"""https?://[^\s"'<>`)\]]+""", proprio))
+    return sorted({h.rstrip(".,;") for h in achados if h.startswith(("http://", "https://")) and not IGNORAR_URL.search(h)})
+
+
 def barra_original(raiz: Path) -> str:
     try:
         return (raiz / "sistema" / "physis-preferencias.js").read_text(encoding="utf-8").replace("\r\n", "\n")
@@ -65,7 +97,7 @@ def barra_original(raiz: Path) -> str:
         return ""
 
 
-def conferir(html: str, nome: str, pal: set[str], original: str = "") -> list[dict]:
+def conferir(html: str, nome: str, pal: set[str], original: str = "", pasta: Path | None = None) -> list[dict]:
     """Devolve a lista de itens do checklist com ok True/False e o motivo."""
     sem_scripts = re.sub(r"(?is)<script\b[^>]*>.*?</script>", "", html)
     # telas montadas por script (plataforma, Gestão): o texto da própria tela conta; os módulos comuns embutidos não contam
@@ -86,6 +118,9 @@ def conferir(html: str, nome: str, pal: set[str], original: str = "") -> list[di
         m = re.search(r'<script id="physis-preferencias">\n(.*?)</script>', html.replace("\r\n", "\n"), re.S)
         item("barra-igual", "Idioma, Modo de conforto e Acessibilidade iguais em todas as páginas (barra idêntica à original)",
              bool(m) and m.group(1) == original, "" if m else "sem a barra")
+    if pasta is not None:
+        quebrados = links_internos(html, pasta)
+        item("links", "Links internos funcionando (âncoras e arquivos)", not quebrados, " ".join(quebrados[:6]))
     item("pular", "\"Pular para o conteúdo\" (teclado e leitor de tela)", re.search(r"Pular para o conte[uú]do|#conteudo", html, re.I))
     item("escuro", "Tema escuro (tipo A)", re.search(r'data-tema="?escuro|data-tema=escuro|prefers-color-scheme:\s*dark', html, re.I))
     item("fontes", "Fontes do guia (Josefin Sans nos títulos, Lora no corpo)", re.search(r"Josefin", html) and re.search(r"Lora", html))
@@ -125,7 +160,7 @@ def rodar(mv: MV, raiz: Path | None = None, extras: list[tuple[str, str]] | None
     for p, rel, tipo in alvos:
         if not p.is_file():
             continue
-        itens = conferir(p.read_text(encoding="utf-8", errors="replace"), rel, pal, original)
+        itens = conferir(p.read_text(encoding="utf-8", errors="replace"), rel, pal, original, p.parent)
         ok = sum(i["ok"] for i in itens)
         falhas = [i for i in itens if not i["ok"]]
         mv.db.execute("INSERT OR REPLACE INTO mv_pagina VALUES (?,?,?,?,?,?,?)",
@@ -138,6 +173,49 @@ def rodar(mv: MV, raiz: Path | None = None, extras: list[tuple[str, str]] | None
     mv.fechar_alertas_nao_vistos("paginas", inicio)
     mv.db.commit()
     return {"paginas": len(out), "completas": sum(1 for o in out if o["ok"] == o["total"])}
+
+
+def verificar_externos(mv: MV, raiz: Path | None = None, instituto: Path | None = None, buscar=None) -> dict:
+    """Bot "links" (1x por dia): testa cada link externo das páginas (HEAD, e GET se o site recusar HEAD). Sem internet: registra
+    e tenta no dia seguinte. Link que responde 4xx/5xx ou não responde vira alerta no M&A."""
+    import urllib.request
+    raiz = Path(raiz or RAIZ)
+    inst = Path(instituto or INSTITUTO)
+    mv.db.executescript("CREATE TABLE IF NOT EXISTS mv_link (url TEXT PRIMARY KEY, paginas TEXT NOT NULL, status TEXT NOT NULL, visto REAL NOT NULL);")
+
+    def padrao(url):
+        for metodo in ("HEAD", "GET"):
+            try:
+                req = urllib.request.Request(url, method=metodo, headers={"User-Agent": "Physis-MA-links/1.0"})
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    return str(r.status)
+            except urllib.error.HTTPError as e:
+                if metodo == "HEAD" and e.code in (403, 405, 501):
+                    continue
+                return str(e.code)
+            except Exception as e:  # noqa: BLE001
+                if metodo == "GET":
+                    return type(e).__name__
+        return "erro"
+    buscar = buscar or padrao
+    urls: dict[str, set] = {}
+    alvos = [(raiz / rel, rel) for rel, _ in PAGINAS] + ([(inst / rel, "instituto:" + rel) for rel, _ in PAGINAS_INSTITUTO] if inst.is_dir() else [])
+    for p, rel in alvos:
+        if p.is_file():
+            for u in links_externos(p.read_text(encoding="utf-8", errors="replace")):
+                urls.setdefault(u, set()).add(rel)
+    inicio = mv.nova_rodada()
+    ruins = []
+    for u, pags in sorted(urls.items()):
+        st = buscar(u)
+        mv.db.execute("INSERT OR REPLACE INTO mv_link VALUES (?,?,?,?)", (u, json.dumps(sorted(pags)), st, time.time()))
+        if not st.isdigit() or int(st) >= 400:
+            ruins.append(u)
+            mv.alertar("links", "link_quebrado", u[:200], "atencao", f"Link externo sem resposta ({st}): {u[:120]}",
+                       f"Corrigir em: {', '.join(sorted(pags))[:200]}")
+    mv.fechar_alertas_nao_vistos("links", inicio)
+    mv.db.commit()
+    return {"links": len(urls), "quebrados": len(ruins)}
 
 
 def listar(mv: MV) -> list[dict]:
