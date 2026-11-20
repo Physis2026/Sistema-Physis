@@ -8,7 +8,7 @@
 /* Identity Guide Physis (19/11/2026; PALETA.md "Guia de identidade"): verde-floresta da Physis Engineering, creme, carvão,
    laranja-semente como destaque e laranja de botão com texto branco. Josefin Sans só no logotipo e nos títulos grandes; Lora no corpo. */
 :root{--fundo:#F4F1EA;--sup:#FFFFFF;--texto:#1B1F23;--texto2:#4A4F44;--logo:#4A8A5A;--acao:#1A4D2E;--sobreacao:#FFFFFF;--botao:#C2410C;
---linha:#D9D3C2;--semente:#F97316;--rotulo:#C2410C;--faixa:#0B3D2E;--faixat:#F4F1EA;
+--linha:#D9D3C2;--semente:#F97316;--rotulo:#C2410C;--faixa:#0B3D2E;--faixat:#F4F1EA;--terracota:#BB6B4A;--rodape:#0B3D2E;--rodapet:#F4F1EA;
 --areia:#EFE8D6;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#4A4F44;--inf:#EFE8D6;--ok:#1F4A1C;--okf:#DCEBD8;
 --barra:#7FA874;--crit:#A63A28;--risco:#C08A1E;--feita:#A8BFA0;--hoje:#BB6B4A;
 --c-feita:#1A4D2E;--c-fazendo:#4A8A5A;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#C2410C;--c-plan:#4A4F44;--c-conc:#1A4D2E;
@@ -17,7 +17,7 @@
 --f-titulo:"Josefin Sans","Century Gothic","Segoe UI",sans-serif;--f-corpo:Lora,Georgia,"Times New Roman",serif}
 /* tipo A (escuro verde) */
 html[data-tema="escuro"]{--fundo:#0B3D2E;--sup:#0F4535;--texto:#F4F1EA;--texto2:#C3D0BD;--logo:#8FB183;--acao:#F4F1EA;--sobreacao:#0B3D2E;--linha:#2F5E4E;
---rotulo:#D9A58C;--faixa:#1B1F23;--faixat:#F4F1EA;
+--rotulo:#D9A58C;--faixa:#0C2C21;--faixat:#F4F1EA;--terracota:#D9A58C;--rodape:#0C2C21;--rodapet:#F4F1EA;
 --areia:#2F5E4E;--at:#E5D5AE;--atf:#5C3F00;--al:#E3C4BD;--alf:#5C2B2E;--in:#E5D5AE;--inf:#33372E;--ok:#DCEBD8;--okf:#3A4A38;
 --barra:#8FB183;--crit:#FF8A80;--risco:#C9A227;--feita:#5A6154;--hoje:#D9A58C;
 --c-feita:#8FB183;--c-fazendo:#D9A58C;--c-revisao:#F97316;--c-afazer:#8A9182;--c-bloq:#FF8A80;--c-plan:#C3D0BD;--c-conc:#8FB183;
@@ -88,32 +88,45 @@ th{position:sticky;top:0;background:var(--sup);font-weight:600}
 .drop.sobre{border-color:var(--acao);background:var(--sup)}
 .drop input[type=file]{max-width:100%}
 .previa{margin-top:.75rem}
+nav.sub{display:flex;flex-wrap:wrap;gap:.25rem;border-bottom:1px solid var(--linha);padding-bottom:.4rem}
 .faixa{background:var(--faixa);color:var(--faixat);font-size:.8rem;letter-spacing:.06em;padding:.3rem 1.25rem;display:flex;flex-wrap:wrap;gap:.25rem 1rem;justify-content:space-between}
 .rotulo{color:var(--rotulo);font:600 .75rem var(--f-corpo);letter-spacing:.12em;text-transform:uppercase}
 .cmdbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:0 0 .75rem;padding:.6rem .75rem;background:var(--sup);border:1px solid var(--linha);border-radius:12px}
 .cmdbar label{font-weight:700}.cmdbar input{flex:1 1 22rem;min-width:0;min-height:44px;padding:.35rem .6rem;border:1px solid var(--linha);border-radius:8px;background:var(--fundo);color:var(--texto)}
 pre.saida{white-space:pre-wrap;font:13px/1.45 Consolas,"Courier New",monospace;background:var(--fundo);border:1px solid var(--linha);border-radius:8px;padding:.5rem;max-height:40vh;overflow:auto}
 .botsaida{margin-top:.4rem}.v3d{border:1px solid var(--linha);border-radius:12px;overflow:hidden;min-height:120px;background:var(--sup)}.v3d canvas{display:block;max-width:100%;cursor:grab}
+.pular{position:absolute;left:-9999px;top:0;z-index:50;background:var(--botao);color:#FFFFFF;padding:.6rem 1rem;border-radius:0 0 8px 0}
+.pular:focus{left:0}
+.rodape p{margin:.25rem 0}
+footer{background:var(--rodape)!important;color:var(--rodapet)!important;border-top:4px solid var(--terracota)!important}
+footer .muted{color:var(--rodapet)!important;opacity:.85}
+h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;background:var(--terracota);margin:0 0 .4rem}
+.aviso{border-left:5px solid var(--terracota);border-radius:0 10px 10px 0}
+.card.gcard{border-top:3px solid var(--terracota)}
+#pp-lugar{flex:1 1 100%}
 [hidden]{display:none!important}
 @media (max-width:700px){.kanban{grid-template-columns:repeat(5,80vw)}}
 </style>
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="faixa"><span>Physis Engineering · Physis M&amp;A</span><span>versão de teste · nada é enviado para fora sem aprovação</span></div>
 <header>
   <div class="marca"><img id="logo" src="/logo.png" alt="Physis Engineering" onerror="this.hidden=true">
     <div><h1>Physis M&amp;A <span class="selo">versão de teste</span></h1><p class="assina">Physis Engineering · gestão e monitoramento integrados</p></div></div>
+  <div id="pp-lugar" data-physis-preferencias="lugar"></div>
   <div class="ferr" style="margin:0">
-    <label>Idioma <select id="idioma"><option value="pt">Português</option><option value="en">English</option></select></label>
+    <label hidden>Idioma <select id="idioma"><option value="pt">Português</option><option value="en">English</option></select></label>
     <label>Frente <select id="frente"><option value="">Todas as frentes</option></select></label>
     <label>Projeto <select id="projeto"><option value="">Todos os projetos</option></select></label>
-    <label>Tema <select id="tema"><option value="auto">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
+    <label hidden>Tema <select id="tema"><option value="auto">Automático</option><option value="claro">Claro</option><option value="escuro">Escuro</option></select></label>
     <button class="btn prim" id="rodar">Rodar bots agora</button>
   </div>
 </header>
 <nav role="tablist" aria-label="Visões">
   <button class="aba" role="tab" data-v="saude" aria-selected="true">Visão geral</button>
   <button class="aba" role="tab" data-v="aprovacoes" aria-selected="false">Aprovações</button>
+  <button class="aba" role="tab" data-v="contas" aria-selected="false">Clientes e projetos</button>
   <button class="aba" role="tab" data-v="projetos" aria-selected="false">Projetos</button>
   <button class="aba" role="tab" data-v="gantt" aria-selected="false">Cronograma</button>
   <button class="aba" role="tab" data-v="kanban" aria-selected="false">Tarefas</button>
@@ -126,7 +139,7 @@ pre.saida{white-space:pre-wrap;font:13px/1.45 Consolas,"Courier New",monospace;b
   <button class="aba" role="tab" data-v="modelos3d" aria-selected="false">Modelagem 3D</button>
   <button class="aba" role="tab" data-v="bots" aria-selected="false">Bots e comandos</button>
 </nav>
-<main>
+<main id="conteudo" tabindex="-1">
   <form id="cmdForm" class="cmdbar" aria-label="Comandos aos bots"><label for="cmdTxt">Comando aos bots</label>
     <input id="cmdTxt" type="text" autocomplete="off" placeholder="/ajuda · /contrato f0-advogado · ou um pedido ao Claude com #id da tarefa">
     <button class="btn prim">Enviar</button></form>
@@ -139,6 +152,11 @@ pre.saida{white-space:pre-wrap;font:13px/1.45 Consolas,"Courier New",monospace;b
     <h2>Perguntas e decisões (centralizadas)</h2>
     <p class="muted">Toda pergunta de qualquer sistema (Sistema Physis, Instituto, InovaSTEM, Casa, templates) fica aqui uma vez só. Respondida aqui, vale para todos os sistemas indicados.</p>
     <div id="perguntas"></div>
+  </section>
+  <section id="v-contas" role="tabpanel" hidden>
+    <p class="muted">Uma plataforma para cada cliente, projeto ou parceiro: o que precisa ser esclarecido no início, resumo a conferir, bots que leem os documentos e propõem a ficha, subprojetos com fases, finanças e documentos próprios.</p>
+    <nav class="sub" role="tablist" aria-label="Clientes, projetos e parceiros" id="contasNav"></nav>
+    <div id="contaPainel" style="margin-top:.75rem"></div>
   </section>
   <section id="v-bots" role="tabpanel" hidden>
     <p class="muted">Comandos executam na hora; texto sem barra vai para a fila do Claude e volta como rascunho. Nada é enviado para fora: e-mails ficam como rascunho e documentos como versão de teste.</p>
@@ -179,7 +197,12 @@ pre.saida{white-space:pre-wrap;font:13px/1.45 Consolas,"Courier New",monospace;b
   <section id="v-matriz" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="tarefas"></span></div><div class="tabwrap" id="matriz"></div></section>
   <section id="v-roadmap" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="saude"></span></div><div id="roadmap" class="roadmap"></div></section>
   <section id="v-alertas" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="alertas"></span></div><div class="tabwrap" id="alertas"></div></section>
-  <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div id="upDocumentos"></div><div class="tabwrap" id="documentos"></div></section>
+  <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div id="upDocumentos"></div>
+    <h2>Páginas e telas: checklist base (doc 43)</h2>
+    <p class="muted">O bot "paginas" confere em cada tela do site, da plataforma, da loja, do app e das telas internas: idioma, título, celular, barra de acessibilidade, tema escuro, fontes do guia, rodapé com CNPJ, privacidade, termos, contato, funcionamento sem internet, imagens com texto alternativo, nenhum azul, só cores da paleta, botão laranja e endosso.</p>
+    <div class="ferr"><button class="btn prim" id="pgRodar">Conferir todas as páginas agora</button></div>
+    <div class="tabwrap" id="paginas" style="max-height:50vh;margin-bottom:1rem"></div>
+    <h2>Documentos</h2><div class="tabwrap" id="documentos"></div></section>
   <section id="v-editais" role="tabpanel" hidden>
     <p class="muted">Cada proposta tem etapa, necessidades (documentos exigidos, exigências formais, parceiro e documentos-padrão), responsável e decisão. Nada é enviado pelo sistema: "Enviada" é marcada por quem enviou, depois da autorização da dona.</p>
     <div class="ferr">
@@ -204,12 +227,25 @@ pre.saida{white-space:pre-wrap;font:13px/1.45 Consolas,"Courier New",monospace;b
       <label>Valor (R$) <input type="text" name="valor" required inputmode="decimal"></label>
       <label>Descrição <input type="text" name="descricao"></label>
       <label>Fonte <input type="text" name="fonte" placeholder="contrato, invoice, planilha…"></label>
+      <label>Conta <input type="text" name="conta" placeholder="estermic, giz-ptx…"></label>
+      <label>Subprojeto <input type="text" name="subprojeto"></label>
+      <label>Sistema vendido <input type="text" name="sistema"></label>
+      <label>Loja <input type="text" name="loja"></label>
+      <label>Membro <input type="text" name="membro"></label>
+      <label>CNPJ emissor <select name="cnpj_emissor"><option value="physis-eng">Physis Engineering</option><option value="casa">Casa Physis</option><option value="instituto">Instituto Physis</option><option value="pessoa-fisica">Pessoa física</option></select></label>
       <button class="btn prim">Lançar (a conferir)</button>
     </form>
+    <h2>Mapeamento financeiro por nível</h2>
+    <div class="ferr"><label>Nível <select id="finNivel"><option value="cnpj">Por CNPJ emissor</option><option value="conta" selected>Por cliente/parceiro</option><option value="subprojeto">Por projeto/subprojeto</option><option value="sistema">Por sistema vendido</option><option value="loja">Por loja online</option><option value="membro">Por membro da equipe</option></select></label></div>
+    <div class="tabwrap" id="finTabela" style="margin-bottom:1rem"></div>
     <div id="upFinancas"></div>
   </section>
 </main>
-<footer>Physis Engineering · Physis M&amp;A · Casa Physis · Instituto Physis · InovaSTEM</footer>
+<footer><div class="rodape">
+  <p><strong>Physis Engineering</strong> · Physis M&amp;A (gestão e monitoramento integrados) · versão de teste</p>
+  <p>CNPJ [MARCADOR] · Petrópolis/RJ · contato [MARCADOR] · <span>Privacidade e LGPD: [MARCADOR]</span> · <span>Termos de uso: [MARCADOR]</span></p>
+  <p class="muted">Frentes acompanhadas: Physis Engineering (com a Casa Physis) · Instituto Physis · InovaSTEM · InovaSTEM Delas. Sem cookies de rastreamento; preferências ficam só neste navegador.</p>
+</div></footer>
 <script>
 "use strict";
 const $=s=>document.querySelector(s), H={"X-Physis-MV":"1","Content-Type":"application/json"};
@@ -290,6 +326,7 @@ $("#tema").onchange=e=>{tema(e.target.value);render(atual)};
 document.querySelectorAll(".exp").forEach(s=>{const v=s.dataset.vista;s.innerHTML=MOCK?'<span class="muted">Downloads ODS/ODT/PDF na versão com servidor.</span>':["ods","odt","pdf"].map(f=>`<a class="btn" href="/api/mv/exportar?vista=${v}&formato=${f}&idioma=${IDI}">Baixar ${f.toUpperCase()}</a>`).join(" ");});
 $("#idioma").value=IDI;$("#idioma").onchange=e=>{try{localStorage.setItem("physis-pref-idioma",e.target.value)}catch(x){}location.reload();};
 EN["Downloads ODS/ODT/PDF na versão com servidor."]="ODS/ODT/PDF downloads in the server version.";
+EN["Clientes e projetos"]="Clients and projects";EN["Resumo a conferir"]="Summary to check";EN["Bots e propostas"]="Bots and proposals";EN["Analisar documentos e propor ficha"]="Analyze documents and propose record";EN["Confirmar"]="Confirm";EN["Recusar"]="Reject";EN["Subprojetos e fases"]="Subprojects and phases";EN["Finanças desta conta"]="Finance for this account";EN["Documentos"]="Documents";EN["Pedir nota ao contador"]="Request invoice from accountant";EN["Novo projeto ou cliente"]="New project or client";EN["Salvar como rascunho"]="Save as draft";EN["Mapeamento financeiro por nível"]="Financial mapping by level";EN["Nível"]="Level";EN["Por CNPJ emissor"]="By issuing company (CNPJ)";EN["Por cliente/parceiro"]="By client/partner";EN["Por projeto/subprojeto"]="By project/subproject";EN["Por sistema vendido"]="By system sold";EN["Por loja online"]="By online store";EN["Por membro da equipe"]="By team member";
 EN["Aprovações"]="Approvals";EN["Modelagem 3D"]="3D modeling";EN["Bots e comandos"]="Bots and commands";EN["Comando aos bots"]="Command to the bots";EN["Enviar"]="Send";EN["Comandos"]="Commands";EN["Programar um bot"]="Schedule a bot";EN["Programar"]="Schedule";EN["Repetir"]="Repeat";EN["todo dia"]="every day";EN["toda hora"]="every hour";EN["toda semana"]="every week";EN["Fila de pedidos e rascunhos"]="Requests and drafts queue";EN["Galeria"]="Gallery";EN["Visualizador"]="Viewer";EN["Ver em 3D"]="View in 3D";EN["Licença"]="License";EN["Aprovar"]="Approve";EN["Pedir ajuste"]="Request changes";EN["Descartar"]="Discard";EN["Bot"]="Bot";EN["Escolher…"]="Choose…";EN["Modelo de contrato"]="Contract template";EN["Rascunho de e-mail"]="Email draft";EN["Checklist e passos"]="Checklist and steps";EN["Enviar ao Claude (fila)"]="Send to Claude (queue)";EN["Pedir impressão (aguarda aprovação)"]="Request print (awaits approval)";EN["Material"]="Material";EN["Enviar modelo 3D"]="Upload 3D model";EN["Até 23/11 · versão de teste"]="By 23/11 · test version";
 EN["Projeto"]="Project";EN["Todos os projetos"]="All projects";EN["Projetos"]="Projects";EN["(sem projeto)"]="(no project)";EN["Andamento por frente"]="Progress by front";EN["Prazos das próximas 8 semanas"]="Deadlines for the next 8 weeks";EN["Evolução: planejado × concluído"]="Progress: planned × done";EN["Editais e finanças"]="Calls and finance";EN["Funil de editais"]="Calls funnel";EN["Finanças por entidade (nunca somadas entre si)"]="Finance by entity (never added together)";EN["Ver os números em tabela"]="See the numbers as a table";EN["Feitas"]="Done";EN["Em revisão"]="In review";EN["Fazendo"]="Doing";EN["A fazer"]="To do";EN["Bloqueadas"]="Blocked";EN["Ver cronograma"]="See schedule";EN["Ver tarefas"]="See tasks";EN["Ordenar"]="Sort";EN["Mais atrasos e riscos primeiro"]="Most delays and risks first";EN["Prazo final"]="Final deadline";EN["Mais tarefas"]="Most tasks";EN["Nome"]="Name";EN["Sem dados para mostrar com estes filtros."]="No data to show with these filters.";EN["Entradas oficiais"]="Official inflows";EN["Entradas a conferir"]="Inflows to check";EN["Saídas oficiais"]="Official outflows";EN["Saídas a conferir"]="Outflows to check";EN["Concluído"]="Done";EN["Escopo total"]="Total scope";EN["Planejado (prazo até a semana, tracejado)"]="Planned (due by the week, dashed)";EN["Editais (prazo de envio)"]="Calls (submission deadline)";EN["Nenhum projeto com esses filtros."]="No projects with these filters.";
 EN["Enviar editais (CSV do banco) ou o arquivo do edital"]="Upload calls (bank CSV) or the call document";EN["Anexar documentos"]="Attach documents";EN["Importar lançamentos ou guardar extratos"]="Import entries or store statements";EN["Arraste arquivos aqui ou clique para escolher"]="Drag files here or click to choose";EN["Vincular a"]="Link to";EN["(sem vínculo)"]="(no link)";EN["Baixar modelo CSV"]="Download CSV template";EN["Arquivo"]="File";EN["Vínculo"]="Link";EN["Enviado"]="Uploaded";EN["Situação"]="Status";EN["Ações"]="Actions";EN["Ver prévia"]="Preview";EN["Baixar"]="Download";EN["Descartar"]="Discard";EN["aguardando prévia"]="awaiting preview";EN["guardado"]="stored";EN["aplicado"]="applied";EN["descartado"]="discarded";EN["Nenhum arquivo enviado ainda."]="No files uploaded yet.";EN["Prévia (versão de teste: nada foi gravado ainda)"]="Preview (test version: nothing saved yet)";EN["Aplicar (gravar no banco)"]="Apply (save to database)";EN["Fechar prévia"]="Close preview";EN["Linhas com erro (não entram)"]="Rows with errors (not imported)";EN["Arquivos deste edital (PDF, anexos, rascunhos)"]="Files for this call (PDF, annexes, drafts)";EN["Upload disponível só na versão local com servidor (os arquivos ficam guardados fora do OneDrive)."]="Upload is available only in the local server version (files are stored outside OneDrive).";
@@ -343,11 +380,13 @@ async function render(v){
     a.map(x=>`<tr><td><span class="pill g-${x.gravidade}">${{alerta:"intervir",atencao:"atenção",info:"info"}[x.gravidade]}</span></td><td>${esc(x.texto)}</td><td>${esc(x.acao)}</td><td>${esc(x.bot)}</td>
     <td><button class="btn" data-res="${esc(x.id)}">Marcar como resolvido</button></td></tr>`).join("")+`</tbody></table>`;
     $("#alertas").querySelectorAll("[data-res]").forEach(b=>b.onclick=async()=>{await post("/api/mv/alerta/resolver",{id:b.dataset.res});render("alertas")});}
-  if(v==="documentos"){const ds=(await get("/api/mv/documentos")).filter(x=>!fr()||x.frente===fr());
+  if(v==="documentos"){paginasBase();const ds=(await get("/api/mv/documentos")).filter(x=>!fr()||x.frente===fr());
     $("#documentos").innerHTML=`<table><thead><tr><th>Situação</th><th>Documento</th><th>Tipo</th><th>Idade</th><th>Marcadores</th><th>Falhas</th></tr></thead><tbody>`+
     ds.map(d=>`<tr><td><span class="pill g-${d.situacao==="falha"?"alerta":d.situacao==="vencido"?"atencao":"ok"}">${esc(d.situacao)}</span></td><td>${esc(d.caminho)}</td><td>${esc(d.tipo)}</td>
     <td>${d.idade_d} d (validade ${d.validade_d})</td><td>${d.marcadores}</td><td>${d.falhas.map(f=>esc(f.texto+" ("+f.decisao+")")).join("<br>")}</td></tr>`).join("")+`</tbody></table>`;}
   if(v==="aprovacoes"){await aprovacoes();await perguntasCentrais();}
+  if(v==="contas"){await contas();}
+  if(v==="financeiro"&&!MOCK){finNiveis();}
   if(v==="bots"){await bots();}
   if(v==="modelos3d"){await modelos3d();}
   if(v==="editais"){await editais();}
@@ -534,6 +573,12 @@ async function perguntasCentrais(){if(MOCK){$("#perguntas").innerHTML=semServido
   const resp=async(id,r)=>{const x=await post("/api/mv/pergunta/responder",{id,resposta:r});if(x.erro)status("Erro: "+x.erro);perguntasCentrais();};
   $("#perguntas").querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>resp(b.dataset.pr,b.dataset.r));
   $("#perguntas").querySelectorAll("[data-prb]").forEach(b=>b.onclick=()=>{const v=$(`[data-prt="${b.dataset.prb}"]`).value.trim();if(v)resp(b.dataset.prb,v);});}
+async function paginasBase(){if(MOCK){$("#paginas").innerHTML=semServidor("Checklist de páginas");return;}
+  const ls=await get("/api/mv/paginas");
+  $("#paginas").innerHTML=ls.length?`<table><thead><tr><th>Página</th><th>Tipo</th><th>Checklist</th><th>O que falta</th></tr></thead><tbody>${ls.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.tipo)}</td>
+    <td><div class="barra" role="img" aria-label="${p.ok} de ${p.total}"><i style="width:${Math.round(100*p.ok/p.total)}%"></i></div>${p.ok}/${p.total}</td>
+    <td>${p.falhas.map(f=>`<span class="pill g-${["preferencias","sem-azul","offline","paleta","endosso","familia"].includes(f.cod)?"alerta":"atencao"}">${esc(f.item)}</span>${f.nota?` <span class="muted">${esc(f.nota)}</span>`:""}`).join("<br>")||'<span class="pill g-ok">completo</span>'}</td></tr>`).join("")}</tbody></table>`
+    :'<p class="muted" style="padding:.5rem">Ainda não conferido. Clique em "Conferir todas as páginas agora".</p>';}
 async function enviarComando(txt,saida){if(!txt.trim())return;if(MOCK){saida.innerHTML=semServidor("Comandos aos bots");return;}
   saida.innerHTML='<p class="muted">Executando…</p>';const r=await post("/api/mv/comando",{texto:txt});
   if(r.erro){saida.innerHTML=`<p class="aviso">Erro: ${esc(r.erro)}</p>`;return;}
@@ -591,6 +636,60 @@ async function modelos3d(){if(MOCK){$("#galeria3d").innerHTML=semServidor("Model
 function botTarefa(sel){const id=sel.dataset.bot,v=sel.value;sel.value="";if(!v)return;
   const cmd=v==="claude"?`Ajude na tarefa #${id}: ${(sel.closest(".tc").querySelector("strong")||{}).textContent||""}`:`${v} ${id}`;
   let out=sel.closest(".tc").querySelector(".botsaida");if(!out){out=document.createElement("div");out.className="botsaida";sel.closest(".tc").appendChild(out);}enviarComando(cmd,out);}
+// ---------------------------------------------------------------- clientes, projetos e parceiros (20/11/2026)
+let CONTAS=[],CONTA_SEL="";
+async function contas(){if(MOCK){$("#contasNav").innerHTML="";$("#contaPainel").innerHTML=semServidor("Clientes e projetos");return;}
+  CONTAS=await get("/api/mv/contas");if(!CONTA_SEL&&CONTAS.length)CONTA_SEL=CONTAS[0].id;
+  $("#contasNav").innerHTML=CONTAS.map(c=>`<button class="aba" role="tab" aria-selected="${c.id===CONTA_SEL}" data-ct="${esc(c.id)}">${esc(c.nome)}${c.estado==="futuro"?" · futuro":""}</button>`).join("")+
+    `<button class="aba" role="tab" aria-selected="${CONTA_SEL==="+novo"}" data-ct="+novo">+ Novo projeto ou cliente</button>`;
+  $("#contasNav").querySelectorAll("[data-ct]").forEach(b=>b.onclick=()=>{CONTA_SEL=b.dataset.ct;contas();});
+  if(CONTA_SEL==="+novo")return novoProjeto();await contaPainel(CONTA_SEL);}
+async function contaPainel(id){const c=await get("/api/mv/conta?id="+encodeURIComponent(id));if(c.erro){$("#contaPainel").innerHTML=`<p class="aviso">${esc(c.erro)}</p>`;return;}
+  const pend=c.resumo.filter(r=>r.pendente).length,prop=Object.entries(c.propostas||{});
+  $("#contaPainel").innerHTML=`<div class="card"><p class="rotulo">${esc(c.tipo_nome)} · template: ${esc(c.template_nome)}</p><h2>${esc(c.nome)}</h2>
+    <p class="muted">${esc(c.core||"")}</p><p><span class="pill g-${pend?"atencao":"ok"}">${pend?pend+" item(ns) a esclarecer":"ficha completa"}</span> <span class="pill g-info">próximo: ${esc(c.proximos||"—")}</span></p></div>
+  <div class="cards" style="margin-top:.75rem"><div class="card"><h2>Resumo a conferir</h2><table><tbody>${c.resumo.map(r=>`<tr><th scope="row">${esc(r.item)}</th><td>${esc(r.valor)} ${r.pendente?'<span class="pill g-atencao">esclarecer</span>':""}</td></tr>`).join("")}</tbody></table></div>
+   <div class="card"><h2>Bots e propostas</h2><p class="muted">O bot lê os documentos anexados e propõe os campos; cada proposta só vale depois de confirmada.</p>
+    <div class="ferr"><button class="btn prim" id="ctAnalisar">Analisar documentos e propor ficha</button></div>
+    ${prop.length?`<ul style="list-style:none;padding:0">${prop.map(([k,p])=>`<li style="margin:.4rem 0"><strong>${esc(k)}</strong>: ${esc(p.valor)} <span class="muted">(${esc(p.origem)}, ${esc(p.quando)})</span>
+      <button class="btn" data-cf="${esc(k)}" data-ok="1">Confirmar</button> <button class="btn" data-cf="${esc(k)}" data-ok="0">Recusar</button></li>`).join("")}</ul>`:'<p class="muted">Nenhuma proposta pendente.</p>'}
+    <div id="ctSaida"></div></div></div>
+  ${c.subprojetos.length?`<h2>Subprojetos e fases</h2><div class="cards">${c.subprojetos.map(s=>`<div class="card"><strong>${esc(s.nome)}</strong><p class="muted">Escopo: ${esc(s.escopo)} · contrato: ${esc(s.contrato)} · valor: ${esc(s.valor)}</p>
+    <table><thead><tr><th>Fase</th><th>Valor</th><th>Prazo</th><th>Faturado</th><th>Recebido</th></tr></thead><tbody>${s.fases.map(f=>`<tr><td>${esc(f.fase)}</td><td>${esc(f.valor)}</td><td>${esc(f.prazo||"—")}</td><td>${f.faturado?"sim":"não"}</td><td>${f.recebido?"sim":"não"}</td></tr>`).join("")}</tbody></table></div>`).join("")}</div>`:""}
+  <h2>Finanças desta conta</h2><div id="ctFin"></div>
+  <h2>Documentos</h2><div id="ctDocs"></div>`;
+  const ls=await get("/api/mv/lancs?conta="+encodeURIComponent(id));
+  $("#ctFin").innerHTML=ls.length?`<div class="tabwrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Subprojeto</th><th>Descrição</th><th>Situação</th><th>Nota fiscal</th></tr></thead><tbody>${ls.map(l=>`<tr><td>${esc(l.data)}</td><td>${esc(l.tipo)}</td>
+    <td>${Number(l.valor).toLocaleString("pt-BR",{minimumFractionDigits:2})}</td><td>${esc(l.subprojeto||"—")}</td><td>${esc(l.descricao)}</td><td>${l.conferido?"oficial":"a conferir"}</td>
+    <td>${l.nf?esc(l.nf):["receita","edital"].includes(l.tipo)?`<button class="btn" data-nf="${l.id}">Pedir nota ao contador</button>`:"—"}</td></tr>`).join("")}</tbody></table></div>`
+    :'<p class="muted">Sem lançamentos desta conta. Use Finanças por entidade → Novo lançamento (campo Conta).</p>';
+  $("#ctFin").querySelectorAll("[data-nf]").forEach(b=>b.onclick=async()=>{const r=await post("/api/mv/nota",{id:+b.dataset.nf});status(r.erro?"Erro: "+r.erro:"Rascunho do e-mail ao contador criado (aba Bots e comandos). Nada foi enviado.");contaPainel(id);});
+  $("#ctAnalisar").onclick=async()=>{const r=await post("/api/mv/conta/analisar",{id});$("#ctSaida").innerHTML=r.erro?`<p class="aviso">${esc(r.erro)}</p>`:`<p class="aviso">${esc(r.resultado)}</p>`;};
+  $("#contaPainel").querySelectorAll("[data-cf]").forEach(b=>b.onclick=async()=>{await post("/api/mv/conta/confirmar",{id,campo:b.dataset.cf,aceitar:b.dataset.ok==="1"});contaPainel(id);});
+  caixa("#ctDocs","documentos",{refFixa:id,titulo:`Documentos de ${c.nome} (contratos, propostas, plantas, atas)`});}
+function novoProjeto(){const opts=CONTAS.map(c=>`<option value="${esc(c.id)}">${esc(c.nome)} (${esc(c.tipo_nome)})</option>`).join("");
+  $("#contaPainel").innerHTML=`<div class="card"><p class="rotulo">Inclusão de projeto · versão de teste</p><h2>Novo projeto ou cliente</h2>
+  <p class="muted">Escolha o cliente ou parceiro: aparece o funcionamento core das atividades dele. O que você não souber fica [MARCADOR]; depois de salvar, anexe documentos e use "Analisar documentos e propor ficha".</p>
+  <form id="fNovo" class="ferr" style="align-items:flex-start">
+   <label>Cliente/parceiro <select name="base"><option value="">(novo)</option>${opts}</select></label>
+   <label>Tipo <select name="tipo"><option value="futuro">Projeto futuro (em cadastro)</option><option value="cliente_direto">Cliente · contrato direto</option><option value="cliente_loja">Cliente da plataforma (loja)</option><option value="parceiro">Parceria</option><option value="interno">Projeto interno</option></select></label>
+   <label>Nome <input type="text" name="nome" required></label>
+   <label>CNPJ emissor <select name="cnpj_emissor" id="fCnpj"></select></label>
+   <label>Base contratual <input type="text" name="contrato" placeholder="direto BR, internacional, parceria…"></label>
+   <label>Moeda <select name="moeda"><option>BRL</option><option>EUR</option><option>USD</option></select></label>
+   <label>Responsável <input type="text" name="responsavel"></label>
+   <label style="flex:1 1 100%">Atividade core <input type="text" name="core" style="width:100%"></label>
+   <button class="btn prim">Salvar como rascunho</button></form><div id="fCore" class="aviso" hidden></div><div id="fNovoSaida"></div></div>`;
+  get("/api/mv/cnpjs").then(cs=>$("#fCnpj").innerHTML=cs.map(c=>`<option value="${esc(c.id)}">${esc(c.nome)} · ${esc(c.cnpj)}</option>`).join(""));
+  $("#fNovo").base.onchange=e=>{const c=CONTAS.find(x=>x.id===e.target.value);const box=$("#fCore");if(!c){box.hidden=true;return;}box.hidden=false;
+    box.innerHTML=`<strong>${esc(c.nome)}</strong> · ${esc(c.tipo_nome)} · ${esc(c.contrato)}<br>Funcionamento core: ${esc(c.core||"[MARCADOR]")}<br>Template: ${esc(c.template_nome)}`;
+    const f=$("#fNovo");f.cnpj_emissor.value=c.cnpj_emissor;f.contrato.value=c.contrato;f.moeda.value=c.moeda;f.core.value=c.core;f.responsavel.value=c.responsavel;if(!f.nome.value)f.nome.value=c.nome+" · novo projeto";};
+  $("#fNovo").onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));delete d.base;d.estado="futuro";
+    const r=await post("/api/mv/conta",d);if(r.erro){$("#fNovoSaida").innerHTML=`<p class="aviso">${esc(r.erro)}</p>`;return;}CONTA_SEL=r.id;contas();};}
+async function finNiveis(){if(MOCK)return;const nv=$("#finNivel").value,ls=await get("/api/mv/fin?nivel="+nv);
+  $("#finTabela").innerHTML=ls.length?`<table><thead><tr><th>${esc($("#finNivel").selectedOptions[0].text)}</th><th>Oficial</th><th>A conferir</th><th>Lançamentos</th></tr></thead><tbody>${ls.map(x=>`<tr><td>${esc(x.chave)}</td>
+    <td>${Object.entries(x.oficial).map(([t,v])=>`${esc(t)}: R$ ${v.toLocaleString("pt-BR",{minimumFractionDigits:2})}`).join(" · ")||"—"}</td><td>${Object.entries(x.a_conferir).map(([t,v])=>`${esc(t)}: R$ ${v.toLocaleString("pt-BR",{minimumFractionDigits:2})}`).join(" · ")||"—"}</td><td>${x.lancamentos}</td></tr>`).join("")}</tbody></table>`
+    :'<p class="muted" style="padding:.5rem">Sem lançamentos neste nível.</p>';}
 // ---------------------------------------------------------------- caixas de upload (19/11/2026)
 const UPL={editais:{t:"Enviar editais (CSV do banco) ou o arquivo do edital",ac:".csv,.pdf,.odt,.ods,.docx,.xlsx",
     d:"CSV no formato do banco (separador ;) passa por prévia e só entra com Aplicar. PDF/ODT/DOCX ficam guardados e vinculados ao edital."},
@@ -686,6 +785,8 @@ function ficha(id){const d=ED.find(x=>x.id===id);if(!d)return;const f=$("#edFich
   f.scrollIntoView({behavior:"smooth"});}
 const ETP={};["#edEtapa","#edAd","#edPrazo"].forEach(i=>$(i).onchange=tabelaEditais);$("#edBusca").oninput=tabelaEditais;
 $("#frente").onchange=()=>{preencherProjetos();render(atual);};
+$("#finNivel").onchange=finNiveis;
+$("#pgRodar").onclick=async()=>{status("Conferindo as páginas…");await post("/api/mv/bots/rodar",{quais:["paginas"]});paginasBase();status("Páginas conferidas.");};
 $("#cmdForm").onsubmit=e=>{e.preventDefault();enviarComando($("#cmdTxt").value,$("#cmdSaida"));$("#cmdTxt").value="";};
 $("#fProg").onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target);if(MOCK)return;const r=await post("/api/mv/programado",{comando:f.get("comando"),frequencia:f.get("frequencia"),nome:f.get("nome")});
   status(r.erro?"Erro: "+r.erro:r.resultado);e.target.reset();bots();};
@@ -696,6 +797,907 @@ $("#rodar").onclick=async()=>{status("Rodando bots (documentos, atrasos, resumo)
 $("#fLanc").onsubmit=async e=>{e.preventDefault();const f=Object.fromEntries(new FormData(e.target));f.valor=parseFloat(String(f.valor).replace(/\./g,"").replace(",","."));
   const r=await post("/api/mv/lanc",f);if(r.erro)alert(r.erro);else{e.target.reset();CACHE.saude=null;render("financeiro");}};
 get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#frente").insertAdjacentHTML("beforeend",`<option value="${f.id}">${esc(f.nome)}</option>`)});m.estados.forEach(e=>EST[e.id]=e.nome);(m.etapas||[]).forEach(e=>ETP[e.id]=e.nome);render("saude");});
+</script>
+<script id="physis-preferencias">
+/* physis-preferencias.js v3 · Preferências de leitura e acessibilidade das telas da Physis
+   Barra com 4 controles: [Idioma: Português/English] [Tema: Claro/Escuro/Automático] [Modo de conforto ▾] [Acessibilidade (PcD) ▾].
+   Modo de conforto (neurodivergência: autismo, TDAH, dislexia): fundo verde, texto maior, mais espaçamento, menos estímulo,
+   foco reforçado, fonte para dislexia, régua de leitura, leitura simplificada, lembrar onde parei.
+   Acessibilidade (PcD): cegueira e baixa visão (leitores de tela, ouvir esta tela, alto contraste, zoom, atalhos),
+   surdez (alertas visuais, Libras, legendas), fala (comunicação alternativa · CAA), mobilidade (teclado, comandos de voz).
+
+   ORIGINAL ÚNICO: sistema/physis-preferencias.js (desde a v3 a antiga barra px-preferencias da plataforma, da Gestão e do
+   SCADA é esta mesma, pela porta PxPref, no fim do arquivo). As telas são arquivos únicos, então cada uma leva uma CÓPIA IGUAL
+   dentro do bloco script de id "physis-preferencias" (o arquivo inteiro, sem mudar nada). Quem copia é ferramentas/sincronizar.py
+   (BLOCOS): physis-hub/web/painel.html, sistema/gestao-interna-physis.html, sistema/physis-scada-demo.html,
+   physis-hub/web/consultoria.html, sistema/SustainKit_Definitivo.html, modulos/planejador/planejador-physis.html (e as demos
+   geradas delas). O teste physis-hub/tests/test_preferencias.py confere que as cópias são iguais a este arquivo.
+
+   Uso, uma vez por página, depois do conteúdo:
+     PhysisPreferencias.iniciar({
+       chave: "physis-pref",              // guardado no navegador; a mesma chave em todas as telas = a escolha acompanha a pessoa
+       dicionario: { "Texto em português": "English text" },
+       padroes: [[/^Pedido (\S+) recebido\.$/, "Request $1 received."]],   // textos montados na hora
+       fragmentos: { "Captação de": "Harvesting of" },  // pedaços de textos montados com números ("Captação de " + n + " L")
+       excecoes: ["Physis Engineering"],  // nomes próprios: iguais nas duas línguas
+       ondeColocar: "#pp-lugar",          // elemento ou seletor onde a barra aparece (sem ele: início do <body>)
+       variante: "sobre-verde",           // opcional: barra sobre fundo verde-escuro
+       escalaPorZoom: true,               // texto maior por zoom (telas em px); false = a página usa var(--pp-escala)
+       conteudo: "#conteudo",             // Alt+1, "Pular para o conteúdo" e "Ouvir esta tela"
+       menu: "nav",                       // Alt+2
+       busca: "[role=tablist]",           // Alt+3
+       contato: "#f-desc",                // campo onde a CAA escreve quando nenhum campo está em uso
+       relatar: "#contato",               // "Relatar barreira" sem abrirJuridico(): link do contato
+       lembrar: { salvar: function () { return {}; }, restaurar: function (o) {} },  // opcional: aba aberta etc.
+       esconderEmQuadro: true,            // aberta num quadro (iframe) da plataforma ou com html[data-em-quadro]: sem barra própria, segue a escolha de lá
+       idiomaExterno: { atual, definir }, // tela que se traduz sozinha (o módulo só pede a troca; não traduz o DOM)
+       suporte: function (frase) {},      // CAA sem campo em uso: leva a frase ao suporte da tela
+       tela: "nome",                      // chave do "lembrar onde parei" (padrão: o endereço)
+       aoMudar: function (estado) {}      // chamado depois de cada mudança
+     });
+
+   No <html>: data-tema="claro|escuro" (o que vale), data-tema-escolha="claro|escuro|auto", lang, a variável --pp-escala
+   (1, 1.15 ou 1.3) e as classes physis-conforto, a11y-verde, a11y-texto-1 / a11y-texto-2, a11y-espaco, a11y-calma,
+   a11y-foco, a11y-dislexia, a11y-regua, a11y-simples, a11y-contraste.
+   Cada página define as próprias cores em html[data-tema="escuro"] e html.a11y-verde (os nomes das variáveis mudam de
+   uma tela para outra) e o que some em html.a11y-simples (ou marca elementos com data-pp-secundario).
+   Sem recurso de fora, sem avaliação de código: funciona com a Content-Security-Policy do servidor e sem internet.
+   Comandos de voz usam o reconhecimento do navegador (no Chrome o áudio vai aos servidores do Google): começam desligados.
+
+   Inglês: troca os textos (nós de texto e aria-label, title, placeholder, alt, label e value de botões) pelo par do
+   dicionário, guarda o original para voltar ao português e acompanha o conteúdo novo (MutationObserver).
+   O que não tem par fica em português e entra em PhysisPreferencias.faltando().
+   Elementos com data-pp-manter (ou translate="no") não são traduzidos.
+
+   Cores (versão de teste, 20/11/2026): guia de identidade Physis, PALETA.md "Tipos de tela". Claro = tipo B (creme, carvão,
+   floresta #1A4D2E em contornos e links, botão principal #C2410C com texto branco); escuro = tipo A (verde profundo #0B3D2E,
+   cartões #0F4535, linhas #2F5E4E, texto #F4F1EA, destaque pequeno #D9A58C). Foco e régua em terracota, nunca em azul. */
+(function (global) {
+  "use strict";
+  var doc = global.document;
+  if (!doc || global.PhysisPreferencias) return;
+
+  var PADRAO = { v: 2, idioma: "pt", tema: "auto", conforto: false, verde: false, texto: 0, espaco: false, calma: false, foco: false,
+    dislexia: false, regua: false, simples: false, lembrar: false, contraste: false, libras: false, voz: false, aviso: 4 };
+  var BOOL = ["conforto", "verde", "espaco", "calma", "foco", "dislexia", "regua", "simples", "lembrar", "contraste", "libras", "voz"];
+  var CLASSES = ["verde", "espaco", "calma", "foco", "dislexia", "regua", "simples", "contraste"];
+  var ATRIBUTOS = ["aria-label", "title", "placeholder", "alt", "label", "aria-description", "aria-roledescription"];
+  var IGNORAR = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, NOSCRIPT: 1, TEMPLATE: 1, CODE: 1, PRE: 1 };
+  var ESCALAS = [1, 1.15, 1.3];
+  var FRASES = ["ajuda", "entendi", "pessoa", "sim", "nao", "repetir"];
+
+  /* textos da própria barra, nas duas línguas (a página não precisa traduzir) */
+  var UI = {
+    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro", auto: "Automático",
+      conforto: "Modo de conforto", ligado: "ligado", a11y: "Acessibilidade (PcD)", fechar: "Fechar", padrao: "Voltar ao padrão",
+      confT: "Modo de conforto", confD: "Para autismo, TDAH, dislexia e para quem se cansa com telas cheias. Vale para todas as telas da Physis e fica guardado neste aparelho.",
+      confLiga: "Ligar o modo de conforto", confLigaD: "Fundo verde, menos estímulo e mais espaçamento de uma vez.",
+      verde: "Fundo verde", verdeD: "Cor de fundo suave, que cansa menos a vista.", texto: "Texto maior", t0: "Normal", t1: "Maior", t2: "Muito maior", aviso: "Tempo dos avisos que somem sozinhos", a4: "4 segundos", a8: "8 segundos", a15: "15 segundos",
+      espaco: "Mais espaçamento", espacoD: "Mais espaço entre linhas, letras e palavras.",
+      calma: "Menos estímulo", calmaD: "Sem animação nem transição, nada piscando, cores mais calmas, nada toca sozinho e menos janelas que se abrem.",
+      foco: "Foco reforçado", focoD: "Contorno grosso no item em que você está.", dislexia: "Fonte para dislexia", dislexiaD: "Letras mais fáceis de distinguir (Atkinson Hyperlegible ou Lexend, já no aparelho).",
+      regua: "Régua de leitura", reguaD: "Uma faixa acompanha o ponteiro ou o item em foco, para não perder a linha.",
+      simples: "Modo leitura simplificada", simplesD: "Esconde enfeites e textos secundários e põe tudo numa coluna só.",
+      lembrar: "Lembrar onde parei", lembrarD: "Ao voltar, a tela abre no mesmo ponto e na mesma aba.",
+      a11yT: "Acessibilidade (PcD)", a11yD: "Recursos para pessoas com deficiência. Vale para todas as telas da Physis e fica guardado neste aparelho.",
+      cegT: "Cegueira e baixa visão", cegD: "Funciona com leitores de tela (NVDA, JAWS, VoiceOver, TalkBack): link para pular ao conteúdo, regiões nomeadas, avisos lidos em voz alta e nome em cada controle.",
+      ouvir: "Ouvir esta tela", pausar: "Pausar", continuar: "Continuar", parar: "Parar", ouvirD: "Lê o conteúdo principal, ou o trecho que você selecionar, com as vozes do próprio aparelho.",
+      semVoz: "Este navegador não tem leitura em voz alta.", contraste: "Alto contraste", contrasteD: "Texto e bordas mais fortes.",
+      zoom: "Zoom até 200% sem quebrar a tela: use Ctrl e + (no Mac, Cmd e +).", atalhos: "Atalhos de teclado",
+      at1: "Alt+1: conteúdo", at2: "Alt+2: menu", at3: "Alt+3: busca ou abas", at0: "Alt+0: este painel", atEsc: "Esc: fecha o painel",
+      surT: "Surdez", surD: "Todo aviso aparece na tela; nenhum depende só de som. Vídeos e áudios precisam de legenda.",
+      libras: "Libras (VLibras)", librasD: "Começa desligado. O VLibras é aberto e do governo, mas carrega programas de fora; aqui ele será instalado no servidor da Physis.",
+      librasOn: "O VLibras ainda não está instalado neste servidor. Enquanto isso, todo conteúdo tem texto escrito; peça à Physis a versão em Libras de qualquer tela pelo Relatar barreira.",
+      falT: "Fala", falD: "Nenhuma função precisa de voz. Use as frases prontas: elas vão para o campo de texto em uso ou para o formulário de contato.",
+      caa: "Comunicação alternativa (CAA)", ajuda: "Preciso de ajuda", entendi: "Não entendi", pessoa: "Quero falar com uma pessoa", sim: "Sim", nao: "Não", repetir: "Pode repetir de outro jeito?",
+      caaMostra: "Mostre esta frase:", caaFoi: "Frase escrita no campo: ",
+      mobT: "Mobilidade", mobD: "Tudo funciona pelo teclado, os botões têm pelo menos 44 px e não há tempo limite.",
+      voz: "Comandos de voz", vozD: "Começa desligado. Atenção à privacidade (LGPD): no Chrome e no Edge o áudio é enviado aos servidores do Google ou da Microsoft para ser entendido. Comandos: ir para conteúdo, próximo, voltar, ler tela, aumentar texto, diminuir texto, parar.",
+      semRec: "Este navegador não reconhece voz.", vozOuve: "Ouvindo comandos de voz.", vozErro: "Os comandos de voz pararam: ",
+      relatar: "Relatar barreira", decT: "Declaração de acessibilidade",
+      relatarD: "Descreva a barreira: o que tentou fazer, em que tela e o que aconteceu. Copie o relato e envie pelo canal de suporte da Physis.",
+      relatarCampo: "O que aconteceu", copiar: "Copiar relato", copiado: "Relato copiado.", caaSup: "Frase levada ao suporte: ",
+      decD: "Estas telas seguem a Lei Brasileira de Inclusão (Lei 13.146/2015), o eMAG e as diretrizes de acessibilidade digital do gov.br, a WCAG 2.2 nível AA e a ABNT NBR 17225.",
+      pular: "Pular para o conteúdo", ok: "Preferência aplicada.", aEn: "English on. Texts not yet translated stay in Portuguese.", aPt: "Português ligado.",
+      aEsc: "Tema escuro ligado.", aClaro: "Tema claro ligado.", aAuto: "Tema automático: segue o aparelho.",
+      aConfOn: "Modo de conforto ligado: fundo verde, menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
+      lido: "Lendo a tela.", lidoFim: "Leitura parada." },
+    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark", auto: "Automatic",
+      conforto: "Comfort mode", ligado: "on", a11y: "Accessibility (disability)", fechar: "Close", padrao: "Back to default",
+      confT: "Comfort mode", confD: "For autism, ADHD, dyslexia and anyone tired by busy screens. Applies to every Physis screen and is saved on this device.",
+      confLiga: "Turn comfort mode on", confLigaD: "Green background, less stimulation and more spacing at once.",
+      verde: "Green background", verdeD: "A soft background colour that is easier on the eyes.", texto: "Larger text", t0: "Normal", t1: "Larger", t2: "Much larger", aviso: "How long notices stay on screen", a4: "4 seconds", a8: "8 seconds", a15: "15 seconds",
+      espaco: "More spacing", espacoD: "More space between lines, letters and words.",
+      calma: "Less stimulation", calmaD: "No animation or transitions, nothing blinking, calmer colours, nothing plays by itself and fewer pop-ups.",
+      foco: "Stronger focus", focoD: "Thick outline on the item you are on.", dislexia: "Dyslexia-friendly font", dislexiaD: "Letters that are easier to tell apart (Atkinson Hyperlegible or Lexend, already on the device).",
+      regua: "Reading ruler", reguaD: "A band follows the pointer or the focused item, so you do not lose the line.",
+      simples: "Simplified reading mode", simplesD: "Hides decorations and secondary text and puts everything in a single column.",
+      lembrar: "Remember where I stopped", lembrarD: "When you come back, the screen opens at the same point and tab.",
+      a11yT: "Accessibility (disability)", a11yD: "Features for people with disabilities. Applies to every Physis screen and is saved on this device.",
+      cegT: "Blindness and low vision", cegD: "Works with screen readers (NVDA, JAWS, VoiceOver, TalkBack): skip link, named regions, alerts read aloud and a name on every control.",
+      ouvir: "Listen to this screen", pausar: "Pause", continuar: "Resume", parar: "Stop", ouvirD: "Reads the main content, or the text you select, with the device's own voices.",
+      semVoz: "This browser cannot read aloud.", contraste: "High contrast", contrasteD: "Stronger text and borders.",
+      zoom: "Zoom up to 200% without breaking the screen: use Ctrl and + (on a Mac, Cmd and +).", atalhos: "Keyboard shortcuts",
+      at1: "Alt+1: content", at2: "Alt+2: menu", at3: "Alt+3: search or tabs", at0: "Alt+0: this panel", atEsc: "Esc: closes the panel",
+      surT: "Deafness", surD: "Every alert is shown on screen; none relies on sound alone. Videos and audio need captions.",
+      libras: "Libras sign language (VLibras)", librasD: "Off by default. VLibras is open and government-made, but loads outside programs; here it will be installed on the Physis server.",
+      librasOn: "VLibras is not installed on this server yet. Meanwhile, all content has written text; ask Physis for a Libras version of any screen through Report a barrier.",
+      falT: "Speech", falD: "No function needs your voice. Use the ready phrases: they go into the text field in use or into the contact form.",
+      caa: "Augmentative and alternative communication (AAC)", ajuda: "I need help", entendi: "I did not understand", pessoa: "I want to talk to a person", sim: "Yes", nao: "No", repetir: "Can you say it another way?",
+      caaMostra: "Show this phrase:", caaFoi: "Phrase written in the field: ",
+      mobT: "Mobility", mobD: "Everything works with the keyboard, buttons are at least 44 px and there are no time limits.",
+      voz: "Voice commands", vozD: "Off by default. Privacy notice (LGPD): in Chrome and Edge the audio is sent to Google or Microsoft servers to be understood. Commands: go to content, next, back, read screen, bigger text, smaller text, stop.",
+      semRec: "This browser does not recognise speech.", vozOuve: "Listening for voice commands.", vozErro: "Voice commands stopped: ",
+      relatar: "Report a barrier", decT: "Accessibility statement",
+      relatarD: "Describe the barrier: what you tried to do, on which screen and what happened. Copy the report and send it through the Physis support channel.",
+      relatarCampo: "What happened", copiar: "Copy report", copiado: "Report copied.", caaSup: "Phrase taken to support: ",
+      decD: "These screens follow the Brazilian Inclusion Law (Law 13.146/2015), eMAG and the gov.br digital accessibility guidelines, WCAG 2.2 level AA and ABNT NBR 17225.",
+      pular: "Skip to content", ok: "Preference applied.", aEn: "English on. Texts not yet translated stay in Portuguese.", aPt: "Português ligado.",
+      aEsc: "Dark theme on.", aClaro: "Light theme on.", aAuto: "Automatic theme: follows the device.",
+      aConfOn: "Comfort mode on: green background, less stimulation and more spacing.", aConfOff: "Comfort mode off.", aPadrao: "Preferences back to default.",
+      lido: "Reading the screen.", lidoFim: "Reading stopped." }
+  };
+  /* frases da CAA nas duas línguas: entram no dicionário para a tela também traduzir o que já foi escrito */
+
+  var CSS = [
+    /* barra */
+    ".pp-barra{--pp-f:#FFFFFF;--pp-t:#1B1F23;--pp-l:#8A8270;--pp-a:#1A4D2E;--pp-at:#FFFFFF;position:relative;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px;line-height:1.3;font-family:inherit;color:var(--pp-t)}",
+    "html[data-tema=escuro] .pp-barra{--pp-f:#0F4535;--pp-t:#F4F1EA;--pp-l:#8A9182;--pp-a:#D9A58C;--pp-at:#0F4535}",
+    ".pp-barra.pp-sobre-verde{--pp-f:transparent;--pp-t:#F4F1EA;--pp-l:#C3D0BD;--pp-a:#D9A58C;--pp-at:#0B3D2E}",
+    ".pp-barra .pp-b,.pp-barra select{font:inherit;font-size:13px;font-weight:600;min-height:36px;min-width:36px;padding:0 10px;border-radius:8px;border:1px solid var(--pp-l);background:var(--pp-f);color:var(--pp-t);cursor:pointer;margin:0;line-height:1.2;width:auto}",
+    ".pp-barra select option{background:#FFFFFF;color:#1B1F23}",
+    ".pp-barra .pp-cx{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--pp-t)}",
+    ".pp-barra .pp-b[aria-expanded=true]{background:var(--pp-a);border-color:var(--pp-a);color:var(--pp-at)}",
+    ".pp-barra .pp-b .pp-seta{display:inline-block;margin-left:4px;font-size:.8em}",
+    ".pp-barra .pp-b .pp-on{font-weight:400}",
+    ".pp-barra .pp-b:focus-visible,.pp-barra select:focus-visible,.pp-painel :focus-visible{outline:3px solid var(--pp-t);outline-offset:2px}",
+    ".pp-painel{position:absolute;right:0;top:calc(100% + 6px);z-index:1000;width:400px;max-width:calc(100vw - 32px);max-height:calc(100vh - 110px);overflow:auto;background:#FFFFFF;color:#1B1F23;border:1px solid #8A8270;border-radius:12px;padding:14px 16px;box-shadow:0 8px 28px rgba(28,43,33,.22);text-align:left;font-size:15px;line-height:1.45;font-weight:400;letter-spacing:normal}",
+    "html[data-tema=escuro] .pp-painel{background:#0F4535;color:#F4F1EA;border-color:#8A9182}",
+    ".pp-painel[hidden],.pp-painel [hidden]{display:none!important}",
+    ".pp-painel h2{font:700 17px/1.3 inherit;margin:0 0 2px;color:inherit;font-family:inherit}",
+    ".pp-painel h3{font:700 15px/1.3 inherit;margin:14px 0 4px;color:inherit;font-family:inherit;border-top:1px solid #D9D3C2;padding-top:10px}",
+    "html[data-tema=escuro] .pp-painel h3{border-color:#2F5E4E}",
+    ".pp-painel p,.pp-painel .pp-d{display:block;font-size:13px;color:#4A4F44;margin:0 0 6px;font-weight:400}",
+    "html[data-tema=escuro] .pp-painel p,html[data-tema=escuro] .pp-painel .pp-d{color:#C3D0BD}",
+    ".pp-painel fieldset{border:1px solid #D9D3C2;border-radius:8px;margin:6px 0;padding:4px 10px 6px}",
+    "html[data-tema=escuro] .pp-painel fieldset{border-color:#2F5E4E}",
+    ".pp-painel legend{font-weight:700;padding:0 4px;font-size:14px}",
+    ".pp-painel label{display:flex;gap:8px;align-items:flex-start;min-height:44px;padding:6px 0;cursor:pointer;font-weight:600;color:inherit;font-size:14px}",
+    ".pp-painel fieldset label{display:inline-flex;min-height:36px;margin-right:12px}",
+    ".pp-painel label .pp-d{font-weight:400;margin:2px 0 0}",
+    ".pp-painel input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#1A4D2E}",
+    "html[data-tema=escuro] .pp-painel input{accent-color:#D9A58C}",
+    ".pp-painel ul{margin:0 0 6px;padding-left:18px;font-size:13px}",
+    ".pp-painel .pp-acoes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}",
+    ".pp-painel button{font:inherit;font-size:14px;font-weight:600;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #1A4D2E;background:#FFFFFF;color:#1A4D2E;cursor:pointer}",
+    ".pp-painel button.pp-prim{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
+    "html[data-tema=escuro] .pp-painel button{background:#0F4535;color:#F4F1EA;border-color:#D9A58C}",
+    "html[data-tema=escuro] .pp-painel button.pp-prim{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
+    ".pp-painel .pp-caa{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin:6px 0}",
+    ".pp-painel .pp-caa button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px;min-height:76px;font-size:13px;line-height:1.2;text-align:center}",
+    ".pp-painel .pp-caa svg{width:28px;height:28px;flex:none}",
+    ".pp-painel .pp-cartao{font-size:22px;font-weight:700;border:2px solid currentColor;border-radius:10px;padding:10px 12px;margin:6px 0}",
+    ".pp-painel .pp-aviso{background:#F6EAD0;color:#5C3F00;border-radius:8px;padding:8px 10px;font-size:13px}",
+    "html[data-tema=escuro] .pp-painel .pp-aviso{background:#33372E;color:#E5D5AE}",
+    ".pp-so-leitor{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}",
+    ".pp-pular{position:absolute;left:-9999px;top:8px;z-index:1001;background:#0B3D2E;color:#FFFFFF;padding:10px 14px;border-radius:8px;font-weight:600}",
+    ".pp-pular:focus{left:8px}",
+    "@media (max-width:560px){.pp-painel{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-width:none;max-height:78vh}}",
+    /* régua de leitura */
+    ".pp-regua{position:fixed;left:0;right:0;height:2.4em;margin-top:-1.2em;pointer-events:none;z-index:999;border-top:2px solid #BB6B4A;border-bottom:2px solid #BB6B4A;background:rgba(255,246,223,.28);display:none}",
+    "html.a11y-regua .pp-regua{display:block}",
+    "html[data-tema=escuro] .pp-regua{border-color:#D9A58C;background:rgba(255,246,223,.12)}",
+    /* preferências que valem para qualquer página */
+    "html.a11y-texto-1.pp-zoom body{zoom:1.15}html.a11y-texto-2.pp-zoom body{zoom:1.3}",
+    "html.a11y-espaco body{letter-spacing:.012em;word-spacing:.06em}",
+    "html.a11y-espaco :is(p,li,dd,dt,label,td,th,figcaption,blockquote,summary,legend){line-height:1.8}",
+    "html.a11y-contraste :is(input,select,textarea,button){border-width:2px}",
+    "html.a11y-contraste a{text-decoration:underline;text-underline-offset:2px}",
+    "html.a11y-calma *,html.a11y-calma *::before,html.a11y-calma *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}",
+    "html.a11y-calma{scroll-behavior:auto!important}html.a11y-calma :is(marquee,blink){display:none!important}",
+    "html.a11y-simples [data-pp-secundario]{display:none!important}",
+    "html.a11y-foco :focus-visible,html.a11y-foco :focus{outline:4px solid #BB6B4A!important;outline-offset:3px!important;box-shadow:0 0 0 7px #FFF6DF!important}",
+    "html.a11y-foco[data-tema=escuro] :focus-visible,html.a11y-foco[data-tema=escuro] :focus{outline-color:#D9A58C!important;box-shadow:0 0 0 7px #0B3D2E!important}",
+    "html.a11y-foco :focus:not(:focus-visible){outline:none!important;box-shadow:none!important}",
+    "html.a11y-dislexia :is(body,button,input,select,textarea){font-family:\"Atkinson Hyperlegible\",Lexend,Verdana,Tahoma,sans-serif!important}",
+    "html[data-tema=escuro]{color-scheme:dark}html[data-tema=claro]{color-scheme:light}"
+  ].join("\n");
+
+  var P = { op: null, estado: null, idiomaOriginal: "pt-BR", orig: new WeakMap(), origAttr: new WeakMap(), faltam: {}, obs: null,
+    pausado: false, ui: {}, campo: null, rec: null, falando: false };
+
+  function ler(chave) { try { return global.localStorage.getItem(chave); } catch (e) { return null; } }
+  function gravar(chave, v) { try { global.localStorage.setItem(chave, v); } catch (e) {} }
+  function tem(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function copia(o) { var r = {}; for (var k in o) if (tem(o, k)) r[k] = o[k]; return r; }
+  function limpar(o) {
+    var e = copia(PADRAO);
+    if (o && typeof o === "object") {
+      for (var x in o) if (tem(o, x) && !tem(PADRAO, x) && x !== "legivel" && x !== "fundoVerde") e[x] = o[x];   /* guarda o que outras telas gravam */
+      if (o.fundoVerde) e.verde = true;
+      if (o.idioma === "en" || o.idioma === "pt") e.idioma = o.idioma;
+      if (o.tema === "claro" || o.tema === "escuro" || o.tema === "auto") e.tema = o.tema;
+      var t = parseInt(o.texto, 10); if (t === 0 || t === 1 || t === 2) e.texto = t; else if (o.texto === true) e.texto = 1;
+      var av = parseInt(o.aviso, 10); if (av === 4 || av === 8 || av === 15) e.aviso = av;   /* tempo dos avisos (s), lido pelas telas que mostram avisos que somem */
+      BOOL.forEach(function (k) { if (k in o) e[k] = !!o[k]; });
+      if (o.legivel) e.dislexia = true;            /* nome da v1 */
+    }
+    return e;
+  }
+  function el(sel) { if (!sel) return null; if (typeof sel !== "string") return sel; try { return doc.querySelector(sel); } catch (e) { return null; } }
+
+  /* lê a escolha guardada; na primeira vez, aproveita as chaves antigas da plataforma (painel.html) */
+  function carregar() {
+    var o = null;
+    try { o = JSON.parse(ler(P.op.chave) || "null"); } catch (e) { o = null; }
+    if (o) return limpar(o);
+    var e = copia(PADRAO);
+    if (ler("physis-idioma") === "en") e.idioma = "en";
+    if (ler("physis-conforto") === "1") { e.conforto = true; e.espaco = true; e.calma = true; }
+    if (ler("physis-fundo") === "verde") e.verde = true;
+    try { var pp = JSON.parse(ler("physis-passaporte") || "null"); if (pp) { e.texto = pp.texto ? 1 : 0; e.espaco = e.espaco || !!pp.espaco; e.contraste = !!pp.contraste; e.calma = e.calma || !!pp.calma; e.foco = !!pp.foco; } } catch (x) {}
+    var t = ler("physis-pref-tema"); if (t === "claro" || t === "escuro" || t === "auto") e.tema = t;
+    return e;
+  }
+  function guardar() {
+    var e = P.estado;
+    gravar(P.op.chave, JSON.stringify(e));
+    gravar("physis-pref-tema", e.tema);      /* lido pelo script cedo (pxp-cedo) antes de a tela desenhar */
+    /* espelho nas chaves antigas, para telas antigas seguirem a mesma escolha */
+    gravar("physis-idioma", e.idioma);
+    gravar("physis-conforto", e.conforto ? "1" : "0");
+    gravar("physis-fundo", e.verde ? "verde" : "branco");
+    var pp = {}; try { pp = JSON.parse(ler("physis-passaporte") || "{}") || {}; } catch (x) { pp = {}; }
+    pp.texto = e.texto > 0; pp.espaco = e.espaco; pp.contraste = e.contraste; pp.calma = e.calma; pp.foco = e.foco;
+    gravar("physis-passaporte", JSON.stringify(pp));
+  }
+
+  function sistemaEscuro() { try { return !!(global.matchMedia && global.matchMedia("(prefers-color-scheme: dark)").matches); } catch (e) { return false; } }
+  /* o fundo verde é o escuro esverdeado: as telas o desenham com as cores do tema escuro mais html.a11y-verde */
+  function temaEfetivo() { return P.estado.verde ? "escuro" : P.estado.tema === "auto" ? (sistemaEscuro() ? "escuro" : "claro") : P.estado.tema; }
+  /* telas com tradução própria (plataforma, Gestão, SCADA): idiomaExterno = { atual(), definir(lingua, pelaPessoa) } */
+  function externo() { var i = P.op && P.op.idiomaExterno; return i && typeof i.definir === "function" ? i : null; }
+  function idiomaDaTela() { var i = externo(); if (i && i.atual) { try { return i.atual() === "en" ? "en" : "pt"; } catch (x) {} } return P.estado.idioma; }
+  function txt(k) { return UI[P.estado && P.estado.idioma === "en" ? "en" : "pt"][k]; }
+
+  /* ---------- aplicar no <html> ---------- */
+  function aplicar(anunciar) {
+    var r = doc.documentElement, e = P.estado, cl = r.classList;
+    r.setAttribute("data-tema", temaEfetivo());
+    r.setAttribute("data-tema-escolha", e.tema);
+    cl.toggle("physis-conforto", e.conforto);
+    cl.toggle("a11y-texto-1", e.texto === 1);
+    cl.toggle("a11y-texto-2", e.texto === 2);
+    CLASSES.forEach(function (k) { cl.toggle("a11y-" + k, !!e[k]); });
+    cl.toggle("pp-zoom", P.op.escalaPorZoom !== false);
+    r.style.setProperty("--pp-escala", String(ESCALAS[e.texto]));
+    var meta = doc.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute("content", "#0B3D2E");   // faixa superior verde profundo nos dois temas (guia de identidade)
+    if (P.idiomaAplicado !== e.idioma) { P.idiomaAplicado = e.idioma; definirIdioma(e.idioma); }
+    if (e.calma) pararMidias(doc);
+    vozLigar(e.voz);
+    desenharBarra();
+    if (anunciar) dizer(anunciar);
+    if (typeof P.op.aoMudar === "function") { try { P.op.aoMudar(estadoPublico()); } catch (x) { if (global.console) console.error(x); } }
+  }
+  function estadoPublico() { var o = copia(P.estado); o.temaEfetivo = temaEfetivo(); return o; }
+  function mudar(patch, anuncio) {
+    for (var k in patch) if (tem(patch, k)) P.estado[k] = patch[k];
+    P.estado = limpar(P.estado);
+    guardar();
+    aplicar(anuncio);
+  }
+
+  /* ---------- montagem ---------- */
+  function criar(tag, attrs, filhos) {
+    var e = doc.createElement(tag);
+    if (attrs) for (var k in attrs) if (tem(attrs, k) && attrs[k] != null && attrs[k] !== false) e.setAttribute(k, attrs[k] === true ? "" : attrs[k]);
+    (filhos || []).forEach(function (f) { if (f != null) e.appendChild(typeof f === "string" ? doc.createTextNode(f) : f); });
+    return e;
+  }
+  /* ícones simples da CAA (traço, sem cor própria: seguem a cor do texto) */
+  var ICONES = {
+    ajuda: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v6M12 16v1",
+    entendi: "M9 9a3 3 0 1 1 4 2.8c-.7.3-1 .9-1 1.6V15M12 18v1M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z",
+    pessoa: "M12 4a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM5 20c0-4 3.1-6.5 7-6.5s7 2.5 7 6.5",
+    sim: "M4 12.5l5 5L20 6.5",
+    nao: "M6 6l12 12M18 6L6 18",
+    repetir: "M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4"
+  };
+  function icone(nome) {
+    var ns = "http" + "://www.w3.org/2000/svg", s = doc.createElementNS(ns, "svg"), p = doc.createElementNS(ns, "path");
+    s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.setAttribute("focusable", "false");
+    p.setAttribute("d", ICONES[nome]); p.setAttribute("fill", "none"); p.setAttribute("stroke", "currentColor"); p.setAttribute("stroke-width", "2"); p.setAttribute("stroke-linecap", "round"); p.setAttribute("stroke-linejoin", "round");
+    s.appendChild(p); return s;
+  }
+
+  function montarBarra() {
+    var lugar = el(P.op.ondeColocar), u = P.ui;
+    u.regua = criar("div", { "class": "pp-regua", "aria-hidden": "true", "data-pp-manter": "" });
+    doc.body.appendChild(u.regua);
+    /* dentro de um quadro da plataforma (esconderEmQuadro): a barra fica na plataforma; aqui só se aplica a escolha */
+    if (P.op.esconderEmQuadro) { var q = doc.documentElement.hasAttribute("data-em-quadro"); try { q = q || global.self !== global.top; } catch (e) { q = true; } if (q) return; }
+    var barra = criar("div", { "class": "pp-barra" + (P.op.variante ? " pp-" + P.op.variante : ""), id: "pxp-barra", role: "group", "data-pp-manter": "", translate: "no", "data-physis-preferencias": "barra" });
+    u.idiomaRot = criar("label", { "for": "pp-idioma", "class": "pp-cx" });
+    u.idioma = criar("select", { id: "pp-idioma" }, [criar("option", { value: "pt", lang: "pt-BR" }, ["Português"]), criar("option", { value: "en", lang: "en" }, ["English"])]);
+    u.idiomaRot.appendChild(u.idiomaTxt = criar("span")); u.idiomaRot.appendChild(u.idioma);
+    u.temaRot = criar("label", { "for": "pp-tema", "class": "pp-cx" });
+    u.tema = criar("select", { id: "pp-tema" }, [criar("option", { value: "claro" }), criar("option", { value: "escuro" }), criar("option", { value: "auto" })]);
+    u.temaRot.appendChild(u.temaTxt = criar("span")); u.temaRot.appendChild(u.tema);
+    u.conforto = criar("button", { type: "button", "class": "pp-b", id: "pp-conforto", "aria-expanded": "false", "aria-controls": "pp-painel-conforto" });
+    u.a11y = criar("button", { type: "button", "class": "pp-b", id: "pp-a11y", "aria-expanded": "false", "aria-controls": "pp-painel-a11y" });
+    u.pConf = criar("div", { "class": "pp-painel", id: "pp-painel-conforto", role: "region", "aria-labelledby": "pp-conf-t", hidden: true });
+    u.pA11y = criar("div", { "class": "pp-painel", id: "pp-painel-a11y", role: "region", "aria-labelledby": "pp-a11y-t", hidden: true });
+    u.anuncio = criar("div", { "class": "pp-so-leitor", role: "status", "aria-live": "polite" });
+    [u.idiomaRot, u.temaRot, u.conforto, u.a11y, u.pConf, u.pA11y, u.anuncio].forEach(function (x) { barra.appendChild(x); });
+    u.barra = barra;
+    if (lugar) lugar.appendChild(barra); else doc.body.insertBefore(barra, doc.body.firstChild);
+
+    u.idioma.addEventListener("change", function () { var en = u.idioma.value === "en"; P.pelaPessoa = true; mudar({ idioma: en ? "en" : "pt" }, en ? UI.en.aEn : UI.pt.aPt); });
+    u.tema.addEventListener("change", function () { var v = u.tema.value; mudar({ tema: v }, v === "auto" ? "aAuto" : v === "escuro" ? "aEsc" : "aClaro"); });
+    u.conforto.addEventListener("click", function () { abrir(u.pConf, u.conforto, u.pConf.hidden); });
+    u.a11y.addEventListener("click", function () { abrir(u.pA11y, u.a11y, u.pA11y.hidden); });
+    barra.addEventListener("keydown", function (ev) {
+      if (ev.key !== "Escape") return;
+      if (!u.pConf.hidden) { abrir(u.pConf, u.conforto, false); u.conforto.focus(); }
+      else if (!u.pA11y.hidden) { abrir(u.pA11y, u.a11y, false); u.a11y.focus(); }
+    });
+    doc.addEventListener("click", function (ev) {
+      if (!barra.contains(ev.target) && doc.contains(ev.target)) { abrir(u.pConf, u.conforto, false); abrir(u.pA11y, u.a11y, false); }
+    });
+    [u.pConf, u.pA11y].forEach(function (p) {
+      p.addEventListener("change", function (ev) {
+        var t = ev.target, k = t.getAttribute("data-pp"), patch = {};
+        if (t.name === "pp-texto") return mudar({ texto: parseInt(t.value, 10) }, "ok");
+        if (t.name === "pp-aviso") return mudar({ aviso: parseInt(t.value, 10) }, "ok");
+        if (!k) return;
+        if (k === "conforto") { patch = { conforto: t.checked, verde: t.checked, calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
+        patch[k] = t.checked; mudar(patch, k === "libras" && t.checked ? "librasOn" : "ok");
+      });
+      p.addEventListener("click", function (ev) {
+        var b = ev.target.closest ? ev.target.closest("button") : null; if (!b) return;
+        var a = b.getAttribute("data-pp-acao");
+        if (a === "fechar") { var dono = p === u.pConf ? u.conforto : u.a11y; abrir(p, dono, false); dono.focus(); }
+        else if (a === "padrao") { var id = P.estado.idioma; P.estado = copia(PADRAO); mudar({ idioma: id }, "aPadrao"); }
+        else if (a === "ouvir") ouvir();
+        else if (a === "pausar") pausarFala();
+        else if (a === "parar") pararFala();
+        else if (a === "relatar") relatar();
+        else if (a === "copiar-relato") copiarRelato();
+        else if (a === "caa") caa(b.getAttribute("data-frase"));
+      });
+    });
+  }
+  function abrir(painel, botao, sim) {
+    var u = P.ui;
+    if (sim) { var outro = painel === u.pConf ? [u.pA11y, u.a11y] : [u.pConf, u.conforto]; outro[0].hidden = true; outro[1].setAttribute("aria-expanded", "false"); }
+    painel.hidden = !sim; botao.setAttribute("aria-expanded", sim ? "true" : "false");
+    if (sim) { var x = painel.querySelector("input,button"); if (x) x.focus(); }
+  }
+
+  function caixa(chave, rot, desc) {
+    var dentro = [criar("span", null, [txt(rot)])];
+    if (desc) dentro[0].appendChild(criar("span", { "class": "pp-d" }, [txt(desc)]));
+    return criar("label", null, [criar("input", { type: "checkbox", "data-pp": chave, id: "pp-c-" + chave })].concat(dentro));
+  }
+  function botao(acao, rot, extra) { var a = { type: "button", "data-pp-acao": acao, id: "pp-b-" + acao + (extra ? "-" + extra : "") }; return criar("button", a, [txt(rot)]); }
+  function desenharPaineis() {
+    var u = P.ui, f;
+    [u.pConf, u.pA11y].forEach(function (p) { while (p.firstChild) p.removeChild(p.firstChild); });
+    /* conforto */
+    f = u.pConf;
+    f.appendChild(criar("h2", { id: "pp-conf-t" }, [txt("confT")]));
+    f.appendChild(criar("p", null, [txt("confD")]));
+    f.appendChild(caixa("conforto", "confLiga", "confLigaD"));
+    f.appendChild(caixa("verde", "verde", "verdeD"));
+    var fs = criar("fieldset", null, [criar("legend", null, [txt("texto")])]);
+    [0, 1, 2].forEach(function (n) { fs.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-texto", value: String(n), id: "pp-texto-" + n }), criar("span", null, [txt("t" + n)])])); });
+    f.appendChild(fs);
+    var fa = criar("fieldset", null, [criar("legend", null, [txt("aviso")])]);
+    [4, 8, 15].forEach(function (n) { fa.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-aviso", value: String(n), id: "pp-aviso-" + n }), criar("span", null, [txt("a" + n)])])); });
+    f.appendChild(fa);
+    f.appendChild(caixa("espaco", "espaco", "espacoD"));
+    f.appendChild(caixa("calma", "calma", "calmaD"));
+    f.appendChild(caixa("foco", "foco", "focoD"));
+    f.appendChild(caixa("dislexia", "dislexia", "dislexiaD"));
+    f.appendChild(caixa("regua", "regua", "reguaD"));
+    f.appendChild(caixa("simples", "simples", "simplesD"));
+    f.appendChild(caixa("lembrar", "lembrar", "lembrarD"));
+    f.appendChild(criar("div", { "class": "pp-acoes" }, [botao("padrao", "padrao", "c"), botao("fechar", "fechar", "c")]));
+    f.lastChild.lastChild.className = "pp-prim";
+    /* acessibilidade */
+    f = u.pA11y;
+    f.appendChild(criar("h2", { id: "pp-a11y-t" }, [txt("a11yT")]));
+    f.appendChild(criar("p", null, [txt("a11yD")]));
+    f.appendChild(criar("h3", null, [txt("cegT")]));
+    f.appendChild(criar("p", null, [txt("cegD")]));
+    if (global.speechSynthesis && global.SpeechSynthesisUtterance) {
+      f.appendChild(criar("div", { "class": "pp-acoes" }, [botao("ouvir", "ouvir"), botao("pausar", "pausar"), botao("parar", "parar")]));
+      f.appendChild(criar("p", null, [txt("ouvirD")]));
+    }
+    f.appendChild(caixa("contraste", "contraste", "contrasteD"));
+    f.appendChild(criar("p", null, [txt("zoom")]));
+    f.appendChild(criar("p", null, [criar("strong", null, [txt("atalhos")])]));
+    f.appendChild(criar("ul", null, ["at1", "at2", "at3", "at0", "atEsc"].map(function (k) { return criar("li", null, [txt(k)]); })));
+    f.appendChild(criar("h3", null, [txt("surT")]));
+    f.appendChild(criar("p", null, [txt("surD")]));
+    f.appendChild(caixa("libras", "libras", "librasD"));
+    f.appendChild(criar("p", { "class": "pp-aviso", id: "pp-libras-aviso", role: "note" }, [txt("librasOn")]));
+    f.appendChild(criar("h3", null, [txt("falT")]));
+    f.appendChild(criar("p", null, [txt("falD")]));
+    f.appendChild(criar("p", null, [criar("strong", { id: "pp-caa-t" }, [txt("caa")])]));
+    var prancha = criar("div", { "class": "pp-caa", role: "group", "aria-labelledby": "pp-caa-t" });
+    FRASES.forEach(function (k) { var b = criar("button", { type: "button", "data-pp-acao": "caa", "data-frase": k, id: "pp-caa-" + k }); b.appendChild(icone(k)); b.appendChild(criar("span", null, [txt(k)])); prancha.appendChild(b); });
+    f.appendChild(prancha);
+    u.cartao = criar("div", { "class": "pp-cartao", role: "status", "aria-live": "polite", hidden: true, id: "pp-caa-cartao" });
+    f.appendChild(u.cartao);
+    f.appendChild(criar("h3", null, [txt("mobT")]));
+    f.appendChild(criar("p", null, [txt("mobD")]));
+    if (global.SpeechRecognition || global.webkitSpeechRecognition) f.appendChild(caixa("voz", "voz", "vozD"));
+    else f.appendChild(criar("p", null, [txt("semRec")]));
+    u.vozMsg = criar("p", { role: "status", id: "pp-voz-msg" }); f.appendChild(u.vozMsg);
+    f.appendChild(criar("h3", null, [txt("decT")]));
+    f.appendChild(criar("p", null, [txt("decD")]));
+    f.appendChild(criar("div", { "class": "pp-acoes" }, [botao("relatar", "relatar"), botao("padrao", "padrao", "a"), botao("fechar", "fechar", "a")]));
+    f.lastChild.lastChild.className = "pp-prim";
+    f.appendChild(criar("div", { id: "pp-relato", hidden: true }, [criar("p", null, [txt("relatarD")]),
+      criar("label", { "for": "pp-relato-t", style: "min-height:0;display:block" }, [txt("relatarCampo")]),
+      criar("textarea", { id: "pp-relato-t", rows: "4", style: "width:100%;font:inherit;font-size:14px;border:1px solid currentColor;border-radius:8px;padding:8px;background:inherit;color:inherit" }),
+      criar("div", { "class": "pp-acoes" }, [botao("copiar-relato", "copiar")]), criar("p", { id: "pp-relato-msg", role: "status" })]));
+  }
+  function marcarPaineis() {
+    var u = P.ui, e = P.estado;
+    [u.pConf, u.pA11y].forEach(function (p) {
+      p.querySelectorAll("input").forEach(function (i) {
+        if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
+        else if (i.name === "pp-aviso") i.checked = parseInt(i.value, 10) === (e.aviso || 4);
+        else if (i.getAttribute("data-pp")) i.checked = !!e[i.getAttribute("data-pp")];
+      });
+    });
+    var av = doc.getElementById("pp-libras-aviso"); if (av) av.hidden = !e.libras;
+  }
+  function desenharBarra() {
+    var u = P.ui, e = P.estado; if (!u.barra) return;
+    if (P.painelIdioma !== e.idioma) {
+      P.painelIdioma = e.idioma;
+      var ativo = doc.activeElement, foco = ativo && u.barra.contains(ativo) ? ativo.id : "";
+      u.barra.setAttribute("aria-label", txt("grupo"));
+      u.idiomaTxt.textContent = txt("idioma");
+      u.temaTxt.textContent = txt("tema");
+      u.tema.options[0].textContent = txt("claro"); u.tema.options[1].textContent = txt("escuro"); u.tema.options[2].textContent = txt("auto");
+      desenharPaineis();
+      if (foco) { var x = doc.getElementById(foco); if (x) x.focus(); }
+    }
+    u.idioma.value = e.idioma;
+    u.tema.value = e.tema;
+    u.conforto.textContent = txt("conforto");
+    if (e.conforto) u.conforto.appendChild(criar("span", { "class": "pp-on" }, [" (" + txt("ligado") + ")"]));
+    u.conforto.appendChild(criar("span", { "class": "pp-seta", "aria-hidden": "true" }, ["▾"]));
+    u.a11y.textContent = txt("a11y");
+    u.a11y.appendChild(criar("span", { "class": "pp-seta", "aria-hidden": "true" }, ["▾"]));
+    marcarPaineis();
+  }
+  function dizer(chaveOuTexto) {
+    var u = P.ui; if (!u.anuncio) return;
+    var t = UI.pt[chaveOuTexto] ? txt(chaveOuTexto) : chaveOuTexto;
+    u.anuncio.textContent = ""; setTimeout(function () { u.anuncio.textContent = t; }, 30);
+  }
+
+  /* ---------- pular, atalhos, régua, lembrar ---------- */
+  function alvoConteudo() { var c = P.op.conteudo; if (typeof c === "function") { try { c = c(); } catch (e) { c = null; } } return el(c) || doc.querySelector("#px-conteudo") || doc.querySelector("main") || doc.querySelector("[role=main]"); }
+  function irPara(x) {
+    if (!x) return;
+    if (!x.hasAttribute("tabindex") && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(x.nodeName)) x.setAttribute("tabindex", "-1");
+    x.focus(); try { x.scrollIntoView({ block: "start" }); } catch (e) {}
+  }
+  function montarPular() {
+    if (doc.querySelector(".pular,.salto,.skip,.px-pular,[data-pp-pular]")) return;
+    var a = criar("a", { "class": "pp-pular", href: "#", "data-pp-pular": "", "data-pp-manter": "" });
+    P.ui.pular = a;
+    a.addEventListener("click", function (ev) { ev.preventDefault(); irPara(alvoConteudo()); });
+    doc.body.insertBefore(a, doc.body.firstChild);
+  }
+  function atalhos(ev) {
+    if (!ev.altKey || ev.ctrlKey || ev.metaKey) return;
+    var k = ev.key, c = ev.code;
+    var n = /^Digit(\d)$/.test(c) ? c.slice(5) : (/^\d$/.test(k) ? k : null);
+    if (n === "1") irPara(alvoConteudo());
+    else if (n === "2") irPara(el(P.op.menu) || doc.querySelector("nav"));
+    else if (n === "3") { var b = el(P.op.busca) || doc.querySelector("input[type=search],[role=search] input,[role=tablist]"); if (b && b.getAttribute("role") === "tablist") b = b.querySelector("[aria-selected=true],[role=tab]") || b; irPara(b); }
+    else if (n === "0") { if (!P.ui.pA11y) return; abrir(P.ui.pA11y, P.ui.a11y, true); }
+    else return;
+    ev.preventDefault();
+  }
+  function regua(y) { var r = P.ui.regua; if (r && P.estado.regua) r.style.top = Math.round(y) + "px"; }
+  function lugarChave() { return "physis-pref-lugar"; }
+  function salvarLugar() {
+    if (!P.estado || !P.estado.lembrar) return;
+    var m = {}; try { m = JSON.parse(ler(lugarChave()) || "{}") || {}; } catch (e) { m = {}; }
+    var o = { y: Math.round(global.scrollY || 0), hash: global.location.hash || "" };
+    if (P.op.lembrar && typeof P.op.lembrar.salvar === "function") { try { o.pagina = P.op.lembrar.salvar(); } catch (e) {} }
+    m[P.op.tela || global.location.pathname] = o;
+    gravar(lugarChave(), JSON.stringify(m));
+  }
+  function restaurarLugar() {
+    if (!P.estado.lembrar) return;
+    var m = {}; try { m = JSON.parse(ler(lugarChave()) || "{}") || {}; } catch (e) { return; }
+    var o = m[P.op.tela || global.location.pathname]; if (!o) return;
+    if (P.op.lembrar && typeof P.op.lembrar.restaurar === "function" && o.pagina) { try { P.op.lembrar.restaurar(o.pagina); } catch (e) {} }
+    if (o.hash && !global.location.hash) { try { global.history.replaceState(null, "", o.hash); global.dispatchEvent(new HashChangeEvent("hashchange")); } catch (e) {} }
+    setTimeout(function () { global.scrollTo(0, o.y || 0); }, 60);
+  }
+
+  /* ---------- menos estímulo: nada toca sozinho; legendas ---------- */
+  function pararMidias(raiz) {
+    if (!raiz.querySelectorAll) return;
+    raiz.querySelectorAll("video[autoplay],audio[autoplay]").forEach(function (m) { try { m.pause(); m.removeAttribute("autoplay"); } catch (e) {} });
+  }
+  function conferirLegendas(raiz) {
+    if (!raiz.querySelectorAll || !global.console) return;
+    var ms = raiz.nodeName === "VIDEO" || raiz.nodeName === "AUDIO" ? [raiz] : raiz.querySelectorAll("video,audio");
+    Array.prototype.forEach.call(ms, function (m) {
+      if (m.__ppLegenda) return; m.__ppLegenda = 1;
+      if (!m.querySelector("track[kind=captions],track[kind=subtitles]")) console.warn("Physis acessibilidade: mídia sem legenda (<track kind=\"captions\">)", m);
+    });
+  }
+
+  /* ---------- ouvir esta tela ---------- */
+  function vozDe(lingua) {
+    var vs = []; try { vs = global.speechSynthesis.getVoices() || []; } catch (e) {}
+    var pref = lingua === "en" ? /^en/i : /^pt/i, br = lingua === "en" ? /^en-US/i : /^pt-BR/i;
+    return vs.filter(function (v) { return br.test(v.lang); })[0] || vs.filter(function (v) { return pref.test(v.lang); })[0] || null;
+  }
+  function textoParaLer() {
+    var sel = ""; try { sel = String(global.getSelection ? global.getSelection() : ""); } catch (e) {}
+    if (sel.trim()) return sel;
+    var a = alvoConteudo() || doc.body;
+    return (a.innerText || a.textContent || "");
+  }
+  function ouvir() {
+    var s = global.speechSynthesis; if (!s) return;
+    s.cancel();
+    var t = textoParaLer().replace(/\s+/g, " ").trim(); if (!t) return;
+    var pedacos = t.match(/[^.!?;:]{1,220}[.!?;:]?/g) || [t], lingua = P.estado.idioma, voz = vozDe(lingua);
+    pedacos.forEach(function (p) {
+      var u = new global.SpeechSynthesisUtterance(p.trim());
+      u.lang = lingua === "en" ? "en-US" : "pt-BR"; if (voz) u.voice = voz;
+      s.speak(u);
+    });
+    P.falando = true; dizer("lido");
+  }
+  function pausarFala() {
+    var s = global.speechSynthesis; if (!s) return;
+    var b = doc.getElementById("pp-b-pausar");
+    if (s.paused) { s.resume(); if (b) b.textContent = txt("pausar"); } else { s.pause(); if (b) b.textContent = txt("continuar"); }
+  }
+  function pararFala() { var s = global.speechSynthesis; if (s) { s.cancel(); P.falando = false; dizer("lidoFim"); } var b = doc.getElementById("pp-b-pausar"); if (b) b.textContent = txt("pausar"); }
+
+  /* ---------- comunicação alternativa ---------- */
+  function ehCampo(x) { return x && (x.nodeName === "TEXTAREA" || (x.nodeName === "INPUT" && /^(text|search|email|tel|url|)$/i.test(x.type || ""))) && !x.disabled && !x.readOnly; }
+  function caa(k) {
+    var frase = txt(k), alvo = ehCampo(P.campo) && doc.contains(P.campo) ? P.campo : el(P.op.contato);
+    if (ehCampo(alvo)) {
+      var ini = alvo.selectionStart, fim = alvo.selectionEnd, v = alvo.value, sep = v && !/\s$/.test(v.slice(0, ini == null ? v.length : ini)) ? " " : "";
+      try { alvo.setRangeText(sep + frase, ini == null ? v.length : ini, fim == null ? v.length : fim, "end"); } catch (e) { alvo.value = v + sep + frase; }
+      alvo.dispatchEvent(new Event("input", { bubbles: true }));
+      abrir(P.ui.pA11y, P.ui.a11y, false);
+      try { alvo.scrollIntoView({ block: "center" }); } catch (e) {}
+      alvo.focus();
+      dizer(txt("caaFoi") + frase);
+    } else if (typeof P.op.suporte === "function") {
+      abrir(P.ui.pA11y, P.ui.a11y, false);
+      try { P.op.suporte(frase); } catch (e) {}
+      dizer(txt("caaSup") + frase);
+    } else {
+      var c = P.ui.cartao; c.hidden = false; c.textContent = "";
+      c.appendChild(criar("span", { "class": "pp-d" }, [txt("caaMostra")])); c.appendChild(doc.createTextNode(frase));
+    }
+  }
+  function relatar() {
+    if (typeof global.abrirJuridico === "function") { try { global.abrirJuridico("acessibilidade"); return; } catch (e) {} }
+    var r = P.op.relatar;
+    if (typeof r === "function") return r();
+    if (typeof r === "string" && r.charAt(0) === "#") { abrir(P.ui.pA11y, P.ui.a11y, false); irPara(el(r)); var c = el(P.op.contato); if (ehCampo(c)) c.focus(); return; }
+    if (typeof r === "string" && r) { global.location.href = r; return; }
+    /* sem canal na página: o relato é escrito aqui e copiado, para enviar pelo suporte da Physis (funciona sem internet) */
+    var box = doc.getElementById("pp-relato"); if (!box) return; box.hidden = false; var t = doc.getElementById("pp-relato-t"); if (t) t.focus();
+  }
+  function copiarRelato() {
+    var t = doc.getElementById("pp-relato-t"), e = estadoPublico();
+    var rel = (t && t.value.trim() ? t.value.trim() + "\n\n" : "") + "Tela: " + doc.title + "\nEndereço: " + global.location.pathname + global.location.hash +
+      "\nQuando: " + new Date().toISOString() + "\nNavegador: " + global.navigator.userAgent + "\nPreferências: tema " + e.temaEfetivo +
+      (e.conforto ? ", conforto" : "") + (e.texto ? ", texto maior" : "") + (e.contraste ? ", alto contraste" : "");
+    var feito = false;
+    try { if (global.navigator.clipboard && global.isSecureContext) { global.navigator.clipboard.writeText(rel); feito = true; } } catch (x) {}
+    if (!feito) { var a = criar("textarea", { style: "position:fixed;left:-9999px", "aria-hidden": "true" }); a.value = rel; doc.body.appendChild(a); a.select(); try { doc.execCommand("copy"); } catch (x) {} doc.body.removeChild(a); }
+    var m = doc.getElementById("pp-relato-msg"); if (m) m.textContent = txt("copiado");
+    dizer("copiado");
+  }
+
+  /* ---------- comandos de voz ---------- */
+  function focaveis() {
+    return Array.prototype.filter.call(doc.querySelectorAll("a[href],button,input,select,textarea,[tabindex]"), function (x) {
+      return !x.disabled && x.tabIndex >= 0 && !x.closest("[hidden],[inert]") && (x.offsetWidth || x.offsetHeight || x.getClientRects().length);
+    });
+  }
+  function moverFoco(passo) { var l = focaveis(), i = l.indexOf(doc.activeElement); var x = l[(i + passo + l.length) % l.length]; if (x) x.focus(); }
+  function comando(frase) {
+    var f = frase.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    if (/conteudo|content/.test(f)) irPara(alvoConteudo());
+    else if (/proximo|next/.test(f)) moverFoco(1);
+    else if (/voltar|anterior|back|previous/.test(f)) moverFoco(-1);
+    else if (/ler|leia|read/.test(f)) ouvir();
+    else if (/aumentar|maior|bigger|larger/.test(f)) mudar({ texto: Math.min(2, P.estado.texto + 1) }, "ok");
+    else if (/diminuir|menor|smaller/.test(f)) mudar({ texto: Math.max(0, P.estado.texto - 1) }, "ok");
+    else if (/parar|pare|stop/.test(f)) pararFala();
+    else return;
+    if (P.ui.vozMsg) P.ui.vozMsg.textContent = "“" + frase.trim() + "”";
+  }
+  function vozLigar(sim) {
+    var R = global.SpeechRecognition || global.webkitSpeechRecognition;
+    if (!R) return;
+    if (!sim) { if (P.rec) { var r0 = P.rec; P.rec = null; try { r0.stop(); } catch (e) {} if (P.ui.vozMsg) P.ui.vozMsg.textContent = ""; } return; }
+    if (P.rec) { P.rec.lang = P.estado.idioma === "en" ? "en-US" : "pt-BR"; return; }
+    var r = new R(); P.rec = r;
+    r.lang = P.estado.idioma === "en" ? "en-US" : "pt-BR"; r.continuous = true; r.interimResults = false;
+    r.onresult = function (ev) { for (var i = ev.resultIndex; i < ev.results.length; i++) if (ev.results[i].isFinal) comando(ev.results[i][0].transcript); };
+    r.onerror = function (ev) { if (P.ui.vozMsg) P.ui.vozMsg.textContent = txt("vozErro") + (ev.error || ""); if (ev.error === "not-allowed" || ev.error === "service-not-allowed") { P.rec = null; mudar({ voz: false }, null); } };
+    r.onend = function () { if (P.rec === r) { try { r.start(); } catch (e) {} } };
+    try { r.start(); if (P.ui.vozMsg) P.ui.vozMsg.textContent = txt("vozOuve"); } catch (e) {}
+  }
+
+  /* ---------- inglês ---------- */
+  var DIC = {}, RX = [], EXC = {};
+  function chave(s) { return String(s).replace(/\s+/g, " ").trim(); }
+  function temLetra(s) { return /[A-Za-zÀ-ÿ]/.test(s); }
+  /* par de um texto já normalizado: dicionário, depois padrões (o segundo item pode ser texto com $1 ou função) */
+  function par(k) {
+    var v = DIC[k];
+    if (v == null) for (var i = 0; i < RX.length; i++) { RX[i][0].lastIndex = 0; if (RX[i][0].test(k)) { v = k.replace(RX[i][0], RX[i][1]); break; } }
+    return v;
+  }
+  /* textos montados no código ("Captação de " + n + " m³ ..."): troca os pedaços conhecidos (opção fragmentos), do maior
+     para o menor e só em limite de palavra. Se sobrar palavra em português, o texto entra em faltando(). */
+  var FRAG = null, FRAGRX = null, LETRA = /[A-Za-zÀ-ÿ]/;
+  var PT_PALAVRA = /[áéíóúâêôãõç]|\b(de|do|da|dos|das|com|sem|para|por|não|um|uma|ou|no|na|nos|nas|em|que|ao|os|as|pelo|pela|entre|até|antes|depois|acima|abaixo)\b/i;
+  function prepararFragmentos(f) {
+    FRAG = {}; var ks = [];
+    for (var k in f) if (tem(f, k)) { var c = chave(k); if (c.length >= 2) { FRAG[c] = f[k]; ks.push(c); } }
+    ks.sort(function (a, b) { return b.length - a.length; });
+    FRAGRX = ks.length ? new RegExp(ks.map(function (x) { return x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("|"), "g") : null;
+  }
+  function fragmentos(k) {
+    if (!FRAGRX) return null;
+    var mudou = false, resto = "", ult = 0;
+    var r = k.replace(FRAGRX, function (m, pos, tudo) {
+      var antes = pos > 0 ? tudo.charAt(pos - 1) : "", depois = tudo.charAt(pos + m.length);
+      if ((LETRA.test(m.charAt(0)) && LETRA.test(antes)) || (LETRA.test(m.charAt(m.length - 1)) && LETRA.test(depois))) return m;
+      mudou = true; resto += tudo.slice(ult, pos) + " "; ult = pos + m.length; return FRAG[m];
+    });
+    if (!mudou) return null;
+    resto += k.slice(ult);
+    if (PT_PALAVRA.test(resto.replace(/\d[\d.,]*/g, " "))) P.faltam[k] = 1;
+    return r;
+  }
+  function traduzir(s) {
+    var k = chave(s); if (!k) return null;
+    if (EXC[k]) return null;
+    var v = par(k);
+    if (v == null && k.indexOf(" · ") > 0) {          /* "A · B": traduz parte por parte, se todas tiverem par */
+      var ps = k.split(" · "), ok = true;
+      ps = ps.map(function (x) { var t = par(x); if (t == null && (EXC[x] || !temLetra(x))) t = x; if (t == null) ok = false; return t; });
+      if (ok) v = ps.join(" · ");
+    }
+    if (v == null) { v = fragmentos(k); if (v != null) return (/^\s/.test(s) ? " " : "") + v + (/\s$/.test(s) ? " " : ""); }
+    if (v == null) { if (temLetra(k)) P.faltam[k] = 1; return null; }
+    return (/^\s/.test(s) ? " " : "") + v + (/\s$/.test(s) ? " " : "");
+  }
+  function pular(e) {
+    for (; e && e.nodeType === 1; e = e.parentElement) {
+      if (IGNORAR[e.nodeName]) return true;
+      if (e.hasAttribute("data-pp-manter") || e.getAttribute("translate") === "no") return true;
+      if (e.isContentEditable) return true;
+    }
+    return false;
+  }
+  function textoNo(n, en) {
+    var o = P.orig.get(n);
+    if (o && n.nodeValue !== o.pt && n.nodeValue !== o.en) { P.orig.delete(n); o = null; }   /* mudou por baixo: é texto novo */
+    if (en) {
+      var base = o ? o.pt : n.nodeValue, t = traduzir(base);
+      if (t != null) { P.orig.set(n, { pt: base, en: t }); if (n.nodeValue !== t) n.nodeValue = t; }
+    } else if (o) { if (n.nodeValue !== o.pt) n.nodeValue = o.pt; P.orig.delete(n); }
+  }
+  function atributosEl(e, en) {
+    var mapa = P.origAttr.get(e) || {}, attrs = ATRIBUTOS.slice();
+    if (e.nodeName === "INPUT" && /^(button|submit|reset)$/i.test(e.type)) attrs.push("value");
+    attrs.forEach(function (a) {
+      if (!e.hasAttribute(a)) return;
+      var atual = e.getAttribute(a), o = mapa[a];
+      if (o && atual !== o.pt && atual !== o.en) { delete mapa[a]; o = null; }
+      if (en) { var base = o ? o.pt : atual, t = traduzir(base); if (t != null) { t = t.trim(); mapa[a] = { pt: base, en: t }; if (atual !== t) e.setAttribute(a, t); } }
+      else if (o) { if (atual !== o.pt) e.setAttribute(a, o.pt); delete mapa[a]; }
+    });
+    P.origAttr.set(e, mapa);
+  }
+  function percorrer(raiz, en) {
+    if (!raiz) return;
+    if (raiz.nodeType === 3) { if (!pular(raiz.parentElement)) textoNo(raiz, en); return; }
+    if (raiz.nodeType !== 1 && raiz.nodeType !== 9 && raiz.nodeType !== 11) return;
+    if (raiz.nodeType === 1 && pular(raiz)) return;
+    var w = doc.createTreeWalker(raiz, 5 /* elementos e textos */, {
+      acceptNode: function (n) {
+        if (n.nodeType === 1 && (IGNORAR[n.nodeName] || n.hasAttribute("data-pp-manter") || n.getAttribute("translate") === "no" || n.isContentEditable)) return 2;
+        return 1;
+      }
+    });
+    if (raiz.nodeType === 1) atributosEl(raiz, en);
+    var n;
+    while ((n = w.nextNode())) { if (n.nodeType === 3) textoNo(n, en); else atributosEl(n, en); }
+  }
+  function tituloDoc(en) {
+    if (P.tituloPt == null) P.tituloPt = doc.title;
+    if (doc.title !== P.tituloPt && doc.title !== P.tituloEn) P.tituloPt = doc.title;
+    if (en) { var t = traduzir(P.tituloPt); P.tituloEn = t ? t.trim() : null; if (t) doc.title = t.trim(); } else if (doc.title !== P.tituloPt) doc.title = P.tituloPt;
+  }
+  function traduzLocal() { return P.estado.idioma === "en" && !P.pausado && !externo(); }
+  function tudo() {
+    if (externo()) return;
+    var en = traduzLocal();
+    percorrer(doc.body, en); tituloDoc(en);
+    if (P.obs) P.obs.takeRecords();
+  }
+  function definirIdioma(qual) {
+    var x = externo();
+    if (x) {   /* a tela traduz a si mesma: só pede a troca, uma vez, quando ela ainda está na outra língua */
+      var pela = !!P.pelaPessoa; P.pelaPessoa = false;
+      if (idiomaDaTela() !== qual) { try { x.definir(qual, pela); } catch (e) { if (global.console) console.error(e); } }
+    } else {
+      doc.documentElement.setAttribute("lang", qual === "en" ? "en" : P.idiomaOriginal);
+      tudo();
+    }
+    if (P.ui.pular) P.ui.pular.textContent = txt("pular");
+    var pl = doc.querySelector("a.px-pular"); if (pl && !P.op.semFaixa) pl.textContent = txt("pular");
+  }
+  function observar() {
+    if (!global.MutationObserver) return;
+    P.obs = new MutationObserver(function (lista) {
+      var en = traduzLocal();
+      lista.forEach(function (m) {
+        if (m.type === "childList") {
+          for (var i = 0; i < m.addedNodes.length; i++) {
+            var a = m.addedNodes[i];
+            if (a.nodeType === 1) { conferirLegendas(a); if (P.estado.calma) pararMidias(a); }
+            if (en && (a.nodeType !== 3 || !pular(a.parentElement))) percorrer(a, true);
+          }
+        } else if (!en) return;
+        else if (m.type === "characterData") { if (!pular(m.target.parentElement)) textoNo(m.target, true); }
+        else if (m.type === "attributes" && !pular(m.target)) atributosEl(m.target, true);
+      });
+      if (en) tituloDoc(true);
+      P.obs.takeRecords();
+    });
+    P.obs.observe(doc.documentElement, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATRIBUTOS.concat(["value"]) });
+  }
+
+  /* ---------- API ---------- */
+  var API = {
+    versao: 3,
+    iniciar: function (op) {
+      if (P.op) return API;
+      P.op = op || {};
+      P.op.chave = P.op.chave || "physis-pref";
+      var d = P.op.dicionario || {};
+      for (var k in d) if (tem(d, k)) DIC[chave(k)] = d[k];
+      FRASES.forEach(function (f) { if (!DIC[UI.pt[f]]) DIC[UI.pt[f]] = UI.en[f]; });
+      (P.op.padroes || []).forEach(function (p) { RX.push([p[0] instanceof RegExp ? p[0] : new RegExp(p[0]), p[1]]); });
+      (P.op.excecoes || []).forEach(function (x) { EXC[chave(x)] = 1; });
+      if (P.op.fragmentos) prepararFragmentos(P.op.fragmentos);
+      P.idiomaOriginal = doc.documentElement.getAttribute("lang") || "pt-BR";
+      if (!doc.getElementById("pp-estilo")) { var st = doc.createElement("style"); st.id = "pp-estilo"; st.textContent = CSS; (doc.head || doc.documentElement).appendChild(st); }
+      P.estado = carregar();
+      montarPular();
+      montarBarra();
+      aplicar(null);
+      observar();
+      conferirLegendas(doc);
+      restaurarLugar();
+      try {
+        var mm = global.matchMedia("(prefers-color-scheme: dark)");
+        var seguir = function () { if (P.estado.tema === "auto") aplicar(null); };
+        if (mm.addEventListener) mm.addEventListener("change", seguir); else if (mm.addListener) mm.addListener(seguir);
+      } catch (e) {}
+      doc.addEventListener("keydown", atalhos);
+      doc.addEventListener("focusin", function (ev) {
+        var t = ev.target; if (P.ui.barra && P.ui.barra.contains(t)) return;
+        if (ehCampo(t)) P.campo = t;
+        if (P.estado.regua && t.getBoundingClientRect) { var r = t.getBoundingClientRect(); regua(r.top + r.height / 2); }
+      });
+      doc.addEventListener("pointermove", function (ev) { regua(ev.clientY); }, { passive: true });
+      var tempo = null;
+      global.addEventListener("scroll", function () { if (!P.estado.lembrar) return; clearTimeout(tempo); tempo = setTimeout(salvarLugar, 400); }, { passive: true });
+      global.addEventListener("hashchange", salvarLugar);
+      global.addEventListener("pagehide", salvarLugar);
+      /* tela com tradução própria trocou de língua pelo botão dela: a barra e a escolha guardada acompanham */
+      if (externo() && global.MutationObserver) {
+        new MutationObserver(function () {
+          var q = idiomaDaTela(); if (q === P.estado.idioma) return;
+          P.estado.idioma = q; P.idiomaAplicado = q; guardar(); desenharBarra();
+          if (typeof P.op.aoMudar === "function") { try { P.op.aoMudar(estadoPublico()); } catch (x) {} }
+        }).observe(doc.documentElement, { attributes: true, attributeFilter: ["lang"] });
+      }
+      /* outra aba, ou a plataforma que abriu esta tela num quadro, mudou a escolha: segue */
+      global.addEventListener("storage", function (ev) {
+        if (ev.key !== P.op.chave && ev.key !== "physis-pref-tema" && ev.key !== "physis-idioma" && ev.key !== "physis-conforto" && ev.key !== "physis-fundo" && ev.key !== "physis-passaporte") return;
+        var antes = JSON.stringify(P.estado), novo;
+        if (ev.key === P.op.chave) { try { novo = limpar(JSON.parse(ev.newValue || "null")); } catch (e) { return; } }
+        else {
+          novo = copia(P.estado);
+          if (ev.key === "physis-pref-tema" && /^(claro|escuro|auto)$/.test(ev.newValue || "")) novo.tema = ev.newValue;
+          if (ev.key === "physis-idioma") novo.idioma = ev.newValue === "en" ? "en" : "pt";
+          if (ev.key === "physis-conforto") novo.conforto = ev.newValue === "1";
+          if (ev.key === "physis-fundo") novo.verde = ev.newValue === "verde";
+          if (ev.key === "physis-passaporte") { try { var pp = JSON.parse(ev.newValue || "{}"); novo.texto = pp.texto ? Math.max(1, novo.texto) : 0; novo.espaco = !!pp.espaco; novo.contraste = !!pp.contraste; novo.calma = !!pp.calma; } catch (e) {} }
+          novo = limpar(novo);
+        }
+        if (JSON.stringify(novo) === antes) return;
+        P.estado = novo; gravar(P.op.chave, JSON.stringify(novo)); aplicar(null);
+      });
+      return API;
+    },
+    estado: function () { return P.estado ? estadoPublico() : null; },
+    definir: function (patch) { if (P.estado) mudar(patch || {}, null); return API.estado(); },
+    idioma: function () { return P.estado ? P.estado.idioma : "pt"; },
+    /* tradução de um texto solto (para mensagens montadas no código); devolve o próprio texto se não houver par */
+    t: function (s) { if (!P.estado || P.estado.idioma !== "en") return s; var r = traduzir(s); return r == null ? s : r; },
+    /* par em inglês de um texto, qualquer que seja o idioma ligado (para usar dentro de padrões) */
+    par: function (s) { var k = chave(s), r = par(k); if (r == null && k.indexOf(" · ") > 0) { r = traduzir(k); r = r == null ? null : r.trim(); } return r == null ? s : r; },
+    acrescentar: function (dic, padroes) {
+      for (var k in (dic || {})) if (tem(dic, k)) DIC[chave(k)] = dic[k];
+      (padroes || []).forEach(function (p) { RX.push([p[0] instanceof RegExp ? p[0] : new RegExp(p[0]), p[1]]); });
+      if (P.estado) tudo();
+    },
+    /* pausa a tradução (ex.: durante a edição de textos): a tela volta ao português até pausar(false) */
+    pausar: function (sim) { P.pausado = !!sim; if (P.estado) tudo(); },
+    reaplicar: function () { if (P.estado) tudo(); },
+    abrirPainel: function (qual) { if (!P.ui.barra) return; if (qual === "conforto") abrir(P.ui.pConf, P.ui.conforto, true); else abrir(P.ui.pA11y, P.ui.a11y, true); },
+    ouvir: ouvir, parar: pararFala,
+    faltando: function () {
+      P.faltam = {};
+      if (P.estado && P.estado.idioma === "en") tudo();
+      return Object.keys(P.faltam).filter(function (k) { return !DIC[k]; }).sort();
+    }
+  };
+  global.PhysisPreferencias = API;
+
+  /* ---------- PxPref: a mesma barra para as telas com tradução própria (plataforma, Gestão Physis, SCADA) ----------
+     Era um segundo módulo (px-preferencias v1); desde a v3 é só esta porta de entrada para o mesmo código.
+     PxPref.iniciar({ lugar, idioma:{atual,definir}, conteudo, menu, relatar, suporte, tela, lugarAtual, irPara, semFaixa, aoMudar })
+     aoMudar recebe { tema (o que vale: claro|escuro), temaEscolha (claro|escuro|auto), idioma, conforto, verde, texto, ... }. */
+  function formaPx(e) { if (!e) return null; var o = copia(e); o.temaEscolha = e.tema; o.tema = e.temaEfetivo; return o; }
+  var PX = {
+    versao: 3,
+    iniciar: function (op) {
+      op = op || {};
+      var lembrar = op.lugarAtual || op.irPara ? { salvar: op.lugarAtual, restaurar: op.irPara } : null;
+      API.iniciar({ chave: "physis-pref", ondeColocar: op.lugar, conteudo: op.conteudo, menu: op.menu, relatar: op.relatar, suporte: op.suporte,
+        tela: op.tela, semFaixa: op.semFaixa, variante: op.variante, esconderEmQuadro: op.esconderEmQuadro !== false, idiomaExterno: op.idioma,
+        lembrar: lembrar, aoMudar: op.aoMudar ? function (e) { op.aoMudar(formaPx(e)); } : null });
+      return PX;
+    },
+    estado: function () { return formaPx(API.estado()); },
+    definir: function (patch) { API.definir(patch); return PX.estado(); },
+    redesenhar: function () { P.painelIdioma = null; desenharBarra(); },
+    textos: UI
+  };
+  global.PxPref = PX;
+})(typeof window !== "undefined" ? window : this);
+</script>
+<script>
+/* barra única de preferências e acessibilidade (sistema/physis-preferencias.js, copiada por ferramentas/sincronizar.py), 20/11/2026 */
+if(window.PhysisPreferencias)PhysisPreferencias.iniciar({chave:"physis-pref",ondeColocar:"#pp-lugar",escalaPorZoom:false,conteudo:"#conteudo",
+  menu:"[role=tablist]",busca:"#cmdTxt",contato:"#cmdTxt",tela:"physis-ma",excecoes:["Physis Engineering","Physis M&A","Physis M&V","InovaSTEM"],
+  idiomaExterno:{atual:()=>IDI,definir:l=>{if(l===IDI)return;try{localStorage.setItem("physis-pref-idioma",l)}catch(e){}location.reload();}},
+  aoMudar:()=>{try{localStorage.setItem("physis-pref-tema",document.documentElement.getAttribute("data-tema-escolha")||"auto")}catch(x){}if(META)render(atual);}});
 </script>
 </body>
 </html>

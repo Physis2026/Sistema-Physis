@@ -99,6 +99,9 @@ def fabricar(mv: MV):
     arq = mv_arquivos.Arquivos(mv)
     cmd = mv_comandos.Comandos(mv, arq)
     cmd.semear_aprovacoes(mv_comandos.APROVACOES_23_11)
+    from . import mv_clientes
+    cli = mv_clientes.Clientes(mv)
+    cli.semear()
     rede = getattr(mv, "_rede", None)        # modo rede local (teste): {"senha": ..., "hosts": {...}}
     class H(BaseHTTPRequestHandler):
         server_version = "PhysisMV/teste"
@@ -211,7 +214,12 @@ def fabricar(mv: MV):
                              "/api/mv/aprovacoes": lambda: cmd.aprovacoes(),
                              "/api/mv/perguntas": lambda: mv_comandos.perguntas(mv, None if q.get("abertas") is None else q.get("abertas") == "1",
                                                                                  q.get("sistema") or None),
-                             "/api/mv/comandos/ajuda": lambda: mv_comandos.AJUDA}
+                             "/api/mv/comandos/ajuda": lambda: mv_comandos.AJUDA,
+                             "/api/mv/contas": lambda: cli.contas(), "/api/mv/cnpjs": lambda: cli.cnpjs(),
+                             "/api/mv/conta": lambda: cli.conta(q.get("id", "")),
+                             "/api/mv/fin": lambda: cli.financeiro(q.get("nivel", "conta"), q.get("filtro") or None),
+                             "/api/mv/lancs": lambda: cli.lancamentos(q.get("conta") or None),
+                             "/api/mv/paginas": lambda: __import__("physis_hub.mv_paginas", fromlist=["x"]).listar(mv)}
                     if p in rotas:
                         return self._json(200, rotas[p]())
                     if p == "/api/mv/arquivo/baixar":
@@ -254,7 +262,15 @@ def fabricar(mv: MV):
                     if p == "/api/mv/edital":
                         return self._json(200, ed.atualizar(str(corpo.get("id")), corpo))
                     if p == "/api/mv/lanc":
-                        return self._json(200, {"id": mv.lancar(corpo)})
+                        return self._json(200, {"id": cli.lancar(corpo)})
+                    if p == "/api/mv/conta":
+                        return self._json(200, cli.salvar(corpo))
+                    if p == "/api/mv/conta/confirmar":
+                        return self._json(200, cli.confirmar(str(corpo.get("id")), str(corpo.get("campo")), bool(corpo.get("aceitar", True))))
+                    if p == "/api/mv/conta/analisar":
+                        return self._json(200, cli.analisar(str(corpo.get("id"))))
+                    if p == "/api/mv/nota":
+                        return self._json(200, cli.pedir_nota(int(corpo.get("id"))))
                     if p == "/api/mv/alerta/resolver":
                         mv.db.execute("UPDATE mv_alerta SET resolvido=strftime('%s','now') WHERE id=?", (str(corpo.get("id")),))
                         mv.db.commit()

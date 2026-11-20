@@ -39,6 +39,7 @@ ALVOS = [
     RAIZ / "physis-hub" / "web" / "documento.html",
     RAIZ / "physis-hub" / "web" / "municipio.html",
     RAIZ / "app-nativo" / "site" / "baixar.html",
+    RAIZ / "physis-hub" / "web" / "mv.html",          # Physis M&A (20/11/2026): mesma barra de preferências e acessibilidade
 ]
 # A "Tela do cliente" (sistema/physis-tela-cliente.html) saiu em 15/11/2026: tudo o que ela fazia está nas abas da plataforma.
 PLATAFORMA = RAIZ / "physis-hub" / "web" / "painel.html"

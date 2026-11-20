@@ -441,7 +441,16 @@ def conferir_rotina(mv: MV, pasta_backup: Path | None = None, agora: float | Non
     return {"backup_h": idade_b, "resumo_h": idade_r}
 
 
-BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup}
+def bot_paginas(mv: MV) -> dict:
+    """Checklist base de toda página (doc 43): site, plataforma, loja, app e telas internas."""
+    from . import mv_paginas
+    inicio = mv.nova_rodada()
+    r = mv_paginas.rodar(mv)
+    mv.registrar_execucao("paginas", inicio, mvmod.json.dumps(r))
+    return r
+
+
+BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup, "paginas": bot_paginas}
 
 
 def rodar(mv: MV, quais: list[str] | None = None) -> dict:

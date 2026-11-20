@@ -54,14 +54,21 @@ laranja, ouro suave ou verdes. "uma iniciativa Physis Engineering" só na InovaS
 | **A · escuro verde** | `#0B3D2E` | `#0F4535` | `#2F5E4E` | `#F4F1EA` | `#C3D0BD` | `#F97316` | `#C2410C` + `#FFFFFF` |
 | **B · claro (Physis Engineering, Casa, InovaSTEM, internos)** | `#F4F1EA` (InovaSTEM: `#FFF7ED`; Casa: `#F6F3EE`) | `#FFFFFF` | faixa superior `#0B3D2E`; linhas `#D9D3C2` | `#1B1F23` | `#4A4F44` | `#C2410C` (texto pequeno), `#F97316` (números grandes) | `#C2410C` + `#FFFFFF`; contorno `#1A4D2E` |
 | **C · claro Instituto** | `#F4F6F1` | `#FFFFFF` | `#C9D2C4` | `#1B1F23` | `#4A4F44` | `#4A8A5A` (rótulos grandes), `#1F4A1C` (texto pequeno), `#F97316` (números grandes) | `#C2410C` + `#FFFFFF` |
-| **Delas · escuro roxo** | `#2E1A47` | `#3D2A5C` | `#5B4A7A` | `#F4F1EA` | `#C4B5FD` | `#F97316`, verde `#8FB183` | `#C2410C` + `#FFFFFF` |
+| **Delas · escuro roxo** | `#2B2143` (medido no guia, estande da opção B) | `#3D2A5C` | `#5B4A7A` | `#F4F1EA` | `#C4B5FD` | `#F97316`, verde `#8FB183` | `#C2410C` + `#FFFFFF` |
 
 Ícones (formas, nunca texto pequeno): terracota `#BB6B4A` / `#D9A58C` (escuro), laranja `#F97316`, ouro suave `#B07A12`,
 verdes `#1A4D2E`, `#4A8A5A`, `#2F7D5B`, `#8FB183` (escuro).
 
 Contraste (WCAG 2.2 AA): no tipo A o laranja `#F97316` dá 4,35:1 sobre `#0B3D2E` e 3,9:1 sobre `#0F4535`, então **só em texto grande** (números, títulos ≥ 24 px ou 18,7 px em negrito); rótulos pequenos em `#D9A58C` (terracota clara). No tipo B, `#C2410C` dá 4,59:1 sobre `#F4F1EA`.
 
-Cores derivadas novas (para conferência de contraste): `#0F4535` `#2F5E4E` `#2E1A47` `#3D2A5C` `#5B4A7A`
+Detalhes conferidos no guia em 20/11/2026 (pixels das imagens das opções A, B e C): verde do tipo A = `#0B3D2E` (a imagem
+comprimida dá `#0A3D2E`); faixa do rodapé do tipo A `#0C2C21`; fundo da página InovaSTEM no tipo B `#FFF7ED`; fundo do Instituto
+no tipo C `#F4F6F1`; roxo do estande Delas `#2B2143`.
+
+**Terracota (detalhes obrigatórios):** avisos (borda e ícone), divisórias curtas acima dos títulos de seção, ícones e títulos grandes
+de seção da Casa; claro `#BB6B4A`, escuro `#D9A58C`. Nunca em texto pequeno sobre claro (contraste baixo).
+
+Cores derivadas novas (para conferência de contraste): `#0F4535` `#2F5E4E` `#2B2143` `#3D2A5C` `#5B4A7A` `#0C2C21`
 
 ## Cores das marcas (teste de paletas de 19/11/2026, substituído pelo guia acima nas telas novas)
 
@@ -81,4 +88,4 @@ sobre fundo claro (falha no contraste AA). Fonte: `Casa Physis\3_Instituto_Physi
 
 ## Lista completa
 
-`#000000` `#14180F` `#1C2B21` `#1C3550` `#1F4A1C` `#2A1215` `#2A3829` `#2C5A6E` `#33372E` `#33512F` `#3A4A38` `#3D6E8F` `#4A4F44` `#4A5A47` `#4B7547` `#546A7B` `#5A6154` `#5C2B2E` `#5C3F00` `#5F6659` `#6D7466` `#7A2214` `#7FA874` `#7FA9C4` `#8A6110` `#8A6410` `#8A6A1F` `#8A8270` `#8A9182` `#8A9284` `#8FB183` `#A63A28` `#A85432` `#A8BFA0` `#B07A10` `#B8D0E0` `#B9A97F` `#B9CDB3` `#C08A1E` `#C3D0BD` `#C9A227` `#C9B98F` `#C9D2C4` `#C9D3C4` `#CDDCC4` `#D6DBCF` `#D9D3C2` `#DBE7F1` `#DCEBD8` `#E2E9DC` `#E2EADB` `#E3C4BD` `#E3E8DE` `#E5D5AE` `#E6EBE1` `#E7EDE3` `#E9E6DB` `#ECE0BD` `#EDF2E9` `#EEF2EA` `#EEF4EA` `#EFE8D6` `#EFE9F6` `#F1F3EC` `#F4F6F1` `#F5E2D7` `#F6EAD0` `#F6EEDC` `#F7F8F4` `#F7F9F4` `#F8FAF6` `#FAF9F5` `#FCF2F0` `#FF8A80` `#FFF6DF` `#FFFFFF` `#0B3D2E` `#1B1F23` `#F4F1EA` `#F97316` `#C2410C` `#1A4D2E` `#4A8A5A` `#2F7D5B` `#BB6B4A` `#D9A58C` `#F6F3EE` `#FFF7ED` `#7C3AED` `#C4B5FD` `#EDE9FE` `#23282D` `#0F4535` `#2F5E4E` `#2E1A47` `#3D2A5C` `#5B4A7A` `#B07A12`
+`#000000` `#14180F` `#1C2B21` `#1C3550` `#1F4A1C` `#2A1215` `#2A3829` `#2C5A6E` `#33372E` `#33512F` `#3A4A38` `#3D6E8F` `#4A4F44` `#4A5A47` `#4B7547` `#546A7B` `#5A6154` `#5C2B2E` `#5C3F00` `#5F6659` `#6D7466` `#7A2214` `#7FA874` `#7FA9C4` `#8A6110` `#8A6410` `#8A6A1F` `#8A8270` `#8A9182` `#8A9284` `#8FB183` `#A63A28` `#A85432` `#A8BFA0` `#B07A10` `#B8D0E0` `#B9A97F` `#B9CDB3` `#C08A1E` `#C3D0BD` `#C9A227` `#C9B98F` `#C9D2C4` `#C9D3C4` `#CDDCC4` `#D6DBCF` `#D9D3C2` `#DBE7F1` `#DCEBD8` `#E2E9DC` `#E2EADB` `#E3C4BD` `#E3E8DE` `#E5D5AE` `#E6EBE1` `#E7EDE3` `#E9E6DB` `#ECE0BD` `#EDF2E9` `#EEF2EA` `#EEF4EA` `#EFE8D6` `#EFE9F6` `#F1F3EC` `#F4F6F1` `#F5E2D7` `#F6EAD0` `#F6EEDC` `#F7F8F4` `#F7F9F4` `#F8FAF6` `#FAF9F5` `#FCF2F0` `#FF8A80` `#FFF6DF` `#FFFFFF` `#0B3D2E` `#1B1F23` `#F4F1EA` `#F97316` `#C2410C` `#1A4D2E` `#4A8A5A` `#2F7D5B` `#BB6B4A` `#D9A58C` `#F6F3EE` `#FFF7ED` `#7C3AED` `#C4B5FD` `#EDE9FE` `#23282D` `#0F4535` `#2F5E4E` `#2E1A47` `#3D2A5C` `#5B4A7A` `#B07A12` `#2B2143` `#0C2C21`
