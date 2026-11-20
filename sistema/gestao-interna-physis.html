@@ -9213,7 +9213,7 @@ html.gp:not(.gp-v-indicadores) #gi-indicadores, html.gp.gp-v-indicadores main#px
 </script>
 <script id="physis-preferencias">
 /* physis-preferencias.js v3 · Preferências de leitura e acessibilidade das telas da Physis
-   Barra com 4 controles: [Idioma: Português/English] [Tema: Claro/Escuro/Automático] [Modo de conforto ▾] [Acessibilidade (PcD) ▾].
+   Barra com 3 controles: [Idioma: Português/English] [Modo de conforto ▾ (inclui o Tema: Claro/Escuro (verde)/Automático)] [Acessibilidade (PcD) ▾].
    Modo de conforto (neurodivergência: autismo, TDAH, dislexia): fundo verde, texto maior, mais espaçamento, menos estímulo,
    foco reforçado, fonte para dislexia, régua de leitura, leitura simplificada, lembrar onde parei.
    Acessibilidade (PcD): cegueira e baixa visão (leitores de tela, ouvir esta tela, alto contraste, zoom, atalhos),
@@ -9542,6 +9542,9 @@ html.gp:not(.gp-v-indicadores) #gi-indicadores, html.gp.gp-v-indicadores main#px
     u.pConf = criar("div", { "class": "pp-painel", id: "pp-painel-conforto", role: "region", "aria-labelledby": "pp-conf-t", hidden: true });
     u.pA11y = criar("div", { "class": "pp-painel", id: "pp-painel-a11y", role: "region", "aria-labelledby": "pp-a11y-t", hidden: true });
     u.anuncio = criar("div", { "class": "pp-so-leitor", role: "status", "aria-live": "polite" });
+    /* 20/11/2026 (dona): o Tema fica só dentro do Modo de conforto — a barra tem Idioma, Modo de conforto e Acessibilidade.
+       O seletor continua existindo (escondido) para as telas que o leem. */
+    u.temaRot.hidden = true;
     [u.idiomaRot, u.temaRot, u.conforto, u.a11y, u.pConf, u.pA11y, u.anuncio].forEach(function (x) { barra.appendChild(x); });
     u.barra = barra;
     if (lugar) lugar.appendChild(barra); else doc.body.insertBefore(barra, doc.body.firstChild);
