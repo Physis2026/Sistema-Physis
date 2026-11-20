@@ -641,14 +641,16 @@ let CONTAS=[],CONTA_SEL="";
 async function contas(){if(MOCK){$("#contasNav").innerHTML="";$("#contaPainel").innerHTML=semServidor("Clientes e projetos");return;}
   CONTAS=await get("/api/mv/contas");if(!CONTA_SEL&&CONTAS.length)CONTA_SEL=CONTAS[0].id;
   // clientes da plataforma (loja) ficam DENTRO do Sistema Physis, não como abas diretas (dona, 20/11/2026)
-  const diretas=CONTAS.filter(c=>c.tipo!=="cliente_loja"),loja=CONTAS.filter(c=>c.tipo==="cliente_loja");
+  const diretas=CONTAS.filter(c=>!["cliente_loja","anterior"].includes(c.tipo)),loja=CONTAS.filter(c=>c.tipo==="cliente_loja"),anteriores=CONTAS.filter(c=>c.tipo==="anterior");
   if(!CONTA_SEL||(CONTAS.find(c=>c.id===CONTA_SEL)||{}).tipo==="cliente_loja"&&!CONTA_SEL.startsWith("@"))CONTA_SEL=CONTA_SEL&&loja.some(c=>c.id===CONTA_SEL)?"@sistema:"+CONTA_SEL:(diretas[0]||{}).id||"@sistema";
   const sel=CONTA_SEL.startsWith("@sistema");
   $("#contasNav").innerHTML=diretas.map(c=>`<button class="aba" role="tab" aria-selected="${c.id===CONTA_SEL}" data-ct="${esc(c.id)}">${esc(c.nome)}${c.estado==="futuro"?" · futuro":""}</button>`).join("")+
     `<button class="aba" role="tab" aria-selected="${sel}" data-ct="@sistema">Sistema Physis · clientes da plataforma (${loja.length})</button>`+
+    `<button class="aba" role="tab" aria-selected="${CONTA_SEL.startsWith("@anteriores")}" data-ct="@anteriores">Projetos anteriores (${anteriores.length})</button>`+
     `<button class="aba" role="tab" aria-selected="${CONTA_SEL==="+novo"}" data-ct="+novo">+ Novo projeto ou cliente</button>`;
   $("#contasNav").querySelectorAll("[data-ct]").forEach(b=>b.onclick=()=>{CONTA_SEL=b.dataset.ct;contas();});
   if(CONTA_SEL==="+novo")return novoProjeto();
+  if(CONTA_SEL.startsWith("@anteriores")){const sub=CONTA_SEL.split(":")[1];if(sub)return contaPainel(sub);return projetosAnteriores(anteriores);}
   if(sel){const sub=CONTA_SEL.split(":")[1]||(loja[0]||{}).id;
     $("#contaPainel").innerHTML=`<p class="muted">Clientes que usam os módulos da loja dentro do Sistema Physis (plataforma do cliente).</p><nav class="sub" role="tablist" aria-label="Clientes da plataforma">${loja.map(c=>`<button class="aba" role="tab" aria-selected="${c.id===sub}" data-lj="${esc(c.id)}">${esc(c.nome)}</button>`).join("")}</nav><div id="contaPainelLoja" style="margin-top:.75rem"></div>`;
     $("#contaPainel").querySelectorAll("[data-lj]").forEach(b=>b.onclick=()=>{CONTA_SEL="@sistema:"+b.dataset.lj;contas();});
@@ -677,12 +679,26 @@ async function contaPainel(id,alvo){const P=$(alvo||"#contaPainel");const c=awai
   $("#ctAnalisar").onclick=async()=>{const r=await post("/api/mv/conta/analisar",{id});$("#ctSaida").innerHTML=r.erro?`<p class="aviso">${esc(r.erro)}</p>`:`<p class="aviso">${esc(r.resultado)}</p>`;};
   P.querySelectorAll("[data-cf]").forEach(b=>b.onclick=async()=>{await post("/api/mv/conta/confirmar",{id,campo:b.dataset.cf,aceitar:b.dataset.ok==="1"});contaPainel(id,alvo);});
   caixa("#ctDocs","documentos",{refFixa:id,titulo:`Documentos de ${c.nome} (contratos, propostas, plantas, atas)`});}
+async function projetosAnteriores(ls){
+  $("#contaPainel").innerHTML=`<p class="muted">Projetos já concluídos: portfólio, lições e palavras-chave para editais. O bot lê os nomes dos documentos nas pastas e pré-preenche as caixas; você revisa e confirma. Depois de confirmado, cada projeto tem sua caixa de upload.</p>
+   ${ls.length?`<div class="cards">${ls.map(c=>`<div class="card"><strong>${esc(c.nome)}</strong><p class="muted">${esc(c.core)}</p><button class="btn" data-an="${esc(c.id)}">Abrir</button></div>`).join("")}</div>`:'<p class="muted">Nenhum projeto anterior confirmado ainda.</p>'}
+   <h2>Sugestões do bot (caixas pré-preenchidas para revisar)</h2><div id="anSug"><p class="muted">Lendo as pastas…</p></div>`;
+  $("#contaPainel").querySelectorAll("[data-an]").forEach(b=>b.onclick=()=>{CONTA_SEL="@anteriores:"+b.dataset.an;contas();});
+  const sg=await get("/api/mv/anteriores/sugestoes");
+  $("#anSug").innerHTML=sg.length?sg.map((s,i)=>`<form class="card" data-sg="${i}" style="margin:.5rem 0"><div class="ferr" style="align-items:flex-start">
+    <label>Nome <input type="text" name="nome" value="${esc(s.nome)}" style="min-width:18rem"></label><label>Cliente/financiador <input type="text" name="cliente" value="${esc(s.cliente)}"></label>
+    <label>País <input type="text" name="pais" value="${esc(s.pais)}"></label><label>Ano <input type="text" name="ano" value="${esc(s.ano)}"></label>
+    <label style="flex:1 1 100%">Escopo <input type="text" name="escopo" value="${esc(s.escopo)}" style="width:100%"></label></div>
+    <details><summary>${s.total_arquivos} documento(s) de origem</summary><ul>${s.arquivos.map(a=>`<li class="muted">${esc(a)}</li>`).join("")}</ul></details>
+    <div class="ferr" style="margin:.4rem 0 0"><button class="btn prim">Confirmar e criar</button></div></form>`).join(""):'<p class="muted">Sem sugestões novas nas pastas.</p>';
+  $("#anSug").querySelectorAll("form[data-sg]").forEach(f=>f.onsubmit=async e=>{e.preventDefault();const s=sg[+f.dataset.sg],d=Object.fromEntries(new FormData(f));d.arquivos=s.arquivos;
+    const r=await post("/api/mv/anterior",d);if(r.erro){status("Erro: "+r.erro);return;}CONTA_SEL="@anteriores:"+r.id;contas();});}
 function novoProjeto(){const opts=CONTAS.map(c=>`<option value="${esc(c.id)}">${esc(c.nome)} (${esc(c.tipo_nome)})</option>`).join("");
   $("#contaPainel").innerHTML=`<div class="card"><p class="rotulo">Inclusão de projeto · versão de teste</p><h2>Novo projeto ou cliente</h2>
   <p class="muted">Escolha o cliente ou parceiro: aparece o funcionamento core das atividades dele. O que você não souber fica [MARCADOR]; depois de salvar, anexe documentos e use "Analisar documentos e propor ficha".</p>
   <form id="fNovo" class="ferr" style="align-items:flex-start">
    <label>Cliente/parceiro <select name="base"><option value="">(novo)</option>${opts}</select></label>
-   <label>Tipo <select name="tipo"><option value="futuro">Projeto futuro (em cadastro)</option><option value="cliente_direto">Cliente · contrato direto</option><option value="cliente_loja">Cliente da plataforma (loja)</option><option value="parceiro">Parceria</option><option value="interno">Projeto interno</option></select></label>
+   <label>Tipo <select name="tipo"><option value="futuro">Projeto futuro (em cadastro)</option><option value="anterior">Projeto anterior (concluído)</option><option value="cliente_direto">Cliente · contrato direto</option><option value="cliente_loja">Cliente da plataforma (loja)</option><option value="parceiro">Parceria</option><option value="interno">Projeto interno</option></select></label>
    <label>Nome <input type="text" name="nome" required></label>
    <label>CNPJ emissor <select name="cnpj_emissor" id="fCnpj"></select></label>
    <label>Base contratual <input type="text" name="contrato" placeholder="direto BR, internacional, parceria…"></label>
@@ -878,10 +894,10 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
 
   /* textos da própria barra, nas duas línguas (a página não precisa traduzir) */
   var UI = {
-    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro", auto: "Automático",
+    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro (verde)", auto: "Automático",
       conforto: "Modo de conforto", ligado: "ligado", a11y: "Acessibilidade (PcD)", fechar: "Fechar", padrao: "Voltar ao padrão",
       confT: "Modo de conforto", confD: "Para autismo, TDAH, dislexia e para quem se cansa com telas cheias. Vale para todas as telas da Physis e fica guardado neste aparelho.",
-      confLiga: "Ligar o modo de conforto", confLigaD: "Fundo verde, menos estímulo e mais espaçamento de uma vez.",
+      confLiga: "Ligar o modo de conforto", confLigaD: "Tema escuro (verde), menos estímulo e mais espaçamento de uma vez.",
       verde: "Fundo verde", verdeD: "Cor de fundo suave, que cansa menos a vista.", texto: "Texto maior", t0: "Normal", t1: "Maior", t2: "Muito maior", aviso: "Tempo dos avisos que somem sozinhos", a4: "4 segundos", a8: "8 segundos", a15: "15 segundos",
       espaco: "Mais espaçamento", espacoD: "Mais espaço entre linhas, letras e palavras.",
       calma: "Menos estímulo", calmaD: "Sem animação nem transição, nada piscando, cores mais calmas, nada toca sozinho e menos janelas que se abrem.",
@@ -910,9 +926,9 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
       decD: "Estas telas seguem a Lei Brasileira de Inclusão (Lei 13.146/2015), o eMAG e as diretrizes de acessibilidade digital do gov.br, a WCAG 2.2 nível AA e a ABNT NBR 17225.",
       pular: "Pular para o conteúdo", ok: "Preferência aplicada.", aEn: "English on. Texts not yet translated stay in Portuguese.", aPt: "Português ligado.",
       aEsc: "Tema escuro ligado.", aClaro: "Tema claro ligado.", aAuto: "Tema automático: segue o aparelho.",
-      aConfOn: "Modo de conforto ligado: fundo verde, menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
+      aConfOn: "Modo de conforto ligado: tema escuro (verde), menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
       lido: "Lendo a tela.", lidoFim: "Leitura parada." },
-    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark", auto: "Automatic",
+    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark (green)", auto: "Automatic",
       conforto: "Comfort mode", ligado: "on", a11y: "Accessibility (disability)", fechar: "Close", padrao: "Back to default",
       confT: "Comfort mode", confD: "For autism, ADHD, dyslexia and anyone tired by busy screens. Applies to every Physis screen and is saved on this device.",
       confLiga: "Turn comfort mode on", confLigaD: "Green background, less stimulation and more spacing at once.",
@@ -1024,13 +1040,14 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
     var e = copia(PADRAO);
     if (o && typeof o === "object") {
       for (var x in o) if (tem(o, x) && !tem(PADRAO, x) && x !== "legivel" && x !== "fundoVerde") e[x] = o[x];   /* guarda o que outras telas gravam */
-      if (o.fundoVerde) e.verde = true;
+      if (o.fundoVerde) e.tema = "escuro";
       if (o.idioma === "en" || o.idioma === "pt") e.idioma = o.idioma;
       if (o.tema === "claro" || o.tema === "escuro" || o.tema === "auto") e.tema = o.tema;
       var t = parseInt(o.texto, 10); if (t === 0 || t === 1 || t === 2) e.texto = t; else if (o.texto === true) e.texto = 1;
       var av = parseInt(o.aviso, 10); if (av === 4 || av === 8 || av === 15) e.aviso = av;   /* tempo dos avisos (s), lido pelas telas que mostram avisos que somem */
       BOOL.forEach(function (k) { if (k in o) e[k] = !!o[k]; });
       if (o.legivel) e.dislexia = true;            /* nome da v1 */
+      if (e.verde) { e.tema = "escuro"; e.verde = false; }   /* 20/11/2026: "fundo verde" e tema escuro viraram uma opção só */
     }
     return e;
   }
@@ -1044,7 +1061,7 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
     var e = copia(PADRAO);
     if (ler("physis-idioma") === "en") e.idioma = "en";
     if (ler("physis-conforto") === "1") { e.conforto = true; e.espaco = true; e.calma = true; }
-    if (ler("physis-fundo") === "verde") e.verde = true;
+    if (ler("physis-fundo") === "verde") e.tema = "escuro";
     try { var pp = JSON.parse(ler("physis-passaporte") || "null"); if (pp) { e.texto = pp.texto ? 1 : 0; e.espaco = e.espaco || !!pp.espaco; e.contraste = !!pp.contraste; e.calma = e.calma || !!pp.calma; e.foco = !!pp.foco; } } catch (x) {}
     var t = ler("physis-pref-tema"); if (t === "claro" || t === "escuro" || t === "auto") e.tema = t;
     return e;
@@ -1160,7 +1177,8 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
         if (t.name === "pp-texto") return mudar({ texto: parseInt(t.value, 10) }, "ok");
         if (t.name === "pp-aviso") return mudar({ aviso: parseInt(t.value, 10) }, "ok");
         if (!k) return;
-        if (k === "conforto") { patch = { conforto: t.checked, verde: t.checked, calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
+        if (t.name === "pp-tema") return mudar({ tema: t.value }, t.value === "auto" ? "aAuto" : t.value === "escuro" ? "aEsc" : "aClaro");
+        if (k === "conforto") { patch = { conforto: t.checked, tema: t.checked ? "escuro" : "auto", calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
         patch[k] = t.checked; mudar(patch, k === "libras" && t.checked ? "librasOn" : "ok");
       });
       p.addEventListener("click", function (ev) {
@@ -1198,7 +1216,10 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
     f.appendChild(criar("h2", { id: "pp-conf-t" }, [txt("confT")]));
     f.appendChild(criar("p", null, [txt("confD")]));
     f.appendChild(caixa("conforto", "confLiga", "confLigaD"));
-    f.appendChild(caixa("verde", "verde", "verdeD"));
+    /* tema dentro do modo de conforto: a mesma escolha da barra (o escuro é o verde do guia) */
+    var ft = criar("fieldset", null, [criar("legend", null, [txt("tema")])]);
+    ["claro", "escuro", "auto"].forEach(function (v) { ft.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-tema", value: v, id: "pp-tema-" + v }), criar("span", null, [txt(v)])])); });
+    f.appendChild(ft);
     var fs = criar("fieldset", null, [criar("legend", null, [txt("texto")])]);
     [0, 1, 2].forEach(function (n) { fs.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-texto", value: String(n), id: "pp-texto-" + n }), criar("span", null, [txt("t" + n)])])); });
     f.appendChild(fs);
@@ -1258,7 +1279,8 @@ get("/api/mv/meta").then(m=>{META=m;m.frentes.forEach(f=>{FR[f.id]=f.nome;$("#fr
     var u = P.ui, e = P.estado;
     [u.pConf, u.pA11y].forEach(function (p) {
       p.querySelectorAll("input").forEach(function (i) {
-        if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
+        if (i.name === "pp-tema") i.checked = i.value === e.tema;
+        else if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
         else if (i.name === "pp-aviso") i.checked = parseInt(i.value, 10) === (e.aviso || 4);
         else if (i.getAttribute("data-pp")) i.checked = !!e[i.getAttribute("data-pp")];
       });

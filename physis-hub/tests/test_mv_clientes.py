@@ -72,6 +72,23 @@ class TestClientes(unittest.TestCase):
         self.assertIn("biogas-serra", next(d for d in ed.listar() if d["id"] == "ed:x")["contas_relacionadas"])
         self.assertTrue(self.mv.tarefa("conta-estermic-sp1-ficha") is None and self.mv.tarefa("conta-estermic-sp1"))
 
+    def test_projetos_anteriores_sugeridos_e_confirmados(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "Egypt").mkdir()
+            (raiz / "Egypt" / "260324_GIZ ADVANCE_Report.docx").write_text("x")
+            (raiz / "2_Proposta_Comercial_Physis_WWF_MecfinUC.docx").write_text("x")
+            sg = {s["nome"]: s for s in self.c.sugerir_anteriores(raiz)}
+            giz = sg["GIZ ADVANCE · Egito (eficiência de recursos)"]
+            self.assertEqual((giz["cliente"], giz["pais"], giz["ano"]), ("GIZ", "Egito", "2026"))
+            self.assertIn("WWF · MecfinUC (proposta técnica e comercial)", sg)
+            r = self.c.criar_anterior({**giz, "escopo": "Eficiência de recursos em 4 indústrias"})
+            self.assertEqual((r["tipo"], r["estado"]), ("anterior", "concluido"))
+            self.assertIsNone(self.mv.tarefa(f"conta-{r['id']}-ficha"))            # concluído: sem tarefa nem alerta
+            self.assertNotIn(giz["nome"], {s["nome"] for s in self.c.sugerir_anteriores(raiz)})
+
     def test_analisar_vai_para_fila(self):
         r = self.c.analisar("estermic")
         self.assertEqual((r["tipo"], r["estado"], r["origem"]), ("claude", "na_fila", "conta:estermic"))
