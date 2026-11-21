@@ -34,6 +34,7 @@ Nomes de pessoas da equipe saem das demos (só nomes fictícios em público).
 """
 from __future__ import annotations
 
+import base64
 import json
 import re
 import sys
@@ -74,11 +75,27 @@ DEMOS_CLIENTES = {
     "physis-demo-casa-physis.html": ("casa-physis", "{ campo:6, zonas:1, col:3, com:1 }", "Casa Physis · Net Zero"),
     "physis-demo-santa-clara.html": ("fazenda-santa-clara", "{ campo:6, zonas:0, col:0, com:0 }", "Fazenda Santa Clara"),
     "physis-demo-santa-clara-v2.html": ("fazenda-santa-clara-v2", "{ campo:6, zonas:0, col:0, com:0 }", "Fazenda Santa Clara · version 2"),
+    # 20/11/2026: Fazenda MF e a plataforma inicial da Casa Physis (logo própria, da ficha)
+    "physis-demo-fazenda-mf.html": ("fazenda-mf", "{ campo:6, zonas:1, col:3, com:1 }", "Fazenda MF"),
+    "physis-demo-casa-physis-inicial.html": ("casa-physis-inicial", "{ campo:6, zonas:1, col:3, com:1 }", "Casa Physis"),
 }
 
 
 def ficha(org: str) -> dict:
     return next(f for f in json.loads(FICHAS.read_text(encoding="utf-8"))["clientes"] if f["org"] == org)
+
+
+def marca_embutida(org: str) -> dict | None:
+    """Marca própria da ficha com as logos SVG embutidas (a demo é um arquivo só, sem servidor para /marca/)."""
+    m = ficha(org).get("marca")
+    if not isinstance(m, dict):
+        return None
+    r = {k: m[k] for k in ("nome", "logo_texto") if m.get(k)}
+    for tom in ("clara", "escura"):
+        arq = RAIZ / str(m.get(f"logo_{tom}") or "")
+        if arq.suffix.lower() == ".svg" and arq.is_file():
+            r[f"logo_{tom}"] = "data:image/svg+xml;base64," + base64.b64encode(arq.read_bytes()).decode("ascii")
+    return {"instalacao": org, "marca": r}
 
 # O que cada demo diz. Números só do próprio programa (dados simulados ou de exemplo); nada de preço nem limite novo.
 TEXTOS = {
@@ -395,7 +412,8 @@ def marcar(texto: str, nome: str, atual: str, demo_id: str) -> str:
     return texto[:fim] + rodape + "\n" + texto[fim:]
 
 
-def plataforma(atual: str, aba_inicial: str, modulos: list[str], q: str, demo_id: str, pesquisa: bool = False) -> str:
+def plataforma(atual: str, aba_inicial: str, modulos: list[str], q: str, demo_id: str, pesquisa: bool = False,
+               marca: dict | None = None) -> str:
     t = PAINEL.read_text(encoding="utf-8")
     nome = atual
     # 1. modo demonstração ligado em qualquer endereço (o original só liga em /demo/)
@@ -405,7 +423,8 @@ def plataforma(atual: str, aba_inicial: str, modulos: list[str], q: str, demo_id
     # 3. módulos da demo, com dados simulados (nós V6 do campo e Caixinha IoT)
     t = troca(t, 'abrirPlataformaCliente(["monitoramento","agua","zonas","solar"], { campo:6, zonas:1, col:0, com:0 }, false);',
               "abrirPlataformaCliente(" + json.dumps(modulos).replace(" ", "") + ", " + q + ", false);"
-              + (" ui.inst.pesquisa = true; aplicarInstancia(ui.inst);" if pesquisa else ""), nome)   # pesquisa: todas as abas, as em desenvolvimento com selo
+              + (" ui.inst.pesquisa = true; aplicarInstancia(ui.inst);" if pesquisa else "")   # pesquisa: todas as abas, as em desenvolvimento com selo
+              + (" aplicarMarca(" + json.dumps(marca, ensure_ascii=True) + ");" if marca else ""), nome)   # marca própria (logo da ficha)
     # 4. aba inicial (o endereço #aba continua valendo)
     t = troca(t, 'ui.inst.demo = true; } ui.aba = "resumo"; desenhar(false);',
               'ui.inst.demo = true; } ui.aba = TELAS[location.hash.slice(1)] ? location.hash.slice(1) : "' + aba_inicial + '"; desenhar(false);', nome)
@@ -478,7 +497,7 @@ def gerar() -> dict[str, str]:
         "physis-demo-cliente.html": plataforma("physis-demo-cliente.html", "resumo", MODULOS_DEMO,
                                                "{ campo:6, zonas:1, col:0, com:0 }", "plataforma"),
         "physis-demo-planejador.html": planejador(),
-        **{arq: plataforma(arq, "resumo", ficha(org)["modulos"], q, org, bool(ficha(org).get("pesquisa")))
+        **{arq: plataforma(arq, "resumo", ficha(org)["modulos"], q, org, bool(ficha(org).get("pesquisa")), marca_embutida(org))
            for arq, (org, q, _en) in DEMOS_CLIENTES.items()},
     }
 

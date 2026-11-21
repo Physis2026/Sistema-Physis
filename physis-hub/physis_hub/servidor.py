@@ -1646,6 +1646,9 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     "supervisao": (WEB / "supervisao.html").exists(), "gestao": (WEB / "gestao.html").exists(),
                     "planejador": (WEB / "planejador.html").exists(), "pesquisa": bool(instancia.get("pesquisa")),
                     "nome_cliente": instancia.get("nome"),
+                    # marca própria da instalação (ex.: Casa Physis): nome, título e logos em /marca/ (montar.py)
+                    "instalacao": instancia.get("instalacao") or "physis",
+                    "marca": instancia.get("marca") if isinstance(instancia.get("marca"), dict) else None,
                     "cursos": [c for c in (instancia.get("cursos") or []) if isinstance(c, dict)] if q else [],
                     "senha_min": hub.SENHA_MIN,
                     # segurança: token CSRF da sessão (mandar em X-Physis-CSRF), termos, e-mail, 2FA
@@ -2044,6 +2047,12 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 self.end_headers()
                 self.wfile.write(corpo)
                 return
+            if u.path in ("/marca/logo-clara.svg", "/marca/logo-escura.svg"):
+                # logo da marca própria da instalação (montar.py, web/marca/): só estes dois nomes, sem login (cabeçalho)
+                arq = WEB / "marca" / u.path[len("/marca/"):]
+                if not arq.is_file():
+                    return self._json(404, {"ok": False, "erro": "sem marca própria"})
+                return self._arquivo(arq, "image/svg+xml")
             if u.path.startswith("/vendor/"):
                 # bibliotecas abertas guardadas no próprio sistema (mapa e BIM); só as da lista, nunca um caminho qualquer
                 nome = u.path[len("/vendor/"):]

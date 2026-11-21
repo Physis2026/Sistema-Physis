@@ -59,6 +59,20 @@
       "gestao_interna": true,
       "pesquisa": true,
       "confirmar": "Instalação de pesquisa: mostra também o que está em desenvolvimento, sempre marcado como tal."
+    },
+    {
+      "org": "casa-physis-inicial",
+      "nome": "Casa Physis",
+      "lugar": "lote-168",
+      "projeto": "Plataforma inicial da Casa Physis (CNPJ comercial e projeto net zero do Lote 168), com logo própria: todos os sistemas, para mapear e transformar o projeto multidisciplinar num projeto de pesquisa, com artigos, textos e dados a todo instante (decisão da dona, 20/11/2026). A versão de pesquisa (casa-physis) continua ao lado",
+      "modulos": ["planejador", "sustainkit", "certificacoes", "solar", "avac", "turbinas", "agua", "zonas", "sbn",
+                  "circular", "carbono", "resiliencia", "monitoramento", "coleiras", "comedouros", "medicamentos", "pulseira",
+                  "supervisao", "gestao", "cursos", "secador", "servidor-verde", "frota", "validacao"],
+      "pesquisa": true,
+      "marca": {"nome": "Casa Physis", "logo_texto": "Casa Physis",
+                "logo_clara": "clientes/marcas/casa-physis_clara.svg", "logo_escura": "clientes/marcas/casa-physis_escura.svg",
+                "_leia": "Logos vazadas v2 aprovadas (Casa Physis\\Identidade_Visual\\Logos_vazadas_v2_aprovadas), sem alteração."},
+      "confirmar": "Sem a Gestão interna da Physis Engineering (a Casa é outro CNPJ). Lofts, loja 24h, óleos, restaurante e venda de peças ainda não têm módulo próprio: [MARCADOR]. Artigos da evolução dos sistemas e gêmeo digital: projetos registrados no M&A, a desenhar."
     }
   ]
 }

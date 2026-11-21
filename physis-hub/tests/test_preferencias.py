@@ -28,14 +28,14 @@ DEMOS = sorted((RAIZ / "demos").glob("physis-demo-*.html"))
 # (as outras vêm da plataforma e do SCADA, que têm a barra de preferências própria, com os mesmos controles).
 PAGINAS = [CONSULTORIA, SUSTAINKIT, PLANEJADOR, RAIZ / "demos" / "physis-demo-planejador.html", RAIZ / "demos" / "physis-demo-sustainkit.html"]
 
-ROTULOS_PT = ["Idioma", "Tema", "Claro", "Escuro", "Automático", "Modo de conforto", "Acessibilidade (PcD)",
-              "Fundo verde", "Texto maior", "Mais espaçamento", "Menos estímulo", "Foco reforçado", "Fonte para dislexia",
+ROTULOS_PT = ["Idioma", "Tema", "Claro", "Escuro (verde)", "Automático", "Modo de conforto", "Acessibilidade (PcD)",
+              "Texto maior", "Mais espaçamento", "Menos estímulo", "Foco reforçado", "Fonte para dislexia",
               "Régua de leitura", "Modo leitura simplificada", "Lembrar onde parei",
               "Cegueira e baixa visão", "Ouvir esta tela", "Alto contraste", "Atalhos de teclado", "Surdez", "Libras (VLibras)",
               "Fala", "Comunicação alternativa (CAA)", "Preciso de ajuda", "Não entendi", "Quero falar com uma pessoa", "Sim", "Não",
               "Pode repetir de outro jeito?", "Mobilidade", "Comandos de voz", "Relatar barreira", "Declaração de acessibilidade",
               "Pular para o conteúdo", "Lei 13.146/2015", "eMAG", "WCAG 2.2", "ABNT NBR 17225"]
-ROTULOS_EN = ["Language", "Theme", "Light", "Dark", "Automatic", "Comfort mode", "Accessibility (disability)", "Green background",
+ROTULOS_EN = ["Language", "Theme", "Light", "Dark (green)", "Automatic", "Comfort mode", "Accessibility (disability)",
               "Listen to this screen", "Report a barrier", "Accessibility statement", "Voice commands", "Skip to content"]
 
 IGNORAR = {"script", "style", "textarea", "noscript", "template", "code", "pre"}
@@ -326,7 +326,11 @@ class Demos(unittest.TestCase):
     def test_cada_demo(self):
         nomes = {p.name for p in DEMOS}
         clientes = {"physis-demo-casa-physis.html": "casa-physis", "physis-demo-santa-clara.html": "fazenda-santa-clara",
-                    "physis-demo-santa-clara-v2.html": "fazenda-santa-clara-v2"}         # demos por cliente (15/11/2026)
+                    "physis-demo-santa-clara-v2.html": "fazenda-santa-clara-v2",         # demos por cliente (15/11/2026)
+                    "physis-demo-fazenda-mf.html": "fazenda-mf", "physis-demo-casa-physis-inicial.html": "casa-physis-inicial"}   # 20/11/2026
+        # a demo da Casa Physis inicial leva a logo própria embutida; as outras não têm marca própria
+        self.assertIn("aplicarMarca({", (RAIZ / "demos" / "physis-demo-casa-physis-inicial.html").read_text(encoding="utf-8"))
+        self.assertNotIn("aplicarMarca({", (RAIZ / "demos" / "physis-demo-casa-physis.html").read_text(encoding="utf-8"))
         self.assertEqual(nomes, {"physis-demo-cliente.html", "physis-demo-scada.html", "physis-demo-planejador.html",
                                  "physis-demo-sustainkit.html", "physis-demo-monitoramento.html"} | set(clientes))
         # os módulos de cada demo de cliente são os da ficha (clientes/clientes.json)

@@ -109,7 +109,9 @@ def escrever_manual(pasta: Path, modulos: list[str], cliente: str) -> Path:
 def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Path | None, licenca: str,
            supervisao: Path | None = None, gestao: Path | None = None, planejador: Path | None = None,
            pesquisa: bool = False, nome: str = "", cursos: list | None = None, suporte: dict | None = None,
-           pegada: dict | None = None) -> Path:
+           pegada: dict | None = None, marca: dict | None = None) -> Path:
+    """marca (opcional): marca própria da instalação, como a da Casa Physis ({nome, logo_texto, logo_clara, logo_escura},
+    logos = caminhos de arquivos SVG). As logos vão para web/marca/ e o painel as mostra no lugar da logo da Physis."""
     if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{1,63}", org):
         raise SystemExit("org: use de 2 a 64 letras minúsculas, números, ponto, hífen ou sublinhado")
     desconhecidos = [m for m in modulos if m not in MODULOS]
@@ -198,6 +200,15 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
         inst["suporte_whatsapp"] = str(suporte.get("whatsapp") or "")
     if pegada:          # pegada do servidor (docs/PEGADA_SERVIDOR.md): classe da máquina, lugar e forma de contar
         inst["pegada_servidor"] = pegada
+    if marca:           # marca própria (ex.: Casa Physis): nome, texto do título e logos clara e escura, servidas em /marca/
+        m = {k: str(marca[k])[:80] for k in ("nome", "logo_texto") if marca.get(k)}
+        for tom in ("clara", "escura"):
+            origem = Path(marca.get(f"logo_{tom}") or "")
+            if origem.suffix.lower() == ".svg" and origem.is_file():
+                (pasta / "web" / "marca").mkdir(exist_ok=True)
+                shutil.copy2(origem, pasta / "web" / "marca" / f"logo-{tom}.svg")
+                m[f"logo_{tom}"] = f"/marca/logo-{tom}.svg"
+        inst["instalacao"], inst["marca"] = org, m
     (pasta / "instancia.json").write_text(json.dumps(inst, ensure_ascii=False, indent=2), encoding="utf-8")
     (pasta / "LICENSE").write_text(texto_licenca(licenca), encoding="utf-8")
     sk = ("- **SustainKit:** já funciona, sem equipamento. Abra pela aba SustainKit.\n"

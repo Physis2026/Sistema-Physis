@@ -78,7 +78,7 @@ class Barra(unittest.TestCase):
 
     def test_quatro_controles_e_rotulos(self):
         mod = ler(MODULO)
-        for rot in ['idioma: "Idioma"', 'tema: "Tema"', 'claro: "Claro"', 'escuro: "Escuro"', 'auto: "Automático"',
+        for rot in ['idioma: "Idioma"', 'tema: "Tema"', 'claro: "Claro"', 'escuro: "Escuro (verde)"', 'auto: "Automático"',
                     'conforto: "Modo de conforto"', 'a11y: "Acessibilidade (PcD)"', 'tema: "Theme"', 'conforto: "Comfort mode"']:
             self.assertIn(rot, mod)
         for ident in ["pp-idioma", "pp-tema", "pp-conforto", "pp-a11y", "pp-painel-conforto", "pp-painel-a11y", "pxp-barra"]:
@@ -98,11 +98,17 @@ class Barra(unittest.TestCase):
 
     def test_modo_de_conforto(self):
         mod = ler(MODULO)
-        for k in ["verde", "espaco", "calma", "foco", "dislexia", "regua", "simples", "lembrar", "contraste"]:
+        for k in ["espaco", "calma", "foco", "dislexia", "regua", "simples", "lembrar", "contraste"]:
             self.assertIn('caixa("%s"' % k, mod)
         self.assertIn('name: "pp-texto"', mod)   # texto: normal, maior, muito maior
-        # ligar o modo de conforto aplica o conjunto suave: fundo verde + menos estímulo + espaçamento
-        self.assertIn("patch = { conforto: t.checked, verde: t.checked, calma: t.checked, espaco: t.checked }", mod)
+        # 20/11/2026: "fundo verde" e tema escuro são uma opção só; o tema fica só dentro do modo de conforto
+        self.assertNotIn('caixa("verde"', mod)
+        self.assertIn('name: "pp-tema"', mod)
+        self.assertIn("u.temaRot.hidden = true;", mod)
+        self.assertIn('patch = { conforto: t.checked, tema: t.checked ? "escuro" : "auto", calma: t.checked, espaco: t.checked }', mod)
+        self.assertIn('if (e.verde) { e.tema = "escuro"; e.verde = false; }', mod)
+        # os botões de tema não têm data-pp: o tema é tratado antes do "if (!k) return;" (senão o clique não faz nada)
+        self.assertLess(mod.index('if (t.name === "pp-tema") return mudar('), mod.index("if (!k) return;"))
 
     def test_acessibilidade_pcd(self):
         mod = ler(MODULO)

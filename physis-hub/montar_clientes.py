@@ -32,6 +32,15 @@ PEGADA_PADRAO = {
     "casa-physis": {"classe": "notebook", "nome": "Hub da Casa Physis (notebook, 16 GB de RAM: 2 × 8 GB)", "local": "no_lugar", "controle": "proprio",
                     "intervalo_min": 5, "contagem": "auto", "fator_rede": None},
 }
+PEGADA_PADRAO["casa-physis-inicial"] = PEGADA_PADRAO["casa-physis"]      # o mesmo Hub da Casa Physis (Lote 168)
+
+
+def marca_da_ficha(f: dict) -> dict | None:
+    """Marca própria da ficha ("marca": {nome, logo_texto, logo_clara, logo_escura}); logos com caminho a partir da raiz."""
+    m = f.get("marca")
+    if not isinstance(m, dict):
+        return None
+    return {k: (str(RAIZ / v) if k in ("logo_clara", "logo_escura") else v) for k, v in m.items() if not k.startswith("_")}
 
 
 def main() -> None:
@@ -53,7 +62,7 @@ def main() -> None:
         pacote = montar(f["org"], f.get("lugar", "lugar01"), f["modulos"], a.saida, PROGRAMAS["sustainkit"],
                         LICENCA_PADRAO, PROGRAMAS["supervisao"], gestao, PROGRAMAS["planejador"],
                         bool(f.get("pesquisa")), f.get("nome", ""), f.get("cursos"), f.get("suporte") or suporte,
-                        pegada=f.get("pegada_servidor") or PEGADA_PADRAO.get(f["org"]))
+                        pegada=f.get("pegada_servidor") or PEGADA_PADRAO.get(f["org"]), marca=marca_da_ficha(f))
         print(f"{f['nome']}: {pacote.name} ({pacote.stat().st_size // 1024} kB) · módulos: {', '.join(f['modulos'])} · manual (rascunho)"
               + (" · pesquisa" if f.get("pesquisa") else ""))
 

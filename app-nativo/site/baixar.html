@@ -153,7 +153,7 @@ var BAIXAR_IDIOMA = (function () {
 </script>
 <script id="physis-preferencias">
 /* physis-preferencias.js v3 · Preferências de leitura e acessibilidade das telas da Physis
-   Barra com 4 controles: [Idioma: Português/English] [Tema: Claro/Escuro/Automático] [Modo de conforto ▾] [Acessibilidade (PcD) ▾].
+   Barra com 3 controles: [Idioma: Português/English] [Modo de conforto ▾ (inclui o Tema: Claro/Escuro (verde)/Automático)] [Acessibilidade (PcD) ▾].
    Modo de conforto (neurodivergência: autismo, TDAH, dislexia): fundo verde, texto maior, mais espaçamento, menos estímulo,
    foco reforçado, fonte para dislexia, régua de leitura, leitura simplificada, lembrar onde parei.
    Acessibilidade (PcD): cegueira e baixa visão (leitores de tela, ouvir esta tela, alto contraste, zoom, atalhos),
@@ -200,7 +200,11 @@ var BAIXAR_IDIOMA = (function () {
    Inglês: troca os textos (nós de texto e aria-label, title, placeholder, alt, label e value de botões) pelo par do
    dicionário, guarda o original para voltar ao português e acompanha o conteúdo novo (MutationObserver).
    O que não tem par fica em português e entra em PhysisPreferencias.faltando().
-   Elementos com data-pp-manter (ou translate="no") não são traduzidos. */
+   Elementos com data-pp-manter (ou translate="no") não são traduzidos.
+
+   Cores (versão de teste, 20/11/2026): guia de identidade Physis, PALETA.md "Tipos de tela". Claro = tipo B (creme, carvão,
+   floresta #1A4D2E em contornos e links, botão principal #C2410C com texto branco); escuro = tipo A (verde profundo #0B3D2E,
+   cartões #0F4535, linhas #2F5E4E, texto #F4F1EA, destaque pequeno #D9A58C). Foco e régua em terracota, nunca em azul. */
 (function (global) {
   "use strict";
   var doc = global.document;
@@ -217,10 +221,10 @@ var BAIXAR_IDIOMA = (function () {
 
   /* textos da própria barra, nas duas línguas (a página não precisa traduzir) */
   var UI = {
-    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro", auto: "Automático",
+    pt: { grupo: "Preferências de leitura e acessibilidade", idioma: "Idioma", tema: "Tema", claro: "Claro", escuro: "Escuro (verde)", auto: "Automático",
       conforto: "Modo de conforto", ligado: "ligado", a11y: "Acessibilidade (PcD)", fechar: "Fechar", padrao: "Voltar ao padrão",
       confT: "Modo de conforto", confD: "Para autismo, TDAH, dislexia e para quem se cansa com telas cheias. Vale para todas as telas da Physis e fica guardado neste aparelho.",
-      confLiga: "Ligar o modo de conforto", confLigaD: "Fundo verde, menos estímulo e mais espaçamento de uma vez.",
+      confLiga: "Ligar o modo de conforto", confLigaD: "Tema escuro (verde), menos estímulo e mais espaçamento de uma vez.",
       verde: "Fundo verde", verdeD: "Cor de fundo suave, que cansa menos a vista.", texto: "Texto maior", t0: "Normal", t1: "Maior", t2: "Muito maior", aviso: "Tempo dos avisos que somem sozinhos", a4: "4 segundos", a8: "8 segundos", a15: "15 segundos",
       espaco: "Mais espaçamento", espacoD: "Mais espaço entre linhas, letras e palavras.",
       calma: "Menos estímulo", calmaD: "Sem animação nem transição, nada piscando, cores mais calmas, nada toca sozinho e menos janelas que se abrem.",
@@ -249,9 +253,9 @@ var BAIXAR_IDIOMA = (function () {
       decD: "Estas telas seguem a Lei Brasileira de Inclusão (Lei 13.146/2015), o eMAG e as diretrizes de acessibilidade digital do gov.br, a WCAG 2.2 nível AA e a ABNT NBR 17225.",
       pular: "Pular para o conteúdo", ok: "Preferência aplicada.", aEn: "English on. Texts not yet translated stay in Portuguese.", aPt: "Português ligado.",
       aEsc: "Tema escuro ligado.", aClaro: "Tema claro ligado.", aAuto: "Tema automático: segue o aparelho.",
-      aConfOn: "Modo de conforto ligado: fundo verde, menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
+      aConfOn: "Modo de conforto ligado: tema escuro (verde), menos estímulo e mais espaçamento.", aConfOff: "Modo de conforto desligado.", aPadrao: "Preferências de volta ao padrão.",
       lido: "Lendo a tela.", lidoFim: "Leitura parada." },
-    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark", auto: "Automatic",
+    en: { grupo: "Reading and accessibility preferences", idioma: "Language", tema: "Theme", claro: "Light", escuro: "Dark (green)", auto: "Automatic",
       conforto: "Comfort mode", ligado: "on", a11y: "Accessibility (disability)", fechar: "Close", padrao: "Back to default",
       confT: "Comfort mode", confD: "For autism, ADHD, dyslexia and anyone tired by busy screens. Applies to every Physis screen and is saved on this device.",
       confLiga: "Turn comfort mode on", confLigaD: "Green background, less stimulation and more spacing at once.",
@@ -290,38 +294,38 @@ var BAIXAR_IDIOMA = (function () {
 
   var CSS = [
     /* barra */
-    ".pp-barra{--pp-f:#FFFFFF;--pp-t:#1C2B21;--pp-l:#8A9284;--pp-a:#33512F;--pp-at:#FFFFFF;position:relative;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px;line-height:1.3;font-family:inherit;color:var(--pp-t)}",
-    "html[data-tema=escuro] .pp-barra{--pp-f:#1C2B21;--pp-t:#EEF2EA;--pp-l:#8A9182;--pp-a:#B9CDB3;--pp-at:#1C2B21}",
-    ".pp-barra.pp-sobre-verde{--pp-f:transparent;--pp-t:#DCEBD8;--pp-l:#B9CDB3;--pp-a:#DCEBD8;--pp-at:#1C2B21}",
+    ".pp-barra{--pp-f:#FFFFFF;--pp-t:#1B1F23;--pp-l:#8A8270;--pp-a:#1A4D2E;--pp-at:#FFFFFF;position:relative;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px;line-height:1.3;font-family:inherit;color:var(--pp-t)}",
+    "html[data-tema=escuro] .pp-barra{--pp-f:#0F4535;--pp-t:#F4F1EA;--pp-l:#8A9182;--pp-a:#D9A58C;--pp-at:#0F4535}",
+    ".pp-barra.pp-sobre-verde{--pp-f:transparent;--pp-t:#F4F1EA;--pp-l:#C3D0BD;--pp-a:#D9A58C;--pp-at:#0B3D2E}",
     ".pp-barra .pp-b,.pp-barra select{font:inherit;font-size:13px;font-weight:600;min-height:36px;min-width:36px;padding:0 10px;border-radius:8px;border:1px solid var(--pp-l);background:var(--pp-f);color:var(--pp-t);cursor:pointer;margin:0;line-height:1.2;width:auto}",
-    ".pp-barra select option{background:#FFFFFF;color:#1C2B21}",
+    ".pp-barra select option{background:#FFFFFF;color:#1B1F23}",
     ".pp-barra .pp-cx{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--pp-t)}",
     ".pp-barra .pp-b[aria-expanded=true]{background:var(--pp-a);border-color:var(--pp-a);color:var(--pp-at)}",
     ".pp-barra .pp-b .pp-seta{display:inline-block;margin-left:4px;font-size:.8em}",
     ".pp-barra .pp-b .pp-on{font-weight:400}",
     ".pp-barra .pp-b:focus-visible,.pp-barra select:focus-visible,.pp-painel :focus-visible{outline:3px solid var(--pp-t);outline-offset:2px}",
-    ".pp-painel{position:absolute;right:0;top:calc(100% + 6px);z-index:1000;width:400px;max-width:calc(100vw - 32px);max-height:calc(100vh - 110px);overflow:auto;background:#FFFFFF;color:#1C2B21;border:1px solid #8A9284;border-radius:12px;padding:14px 16px;box-shadow:0 8px 28px rgba(28,43,33,.22);text-align:left;font-size:15px;line-height:1.45;font-weight:400;letter-spacing:normal}",
-    "html[data-tema=escuro] .pp-painel{background:#1C2B21;color:#EEF2EA;border-color:#8A9182}",
+    ".pp-painel{position:absolute;right:0;top:calc(100% + 6px);z-index:1000;width:400px;max-width:calc(100vw - 32px);max-height:calc(100vh - 110px);overflow:auto;background:#FFFFFF;color:#1B1F23;border:1px solid #8A8270;border-radius:12px;padding:14px 16px;box-shadow:0 8px 28px rgba(28,43,33,.22);text-align:left;font-size:15px;line-height:1.45;font-weight:400;letter-spacing:normal}",
+    "html[data-tema=escuro] .pp-painel{background:#0F4535;color:#F4F1EA;border-color:#8A9182}",
     ".pp-painel[hidden],.pp-painel [hidden]{display:none!important}",
     ".pp-painel h2{font:700 17px/1.3 inherit;margin:0 0 2px;color:inherit;font-family:inherit}",
-    ".pp-painel h3{font:700 15px/1.3 inherit;margin:14px 0 4px;color:inherit;font-family:inherit;border-top:1px solid #C9D2C4;padding-top:10px}",
-    "html[data-tema=escuro] .pp-painel h3{border-color:#4A5A47}",
+    ".pp-painel h3{font:700 15px/1.3 inherit;margin:14px 0 4px;color:inherit;font-family:inherit;border-top:1px solid #D9D3C2;padding-top:10px}",
+    "html[data-tema=escuro] .pp-painel h3{border-color:#2F5E4E}",
     ".pp-painel p,.pp-painel .pp-d{display:block;font-size:13px;color:#4A4F44;margin:0 0 6px;font-weight:400}",
-    "html[data-tema=escuro] .pp-painel p,html[data-tema=escuro] .pp-painel .pp-d{color:#D9D3C2}",
-    ".pp-painel fieldset{border:1px solid #C9D2C4;border-radius:8px;margin:6px 0;padding:4px 10px 6px}",
-    "html[data-tema=escuro] .pp-painel fieldset{border-color:#4A5A47}",
+    "html[data-tema=escuro] .pp-painel p,html[data-tema=escuro] .pp-painel .pp-d{color:#C3D0BD}",
+    ".pp-painel fieldset{border:1px solid #D9D3C2;border-radius:8px;margin:6px 0;padding:4px 10px 6px}",
+    "html[data-tema=escuro] .pp-painel fieldset{border-color:#2F5E4E}",
     ".pp-painel legend{font-weight:700;padding:0 4px;font-size:14px}",
     ".pp-painel label{display:flex;gap:8px;align-items:flex-start;min-height:44px;padding:6px 0;cursor:pointer;font-weight:600;color:inherit;font-size:14px}",
     ".pp-painel fieldset label{display:inline-flex;min-height:36px;margin-right:12px}",
     ".pp-painel label .pp-d{font-weight:400;margin:2px 0 0}",
-    ".pp-painel input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#33512F}",
-    "html[data-tema=escuro] .pp-painel input{accent-color:#B9CDB3}",
+    ".pp-painel input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#1A4D2E}",
+    "html[data-tema=escuro] .pp-painel input{accent-color:#D9A58C}",
     ".pp-painel ul{margin:0 0 6px;padding-left:18px;font-size:13px}",
     ".pp-painel .pp-acoes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}",
-    ".pp-painel button{font:inherit;font-size:14px;font-weight:600;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #33512F;background:#FFFFFF;color:#33512F;cursor:pointer}",
-    ".pp-painel button.pp-prim{background:#33512F;color:#FFFFFF}",
-    "html[data-tema=escuro] .pp-painel button{background:#1C2B21;color:#EEF2EA;border-color:#B9CDB3}",
-    "html[data-tema=escuro] .pp-painel button.pp-prim{background:#B9CDB3;color:#1C2B21}",
+    ".pp-painel button{font:inherit;font-size:14px;font-weight:600;min-height:44px;padding:0 14px;border-radius:8px;border:1px solid #1A4D2E;background:#FFFFFF;color:#1A4D2E;cursor:pointer}",
+    ".pp-painel button.pp-prim{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
+    "html[data-tema=escuro] .pp-painel button{background:#0F4535;color:#F4F1EA;border-color:#D9A58C}",
+    "html[data-tema=escuro] .pp-painel button.pp-prim{background:#C2410C;border-color:#C2410C;color:#FFFFFF}",
     ".pp-painel .pp-caa{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin:6px 0}",
     ".pp-painel .pp-caa button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px;min-height:76px;font-size:13px;line-height:1.2;text-align:center}",
     ".pp-painel .pp-caa svg{width:28px;height:28px;flex:none}",
@@ -329,13 +333,13 @@ var BAIXAR_IDIOMA = (function () {
     ".pp-painel .pp-aviso{background:#F6EAD0;color:#5C3F00;border-radius:8px;padding:8px 10px;font-size:13px}",
     "html[data-tema=escuro] .pp-painel .pp-aviso{background:#33372E;color:#E5D5AE}",
     ".pp-so-leitor{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}",
-    ".pp-pular{position:absolute;left:-9999px;top:8px;z-index:1001;background:#33512F;color:#FFFFFF;padding:10px 14px;border-radius:8px;font-weight:600}",
+    ".pp-pular{position:absolute;left:-9999px;top:8px;z-index:1001;background:#0B3D2E;color:#FFFFFF;padding:10px 14px;border-radius:8px;font-weight:600}",
     ".pp-pular:focus{left:8px}",
     "@media (max-width:560px){.pp-painel{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-width:none;max-height:78vh}}",
     /* régua de leitura */
-    ".pp-regua{position:fixed;left:0;right:0;height:2.4em;margin-top:-1.2em;pointer-events:none;z-index:999;border-top:2px solid #1C3550;border-bottom:2px solid #1C3550;background:rgba(255,246,223,.28);display:none}",
+    ".pp-regua{position:fixed;left:0;right:0;height:2.4em;margin-top:-1.2em;pointer-events:none;z-index:999;border-top:2px solid #BB6B4A;border-bottom:2px solid #BB6B4A;background:rgba(255,246,223,.28);display:none}",
     "html.a11y-regua .pp-regua{display:block}",
-    "html[data-tema=escuro] .pp-regua{border-color:#FFF6DF;background:rgba(255,246,223,.12)}",
+    "html[data-tema=escuro] .pp-regua{border-color:#D9A58C;background:rgba(255,246,223,.12)}",
     /* preferências que valem para qualquer página */
     "html.a11y-texto-1.pp-zoom body{zoom:1.15}html.a11y-texto-2.pp-zoom body{zoom:1.3}",
     "html.a11y-espaco body{letter-spacing:.012em;word-spacing:.06em}",
@@ -345,8 +349,8 @@ var BAIXAR_IDIOMA = (function () {
     "html.a11y-calma *,html.a11y-calma *::before,html.a11y-calma *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}",
     "html.a11y-calma{scroll-behavior:auto!important}html.a11y-calma :is(marquee,blink){display:none!important}",
     "html.a11y-simples [data-pp-secundario]{display:none!important}",
-    "html.a11y-foco :focus-visible,html.a11y-foco :focus{outline:4px solid #1C3550!important;outline-offset:3px!important;box-shadow:0 0 0 7px #FFF6DF!important}",
-    "html.a11y-foco[data-tema=escuro] :focus-visible,html.a11y-foco[data-tema=escuro] :focus{outline-color:#FFF6DF!important;box-shadow:0 0 0 7px #14180F!important}",
+    "html.a11y-foco :focus-visible,html.a11y-foco :focus{outline:4px solid #BB6B4A!important;outline-offset:3px!important;box-shadow:0 0 0 7px #FFF6DF!important}",
+    "html.a11y-foco[data-tema=escuro] :focus-visible,html.a11y-foco[data-tema=escuro] :focus{outline-color:#D9A58C!important;box-shadow:0 0 0 7px #0B3D2E!important}",
     "html.a11y-foco :focus:not(:focus-visible){outline:none!important;box-shadow:none!important}",
     "html.a11y-dislexia :is(body,button,input,select,textarea){font-family:\"Atkinson Hyperlegible\",Lexend,Verdana,Tahoma,sans-serif!important}",
     "html[data-tema=escuro]{color-scheme:dark}html[data-tema=claro]{color-scheme:light}"
@@ -363,13 +367,14 @@ var BAIXAR_IDIOMA = (function () {
     var e = copia(PADRAO);
     if (o && typeof o === "object") {
       for (var x in o) if (tem(o, x) && !tem(PADRAO, x) && x !== "legivel" && x !== "fundoVerde") e[x] = o[x];   /* guarda o que outras telas gravam */
-      if (o.fundoVerde) e.verde = true;
+      if (o.fundoVerde) e.tema = "escuro";
       if (o.idioma === "en" || o.idioma === "pt") e.idioma = o.idioma;
       if (o.tema === "claro" || o.tema === "escuro" || o.tema === "auto") e.tema = o.tema;
       var t = parseInt(o.texto, 10); if (t === 0 || t === 1 || t === 2) e.texto = t; else if (o.texto === true) e.texto = 1;
       var av = parseInt(o.aviso, 10); if (av === 4 || av === 8 || av === 15) e.aviso = av;   /* tempo dos avisos (s), lido pelas telas que mostram avisos que somem */
       BOOL.forEach(function (k) { if (k in o) e[k] = !!o[k]; });
       if (o.legivel) e.dislexia = true;            /* nome da v1 */
+      if (e.verde) { e.tema = "escuro"; e.verde = false; }   /* 20/11/2026: "fundo verde" e tema escuro viraram uma opção só */
     }
     return e;
   }
@@ -383,7 +388,7 @@ var BAIXAR_IDIOMA = (function () {
     var e = copia(PADRAO);
     if (ler("physis-idioma") === "en") e.idioma = "en";
     if (ler("physis-conforto") === "1") { e.conforto = true; e.espaco = true; e.calma = true; }
-    if (ler("physis-fundo") === "verde") e.verde = true;
+    if (ler("physis-fundo") === "verde") e.tema = "escuro";
     try { var pp = JSON.parse(ler("physis-passaporte") || "null"); if (pp) { e.texto = pp.texto ? 1 : 0; e.espaco = e.espaco || !!pp.espaco; e.contraste = !!pp.contraste; e.calma = e.calma || !!pp.calma; e.foco = !!pp.foco; } } catch (x) {}
     var t = ler("physis-pref-tema"); if (t === "claro" || t === "escuro" || t === "auto") e.tema = t;
     return e;
@@ -420,7 +425,7 @@ var BAIXAR_IDIOMA = (function () {
     CLASSES.forEach(function (k) { cl.toggle("a11y-" + k, !!e[k]); });
     cl.toggle("pp-zoom", P.op.escalaPorZoom !== false);
     r.style.setProperty("--pp-escala", String(ESCALAS[e.texto]));
-    var meta = doc.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute("content", temaEfetivo() === "escuro" ? "#1C2B21" : "#33512F");
+    var meta = doc.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute("content", "#0B3D2E");   // faixa superior verde profundo nos dois temas (guia de identidade)
     if (P.idiomaAplicado !== e.idioma) { P.idiomaAplicado = e.idioma; definirIdioma(e.idioma); }
     if (e.calma) pararMidias(doc);
     vozLigar(e.voz);
@@ -477,6 +482,9 @@ var BAIXAR_IDIOMA = (function () {
     u.pConf = criar("div", { "class": "pp-painel", id: "pp-painel-conforto", role: "region", "aria-labelledby": "pp-conf-t", hidden: true });
     u.pA11y = criar("div", { "class": "pp-painel", id: "pp-painel-a11y", role: "region", "aria-labelledby": "pp-a11y-t", hidden: true });
     u.anuncio = criar("div", { "class": "pp-so-leitor", role: "status", "aria-live": "polite" });
+    /* 20/11/2026 (dona): o Tema fica só dentro do Modo de conforto — a barra tem Idioma, Modo de conforto e Acessibilidade.
+       O seletor continua existindo (escondido) para as telas que o leem. */
+    u.temaRot.hidden = true;
     [u.idiomaRot, u.temaRot, u.conforto, u.a11y, u.pConf, u.pA11y, u.anuncio].forEach(function (x) { barra.appendChild(x); });
     u.barra = barra;
     if (lugar) lugar.appendChild(barra); else doc.body.insertBefore(barra, doc.body.firstChild);
@@ -498,8 +506,10 @@ var BAIXAR_IDIOMA = (function () {
         var t = ev.target, k = t.getAttribute("data-pp"), patch = {};
         if (t.name === "pp-texto") return mudar({ texto: parseInt(t.value, 10) }, "ok");
         if (t.name === "pp-aviso") return mudar({ aviso: parseInt(t.value, 10) }, "ok");
+        /* o Tema (dentro do Modo de conforto) vem antes do "data-pp": os botões de tema não têm essa marca (20/11/2026) */
+        if (t.name === "pp-tema") return mudar({ tema: t.value }, t.value === "auto" ? "aAuto" : t.value === "escuro" ? "aEsc" : "aClaro");
         if (!k) return;
-        if (k === "conforto") { patch = { conforto: t.checked, verde: t.checked, calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
+        if (k === "conforto") { patch = { conforto: t.checked, tema: t.checked ? "escuro" : "auto", calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
         patch[k] = t.checked; mudar(patch, k === "libras" && t.checked ? "librasOn" : "ok");
       });
       p.addEventListener("click", function (ev) {
@@ -537,7 +547,10 @@ var BAIXAR_IDIOMA = (function () {
     f.appendChild(criar("h2", { id: "pp-conf-t" }, [txt("confT")]));
     f.appendChild(criar("p", null, [txt("confD")]));
     f.appendChild(caixa("conforto", "confLiga", "confLigaD"));
-    f.appendChild(caixa("verde", "verde", "verdeD"));
+    /* tema dentro do modo de conforto: a mesma escolha da barra (o escuro é o verde do guia) */
+    var ft = criar("fieldset", null, [criar("legend", null, [txt("tema")])]);
+    ["claro", "escuro", "auto"].forEach(function (v) { ft.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-tema", value: v, id: "pp-tema-" + v }), criar("span", null, [txt(v)])])); });
+    f.appendChild(ft);
     var fs = criar("fieldset", null, [criar("legend", null, [txt("texto")])]);
     [0, 1, 2].forEach(function (n) { fs.appendChild(criar("label", null, [criar("input", { type: "radio", name: "pp-texto", value: String(n), id: "pp-texto-" + n }), criar("span", null, [txt("t" + n)])])); });
     f.appendChild(fs);
@@ -590,14 +603,15 @@ var BAIXAR_IDIOMA = (function () {
     f.lastChild.lastChild.className = "pp-prim";
     f.appendChild(criar("div", { id: "pp-relato", hidden: true }, [criar("p", null, [txt("relatarD")]),
       criar("label", { "for": "pp-relato-t", style: "min-height:0;display:block" }, [txt("relatarCampo")]),
-      criar("textarea", { id: "pp-relato-t", rows: "4", style: "width:100%;font:inherit;font-size:14px;border:1px solid #8A9284;border-radius:8px;padding:8px;background:inherit;color:inherit" }),
+      criar("textarea", { id: "pp-relato-t", rows: "4", style: "width:100%;font:inherit;font-size:14px;border:1px solid currentColor;border-radius:8px;padding:8px;background:inherit;color:inherit" }),
       criar("div", { "class": "pp-acoes" }, [botao("copiar-relato", "copiar")]), criar("p", { id: "pp-relato-msg", role: "status" })]));
   }
   function marcarPaineis() {
     var u = P.ui, e = P.estado;
     [u.pConf, u.pA11y].forEach(function (p) {
       p.querySelectorAll("input").forEach(function (i) {
-        if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
+        if (i.name === "pp-tema") i.checked = i.value === e.tema;
+        else if (i.name === "pp-texto") i.checked = parseInt(i.value, 10) === e.texto;
         else if (i.name === "pp-aviso") i.checked = parseInt(i.value, 10) === (e.aviso || 4);
         else if (i.getAttribute("data-pp")) i.checked = !!e[i.getAttribute("data-pp")];
       });
