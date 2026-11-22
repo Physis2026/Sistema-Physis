@@ -82,6 +82,10 @@ BLOCOS = {
     "physis-desenvolvimento": RAIZ / "sistema" / "physis-desenvolvimento.js",
     # bot de modelagem (22/11/2026): pedido em texto ou imagem/KML → modelo + cálculos + STL/OBJ/IFC/GeoJSON
     "physis-modelador": RAIZ / "sistema" / "physis-modelador.js",
+    # bot de explicação (22/11/2026): motor e respostas de cada tela, sem servidor
+    "physis-explica": RAIZ / "sistema" / "physis-explica.js",
+    "explica-planejador": RAIZ / "sistema" / "explica-planejador.js",
+    "explica-inovastem": RAIZ / "sistema" / "explica-inovastem.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.
