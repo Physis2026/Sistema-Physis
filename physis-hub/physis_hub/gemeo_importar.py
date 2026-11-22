@@ -297,6 +297,23 @@ def sistemas_e_divergencias(p20, p03, p18, els):
     put("lote.area_m2", num_br(a), f, unidade="m²",
         conferir=_conferir("D6", (num_br(rgi), f_rgi + " (área do RGI e da planta do loteamento; retificação pendente)")),
         nota=f"coincide com o levantamento ({lev} m², {f_lev})")
+    n_or, orl = p03.linha("Levantamento", "Orientação")
+    m_or = re.search(r"aponta a cerca de (\d+(?:,\d+)?)°", str(orl["A"]))
+    if not m_or:
+        raise FonteAusente("planilha 03 › Levantamento: orientação do eixo do lote não encontrada")
+    put("lote.norte_verdadeiro_graus", num_br(m_or.group(1)), p03.fonte("Levantamento", n_or, "A"), unidade="°",
+        nota="o eixo do lote (y local, Rua G = norte de projeto) aponta ≈ 17° a leste do norte verdadeiro; no IFC, "
+             "TrueNorth = (−sen, cos) [CONFERIR com o topógrafo: seta e rumos da prancha girados ≈ 90°; M&A pg:afe44bbf677a]")
+    # 20 › Perímetro: azimutes dos lados. +y (V2→V3) a 17° e −y (V4→V1) a 197° concordam; +x (V1→V2) a 287° só
+    # fecha com +y a 17° se a planta local estiver espelhada (num sistema destro seria 107°): D10 [CONFERIR]
+    n_v12, v12 = p20.linha("Perímetro", "V1 → V2")
+    n_v23, v23 = p20.linha("Perímetro", "V2 → V3")
+    az12, az23 = numeros_br(v12["C"])[0], numeros_br(v23["C"])[0]
+    esperado = (az23 + 90) % 360
+    put("lote.azimute_eixo_x_graus", az12, p20.fonte("Perímetro", n_v12, "C"), unidade="°",
+        conferir=_conferir("D10", (esperado, f"cálculo: +y a {az23:g}° ({p20.fonte('Perímetro', n_v23, 'C')}) num sistema "
+                                             "destro; 287° indica planta espelhada ou rumo lido ao contrário")) if abs(az12 - esperado) > 1 else None,
+        nota="conferir com o topógrafo junto com a seta do norte (M&A pg:afe44bbf677a)")
     per, f = p03.celula("Levantamento", "Perímetro", "B")
     put("lote.perimetro_m", num_br(per), f, unidade="m")
 

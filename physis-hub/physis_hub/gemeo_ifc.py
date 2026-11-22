@@ -901,7 +901,11 @@ def escrever(projeto, agora=0, altura=None):
     app = W.add(f"IFCAPPLICATION({org},'0.1','Physis Gêmeo digital','physis-gemeo')")
     oh = W.add(f"IFCOWNERHISTORY({po},{app},$,.ADDED.,$,$,$,{int(agora)})")
     origem = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)")
-    norte = W.add("IFCDIRECTION((0.,1.))")
+    nv = (g["fonte_por_valor"].get("lote.norte_verdadeiro_graus") or {}).get("valor")
+    if nv is not None:   # norte verdadeiro em coordenadas locais (o y local é o norte de projeto) [CONFERIR]
+        norte = W.add(f"IFCDIRECTION(({r_(-math.sin(math.radians(nv)))},{r_(math.cos(math.radians(nv)))}))")
+    else:
+        norte = W.add("IFCDIRECTION((0.,1.))")
     ctx = W.add(f"IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,{origem},{norte})")
     corpo = W.add(f"IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*,{ctx},$,.MODEL_VIEW.,$)")
     ua = W.add(f"IFCUNITASSIGNMENT(({','.join(W.unidade(u) for u in ('m', 'm²', 'm³'))}))")

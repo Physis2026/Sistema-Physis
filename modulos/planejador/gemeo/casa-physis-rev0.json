@@ -3550,6 +3550,33 @@
     },
     "nota": "coincide com o levantamento (1455.951 m², planilha 03 › Levantamento, linha 4, col. B)"
    },
+   "lote.norte_verdadeiro_graus": {
+    "valor": 17.0,
+    "unidade": "°",
+    "fonte": "planilha 03 › Levantamento, linha 15, col. A",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "o eixo do lote (y local, Rua G = norte de projeto) aponta ≈ 17° a leste do norte verdadeiro; no IFC, TrueNorth = (−sen, cos) [CONFERIR com o topógrafo: seta e rumos da prancha girados ≈ 90°; M&A pg:afe44bbf677a]"
+   },
+   "lote.azimute_eixo_x_graus": {
+    "valor": 287.0,
+    "unidade": "°",
+    "fonte": "planilha 20 › Perímetro, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D10",
+     "alternativas": [
+      {
+       "valor": 107.0,
+       "fonte": "cálculo: +y a 17° (planilha 20 › Perímetro, linha 3, col. C) num sistema destro; 287° indica planta espelhada ou rumo lido ao contrário"
+      }
+     ]
+    },
+    "nota": "conferir com o topógrafo junto com a seta do norte (M&A pg:afe44bbf677a)"
+   },
    "lote.perimetro_m": {
     "valor": 181.0,
     "unidade": "m",

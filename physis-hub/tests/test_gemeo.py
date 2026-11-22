@@ -129,7 +129,7 @@ class Semente(unittest.TestCase):
 
     def test_divergencias_conferir(self):
         ab = G.conferir_abertos(self.p)
-        self.assertEqual(sorted(set(ab.values())), ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9"])
+        self.assertEqual(set(ab.values()), {f"D{i}" for i in range(1, 11)})
         esperado = {"lote.area_m2": ("D6", 1216.0), "areas.projecao_m2": ("D4", 244.4),
                     "energia.fv.placas": ("D1", 70.0), "energia.fv.kwp": ("D1", 38.5),
                     "programa.lofts": ("D3", 5)}
@@ -423,6 +423,14 @@ class IFC3D(unittest.TestCase):
         self.assertIn("fossa 2.6 + filtro 2.2 = 4.8 m > 4.1 m da 03", legivel)
         self.assertIn("[MARCADOR] a 03 não desenha", legivel)          # C4–C10 sem posição
         self.assertIn("D9: cota 884.5 (20) × 880 (03)", legivel)        # Loft 4: cota da 20 × geometria da 03
+
+    def test_norte_verdadeiro(self):
+        """03 › Levantamento: o eixo do lote aponta ≈ 17° (NNE) → TrueNorth local = (−sen 17°, cos 17°) [CONFERIR]."""
+        self.assertEqual(self.p["gemeo"]["fonte_por_valor"]["lote.norte_verdadeiro_graus"]["valor"], 17.0)
+        m = re.search(r"IFCGEOMETRICREPRESENTATIONCONTEXT\(\$,'Model',3,1\.E-05,#\d+,(#\d+)\)", self.txt)
+        d = re.search(m.group(1)[1:] + r"=IFCDIRECTION\(\(([-\d.E]+),([-\d.E]+)\)\)", self.txt.replace("#", ""))
+        self.assertAlmostEqual(float(d.group(1)), -0.2924, places=3)
+        self.assertAlmostEqual(float(d.group(2)), 0.9563, places=3)
 
     def test_reprodutivel_e_arquivo_em_dia(self):
         self.assertEqual(self.GI.escrever(self.p), self.txt)
