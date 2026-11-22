@@ -268,6 +268,57 @@ class Importador(unittest.TestCase):
         self.assertEqual(I.tipo_planejador("calc_lab"), "pavimento")
 
 
+class IFC3D(unittest.TestCase):
+    """G3: IFC4 do lote gerado da semente (aberto no 3D do Planejador pela plataforma)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from physis_hub import gemeo_ifc as GI, ifc
+        cls.GI, cls.ifc = GI, ifc
+        cls.p = G.carregar(SEMENTE)
+        cls.txt = GI.escrever(cls.p)
+        cls.r = ifc.ler(cls.txt.encode("utf-8"))
+
+    def test_reconta_os_elementos(self):
+        self.assertEqual(self.r["esquema"], "IFC4")
+        self.assertEqual(self.r["elementos"], 92)
+        self.assertEqual(self.r["elementos_por_tipo"], {"IFCBUILDINGELEMENTPROXY": 92})
+        com_area = sum(1 for e in self.p["gemeo"]["elementos"].values() if not e["sem_area"])
+        self.assertEqual(self.r["tipos"]["IFCEXTRUDEDAREASOLID"], com_area)
+        self.assertEqual(self.r["tipos"]["IFCZONE"], 3)
+        self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 1)
+        for chave in self.p["gemeo"]["elementos"]:
+            self.assertIn(f"'{chave}',.USERDEFINED.", self.txt)
+
+    def test_marcado_estudo_preliminar_sem_georreferencia(self):
+        self.assertIn("ESTUDO PRELIMINAR (revis", self.txt)
+        self.assertEqual(self.r["terrenos"][0]["lat"], None)
+        self.assertEqual(self.r["terrenos"][0]["lon"], None)
+
+    def test_alturas_vem_da_03_ou_sao_de_desenho(self):
+        h, fonte = self.GI.altura_pavimento(self.p["gemeo"]["elementos"])
+        self.assertAlmostEqual(h, 2.90, places=3)
+        self.assertIn("pg:16228b14d400", fonte)
+        self.assertIn("[CONFERIR]", fonte)
+        alturas = [float(x) for x in re.findall(r"IFCEXTRUDEDAREASOLID\(#\d+,#\d+,#\d+,([^)]+)\)", self.txt)]
+        self.assertEqual(set(round(a, 3) for a in alturas), {2.9, 0.2})
+        els = dict(self.p["gemeo"]["elementos"])
+        els["mec_up"] = {**els["mec_up"], "piso_topo_m": els["mec_up"]["piso_topo_m"] + 0.5}
+        with self.assertRaises(self.GI.SementeIncompleta):
+            self.GI.altura_pavimento(els)
+
+    def test_terreno_pelas_curvas(self):
+        v, tri = self.GI.malha_terreno(self.p)
+        self.assertEqual(len(tri), len(v) - 2)
+        self.assertAlmostEqual(self.GI.cota_no_terreno(v, tri, 0.0, 0.0), 902.40, places=2)  # V1 (planilha 20)
+        self.assertTrue(all(870 < z < 905 for _, _, z in v))
+
+    def test_reprodutivel_e_arquivo_em_dia(self):
+        self.assertEqual(self.GI.escrever(self.p), self.txt)
+        gravado = SEMENTE.with_suffix(".ifc").read_text(encoding="utf-8")
+        self.assertEqual(gravado, self.txt, "IFC desatualizado: rodar python -m physis_hub.gemeo_ifc")
+
+
 @unittest.skipUnless(TEM_ACERVO, "planilhas 20 e 03 do acervo não estão nesta máquina")
 class Acervo(unittest.TestCase):
     """Só roda onde as planilhas do acervo existem (PHYSIS_CASA_EDITAVEIS ou a pasta padrão)."""

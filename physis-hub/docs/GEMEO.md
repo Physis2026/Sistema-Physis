@@ -1,4 +1,4 @@
-# Gêmeo digital da Casa Physis · G0–G1 (versão de TESTE)
+# Gêmeo digital da Casa Physis · G0–G3 (versão de TESTE)
 
 Desenho aprovado pela dona em 21/11/2026: `Documents\Sistema Physis\47_Gemeo_Digital_Casa_Physis_TESTE.md`
 (seções 3, 6 e 7). Tarefa no M&A: `casa-gemeo-g0-g1`. Ramo: `teste/casa-gemeo-g0-g1` (sem merge no main sem aprovação).
@@ -10,13 +10,23 @@ Desenho aprovado pela dona em 21/11/2026: `Documents\Sistema Physis\47_Gemeo_Dig
 | Núcleo | `physis_hub/gemeo.py` | Zonas e entidades, estados de vida, valor com procedência, leitura da semente, totais por zona, validação. Pontos (`gemeo_ponto`) e cenários (`gemeo_cenario`) só em `ESQUEMA_SQL`: o hub ainda não cria as tabelas |
 | Importador | `physis_hub/gemeo_importar.py` | Planilhas 20 e 03 (e 18 só para citar D5) → projeto `physis.terreno/1.0` com o campo `gemeo`. Lê .xlsx sem dependências; para com erro se faltar um rótulo |
 | Semente rev0 | `modulos/planejador/gemeo/casa-physis-rev0.json` | Abre no Planejador por "Abrir projeto" (nada no Planejador foi mudado) |
-| Testes | `tests/test_gemeo.py` | 19 testes; os 2 da classe `Acervo` só rodam onde as planilhas existem |
+| IFC 3D (G3) | `physis_hub/gemeo_ifc.py` → `modulos/planejador/gemeo/casa-physis-rev0.ifc` | IFC4 do lote: 92 elementos (72 com sólido), terreno pelas curvas de nível, 3 zonas, cor da entidade, marcado estudo preliminar, sem lat/long |
+| Testes | `tests/test_gemeo.py` | 24 testes; os 2 da classe `Acervo` só rodam onde as planilhas existem |
 
 Refazer a semente quando a planilha 20 ou a 03 mudar (o teste `Acervo` acusa semente desatualizada):
 
     cd physis-hub
     python -m physis_hub.gemeo_importar --saida ../modulos/planejador/gemeo/casa-physis-rev0.json
     # pasta das planilhas: --editaveis PASTA ou PHYSIS_CASA_EDITAVEIS
+
+Ver em 3D: abrir o Planejador pela plataforma (o 3D usa `/vendor/`), anexar `casa-physis-rev0.ifc` no Início e
+clicar em "Ver em 3D e áreas" (arrastar gira, roda do mouse aproxima). Refazer o IFC depois de refazer a semente:
+
+    python -m physis_hub.gemeo_ifc
+
+Alturas no 3D (decisão pg:16228b14d400): edificações do 20 › Quadro de áreas com 2,90 m (LAB/MEC de cima − de baixo
+na 03); o resto é placa de 0,20 m só de desenho; tudo [CONFERIR] até o executivo. Sem cota na 03 → cota do terreno
+interpolada. O terreno é aproximado pelas curvas (não é levantamento 3D).
 
 ## Regras da semente
 
@@ -40,5 +50,5 @@ construída 435,5 m² e projeção 343,2 m² (20, somam as linhas do quadro); re
 ## Não feito (próximas etapas do doc 47)
 
 - G2 vista no Planejador (planta por zona, ficha por elemento); `tipo_planejador` é só classificação de desenho.
-- G3 IFC4 por `ifc.py`; G4 camada simulada; G5 aba na plataforma `casa-physis-inicial`; G6–G7 dependem de obra.
+- G4 camada simulada; G5 aba na plataforma `casa-physis-inicial`; G6–G7 dependem de obra.
 - Georreferência (L-01): sem lat/long oficial, tudo em x/y local.
