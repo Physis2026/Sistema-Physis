@@ -26,7 +26,7 @@
   function rosa(giro) {
     var svg = '<svg viewBox="-60 -34 120 68" width="120" height="68" role="img" aria-label="' +
       (giro == null ? "Norte de projeto para cima; norte verdadeiro não informado" : "Norte de projeto para cima; norte verdadeiro a " + NF(giro, 1) + " graus") + '">' +
-      '<g transform="translate(-28,4)"><path d="M0,-22 L6,6 L0,2 L-6,6 Z" fill="#4A4F44"/><text y="22" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">NP</text></g>' +
+      '<g transform="translate(-28,4)"><path d="M0,-22 L6,6 L0,2 L-6,6 Z" fill="currentColor"/><text y="22" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">NP</text></g>' +
       '<g transform="translate(28,4) rotate(' + (giro || 0) + ')"><path d="M0,-22 L6,6 L0,2 L-6,6 Z" fill="#BB6B4A"/></g>' +
       '<text x="28" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">' + (giro == null ? "NV?" : "NV") + '</text></svg>';
     var d = h("div", { class: "nz-rosa" }); d.innerHTML = svg; return d;

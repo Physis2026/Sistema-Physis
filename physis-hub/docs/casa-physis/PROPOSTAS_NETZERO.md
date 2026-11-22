@@ -161,3 +161,12 @@ Decisão da dona (M&A pg:b880e775e565). Código: `sistema/planejador-netzero.js`
 Desenho: `desenhos/planejador-aba-netzero.html`. Livre: norte NP/NV, itens sem lugar, saldo de energia e água. Profissional: terra,
 desnível, pressão por gravidade (limite de 40 m do núcleo, NBR 5626), bomba, beirais, FV onde cabe. Especialista: aptidão com
 realocação (respeita lote, recuo lateral e folga de 1,5 m) e circuitos de água. Empresa: variantes e meta de certificação.
+
+## 11. Conferência na aba Net zero (22/11/2026)
+
+Capturas `aba-netzero-claro.png` e `aba-netzero-escuro.png` (Planejador com o projeto A2, avaliação e recuo lateral de 2 m dos
+documentos). A própria verificação do Planejador apontou a loja 24 h a 0,3 m da divisa (arco da Rua G): a loja foi para o térreo,
+**sob a varanda do Loft 7** (x 7,75; y 57,6; 4,0 × 1,7 m = 6,8 m²), na cota do acesso, fora das vagas e a ≈ 3 m do arco; A2 continua
+passando (93 peças, 7 lofts, 24,3 %). Seguem com recuo menor que 2 m itens da rev0: galinhas, cabritos, canil, resíduos, apoio de
+funcionários e Casa 1 (2,0 m, no limite) → `[CONFERIR]` se recuo vale para abrigos de animais e resíduos. A aba também mostra: FV de
+91 m² para 100 % contra 299 m² de telhado útil (cabe), Casa 1 acima da C1 (precisa de bomba), latitude do lote `[MARCADOR]`.

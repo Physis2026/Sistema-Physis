@@ -60,7 +60,7 @@ LF6;Loft 6 4 × 4 (PCD) · geminado com o 7, sobre o estacionamento da Rua G, fo
 LF7;Loft 7 4 × 5 (mês 36) · geminado com o 6, sobre o estacionamento da Rua G, frente norte;Zona 3;7,75;53,70;4,00;5,00;20,00;879,40;;
 fogo;Fogo de chão;Zona 3;16,6;63,2;1,4;1,4;2;878,57;;
 minilago;Mini-lago;Zona 3;18,8;62,8;1,3;2,6;3;878,83;0,7;0,3
-loja;Loja 24 h na cota do acesso da Rua G, ao lado dos resíduos (fora das vagas);Zona 3;2,00;57,80;2,60;2,60;6,76;876,30;;
+loja;Loja 24 h no térreo, sob a varanda do loft 7, na cota do acesso da Rua G (fora das vagas, recuo ≥ 2 m);Zona 3;7,75;57,60;4,00;1,70;6,80;876,30;;
 flor_o2;Floresta oeste (incorporada à faixa x 19–21, junto à floresta filtrante);Zona 3;19,1;38,44;0,01;17,46;0;;;
 trilha3;Trilha da borda leste (dentro do afastamento);Zona 3;19;38,34;0,01;0,01;0;;;
 flor_l;Eucalipto (toras);Zona 3;0,2;38,44;1,7;8;13,6;;;
