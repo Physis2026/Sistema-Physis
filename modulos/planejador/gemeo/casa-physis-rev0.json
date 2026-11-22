@@ -4227,6 +4227,96 @@
     "zona": "Z2",
     "entidade": "Instituto Physis"
    },
+   "estrutura.lab_mec_pilares": {
+    "valor": "P1 a P4 nos cantos do contêiner inferior; P5 a P8 nas extremidades do de cima (balanços de 1,81 m)",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "a 03 dá balanços de 1,23 m (LAB e MEC de cima × de baixo) [CONFERIR]"
+   },
+   "estrutura.vigas.lab_mec": {
+    "valor": "W 150",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "sob o contêiner de cima"
+   },
+   "estrutura.vigas.lofts_borda": {
+    "valor": "W 150 × 13",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "vão de 4 m"
+   },
+   "estrutura.vigas.lofts_central": {
+    "valor": "W 200 × 15",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "vão de 4 m (W 150 × 13 não atende a flecha)"
+   },
+   "estrutura.vigas.restaurante": {
+    "valor": "W 150",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "vigas radiais e anel, galvanizado"
+   },
+   "estrutura.vigas.casa1_v3": {
+    "valor": "W 200",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "V3: reforço da parede aberta entre os contêineres de 40 pés"
+   },
+   "estrutura.contraventamento": {
+    "valor": "em X nos lofts e no restaurante",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "seção da barra [MARCADOR]"
+   },
+   "contencao.muro_rua_g": {
+    "valor": "muro de contenção drenado (até ≈ 4,7 m) + guarda-corpo 1,10 m",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "platô da Rua G (prancha 21); espessura [MARCADOR]"
+   },
+   "contencao.muro_altura_max_m": {
+    "valor": 4.7,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "valor aproximado na fonte (≈)"
+   },
+   "contencao.taludes": {
+    "valor": "taludes 1:1 com gabião e vetiver",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "platôs sem muro"
+   },
    "alturas.pavimento_m": {
     "valor": 2.9,
     "unidade": "m",

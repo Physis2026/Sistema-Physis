@@ -259,9 +259,21 @@ def apoios(chave, fm, projeto):
                 f"C0 a C8 ({fv('estrutura.restaurante')[1]}); a 20 soma {n:g} apoios com os D1 a D10 dos decks ({f})")
     if fm["tipo"] != "ret":
         return None
+    if chave in ("lab", "mec"):
+        n, f = fv("estrutura.apoios.lab_ou_mec")
+        txt, ft = fv("estrutura.lab_mec_pilares")
+        cima = _elemento_e_item(projeto, chave + "_up")
+        if n is None or txt is None or cima is None or int(n) != 8:
+            return None
+        ec, ic = cima
+        a, b = fm["a"] / 2, fm["b"] / 2
+        host = _elemento_e_item(projeto, chave)[1]
+        p14 = [(-a, -b), (a, -b), (a, b), (-a, b)]
+        ca, cb = ic["w"] / 2, ic["d"] / 2
+        p58 = [(ic["x"] - host["x"] + sx * ca, ic["y"] - host["y"] + sy * cb, ec["piso_topo_m"])
+               for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+        return p14 + p58, 0.70, f"{txt} ({ft}); 8 apoios ({f})"
     regras = {"casa": ("estrutura.apoios.casa_1", 5, 3, 0.60, "estrutura.casa1"),
-              "lab": ("estrutura.apoios.lab_ou_mec", 4, 2, 0.70, "estrutura.lab_mec"),
-              "mec": ("estrutura.apoios.lab_ou_mec", 4, 2, 0.70, "estrutura.lab_mec"),
               "gourmet": ("estrutura.apoios.gourmet", 3, 2, 0.70, None)}
     if chave.startswith("LF"):
         cam = "estrutura.apoios.loft_20_m" if fm["a"] * fm["b"] >= 19.5 else "estrutura.apoios.loft_16_m"
@@ -289,6 +301,181 @@ def apoios(chave, fm, projeto):
 
 
 EMPILHADOS = {"lab_up": "lab", "mec_up": "mec"}   # 03: LAB e MEC de cima sobre os de baixo
+COR_CONTENCAO = "#4A4F44"   # PALETA.md
+COR_TALUDE = "#8FB183"      # PALETA.md (verde claro): vetiver sobre o talude
+TANQUES = ("cist", "fossa", "biodig", "piscina", "peixes", "lago", "minilago")
+
+
+def _elemento_e_item(projeto, chave):
+    e = projeto["gemeo"]["elementos"].get(chave)
+    if not e:
+        return None
+    it = next((i for i in projeto["itens"] if i["id"] == e["item_id"]), None)
+    return (e, it) if it else None
+
+
+def _perfil_w(W, desig):
+    """Perfil I a partir da designação ('W 200 × 15'): altura = o número da designação (mm); mesa = metade da altura
+    e espessuras de desenho, a conferir no catálogo [CONFERIR]."""
+    m = re.search(r"W\s*(\d+)", desig or "")
+    d = (int(m.group(1)) if m else 150) / 1000
+    p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
+    return W.add(f"IFCISHAPEPROFILEDEF(.AREA.,{s_(desig)},{p2},{r_(d / 2)},{r_(d)},{r_(d * 0.04)},{r_(d * 0.06)},$,$,$)"), d
+
+
+def _barra(W, oh, corpo, estilo, pl_site, p0, p1, perfil, cor, entidade, tipo, nome, tag, guid_partes, props):
+    """Peça linear entre dois pontos 3D (viga, contravento): perfil no plano perpendicular, estendido no eixo."""
+    dx, dy, dz = p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]
+    L = math.sqrt(dx * dx + dy * dy + dz * dz)
+    if L < 0.05:
+        return None
+    ax = (dx / L, dy / L, dz / L)
+    ref = (-ax[1], ax[0], 0.0) if abs(ax[2]) < 0.99 else (1.0, 0.0, 0.0)
+    n = math.sqrt(sum(c * c for c in ref))
+    ref = tuple(c / n for c in ref)
+    pos = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(*p0)},{W.add(f'IFCDIRECTION(({r_(ax[0])},{r_(ax[1])},{r_(ax[2])}))')},"
+                f"{W.add(f'IFCDIRECTION(({r_(ref[0])},{r_(ref[1])},{r_(ref[2])}))')})")
+    sol = W.add(f"IFCEXTRUDEDAREASOLID({perfil},{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)')},"
+                f"{W.add('IFCDIRECTION((0.,0.,1.))')},{r_(L)})")
+    W.add(f"IFCSTYLEDITEM({sol},({estilo(cor)}),$)")
+    rep = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sol}))')}))")
+    ref_el = W.add(f"{entidade}({W.guid(*guid_partes)},{oh},{s_(nome)},$,{s_(tipo)},{W.add(f'IFCLOCALPLACEMENT({pl_site},{pos})')},"
+                   f"{rep},{s_(tag)},.{'BEAM' if entidade == 'IFCBEAM' else 'BRACE'}.)")
+    W.pset(oh, "Physis_Estrutura", [W.propriedade(k, v, "m" if k == "Comprimento" else None) for k, v in props] +
+           [W.propriedade("Comprimento", round(L, 3), "m")], [ref_el], "/".join(map(str, guid_partes)))
+    return ref_el
+
+
+def _vigas_e_contraventos(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
+    """Vigas (IfcBeam) e contraventos em X (IfcMember) pelas regras da 02b; posições pela regra escrita [CONFERIR]."""
+    fv = lambda c: _fv(projeto, c)
+    refs, segs = [], []          # segs: (p0, p1, designação, fonte, nome)
+    M = lambda xl, yl, zz: (*_mundo(fm, it, xl, yl), zz)
+    if chave in ("lab", "mec"):
+        des, f = fv("estrutura.vigas.lab_mec")
+        cima = _elemento_e_item(projeto, chave + "_up")
+        if des and cima:
+            ec, ic = cima
+            zc = ec["piso_topo_m"]
+            for sx in (-1, 1):
+                x = ic["x"] + sx * ic["w"] / 2
+                segs.append(((x, ic["y"] - ic["d"] / 2, zc), (x, ic["y"] + ic["d"] / 2, zc), des, f, "viga sob o contêiner de cima"))
+    elif chave.startswith("LF") and fm["tipo"] == "ret":
+        db_, fb = fv("estrutura.vigas.lofts_borda")
+        dc, fc = fv("estrutura.vigas.lofts_central")
+        if db_ and dc:
+            a, b = fm["a"] / 2, fm["b"] / 2
+            for yl, des, f, nome in ((-b, db_, fb, "viga de borda"), (0.0, dc, fc, "viga central"), (b, db_, fb, "viga de borda")):
+                segs.append((M(-a, yl, z), M(a, yl, z), des, f, nome))
+    elif chave == "bar" and fm["tipo"] == "circ":
+        des, f = fv("estrutura.vigas.restaurante")
+        if des:
+            r = fm["r"]
+            anel = [M(r * math.cos(k * math.pi / 4), r * math.sin(k * math.pi / 4), z) for k in range(8)]
+            for k in range(8):
+                segs.append((M(0, 0, z), anel[k], des, f, "viga radial"))
+                segs.append((anel[k], anel[(k + 1) % 8], des, f, "anel"))
+    elif chave == "casa" and fm["tipo"] == "ret":
+        des, f = fv("estrutura.vigas.casa1_v3")
+        hc = fv("casa1.altura_conteiner_m")[0]
+        if des and hc:
+            a = fm["a"] / 2
+            segs.append((M(-a, 0.0, z + hc), M(a, 0.0, z + hc), des, f, "V3 · reforço da parede aberta"))
+    for k, (p0, p1, des, f, nome) in enumerate(segs, 1):
+        perfil, d = _perfil_w(W, des)
+        q0, q1 = (p0[0], p0[1], p0[2] - d / 2), (p1[0], p1[1], p1[2] - d / 2)
+        v = _barra(W, oh, corpo, estilo, pl_site, q0, q1, perfil, COR_PILAR, "IFCBEAM", f"viga {des}",
+                   f"{nome.capitalize()} · {chave}", f"{chave}-V{k}", ("viga", chave, k),
+                   [("Hospedeiro", chave), ("Peca", f"{nome} {des}"), ("Fonte", f),
+                    ("Perfil", "altura da designação; mesa e espessuras de desenho [CONFERIR no catálogo]"),
+                    ("Posicao", "pela regra escrita da 02b [CONFERIR]")])
+        if v:
+            refs.append(v)
+    # contraventamento em X (lofts e restaurante) onde os pilares passam de 1 m
+    txt, fcv = fv("estrutura.contraventamento")
+    reg = apoios(chave, fm, projeto) if txt and (chave.startswith("LF") or chave == "bar") else None
+    if reg:
+        afl = fv("estrutura.bloco_aflorando_m")[0] or 0.30
+        pts = [(*_mundo(fm, it, p[0], p[1]),) for p in reg[0]]
+        base = [(x, y, T.z(x, y) + afl) for x, y in pts]
+        if chave == "bar":
+            pares = [(1 + 2 * k, 1 + (2 * k + 1) % 8) for k in range(4)]  # 4 vãos alternados do anel
+        else:                                                              # 2 linhas: vãos das pontas de cada linha
+            n = len(pts) // 2
+            pares = [(0, 1), (n - 2, n - 1), (n, n + 1), (2 * n - 2, 2 * n - 1)] if fm["b"] > fm["a"] else \
+                    [(0, 2), (1, 3), (len(pts) - 4, len(pts) - 2), (len(pts) - 3, len(pts) - 1)]
+        perfil_c = W.add(f"IFCRECTANGLEPROFILEDEF(.AREA.,$,{W.add(f'IFCAXIS2PLACEMENT2D({W.add(chr(73) + 'FCCARTESIANPOINT((0.,0.))')},$)')},0.03,0.03)")
+        for k, (i, j) in enumerate(pares, 1):
+            if i >= len(pts) or j >= len(pts) or min(z - base[i][2], z - base[j][2]) < 1.0:
+                continue
+            for m, (a0, a1) in enumerate((((*pts[i], base[i][2]), (*pts[j], z)), ((*pts[j], base[j][2]), (*pts[i], z)))):
+                v = _barra(W, oh, corpo, estilo, pl_site, a0, a1, perfil_c, COR_PILAR, "IFCMEMBER", "contravento",
+                           f"Contravento {k}{'ab'[m]} · {chave}", f"{chave}-X{k}{'ab'[m]}", ("cv", chave, k, m),
+                           [("Hospedeiro", chave), ("Peca", f"contraventamento {txt}"), ("Fonte", fcv),
+                            ("Perfil", "seção da barra [MARCADOR]: desenho 30 × 30 mm"),
+                            ("Posicao", "vão escolhido pela regra de desenho [CONFERIR]")])
+                if v:
+                    refs.append(v)
+    return refs
+
+
+def _contencao(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
+    """Muro drenado no platô da Rua G (02b, prancha 21) e taludes 1:1 com gabião e vetiver nos outros platôs
+    cortados (02b), nas bordas onde o terreno passa 0,3 m acima do piso. Espessuras [MARCADOR], desenho."""
+    if fm["tipo"] != "ret" or e["sem_area"] or e.get("piso_topo_m") is None or chave.startswith(TANQUES):
+        return []
+    if not ((e.get("corte_m3") or 0) > 0):
+        return []
+    fv = lambda c: _fv(projeto, c)
+    muro_txt, fm_ = fv("contencao.muro_rua_g")
+    hmax_fonte = fv("contencao.muro_altura_max_m")[0]
+    tal_txt, ft = fv("contencao.taludes")
+    a, b = fm["a"] / 2, fm["b"] / 2
+    bordas = [((-a, -b), (a, -b), (0, -1)), ((a, -b), (a, b), (1, 0)), ((a, b), (-a, b), (0, 1)), ((-a, b), (-a, -b), (-1, 0))]
+    refs = []
+    alt_borda = []
+    for q0, q1, nrm in bordas:
+        amostras = [(q0[0] + (q1[0] - q0[0]) * s + nrm[0] * 0.3, q0[1] + (q1[1] - q0[1]) * s + nrm[1] * 0.3) for s in (0, .25, .5, .75, 1)]
+        alt_borda.append(max(T.z(*_mundo(fm, it, x, y)) - z for x, y in amostras))
+    k_muro = max(range(4), key=lambda i: alt_borda[i])     # o muro fica na face de maior corte (02b: um muro)
+    for k, (q0, q1, nrm) in enumerate(bordas, 1):
+        h = alt_borda[k - 1]
+        if h < 0.3:
+            continue
+        L = math.hypot(q1[0] - q0[0], q1[1] - q0[1])
+        mx, my = (q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2
+        ang = math.degrees(math.atan2(q1[1] - q0[1], q1[0] - q0[0])) + fm["giro"]
+        wx, wy = _mundo(fm, it, mx, my)
+        p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
+        cima = W.add("IFCDIRECTION((0.,0.,1.))")
+        if chave == "garagem" and muro_txt and k - 1 == k_muro:
+            esp = 0.20
+            perf = W.add(f"IFCRECTANGLEPROFILEDEF(.AREA.,$,{p2},{r_(L)},{r_(esp)})")
+            sol = W.add(f"IFCEXTRUDEDAREASOLID({perf},{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, esp / 2, 0)},$,$)')},{cima},{r_(h)})")
+            W.add(f"IFCSTYLEDITEM({sol},({estilo(COR_CONTENCAO)}),$)")
+            rep = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sol}))')}))")
+            el = W.add(f"IFCWALL({W.guid('muro', chave, k)},{oh},{s_('Muro de contenção drenado · ' + chave)},$,"
+                       f"'muro de contenção drenado',{_coloc(W, pl_site, wx, wy, z, ang)},{rep},{s_(f'{chave}-M{k}')},.SOLIDWALL.)")
+            conf = (f"altura no modelo {h:.2f} m × até ≈ {hmax_fonte:g} m na 02b" + (" [CONFERIR]" if hmax_fonte and abs(h - hmax_fonte) > 0.5 else ""))
+            W.pset(oh, "Physis_Contencao", [W.propriedade("Hospedeiro", chave), W.propriedade("Peca", muro_txt),
+                                            W.propriedade("Altura", round(h, 2), "m"), W.propriedade("Fonte", fm_),
+                                            W.propriedade("Conferencia", conf),
+                                            W.propriedade("Espessura", "[MARCADOR] desenho 0,20 m")], [el], f"muro-{chave}-{k}")
+            refs.append(el)
+        elif tal_txt:
+            # face do talude 1:1: placa inclinada de 0,30 m (gabião e vetiver, desenho), do pé (piso) ao topo (terreno)
+            perf = W.add(f"IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,{W.add('IFCPOLYLINE((' + ','.join(W.add(f'IFCCARTESIANPOINT(({r_(y)},{r_(zz)}))') for y, zz in ((0, 0), (h, h), (h + 0.3, h), (0.3, 0), (0, 0))) + '))')})")
+            pos = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(-L / 2, 0, 0)},{W.add('IFCDIRECTION((1.,0.,0.))')},{W.add('IFCDIRECTION((0.,1.,0.))')})")
+            sol = W.add(f"IFCEXTRUDEDAREASOLID({perf},{pos},{cima},{r_(L)})")
+            W.add(f"IFCSTYLEDITEM({sol},({estilo(COR_TALUDE)}),$)")
+            rep = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sol}))')}))")
+            el = W.add(f"IFCGEOGRAPHICELEMENT({W.guid('talude', chave, k)},{oh},{s_('Talude 1:1 · ' + chave)},$,"
+                       f"'talude 1:1 com gabião e vetiver',{_coloc(W, pl_site, wx, wy, z, ang)},{rep},{s_(f'{chave}-T{k}')},.TERRAIN.)")
+            W.pset(oh, "Physis_Contencao", [W.propriedade("Hospedeiro", chave), W.propriedade("Peca", tal_txt),
+                                            W.propriedade("Altura", round(h, 2), "m"), W.propriedade("Fonte", ft),
+                                            W.propriedade("Revestimento", "[MARCADOR] desenho 0,30 m")], [el], f"talude-{chave}-{k}")
+            refs.append(el)
+    return refs
 
 
 def apoio_de(chave, fm, projeto):
@@ -309,10 +496,12 @@ def _estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
     afl = _fv(projeto, "estrutura.bloco_aflorando_m")[0] or 0.30
     pilar_txt = _fv(projeto, "estrutura.pilar")[0]
     refs = []
-    for k, (xl, yl) in enumerate(pts, 1):
+    for k, pt in enumerate(pts, 1):
+        xl, yl = pt[0], pt[1]
+        z_apoio = pt[2] if len(pt) > 2 else z
         wx, wy = _mundo(fm, it, xl, yl)
         zt = T.z(wx, wy)
-        if z < zt:                 # piso abaixo do terreno (plataforma cortada): apoio enterrado, não aparece
+        if z_apoio < zt:           # piso abaixo do terreno (plataforma cortada): apoio enterrado, não aparece
             continue
         topo = zt + afl
         p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
@@ -326,7 +515,7 @@ def _estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
         refs.append(bloco)
         props = [W.propriedade("Hospedeiro", chave), W.propriedade("Peca", f"bloco {lado:g} × {lado:g} × 0,60 m, aflorando {afl:g} m"),
                  W.propriedade("Fonte", fonte), W.propriedade("Posicao", "distribuição regular pela regra escrita [CONFERIR]")]
-        h = z - topo
+        h = z_apoio - topo
         if h > 0.05:
             pp = W.add(f"IFCRECTANGLEHOLLOWPROFILEDEF(.AREA.,$,{p2},{r_(PILAR_M)},{r_(PILAR_M)},{r_(PAREDE_M)},$,$)")
             sp = W.add(f"IFCEXTRUDEDAREASOLID({pp},{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)')},{cima},{r_(h)})")
@@ -595,7 +784,9 @@ def escrever(projeto, agora=0, altura=None):
         refs.append(ref)
         por_zona[e["zona"]].append(ref)
         if not e["sem_area"]:
-            for est in _estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
+            for est in (_estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto)
+                        + _vigas_e_contraventos(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto)
+                        + _contencao(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto)):
                 refs.append(est)
                 por_zona[e["zona"]].append(est)
         props = [W.propriedade("Chave", chave), W.propriedade("Zona", e["zona"]), W.propriedade("Entidade", e["entidade"]),

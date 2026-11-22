@@ -171,7 +171,11 @@ TEXTOS_02B = ["Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; g
               "pilar tubular 100 × 100 × 4,75", "bloco 0,70 × 0,70 × 0,60", "tracejado 0,60 × 0,60",
               "A1 a A15: apoios nos cantos e no meio dos contêineres de 40 pés, sobre blocos de concreto aflorando 30 cm",
               "pilares na grade de 4 m", "contêineres em T sobre 8 pilares",
-              "C0 a C8: pilares da cozinha (centro e anel a cada 45°); D1 a D10: pilares dos decks"]
+              "C0 a C8: pilares da cozinha (centro e anel a cada 45°); D1 a D10: pilares dos decks",
+              "P1 a P4: cantos do contêiner inferior; P5 a P8: extremidades do contêiner de cima, além do inferior (balanços de 1,81 m) · vigas W 150",
+              "de borda W 150 × 13 e viga central W 200 × 15 (vão de 4 m; ver documento 20) · contraventamento em X (prancha 36)",
+              "vigas radiais e anel em W 150 galvanizado", "V3 · reforço W 200 da pAa8rede aberta",
+              "muro de contenção drenado (até ≈ 4,7 m) + guarda-corpo 1,10 m", "Taludes 1:1 com gabião e vetiver"]
 F02B_ESTRUTURA = "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes"
 PRANCHA_02B = [  # caminho, valor, fonte, unidade, zona, nota
     ("alturas.total.casa_lab_mec_m", 5.8, F02B_SOMBRAS, "m", LOTE, "LAB e MEC: a 03 dá baixo + cima = 5,80 m (igual)"),
@@ -193,6 +197,18 @@ PRANCHA_02B = [  # caminho, valor, fonte, unidade, zona, nota
     ("estrutura.lab_mec", "contêineres em T sobre 8 pilares", F02B_ESTRUTURA, None, "Z2", None),
     ("estrutura.lofts", "pilares na grade de 4 m", F02B_ESTRUTURA, None, "Z3", None),
     ("estrutura.restaurante", "C0 a C8: centro e anel a cada 45°; D1 a D10 nos decks", F02B_ESTRUTURA, None, "Z2", None),
+    ("estrutura.lab_mec_pilares", "P1 a P4 nos cantos do contêiner inferior; P5 a P8 nas extremidades do de cima (balanços de 1,81 m)",
+     F02B_ESTRUTURA, None, "Z2", "a 03 dá balanços de 1,23 m (LAB e MEC de cima × de baixo) [CONFERIR]"),
+    ("estrutura.vigas.lab_mec", "W 150", F02B_ESTRUTURA, None, "Z2", "sob o contêiner de cima"),
+    ("estrutura.vigas.lofts_borda", "W 150 × 13", F02B_ESTRUTURA, None, "Z3", "vão de 4 m"),
+    ("estrutura.vigas.lofts_central", "W 200 × 15", F02B_ESTRUTURA, None, "Z3", "vão de 4 m (W 150 × 13 não atende a flecha)"),
+    ("estrutura.vigas.restaurante", "W 150", F02B_ESTRUTURA, None, "Z2", "vigas radiais e anel, galvanizado"),
+    ("estrutura.vigas.casa1_v3", "W 200", F02B_ESTRUTURA, None, "Z1", "V3: reforço da parede aberta entre os contêineres de 40 pés"),
+    ("estrutura.contraventamento", "em X nos lofts e no restaurante", F02B_ESTRUTURA, None, LOTE, "seção da barra [MARCADOR]"),
+    ("contencao.muro_rua_g", "muro de contenção drenado (até ≈ 4,7 m) + guarda-corpo 1,10 m", F02B_ESTRUTURA, None, "Z3",
+     "platô da Rua G (prancha 21); espessura [MARCADOR]"),
+    ("contencao.muro_altura_max_m", 4.7, F02B_ESTRUTURA, "m", "Z3", "valor aproximado na fonte (≈)"),
+    ("contencao.taludes", "taludes 1:1 com gabião e vetiver", F02B_ESTRUTURA, None, LOTE, "platôs sem muro"),
 ]
 
 

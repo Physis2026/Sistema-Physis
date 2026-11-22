@@ -97,7 +97,7 @@ até o terreno; LAB/MEC de cima reconhecidos sobre os de baixo. Posição de cad
 
 | Tarefa | Camada | Fonte que já existe | Falta |
 |---|---|---|---|
-| `casa-gemeo-estrutura` | vigas, contraventamento, grelha do restaurante, contenções e gabiões | 20 › Vigas, 02b | projeto estrutural |
+| `casa-gemeo-estrutura` (feita em teste, 22/11) | 36 vigas W (LAB/MEC, lofts borda e central, grelha radial e anel do restaurante, V3 da Casa 1), contraventos em X, LAB/MEC P1–P8 da 02b, muro drenado da Rua G (5,2 m no modelo × até ≈ 4,7 m na 02b [CONFERIR]), taludes 1:1 com gabião e vetiver | 20 › Vigas e Fundações, 02b | projeto estrutural; perfis e espessuras do catálogo; V1/V2 do balanço (andar de cima da Casa 1 não modelado) |
 | `casa-gemeo-hidraulica` | esgoto por trecho, água, cisternas, drenagem | 20 › Esgoto trechos, Cisternas, Água vertical, Drenagem | traçado em DWG |
 | `casa-gemeo-eletrica` | quadros, circuitos, strings, inversores, baterias, placas uma a uma | 20 › Quadro de cargas, Strings FV; 02b | posição do QGBT |
 | `casa-gemeo-interiores` | mobiliário, esquadrias, Casa 1 em L, mezaninos, vegetação | 09b, 20 › Esquadrias e Espécies, doc 10 | layout fino |

@@ -283,8 +283,10 @@ class IFC3D(unittest.TestCase):
         self.assertEqual(self.r["esquema"], "IFC4")
         self.assertEqual(self.r["elementos_por_tipo"]["IFCBUILDINGELEMENTPROXY"], 92)
         com_area = sum(1 for e in self.p["gemeo"]["elementos"].values() if not e["sem_area"])
-        self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"]
-                         - self.r["elementos_por_tipo"]["IFCFOOTING"], com_area)  # os blocos também são retângulos
+        # perfis das massas: os retângulos e círculos menos os dos blocos, do muro e dos contraventos
+        extras = (self.r["elementos_por_tipo"]["IFCFOOTING"] + self.r["elementos_por_tipo"].get("IFCWALL", 0)
+                  + len(re.findall(r"IFCRECTANGLEPROFILEDEF\(\.AREA\.,\$,#\d+,0\.03,0\.03\)", self.txt)))
+        self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"] - extras, com_area)
         self.assertEqual(self.r["tipos"]["IFCZONE"], 3)
         self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 2)  # terreno + cobertura cônica
         for chave in self.p["gemeo"]["elementos"]:
@@ -379,6 +381,30 @@ class IFC3D(unittest.TestCase):
         self.assertEqual(len(ap("deck1")[0]), 5)                      # D1 a D10, 5 por deck
         self.assertIsNone(ap("hortaA"))                               # sem regra nas fontes: sem pilar inventado
         self.assertIn("[CONFERIR]", self.txt)
+
+    def test_estrutura_completa_e_contencoes(self):
+        """Camada estrutural (tarefa casa-gemeo-estrutura, decisão pg:ee988f1fe957): vigas, contraventos e contenções
+        pelas regras da 02b; números de desenho sempre marcados."""
+        legivel = re.sub(r"\\X2\\([0-9A-F]+)\\X0\\",
+                         lambda m: "".join(chr(int(m.group(1)[k:k + 4], 16)) for k in range(0, len(m.group(1)), 4)), self.txt)
+        ep = self.r["elementos_por_tipo"]
+        its = {i["id"][2:]: i for i in self.p["itens"]}
+        els = self.p["gemeo"]["elementos"]
+        ap = self.GI.apoios("lab", self.GI.forma(els["lab"], its["lab"]), self.p)[0]
+        self.assertEqual(len(ap), 8)                                   # P1–P4 + P5–P8
+        self.assertEqual(sum(1 for q in ap if len(q) == 3), 4)         # P5–P8 vão até o contêiner de cima
+        self.assertTrue(all(q[2] == els["lab_up"]["piso_topo_m"] for q in ap if len(q) == 3))
+        # vigas: LAB 2 + MEC 2 + 5 lofts × 3 + restaurante 16 (8 radiais + 8 do anel) + Casa 1 V3 = 36
+        self.assertEqual(ep["IFCBEAM"], 2 + 2 + 5 * 3 + 16 + 1)
+        self.assertIn("IFCISHAPEPROFILEDEF(.AREA.,'W 200 × 15'", legivel)
+        self.assertGreater(ep.get("IFCMEMBER", 0), 0)                  # contraventamento em X
+        self.assertEqual(ep["IFCWALL"], 1)                             # um muro: platô da Rua G
+        self.assertGreater(ep["IFCGEOGRAPHICELEMENT"], 0)              # taludes 1:1 com gabião e vetiver
+        self.assertRegex(legivel, r"altura no modelo [\d.]+ m × até ≈ 4.7 m na 02b")
+        for marca in ("seção da barra [MARCADOR]", "Espessura', $" if False else "[MARCADOR] desenho 0,20 m",
+                      "[CONFERIR no catálogo]", "[MARCADOR] desenho 0,30 m"):
+            self.assertIn(marca, legivel)
+        self.assertIsNone(self.GI.apoios("hortaA", self.GI.forma(els["hortaA"], its["hortaA"]), self.p))
 
     def test_reprodutivel_e_arquivo_em_dia(self):
         self.assertEqual(self.GI.escrever(self.p), self.txt)
