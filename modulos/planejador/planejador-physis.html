@@ -1087,10 +1087,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
    (ACES), arestas, vistas prontas, tela cheia, altura ajustável, captura em alta resolução (PNG) e exportação glTF
    binário (GLB) para um renderizador offline (Blender/Cycles), sempre como opção.
    Só aparência: não calcula áreas nem muda dados. Quem chama entrega as malhas e continua dono das contas.
-   Sem internet: usa o THREE (three.js 0.160, /vendor/three.min.js) já carregado pela página.
+   Sem internet: Physis3D.carregar("/vendor/") traz o three.js 0.170 em módulos (vendor/three/, com oclusão de ambiente e
+   leitor glTF) ou, sem eles, o three.min.js 0.160; tudo servido pelo próprio servidor.
    Cores: o fundo e as arestas seguem as variáveis da tela (--bg/--fundo, --ink/--tinta), então acompanham o tema claro e
    escuro; as demais vêm de physis-hub/docs/PALETA.md.
-   O sol é de apresentação (posição fixa), não é estudo solar: a direção do norte do modelo não é lida.
+   O sol é de apresentação (posição fixa), não é estudo solar. O norte do modelo (TrueNorth do IFC) é lido e mostrado numa
+   rosa no canto, também na imagem salva e no GLB; sem norte no modelo aparece "N?" com [MARCADOR].
 
    Uso:
      var v = Physis3D.criar(div, { qualidade: "alta" | "atual", nome: "casa-physis", rotulo: "Modelo BIM em 3D" });
@@ -1099,6 +1101,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
      v.capturar(2).then(blob)      // PNG com 2× os pixels da vista
      v.glb()                       // ArrayBuffer .glb
      v.destruir();
+   Norte: Physis3D.criar(div, { norte: Physis3D.norteDoIFC(api, modelo, WebIFC) }) mostra a rosa (e na imagem salva).
    Ajudante para o web-ifc: Physis3D.malhasDoIFC(api, modelo, WebIFC, aoMalha) chama aoMalha({pos, nor, ix, cor, espaco, id}).
 */
 (function (g) {
@@ -1128,7 +1131,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
   function botao(texto, acao, dica) { return elem("button", { type: "button", "class": "btn p3d-bt", title: dica || texto, onclick: acao, texto: texto }); }
 
-  var CSS = ".p3d{position:relative}.p3d-barra{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}" +
+  var CSS = ".p3d{position:relative}.p3d-quadro{position:relative}" +
+    ".p3d-norte{position:absolute;top:8px;right:8px;width:48px;height:48px;pointer-events:none}" +
+    ".p3d-norte circle{fill:var(--panel,var(--sup,#FFFFFF));stroke:var(--ink,var(--tinta,#1B1F23));stroke-width:1.5}" +
+    ".p3d-norte path{fill:#BB6B4A}.p3d-norte text{fill:var(--ink,var(--tinta,#1B1F23));font:700 11px sans-serif}" +
+    "html[data-tema=\"escuro\"] .p3d-norte path{fill:#D9A58C}.p3d-barra{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}" +
     ".p3d-bt,.p3d-sel{min-height:44px;min-width:44px}.p3d-rot{display:inline-flex;align-items:center;gap:.3rem;font-size:.88rem}" +
     ".p3d canvas{display:block;width:100%;border:1px solid var(--line,#D9D3C2);border-radius:10px;touch-action:none}" +
     ".p3d canvas:focus-visible{outline:3px solid var(--focus,#C2410C);outline-offset:2px}" +
@@ -1177,6 +1184,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
     fundo();
 
+    /* norte: direção do TrueNorth do IFC no plano do modelo (x, y); o web-ifc entrega Y para cima, então o norte vira (x, 0, -y).
+       Sem norte no modelo, a rosa mostra "N?" e o aviso pede o dado (regra: o norte sempre indicado em sistemas de construção). */
+    var norte = op.norte && isFinite(op.norte.x) && isFinite(op.norte.y) && (op.norte.x || op.norte.y) ? new THREE.Vector3(op.norte.x, 0, -op.norte.y).normalize() : null;
+    var rosa = g.document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    rosa.setAttribute("class", "p3d-norte"); rosa.setAttribute("viewBox", "-24 -24 48 48"); rosa.setAttribute("role", "img");
+    rosa.setAttribute("aria-label", norte ? "Indicador do norte" : "Norte não informado no modelo [MARCADOR]");
+    rosa.innerHTML = '<circle r="22"/><g class="p3d-seta"><path d="M0,-9 L6,13 L0,9 L-6,13 Z"/><text y="-11" x="0" text-anchor="middle">' + (norte ? "N" : "N?") + "</text></g>";
+    var anguloNorte = 0;
     var cam = new THREE.PerspectiveCamera(45, 1, 0.01, 1000), alvo = new THREE.Vector3(), az = 0.8, el = 0.6, dist = 10, raio = 1, inicial = null;
     function tamanho() {
       var W = Math.max(280, cv.clientWidth || area.clientWidth || 640), H = cv.clientHeight || altura;
@@ -1196,6 +1211,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     function desenhar() {
       cam.position.set(alvo.x + dist * Math.cos(el) * Math.sin(az), alvo.y + dist * Math.sin(el), alvo.z + dist * Math.cos(el) * Math.cos(az));
       cam.lookAt(alvo); if (comp) comp.render(); else ren.render(cena, cam);
+      if (norte) { cam.updateMatrixWorld(); var a0 = alvo.clone().project(cam), a1 = alvo.clone().addScaledVector(norte, raio * 0.2).project(cam);
+        anguloNorte = Math.atan2(a1.x - a0.x, (a1.y - a0.y) / cam.aspect); }
+      rosa.querySelector(".p3d-seta").setAttribute("transform", "rotate(" + (anguloNorte * 180 / Math.PI).toFixed(1) + ")");
     }
     function mover(dx, dy) {
       var dir = new THREE.Vector3(), dirx = new THREE.Vector3(), diry = new THREE.Vector3();
@@ -1317,16 +1335,26 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         ren.setPixelRatio(k); ren.setSize(W, H, false); if (comp) { comp.setPixelRatio(k); comp.setSize(W, H); } desenhar();
         var url;
         if (A) { var c2 = g.document.createElement("canvas"); c2.width = cv.width; c2.height = cv.height; var x2 = c2.getContext("2d");
-          x2.fillStyle = corFundo(); x2.fillRect(0, 0, c2.width, c2.height); x2.drawImage(cv, 0, 0); url = c2.toDataURL("image/png"); }
-        else url = cv.toDataURL("image/png");
+          x2.fillStyle = corFundo(); x2.fillRect(0, 0, c2.width, c2.height); x2.drawImage(cv, 0, 0); norteNaImagem(x2, c2.width, k); url = c2.toDataURL("image/png"); }
+        else { var c3 = g.document.createElement("canvas"); c3.width = cv.width; c3.height = cv.height; var x3 = c3.getContext("2d");
+          x3.drawImage(cv, 0, 0); norteNaImagem(x3, c3.width, k); url = c3.toDataURL("image/png"); }
         ren.setPixelRatio(alta ? dpr : antes); tamanho(); desenhar();
         return fetch(url).then(function (r) { return r.blob(); });
       },
-      glb: function () { return paraGLB(malhas, op.nome || "modelo"); },
+      glb: function () { return paraGLB(malhas, op.nome || "modelo", op.norte || null); },
       oclusao: function () { return !!(gtao && gtao.enabled); },
       destruir: function () { try { ro && ro.disconnect(); mo && mo.disconnect(); if (comp) comp.dispose(); ren.dispose(); } catch (e) {} }
     };
 
+    /* a imagem salva leva a rosa do norte no canto, como na tela */
+    function norteNaImagem(x, largura, k) {
+      var r = 22 * k, cx = largura - (8 + 24) * k, cy = (8 + 24) * k, est = g.getComputedStyle(rosa.querySelector("circle")), est2 = g.getComputedStyle(rosa.querySelector("path"));
+      x.save(); x.translate(cx, cy); x.beginPath(); x.arc(0, 0, r, 0, 2 * Math.PI); x.fillStyle = est.fill || "#FFFFFF"; x.fill();
+      x.lineWidth = 1.5 * k; x.strokeStyle = est.stroke || "#1B1F23"; x.stroke(); x.rotate(anguloNorte);
+      x.beginPath(); x.moveTo(0, -9 * k); x.lineTo(6 * k, 13 * k); x.lineTo(0, 9 * k); x.lineTo(-6 * k, 13 * k); x.closePath(); x.fillStyle = est2.fill || "#BB6B4A"; x.fill();
+      x.fillStyle = est.stroke || "#1B1F23"; x.font = "700 " + 11 * k + "px sans-serif"; x.textAlign = "center"; x.fillText(norte ? "N" : "N?", 0, -11 * k);
+      x.restore();
+    }
     function corArestas() { return corDaTela(area, ["--ink", "--tinta"], "#1B1F23"); }
     var linhaMat = new THREE.LineBasicMaterial({ color: new THREE.Color(corArestas()), transparent: true, opacity: 0.35 });
 
@@ -1347,7 +1375,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       botao("Salvar imagem (PNG)", function () { api.capturar(+escala).then(function (b) { baixar(b, (op.nome || "vista-3d") + "-" + escala + "x.png"); aviso.textContent = "Imagem salva em " + escala + "× a resolução da vista."; }); }),
       alta ? botao("Baixar modelo (GLB)", function () { baixar(new Blob([api.glb()], { type: "model/gltf-binary" }), (op.nome || "modelo") + ".glb"); aviso.textContent = "Modelo em glTF binário salvo: abre no Blender (Cycles) para imagens de apresentação."; }, "glTF binário para renderizar fora do navegador") : null
     ]);
-    raiz.append(barra, cv, aviso, dica);
+    raiz.append(barra, elem("div", { "class": "p3d-quadro" }, [cv, rosa]), aviso, dica);
+    if (!norte) aviso.textContent = "O modelo não informa o norte (TrueNorth): [MARCADOR] conferir a orientação no projeto.";
     area.replaceChildren(raiz);
 
     var ro = g.ResizeObserver ? new g.ResizeObserver(function () { if (!inicial) return; if (alta && !mexeu) { alvo.copy(inicial.alvo); enquadrar(); } else tamanho(); desenhar(); }) : null; if (ro) ro.observe(cv);
@@ -1360,7 +1389,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   /* glTF 2.0 binário (GLB): uma malha por elemento, material PBR com a cor do modelo. Eixo Y para cima (igual ao web-ifc). */
-  function paraGLB(malhas, nome) {
+  function paraGLB(malhas, nome, norte) {
     var partes = [], tam = 0, bviews = [], acess = [], materiais = [], chaves = {}, nos = [], meshes = [];
     function junta(arr, alvo) { var pad = (4 - (tam % 4)) % 4; if (pad) { partes.push(new Uint8Array(pad)); tam += pad; }
       var u = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength).slice(); partes.push(u);
@@ -1383,15 +1412,32 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     });
     var bin = new Uint8Array((tam + 3) & ~3), o = 0;
     partes.forEach(function (u) { bin.set(u, o); o += u.byteLength; });
-    var json = { asset: { version: "2.0", generator: "physis-3d.js v1 (Physis Engineering)" }, scene: 0,
+    var json = { asset: { version: "2.0", generator: "physis-3d.js v2 (Physis Engineering)" }, scene: 0,
       scenes: [{ name: nome, nodes: nos.map(function (_, i) { return i; }) }], nodes: nos, meshes: meshes, materials: materiais,
       accessors: acess, bufferViews: bviews, buffers: [{ byteLength: bin.byteLength }] };
+    /* norte do IFC (plano x, y do modelo) para o renderizador offline desenhar a seta */
+    if (norte && isFinite(norte.x) && isFinite(norte.y)) json.asset.extras = { physis_norte: { x: +norte.x, y: +norte.y } };
     var jt = new TextEncoder().encode(JSON.stringify(json)), jl = (jt.length + 3) & ~3;
     var total = 12 + 8 + jl + 8 + bin.byteLength, out = new ArrayBuffer(total), dv = new DataView(out), u8 = new Uint8Array(out);
     dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true);
     dv.setUint32(12, jl, true); dv.setUint32(16, 0x4E4F534A, true); u8.fill(0x20, 20, 20 + jl); u8.set(jt, 20);
     dv.setUint32(20 + jl, bin.byteLength, true); dv.setUint32(24 + jl, 0x004E4942, true); u8.set(bin, 28 + jl);
     return out;
+  }
+
+  /* norte do IFC: TrueNorth do contexto de modelo (IfcGeometricRepresentationContext, não o subcontexto); null se não houver */
+  function norteDoIFC(api, modelo, WebIFC) {
+    try {
+      var ids = api.GetLineIDsWithType(modelo, WebIFC.IFCGEOMETRICREPRESENTATIONCONTEXT);
+      for (var i = 0; i < ids.size(); i++) {
+        var c = api.GetLine(modelo, ids.get(i));
+        if (!c || !c.TrueNorth) continue;
+        var d = api.GetLine(modelo, c.TrueNorth.value != null ? c.TrueNorth.value : c.TrueNorth.expressID);
+        var r = (d && d.DirectionRatios || []).map(function (v) { return +(v && v.value != null ? v.value : v); });
+        if (r.length >= 2 && (r[0] || r[1])) return { x: r[0], y: r[1] };
+      }
+    } catch (e) {}
+    return null;
   }
 
   /* web-ifc → malhas (posições já com a transformação de cada peça) */
@@ -1472,7 +1518,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     });
   }
 
-  g.Physis3D = { versao: 2, carregar: carregar, criar: criar, malhasDoIFC: malhasDoIFC, malhasDoGLTF: malhasDoGLTF, paraGLB: paraGLB,
+  g.Physis3D = { versao: 2, carregar: carregar, criar: criar, malhasDoIFC: malhasDoIFC, norteDoIFC: norteDoIFC, malhasDoGLTF: malhasDoGLTF, paraGLB: paraGLB,
     modulos: function () { return !!ADD; } };
 })(typeof window !== "undefined" ? window : this);
 </script>
@@ -1781,7 +1827,7 @@ function ppIniciar(){
     "Sistema de coordenadas em metros e o padrão oficial de mapas do Brasil.": "Coordinate system in metres and Brazil's official mapping standard.", "Interpolação (IDW)": "Interpolation (IDW)", "Sol": "Sun", "Escoamento": "Runoff", "Lei 12.651/2012": "Law 12.651/2012", "Lei 6.766/1979": "Law 6.766/1979", "OpenTopography (SRTM, Copernicus 30 m)": "OpenTopography (SRTM, Copernicus 30 m)", "ANA · HidroWeb": "ANA · HidroWeb", "CRESESB SunData": "CRESESB SunData", "SGB/CPRM · GeoSGB": "SGB/CPRM · GeoSGB", "USDA NRCS TR-55": "USDA NRCS TR-55", "WGS84/SIRGAS 2000": "WGS84/SIRGAS 2000", "SIRGAS 2000": "SIRGAS 2000", "REN ANEEL 1.059/2023": "REN ANEEL 1.059/2023", "e NBR 15527": "and NBR 15527",
     ". Triagem; o estudo de estabilidade pela NBR 11682 é obrigatório.": ". Screening; the stability study per NBR 11682 is mandatory.", "; curvas sem rótulo de cota nas camadas": "; contours without elevation labels in the layers",
     "; extintores (NBR 12693), iluminação de emergência (NBR 10898), sinalização (NBR 13434) e saídas (NBR 9077).": "; extinguishers (NBR 12693), emergency lighting (NBR 10898), signage (NBR 13434) and exits (NBR 9077).", "A avaliação de": "The trial of",
-    "Arraste para girar; roda do mouse para aproximar. Ambientes em transparência.": "Drag to rotate; mouse wheel to zoom. Rooms shown transparent.", "Ambientes em transparência. A luz é de apresentação, não é estudo solar.": "Rooms shown transparent. The light is for presentation, not a solar study.", "Modelo BIM": "BIM model", "em 3D": "in 3D", "Isométrica": "Isometric", "De cima": "Top", "Frente": "Front", "Lateral": "Side", "Arestas": "Edges", "Oclusão de ambiente": "Ambient occlusion", "Sombra no chão": "Ground shadow", "Altura": "Height", "Compacta": "Compact", "Média": "Medium", "Alta": "Tall", "Tela cheia": "Full screen", "Imagem": "Image", "1× (tela)": "1× (screen)", "4× (apresentação)": "4× (presentation)", "Salvar imagem (PNG)": "Save image (PNG)", "Baixar modelo (GLB)": "Download model (GLB)", "Ferramentas da vista 3D": "3D view tools", "Arraste para girar (Shift ou botão direito: mover); roda ou pinça para aproximar. Teclado: setas giram, Shift+setas movem, + e − aproximam, 0 volta ao início.": "Drag to rotate (Shift or right button: pan); wheel or pinch to zoom. Keyboard: arrows rotate, Shift+arrows pan, + and − zoom, 0 resets.", "Modelo em glTF binário salvo: abre no Blender (Cycles) para imagens de apresentação.": "Binary glTF model saved: opens in Blender (Cycles) for presentation images.", "Vista: isométrica.": "View: isometric.", "Vista: de cima.": "View: top.", "Vista: frente.": "View: front.", "Vista: lateral.": "View: side.", "Assistente indisponível nesta visualização; os cálculos e as verificações funcionam normalmente.": "Assistant unavailable in this view; calculations and checks work normally.", "Centro (x; y)": "Centre (x; y)",
+    "Arraste para girar; roda do mouse para aproximar. Ambientes em transparência.": "Drag to rotate; mouse wheel to zoom. Rooms shown transparent.", "Ambientes em transparência. A luz é de apresentação, não é estudo solar.": "Rooms shown transparent. The light is for presentation, not a solar study.", "Modelo BIM": "BIM model", "em 3D": "in 3D", "Isométrica": "Isometric", "De cima": "Top", "Frente": "Front", "Lateral": "Side", "Arestas": "Edges", "Oclusão de ambiente": "Ambient occlusion", "Sombra no chão": "Ground shadow", "Altura": "Height", "Compacta": "Compact", "Média": "Medium", "Alta": "Tall", "Tela cheia": "Full screen", "Imagem": "Image", "1× (tela)": "1× (screen)", "4× (apresentação)": "4× (presentation)", "Salvar imagem (PNG)": "Save image (PNG)", "Baixar modelo (GLB)": "Download model (GLB)", "Indicador do norte": "North indicator", "Norte não informado no modelo [MARCADOR]": "North not given in the model [MARKER]", "O modelo não informa o norte (TrueNorth): [MARCADOR] conferir a orientação no projeto.": "The model does not give north (TrueNorth): [MARKER] check the orientation in the design.", "Ferramentas da vista 3D": "3D view tools", "Arraste para girar (Shift ou botão direito: mover); roda ou pinça para aproximar. Teclado: setas giram, Shift+setas movem, + e − aproximam, 0 volta ao início.": "Drag to rotate (Shift or right button: pan); wheel or pinch to zoom. Keyboard: arrows rotate, Shift+arrows pan, + and − zoom, 0 resets.", "Modelo em glTF binário salvo: abre no Blender (Cycles) para imagens de apresentação.": "Binary glTF model saved: opens in Blender (Cycles) for presentation images.", "Vista: isométrica.": "View: isometric.", "Vista: de cima.": "View: top.", "Vista: frente.": "View: front.", "Vista: lateral.": "View: side.", "Assistente indisponível nesta visualização; os cálculos e as verificações funcionam normalmente.": "Assistant unavailable in this view; calculations and checks work normally.", "Centro (x; y)": "Centre (x; y)",
     "Concreto armado em malha de ≈ 5 m; pré-dimensionamento por área de influência.": "Reinforced concrete on a ≈ 5 m grid; pre-sizing by tributary area.",
     "Confirmar exigências no código de obras, no plano diretor e nas legislações estaduais; verificar também tombamento, unidade de conservação e faixa de domínio, que esta análise não identifica.": "Confirm requirements in the building code, the master plan and state legislation; also check heritage listing, conservation units and rights of way, which this analysis does not identify.",
     "Dias de chuva estimados pela chuva mensal; use a normal climatológica do INMET para confirmar.": "Rain days estimated from monthly rain; use the INMET climate normal to confirm.", "Diferenças de até 30% entre os dois métodos são comuns; adote o maior para a detenção e confirme com o ensaio de infiltração.": "Differences of up to 30% between the two methods are common; use the larger one for detention and confirm with the infiltration test.",
@@ -2759,7 +2805,7 @@ async function ver3D(d,area){if(!VENDOR.temServidor()){toast('A vista 3D precisa
   area.replaceChildren(h('p',{class:'hint',role:'status'},'Montando o modelo em 3D…'));
   try{await Physis3D.carregar(VENDOR.base);await VENDOR.js('web-ifc-api-iife.js');if(!IFC_API){IFC_API=new WebIFC.IfcAPI();IFC_API.SetWasmPath(VENDOR.base,true);await IFC_API.Init()}
     const b=await DOCS.ler(d.id);const m=IFC_API.OpenModel(new Uint8Array(await b.arrayBuffer()));
-    const areas={},malhas=[];
+    const areas={},malhas=[],norte=Physis3D.norteDoIFC(IFC_API,m,WebIFC);
     const espacos=Physis3D.malhasDoIFC(IFC_API,m,WebIFC,x=>{malhas.push(x);
       if(x.espaco){/* área do piso: triângulos virados para baixo (o web-ifc entrega com Y para cima) */const p=x.pos,id=x.ix;let a=0;
         for(let t=0;t<id.length;t+=3){const A=new THREE.Vector3().fromArray(p,id[t]*3),B=new THREE.Vector3().fromArray(p,id[t+1]*3),C=new THREE.Vector3().fromArray(p,id[t+2]*3);const n=new THREE.Vector3().subVectors(B,A).cross(new THREE.Vector3().subVectors(C,A));const ar=n.length()/2;if(ar>0&&n.y/(2*ar)<-0.9)a+=ar}
@@ -2771,7 +2817,7 @@ async function ver3D(d,area){if(!VENDOR.temServidor()){toast('A vista 3D precisa
     if(!malhas.length){area.replaceChildren(h('p',{class:'hint'},'O modelo não tem geometria para mostrar em 3D.'),tbl(['Ambiente','Área'],lista));return}
     if(VISTA_BIM){VISTA_BIM.destruir();VISTA_BIM=null}
     const quadro=h('div',{});area.replaceChildren(quadro,h('p',{class:'hint'},'Ambientes em transparência. A luz é de apresentação, não é estudo solar.'),tbl(['Ambiente','Área do piso'],lista),h('p',{},h('b',{},'Total dos ambientes: '),NF(total,2)+' m²'));
-    VISTA_BIM=Physis3D.criar(quadro,{nome:String(d.nome||'modelo').replace(/\.ifc$/i,''),rotulo:'Modelo BIM '+d.nome+' em 3D'});malhas.forEach(x=>VISTA_BIM.adicionarMalha(x));VISTA_BIM.terminar()}
+    VISTA_BIM=Physis3D.criar(quadro,{norte,nome:String(d.nome||'modelo').replace(/\.ifc$/i,''),rotulo:'Modelo BIM '+d.nome+' em 3D'});malhas.forEach(x=>VISTA_BIM.adicionarMalha(x));VISTA_BIM.terminar()}
   catch(e){area.replaceChildren(h('p',{class:'hint'},'Não foi possível montar o 3D: '+e.message))}}
 /* normas que o estudo confere, conforme os blocos escolhidos no Início */
 const TEMAS_BLOCO={implantacao:['Terreno','Terraplenagem','Arquitetura','Acessibilidade','Incêndio','Estrutura','Lazer','Desempenho'],solar:['Energia'],avac:['Energia','Desempenho'],agua:['Água','Esgoto','Biogás'],drenagem:['Drenagem','Terreno'],residuos:['Biogás'],sbn:['Drenagem','Água'],carbono:['Energia','Desempenho'],certificacoes:['Desempenho','Energia','Água','Acessibilidade']};

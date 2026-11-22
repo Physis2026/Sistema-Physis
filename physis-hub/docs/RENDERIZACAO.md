@@ -83,3 +83,41 @@ Capturas novas: `claro-iso-depois.png` (com oclusão de ambiente), `claro-iso-de
 - Propostas para outras sessões, sem mexer aqui: mapas com fundo do tema escuro; vista STL/OBJ do M&A pela `physis-3d.js` (hoje
   com laço de quadros contínuo); `rasterizar` exportar com fundo do tema; acabamentos dos PDFs 09/09b no IFC do gêmeo (pedido
   enviado à sessão do gêmeo em 22/11/2026).
+
+## 7. Norte sempre indicado (pedido da dona, 22/11/2026)
+
+Em todo sistema de construção, o norte aparece:
+- **vista 3D** (`physis-3d.js`, Planejador e página de teste): lê o `TrueNorth` do IFC (`Physis3D.norteDoIFC`) e mostra uma rosa
+  no canto que gira com a câmera (de cima: N para cima; de lado: 90°); a imagem PNG salva leva a rosa; o GLB leva o norte em
+  `asset.extras.physis_norte`. Sem norte no modelo: "N?" e aviso `[MARCADOR]`.
+- **Blender** (`renderizar_glb.py`): lê o norte do GLB e desenha a mesma rosa no canto da imagem; sem norte, "N?".
+- O IFC atual do gêmeo declara `TrueNorth` = (0, 1), isto é, +Y. Se esse +Y é o norte real do lote é dado do projeto (a conferir na 03).
+
+Capturas: `navegador-norte-planta.png`, `blender-cycles-claro.png`.
+
+## 8. Modelagem de arquitetura e interiores, com banco de dados (decisões da dona, 22/11/2026)
+
+Caixas de perguntas registradas no M&A: testar **todos** (pg:cb1c6e2c2e06), banco **IFC + SQLite** (pg:36f2ad6f5402), instalar
+os quatro itens nesta máquina (pg:3ef312a8c7d9). Teste com a cópia de 22/11 do `casa-physis-rev0.ifc` do gêmeo (IFC4,
+258 peças: pilares, vigas, fundações, placas solares, terreno).
+
+| Programa | Licença | Lê/grava IFC | Teste nesta máquina | Para quê |
+|---|---|---|---|---|
+| **Bonsai 0.8.5** no Blender 5.3 (IfcOpenShell) | GPL / LGPL | IFC nativo (lê e grava) | abriu as 258 peças em ~16 s, sem tela | **arquitetura e interiores**: paredes, ambientes, móveis (`IfcFurniture`), acabamentos (`IfcSurfaceStyle`), e o Cycles no mesmo programa |
+| **FreeCAD 1.1.4** (bancada BIM) | LGPL | IFC nativo (modo NativeIFC) | o modo nativo abriu 259 objetos em ~29 s; **o importador antigo falha** ("USE_BREP_DATA") com o IfcOpenShell 0.8.4 que vem nele | desenho técnico com parâmetros e cotas, pranchas 2D |
+| **Sweet Home 3D 7.5** | GPL | **não lê nem grava IFC** (importa móveis OBJ/DAE/3DS) | instalado; não testado (precisa de tela) | esboço rápido de interiores com o cliente; **não serve de fonte** do gêmeo |
+
+**Banco de dados: IFC + SQLite.** `ferramentas/ifc_para_sqlite.py` usa o Ifc2Sql do IfcOpenShell. O IFC continua sendo a
+fonte, e cada revisão vira um SQLite com uma tabela por classe IFC, propriedades (`psets`), geometria opcional e a tabela
+`physis_revisao` (arquivo, SHA-256, esquema, data, contagem por classe). Converter de novo o mesmo arquivo não duplica.
+No IFC do gêmeo: 11 s, 8 MB, 782 tabelas, 2.234 propriedades. O IfcOpenShell só precisa existir onde a conversão roda
+(`pip install --user ifcopenshell ifcpatch`); o servidor da Physis continua sem dependências e lê o SQLite com o `sqlite3` do Python.
+
+**Caminho recomendado:** modelar no **Bonsai** (fonte IFC, com acabamentos e móveis) → `ifc_para_sqlite.py` (banco consultável
+por Planejador, gêmeo e M&A) → vista 3D no navegador e Cycles para apresentação. FreeCAD para desenho técnico com cotas;
+Sweet Home 3D só para esboço com cliente.
+
+Fontes (22/11/2026): [Bonsai 0.8.5 (OSArch)](https://osarch.org/2026/04/17/bonsai-0-8-5-released/),
+[Bonsai na loja de extensões do Blender](https://extensions.blender.org/add-ons/bonsai/), [FreeCAD Native IFC](https://wiki.freecad.org/Native_IFC),
+[Ifc2Sql (OSArch)](https://community.osarch.org/discussion/1535/), [Speckle Server](https://docs.speckle.systems/developers/server/introduction)
+(alternativa avaliada e não escolhida: precisa de Postgres + Redis + Node, e o conector do Blender perde dados).

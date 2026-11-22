@@ -37,7 +37,8 @@ def cores(texto):
 class Render3D(unittest.TestCase):
     def test_sem_internet(self):
         for p in (MODULO, PAGINA):
-            self.assertNotRegex(ler(p), r"https?://", p.name)
+            # o único endereço permitido é o nome do espaço do SVG (não busca nada na rede)
+            self.assertNotRegex(ler(p).replace("http://www.w3.org/2000/svg", ""), r"https?://", p.name)
         self.assertIn('"/vendor/"', ler(PAGINA))
 
     def test_so_cores_da_paleta(self):
@@ -204,6 +205,95 @@ class Offline(unittest.TestCase):
 
     def test_cena_sem_internet(self):
         self.assertNotRegex(ler(RAIZ / "ferramentas" / "blender_cena.py"), r"https?://")
+
+
+IFC_DOIS_AMBIENTES = """ISO-10303-21;
+HEADER;FILE_DESCRIPTION(('ViewDefinition [ReferenceView]'),'2;1');FILE_NAME('t.ifc','2026-11-22T00:00:00',(''),(''),'t','t','');FILE_SCHEMA(('IFC4'));ENDSEC;
+DATA;
+#1=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);#3=IFCUNITASSIGNMENT((#1));
+#4=IFCCARTESIANPOINT((0.,0.,0.));#5=IFCDIRECTION((0.,0.,1.));#6=IFCDIRECTION((1.,0.,0.));#7=IFCAXIS2PLACEMENT3D(#4,#5,#6);
+#60=IFCDIRECTION((0.,1.));#8=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,#7,#60);
+#9=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'Teste',$,$,$,$,(#8),#3);#10=IFCLOCALPLACEMENT($,#7);
+#11=IFCSITE('1YvctVUKr0kugbFTf53O9L',$,'Lote',$,$,#10,$,$,.ELEMENT.,$,$,$,$,$);#14=IFCRELAGGREGATES('4YvctVUKr0kugbFTf53O9L',$,$,$,#9,(#11));
+#20=IFCRECTANGLEPROFILEDEF(.AREA.,$,#21,4.,5.);#21=IFCAXIS2PLACEMENT2D(#22,$);#22=IFCCARTESIANPOINT((2.,2.5));
+#23=IFCEXTRUDEDAREASOLID(#20,#7,#5,2.8);#24=IFCSHAPEREPRESENTATION(#8,'Body','SweptSolid',(#23));#25=IFCPRODUCTDEFINITIONSHAPE($,$,(#24));
+#26=IFCSPACE('7YvctVUKr0kugbFTf53O9L',$,'S1','Sala',$,#10,#25,$,.ELEMENT.,.INTERNAL.,$);
+#36=IFCSPACE('8YvctVUKr0kugbFTf53O9L',$,'S2','Quarto',$,#10,#25,$,.ELEMENT.,.INTERNAL.,$);
+#40=IFCRELAGGREGATES('9YvctVUKr0kugbFTf53O9L',$,$,$,#11,(#26,#36));
+ENDSEC;
+END-ISO-10303-21;
+"""
+
+
+@unittest.skipUnless(NO_REPO, "só no repositório")
+class Norte(unittest.TestCase):
+    """Regra da dona (22/11/2026): o norte sempre indicado em sistemas de construção."""
+    def test_vista_le_e_mostra_o_norte(self):
+        mod = ler(MODULO)
+        for item in ("function norteDoIFC", "IFCGEOMETRICREPRESENTATIONCONTEXT", "TrueNorth", "p3d-norte",
+                     "Norte não informado no modelo [MARCADOR]", "norteNaImagem", "physis_norte"):
+            self.assertIn(item, mod)
+
+    def test_planejador_e_pagina_passam_o_norte(self):
+        self.assertIn("norte=Physis3D.norteDoIFC(IFC_API,m,WebIFC)", ler(PLANEJADOR))
+        self.assertIn("{norte,nome:", ler(PLANEJADOR))
+        self.assertIn("Physis3D.norteDoIFC(api, m0, WebIFC)", ler(PAGINA))
+
+    def test_blender_le_o_norte_do_glb(self):
+        import importlib.util, json, struct, tempfile
+        spec = importlib.util.spec_from_file_location("renderizar_glb", RAIZ / "ferramentas" / "renderizar_glb.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        def glb(extras):
+            js = json.dumps({"asset": {"version": "2.0", **({"extras": extras} if extras else {})}}).encode()
+            js += b" " * ((4 - len(js) % 4) % 4)
+            return struct.pack("<III", 0x46546C67, 2, 20 + len(js)) + struct.pack("<II", len(js), 0x4E4F534A) + js
+        with tempfile.TemporaryDirectory() as d:
+            a, b = Path(d) / "a.glb", Path(d) / "b.glb"
+            a.write_bytes(glb({"physis_norte": {"x": 0, "y": 1}}))
+            b.write_bytes(glb(None))
+            self.assertEqual(mod.norte_do_glb(a), (0.0, 1.0))
+            self.assertIsNone(mod.norte_do_glb(b))
+        self.assertIn('"N?"', ler(RAIZ / "ferramentas" / "blender_cena.py"))
+
+
+def _tem_ifcopenshell():
+    try:
+        import ifcopenshell, ifcpatch  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+@unittest.skipUnless(NO_REPO, "só no repositório")
+class BancoDaModelagem(unittest.TestCase):
+    """IFC + SQLite (decisão da dona M&A pg:36f2ad6f5402): o IFC é a fonte; cada revisão vira um SQLite consultável."""
+    def carregar(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("ifc_para_sqlite", RAIZ / "ferramentas" / "ifc_para_sqlite.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_sem_ifcopenshell_avisa(self):
+        self.assertIn("pip install --user ifcopenshell ifcpatch", ler(RAIZ / "ferramentas" / "ifc_para_sqlite.py"))
+
+    @unittest.skipUnless(_tem_ifcopenshell(), "IfcOpenShell não instalado nesta máquina")
+    def test_converte_e_registra_a_revisao(self):
+        import json, sqlite3, tempfile
+        mod = self.carregar()
+        with tempfile.TemporaryDirectory() as d:
+            ifc, db = Path(d) / "dois.ifc", Path(d) / "dois.sqlite"
+            ifc.write_text(IFC_DOIS_AMBIENTES, encoding="utf-8")
+            r = mod.converter(ifc, db, geometria=False)
+            self.assertFalse(r["ja_existia"])
+            self.assertTrue(mod.converter(ifc, db, geometria=False)["ja_existia"])     # a mesma revisão não duplica
+            from contextlib import closing
+            with closing(sqlite3.connect(db)) as c:
+                self.assertEqual(c.execute("SELECT count(*) FROM IfcSpace").fetchone()[0], 2)
+                arq, sha, esquema, _, cont = c.execute("SELECT * FROM physis_revisao").fetchone()
+            self.assertEqual((arq, esquema, len(sha)), ("dois.ifc", "IFC4", 64))
+            self.assertEqual(json.loads(cont)["IfcSpace"], 2)
 
 
 if __name__ == "__main__":

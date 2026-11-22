@@ -23,6 +23,19 @@ CENA = Path(__file__).resolve().parent / "blender_cena.py"
 PALETA_FUNDOS = {"#F4F1EA", "#F6F3EE", "#FFFFFF", "#0B3D2E", "#1B1F23"}   # docs/PALETA.md: fundos claros e escuros
 
 
+def norte_do_glb(glb: Path):
+    """Norte gravado pela vista 3D (asset.extras.physis_norte, plano x, y do IFC) ou None."""
+    import json
+    import struct
+    try:
+        b = glb.read_bytes()
+        jl = struct.unpack("<I", b[12:16])[0]
+        n = json.loads(b[20:20 + jl]).get("asset", {}).get("extras", {}).get("physis_norte")
+        return (float(n["x"]), float(n["y"])) if n and (n["x"] or n["y"]) else None
+    except (OSError, ValueError, KeyError, TypeError, struct.error):
+        return None
+
+
 def achar_blender() -> str | None:
     if os.environ.get("PHYSIS_BLENDER") and Path(os.environ["PHYSIS_BLENDER"]).is_file():
         return os.environ["PHYSIS_BLENDER"]
@@ -54,8 +67,12 @@ def main(argv=None) -> int:
         print("Blender não encontrado. Instale o Blender (blender.org, aberto) no servidor ou indique PHYSIS_BLENDER. "
               "Enquanto isso, use 'Salvar imagem (PNG)' na vista 3D.", file=sys.stderr)
         return 2
+    norte = norte_do_glb(Path(a.glb))
+    if not norte:
+        print("Aviso: o GLB não informa o norte; a imagem leva 'N?' ([MARCADOR] conferir a orientação).", file=sys.stderr)
     cmd = [blender, "-b", "--factory-startup", "--python", str(CENA), "--",
-           str(Path(a.glb).resolve()), str(Path(a.png).resolve()), str(a.largura), str(a.altura), str(a.amostras), a.vista, a.fundo]
+           str(Path(a.glb).resolve()), str(Path(a.png).resolve()), str(a.largura), str(a.altura), str(a.amostras), a.vista, a.fundo,
+           f"{norte[0]},{norte[1]}" if norte else "-"]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0 or not Path(a.png).is_file():
         print((r.stdout or "")[-2000:] + (r.stderr or "")[-2000:], file=sys.stderr)

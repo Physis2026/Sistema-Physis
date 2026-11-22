@@ -8,7 +8,7 @@ import sys
 import bpy  # noqa: só existe dentro do Blender
 from mathutils import Vector
 
-glb, png, larg, alt, amostras, vista, fundo = sys.argv[sys.argv.index("--") + 1:]
+glb, png, larg, alt, amostras, vista, fundo, norte = sys.argv[sys.argv.index("--") + 1:]
 larg, alt, amostras = int(larg), int(alt), int(amostras)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -54,6 +54,7 @@ cam.data.clip_end = raio * 50
 from bpy_extras.object_utils import world_to_camera_view
 
 cena.render.resolution_x, cena.render.resolution_y = larg, alt
+bpy.context.view_layer.update()   # posições atualizadas (a seta do norte acabou de entrar na cena)
 amostra = []
 for o in objs:
     vs = o.data.vertices
@@ -110,6 +111,54 @@ cor = np.array([int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)], dtype=np.float32)
 a = px[..., 3:4]
 px[..., :3] = px[..., :3] * a + cor * (1 - a)
 px[..., 3] = 1.0
+
+# rosa do norte no canto superior direito, como na vista do navegador (regra da dona: o norte sempre indicado).
+# O plano x, y do IFC é o x, y do Blender; o ângulo é o do norte projetado pela câmera. Sem norte no GLB: "N?" ([MARCADOR]).
+from bpy_extras.object_utils import world_to_camera_view as w2c
+
+escuro = sum(cor) < 1.2
+c_fundo = np.array([0x23, 0x28, 0x2D]) / 255 if escuro else np.array([1.0, 1.0, 1.0])            # #23282D / #FFFFFF
+c_linha = np.array([0xF4, 0xF1, 0xEA]) / 255 if escuro else np.array([0x1B, 0x1F, 0x23]) / 255  # #F4F1EA / #1B1F23
+c_seta = np.array([0xD9, 0xA5, 0x8C]) / 255 if escuro else np.array([0xBB, 0x6B, 0x4A]) / 255   # #D9A58C / #BB6B4A
+ang, glifo = 0.0, "N?"
+if norte != "-":
+    nx, ny = (float(v) for v in norte.split(","))
+    p0 = w2c(cena, cam, centro)
+    p1 = w2c(cena, cam, centro + Vector((nx, ny, 0)).normalized() * raio * 0.2)
+    ang, glifo = math.atan2((p1.x - p0.x) * w, (p1.y - p0.y) * hgt), "N"
+esc = max(w, hgt) / 640                      # a rosa do navegador tem 48 px numa vista de ~640 px
+r = 22 * esc
+cx, cy = w - 32 * esc, hgt - 32 * esc        # y para cima (a linha 0 é a de baixo)
+x0, x1, y0, y1 = int(cx - r - 2), int(cx + r + 3), int(cy - r - 2), int(cy + r + 3)
+yy, xx = np.mgrid[y0:y1, x0:x1].astype(np.float32)
+sx, sy = (xx - cx) / esc, (yy - cy) / esc
+ca, sa = math.cos(ang), math.sin(ang)
+u, v = sx * ca - sy * sa, sx * sa + sy * ca  # coordenadas da rosa (seta para +v)
+d = np.hypot(sx, sy)
+bloco = px[y0:y1, x0:x1, :3]
+bloco[d <= 22] = c_fundo
+bloco[(d > 20.8) & (d <= 22.6)] = c_linha
+
+def dentro(poly, u, v):
+    c = np.zeros(u.shape, bool)
+    for (ax, ay), (bx, by) in zip(poly, poly[1:] + poly[:1]):
+        cruza = ((ay > v) != (by > v)) & (u < (bx - ax) * (v - ay) / (by - ay + 1e-9) + ax)
+        c ^= cruza
+    return c
+
+bloco[dentro([(0, 9), (6, -13), (0, -9), (-6, -13)], u, v)] = c_seta
+# letra em 5×7 (N ou N?), acima da seta, girando junto
+FONTE = {"N": ["10001", "11001", "10101", "10011", "10001", "10001", "10001"],
+         "?": ["01110", "10001", "00010", "00100", "00100", "00000", "00100"]}
+larg_l = 6 * len(glifo) - 1
+for k, ch in enumerate(glifo):
+    for lin, linha in enumerate(FONTE[ch]):
+        for col, bit in enumerate(linha):
+            if bit == "1":
+                cu = (k * 6 + col - larg_l / 2) * 1.5
+                cv = 18.5 - lin * 1.5
+                bloco[(u >= cu) & (u < cu + 1.5) & (v <= cv) & (v > cv - 1.5) & (d <= 21)] = c_linha
+px[y0:y1, x0:x1, :3] = bloco
 saida = bpy.data.images.new("saida", w, hgt, alpha=True)
 saida.pixels = px.ravel().tolist()
 saida.filepath_raw = png
