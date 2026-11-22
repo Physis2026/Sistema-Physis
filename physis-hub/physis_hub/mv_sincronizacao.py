@@ -20,7 +20,9 @@ BASE = Path("C:/physis")
 REPOS = {"Sistema Physis (oficial)": BASE / "physis-sistema", "Sistema Physis (teste)": BASE / "physis-teste",
          "Instituto Physis": BASE / "instituto-physis", "InovaSTEM (ramo inovastem)": BASE / "instituto-physis-inovastem"}
 ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js", "sistema/physis-modelador.js"]
-TESTES = ["tests.test_preferencias", "tests.test_preferencias_paginas", "tests.test_mv_traducao", "tests.test_bases"]
+TESTES = ["tests.test_preferencias", "tests.test_preferencias_paginas", "tests.test_mv_traducao", "tests.test_bases", "tests.test_inovastem"]
+# páginas que são GERADAS a partir das cópias (não se edita o arquivo pronto): rodar o gerador depois de sincronizar
+GERADORES = ["demos/gerar_demos.py", "ferramentas/montar_lab_inovastem.py"]
 PLATAFORMAS = Path.home() / "OneDrive - Physis Engineering" / "Documents" / "Sistema Physis" / "_versoes_teste" / "2026-11-20_plataformas_iniciais"
 
 
@@ -104,9 +106,10 @@ def rodar(mv: MV, aplicar: bool = True) -> dict:
         sinc = repo / "ferramentas" / "sincronizar.py"
         if sinc.exists():
             subprocess.run([sys.executable, str(sinc)], cwd=repo, capture_output=True, timeout=600)
-        demos = repo / "demos" / "gerar_demos.py"           # as demos levam cópias das páginas: geradas de novo
-        if demos.exists():
-            subprocess.run([sys.executable, str(demos)], cwd=repo, capture_output=True, timeout=600)
+        for ger in GERADORES:                                 # páginas GERADAS (demos, laboratório InovaSTEM): geradas de novo
+            g = repo / ger
+            if g.exists():
+                subprocess.run([sys.executable, str(g)], cwd=repo, capture_output=True, timeout=900)
         mudou = _git(repo, "status", "--porcelain").stdout.decode().strip()
         if not mudou:
             res["repos"][nome] = "em dia"
