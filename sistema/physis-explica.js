@@ -24,10 +24,10 @@
   function estilo() {
     if (d.getElementById("pex-estilo")) return;
     var s = d.createElement("style"); s.id = "pex-estilo";
-    s.textContent = ".pex{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--verde,#2F7D5B);border-radius:12px;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23);max-width:100%;overflow-wrap:anywhere}" +
-      ".pex summary{cursor:pointer;font-weight:700;padding:.6rem .9rem}.pex .pex-c{padding:0 .9rem .8rem}.pex input{flex:1 1 14rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:transparent;color:inherit}" +
-      ".pex .pex-l{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}.pex button{border:1px solid var(--linha,#D9D3C2);border-radius:999px;padding:.25rem .65rem;font:inherit;font-size:.88rem;cursor:pointer;background:var(--sup,#FFFFFF);color:inherit}" +
-      ".pex .pex-p{background:var(--botao,#C2410C);border-color:var(--botao,#C2410C);color:#FFFFFF;border-radius:8px;font-size:1rem}.pex .pex-r{margin-top:.5rem}.pex .pex-r h3{margin:.3rem 0;font-size:1rem}";
+    s.textContent = ".pex{border:1px solid #D9D3C2;border-left:5px solid #2F7D5B;border-radius:12px;margin:1rem 0;background:#FFFFFF;color:#1B1F23;max-width:100%;overflow-wrap:anywhere}" +
+      ".pex summary{cursor:pointer;font-weight:700;padding:.6rem .9rem}.pex .pex-c{padding:0 .9rem .8rem}.pex input{flex:1 1 14rem;font:inherit;padding:.4rem;border:1px solid #D9D3C2;border-radius:8px;background:transparent;color:inherit}" +
+      ".pex .pex-l{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}.pex button{border:1px solid #D9D3C2;border-radius:999px;padding:.25rem .65rem;font:inherit;font-size:.88rem;cursor:pointer;background:#FFFFFF;color:inherit}" +
+      ".pex .pex-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF;border-radius:8px;font-size:1rem}.pex .pex-r{margin-top:.5rem}.pex .pex-r h3{margin:.3rem 0;font-size:1rem}" + "html[data-tema='escuro'] .pex{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pex button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pex td,html[data-tema='escuro'] .pex .pdv-m{border-color:#2F5E4E}";
     d.head.appendChild(s);
   }
   function montar(el) {

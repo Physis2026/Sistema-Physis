@@ -22,10 +22,10 @@
   function estilo() {
     if (d.getElementById("pdv-estilo")) return;
     var s = d.createElement("style"); s.id = "pdv-estilo";
-    s.textContent = ".pdv{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--terracota,#BB6B4A);border-radius:12px;padding:.6rem .9rem;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23);font-size:.92rem}" +
-      ".pdv summary{cursor:pointer;font-weight:700}.pdv .pdv-m{margin:.6rem 0;padding-top:.5rem;border-top:1px dashed var(--linha,#D9D3C2)}" +
-      ".pdv .pdv-barra{height:8px;border-radius:6px;background:var(--linha,#D9D3C2);overflow:hidden;margin:.35rem 0}.pdv .pdv-barra span{display:block;height:100%;background:var(--verde,#2F7D5B)}" +
-      ".pdv .pdv-n{display:inline-block;margin:.1rem .5rem .1rem 0}.pdv .pdv-at{color:var(--rotulo,#C2410C);font-weight:700}.pdv ul{margin:.3rem 0;padding-left:1.1rem}.pdv small{opacity:.8}";
+    s.textContent = ".pdv{border:1px solid #D9D3C2;border-left:5px solid #BB6B4A;border-radius:12px;padding:.6rem .9rem;margin:1rem 0;background:#FFFFFF;color:#1B1F23;font-size:.92rem}" +
+      ".pdv summary{cursor:pointer;font-weight:700}.pdv .pdv-m{margin:.6rem 0;padding-top:.5rem;border-top:1px dashed #D9D3C2}" +
+      ".pdv .pdv-barra{height:8px;border-radius:6px;background:#D9D3C2;overflow:hidden;margin:.35rem 0}.pdv .pdv-barra span{display:block;height:100%;background:#2F7D5B}" +
+      ".pdv .pdv-n{display:inline-block;margin:.1rem .5rem .1rem 0}.pdv .pdv-at{color:#C2410C;font-weight:700}.pdv ul{margin:.3rem 0;padding-left:1.1rem}.pdv small{opacity:.8}" + "html[data-tema='escuro'] .pdv{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pdv button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pdv td,html[data-tema='escuro'] .pdv .pdv-m{border-color:#2F5E4E}";
     d.head.appendChild(s);
   }
   function bloco(m, t) {
