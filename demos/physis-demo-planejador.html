@@ -185,27 +185,33 @@ https://github.com/nodeca/pako/blob/main/LICENSE
    + cálculos preliminares + exportação no formato certo (STL, OBJ, IFC, GeoJSON, CSV).
    Geradores v1: turbina eólica para impressão 3D (Savonius), dutos de ar-condicionado (IFC), chuva no terreno
    (KML/KMZ do Google Earth, GeoJSON, GPX ou área digitada) e relevo a partir de imagem. Pedido que nenhum gerador
-   entende vira texto para a caixa de comandos do M&A (fila do Claude); quando a IA da Physis estiver no servidor,
+   entende vira texto para a caixa de comandos da equipe (fila de pedidos); quando a IA da Physis estiver no servidor,
    ela usa estes mesmos geradores. Premissas e números de regra prática vêm marcados [CONFERIR]: é estimativa
    preliminar, não projeto. Uso: <div data-physis-modelador="modelagem3d"></div>. Original único: sistema/physis-modelador.js. */
 (function (w) {
   "use strict";
   var d = w.document;
-  function lingua() { try { return (localStorage.getItem("physis-pref-idioma") || d.documentElement.lang || "pt").slice(0, 2) === "en" ? "en" : "pt"; } catch (e) { return "pt"; } }
+  function lingua() { try { return (localStorage.getItem("physis-pref-idioma") || localStorage.getItem("physis-idioma") || d.documentElement.lang || "pt").slice(0, 2) === "en" ? "en" : "pt"; } catch (e) { return "pt"; } }
   var TX = {
     pt: { tit: "Bot de modelagem", sub: "Escreva o pedido ou envie uma imagem ou arquivo (KML/KMZ do Google Earth, GeoJSON, GPX; terreno em grade .asc ou XYZ). Exemplos:",
       ex: ["gere uma turbina para impressão 3D de 40 cm", "inclua a previsão de passagem de ar-condicionado numa sala de 60 m²", "mapeie a incidência de chuva no terreno com 1.500 mm/ano", "balanço net zero de uma casa com 450 kWh por mês", "carga térmica NBR 16401 de uma sala de 40 m² com 8 pessoas", "calha e cisterna para telhado de 120 m²", "estufa de 3 x 6 m", "caixa para sensores 10 x 8 x 5 cm", "relevo da imagem com 12 cm"],
-      gerar: "Gerar", arquivo: "Imagem ou arquivo", calc: "Cálculos preliminares", baixar: "Baixar", naoEntendi: "Nenhum gerador local entende este pedido ainda. Copie o texto para a caixa de comandos do M&A: ele vai para a fila do Claude e volta como rascunho.",
+      gerar: "Gerar", arquivo: "Imagem ou arquivo", calc: "Cálculos preliminares", baixar: "Baixar", naoEntendi: "Nenhum gerador local entende este pedido ainda. Copie o texto para a caixa de comandos da equipe: ele entra na fila de pedidos e volta como rascunho.",
       copiar: "Copiar pedido", copiado: "Copiado.", aviso: "Estimativa preliminar para conversar e decidir; não substitui projeto assinado. Itens [CONFERIR] são premissas a confirmar.",
       semTerreno: "Para a chuva, envie o contorno do terreno (KML/KMZ do Google Earth, GeoJSON ou GPX) ou escreva a área (ex.: 2.000 m²).",
       lido: "Arquivo lido", pontos: "pontos", sugestoes: "Sugestões" },
     en: { tit: "Modelling bot", sub: "Write the request or upload an image or file (Google Earth KML/KMZ, GeoJSON, GPX; terrain as .asc or XYZ grid). Examples:",
       ex: ["generate a 40 cm wind turbine for 3D printing", "add the air-conditioning duct route for a 60 m² room", "map rainfall on the site with 1,500 mm/year", "net zero balance for a house using 450 kWh per month", "cooling load NBR 16401 for a 40 m² room with 8 people", "gutter and cistern for a 120 m² roof", "greenhouse 3 x 6 m", "sensor case 10 x 8 x 5 cm", "relief from the image, 12 cm"],
-      gerar: "Generate", arquivo: "Image or file", calc: "Preliminary calculations", baixar: "Download", naoEntendi: "No local generator understands this request yet. Copy it to the M&V command box: it goes to Claude's queue and comes back as a draft.",
+      gerar: "Generate", arquivo: "Image or file", calc: "Preliminary calculations", baixar: "Download", naoEntendi: "No local generator understands this request yet. Copy it to the team's command box: it joins the request queue and comes back as a draft.",
       copiar: "Copy request", copiado: "Copied.", aviso: "Preliminary estimate to discuss and decide; it does not replace a signed design. [TO CHECK] items are assumptions to confirm.",
       semTerreno: "For rainfall, upload the site outline (Google Earth KML/KMZ, GeoJSON or GPX) or type the area (e.g., 2,000 m²).",
       lido: "File read", pontos: "points", sugestoes: "Suggestions" }
   };
+  // site público (InovaSTEM): sem citar ferramentas internas nem enviar coordenadas a terceiros
+  var PUB = {
+    pt: { naoEntendi: "Nenhum gerador entende este pedido ainda. Sugira a ideia em Desafios e projetos ou no Fórum: a comunidade e a equipe ajudam a modelar.",
+      mais: "Para seguir: use as subabas Modelos BIM (CAD e IFC), Lugar (GIS) e Simulação do laboratório." },
+    en: { naoEntendi: "No generator understands this request yet. Suggest the idea in Challenges and projects or in the Forum: the community and the team help model it.",
+      mais: "Next: use the lab sub-tabs BIM models (CAD and IFC), Place (GIS) and Simulation." } };
   var CONF = { pt: "[CONFERIR]", en: "[TO CHECK]" };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function num(s) { return parseFloat(String(s).replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); }
@@ -390,8 +396,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       [L === "en" ? "Trunk duct at 4 m/s" : "Duto tronco a 4 m/s", fmt(w * 1000, 0) + " × " + fmt(hd * 1000, 0) + " mm (" + fmt(secao, 3) + " m²)"],
       [L === "en" ? "Diffusers" : "Difusores", nBocas + " × 300 × 300 mm"]];
     return { nome: "dutos_ac_" + Math.round(area) + "m2", malha: M, ifc: els, calc: calc, formatos: ["ifc", "stl"],
-      sugestoes: L === "en" ? ["Replace the rule of thumb with the HVAC module's load calculation (NBR 16401) before sizing.", "Import the building IFC in the Planner to route the duct through the real rooms."]
-        : ["Trocar a regra prática pelo cálculo de carga do módulo AVAC (NBR 16401) antes de dimensionar.", "Importar o IFC da edificação no Planejador para passar o duto pelos ambientes reais."] };
+      sugestoes: L === "en" ? ["Replace the rule of thumb with the HVAC module's load calculation (NBR 16401) before sizing.", "Import the building IFC in the BIM design module to route the duct through the real rooms."]
+        : ["Trocar a regra prática pelo cálculo de carga do módulo AVAC (NBR 16401) antes de dimensionar.", "Importar o IFC da edificação no módulo de projeto BIM para passar o duto pelos ambientes reais."] };
   }
   function gChuva(txt, L, geo) {
     var mm = (txt.match(/(\d[\d.,]*)\s*mm/i) || [])[1], P = mm ? num(mm) : NaN, a = (txt.match(/(\d[\d.,]*)\s*m²|(\d[\d.,]*)\s*m2/i) || []);
@@ -454,8 +460,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       [L === "en" ? "Rainwater from the roof" : "Água de chuva do telhado", fmt(agua, 0) + " m³/" + (L === "en" ? "year" : "ano") + " (" + fmt(telh, 0) + " m², " + fmt(chuva, 0) + " mm)"],
       [L === "en" ? "Tilt / latitude" : "Inclinação / latitude", fmt(Math.min(35, Math.max(10, Math.abs(lat))), 0) + "° · " + fmt(lat, 3) + (c ? "" : " " + CONF[L])]];
     return { nome: "net_zero_" + Math.round(cons) + "kwh", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
-      sugestoes: L === "en" ? ["Confirm HSP with the Planner's solar map (pvlib) for the exact site and shading.", "Add batteries or biogas only if the goal includes resilience (off-grid hours).", "Enter the 12 bills to replace the estimated consumption."]
-        : ["Confirmar a HSP com o mapa solar do Planejador (pvlib) para o local e o sombreamento exatos.", "Somar baterias ou biogás só se a meta incluir resiliência (horas sem rede).", "Informar as 12 contas de luz para trocar o consumo estimado."] };
+      sugestoes: L === "en" ? ["Confirm HSP with a solar map (pvlib) for the exact site and shading.", "Add batteries or biogas only if the goal includes resilience (off-grid hours).", "Enter the 12 bills to replace the estimated consumption."]
+        : ["Confirmar a HSP com um mapa solar (pvlib) para o local e o sombreamento exatos.", "Somar baterias ou biogás só se a meta incluir resiliência (horas sem rede).", "Informar as 12 contas de luz para trocar o consumo estimado."] };
   }
   function gAgua(txt, L) {
     var A = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, 120), I = achar(txt, /(\d[\d.,]*)\s*mm\/h/i, 150), chuva = achar(txt, /(\d[\d.,]*)\s*mm(?!\/)/i, 1500), C = pr("chuva.coef_escoamento", 0.8);
@@ -536,8 +542,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       [L === "en" ? "Above 45° (APP, Forest Code)" : "Acima de 45° (APP, Código Florestal)", fmt(100 * acima / Math.max(1, decl.length), 1) + "% " + (L === "en" ? "of cells" : "das células")],
       [L === "en" ? "Water runs to" : "A água escoa para", (L === "en" ? "lowest point at cell " : "o ponto mais baixo, célula ") + imin + ", " + jmin + " (" + fmt(zmin, 1) + " m)"]];
     return { nome: "terreno", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
-      sugestoes: L === "en" ? ["GeoTIFF (Copernicus/ALOS/SRTM): export as ASCII grid (.asc) in QGIS until the GeoTIFF reader is added.", "Cross with rainfall to size drainage and with the APP map in the Planner."]
-        : ["GeoTIFF (Copernicus/ALOS/SRTM): exportar como grade ASCII (.asc) no QGIS até entrar a leitura de GeoTIFF.", "Cruzar com a chuva para dimensionar a drenagem e com o mapa de APP do Planejador."] };
+      sugestoes: L === "en" ? ["GeoTIFF (Copernicus/ALOS/SRTM): export as ASCII grid (.asc) in QGIS until the GeoTIFF reader is added.", "Cross with rainfall to size drainage and with the APP map."]
+        : ["GeoTIFF (Copernicus/ALOS/SRTM): exportar como grade ASCII (.asc) no QGIS até entrar a leitura de GeoTIFF.", "Cruzar com a chuva para dimensionar a drenagem e com o mapa de APP."] };
   }
   function chuvaOnline(geo) {  // média anual 2015–2024 (Open-Meteo/ERA5) quando há internet; sem internet fica [CONFERIR]
     var c = centro(geo); if (!c || !w.fetch) return Promise.resolve(null);
@@ -584,9 +590,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     (function laco() { if (!vivo || !box.contains(ren.domElement)) return; ang += 0.01; cam.position.set(Math.sin(ang) * r * 2, r * 0.9, Math.cos(ang) * r * 2); cam.lookAt(0, 0, 0); ren.render(cena, cam); requestAnimationFrame(laco); })();
     ren.domElement.setAttribute("role", "img"); ren.domElement.setAttribute("aria-label", "Prévia 3D do modelo gerado");
   }
+  function sugPub(lista, t) { return lista.concat([t.mais]); }
   function montar(el) {
     if (el.getAttribute("data-pmd-ok")) return; el.setAttribute("data-pmd-ok", "1");
-    var L = lingua(), t = TX[L], ctx = el.getAttribute("data-physis-modelador") || "";
+    var L = lingua(), ctx = el.getAttribute("data-physis-modelador") || "", publico = /^inovastem/.test(ctx), t = publico ? Object.assign({}, TX[L], PUB[L]) : TX[L];
     var emQuadro = false; try { emQuadro = d.documentElement.hasAttribute("data-physis-demo"); } catch (e) { emQuadro = false; }
     if (emQuadro) { el.hidden = true; return; }
     estilo();
@@ -605,14 +612,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       } else if (/\.(asc|xyz|txt|csv)$/.test(nm)) f.text().then(function (s) { grade = lerGrade(s); fn.textContent = t.lido + ": " + f.name + " (" + grade.nx + " × " + grade.ny + ")"; });
       else f.text().then(function (s) { ok(/\.kml$/.test(nm) ? lerKML(s) : /\.gpx$/.test(nm) ? lerGPX(s) : lerGeoJSON(JSON.parse(s))); });
     };
+    var sug = function (lista) { return publico ? sugPub(lista, t) : lista; };
     el.querySelector(".pmd-g").onclick = function () {
       var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
       if (!qual) {
-        out.innerHTML = "<p>" + t.naoEntendi + "</p><button class='pmd-c'>" + t.copiar + "</button>"; vbox.innerHTML = "";
+        out.innerHTML = "<p>" + t.naoEntendi + "</p>" + (publico ? "" : "<button class='pmd-c'>" + t.copiar + "</button>"); vbox.innerHTML = ""; if (publico) return;
         out.querySelector(".pmd-c").onclick = function () { var b = this; (navigator.clipboard ? navigator.clipboard.writeText("Modelagem (" + ctx + "): " + txt) : Promise.reject()).then(function () { b.textContent = t.copiado; }, function () { ta.select(); }); };
         return;
       }
-      if (qual === "chuva" && geo && !/\d\s*mm/i.test(txt)) { out.innerHTML = "<p>" + (L === "en" ? "Looking up the site's rainfall…" : "Buscando a chuva do local…") + "</p>";
+      if (qual === "chuva" && geo && !publico && !/\d\s*mm/i.test(txt)) { out.innerHTML = "<p>" + (L === "en" ? "Looking up the site's rainfall…" : "Buscando a chuva do local…") + "</p>";
         chuvaOnline(geo).then(function (c) { if (c) { ta.value = txt + " " + Math.round(c.mm) + " mm"; fonteChuva = c.fonte; } gerarAgora(); }); return; }
       gerarAgora();
     };
@@ -625,7 +633,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if (r.erro) { out.innerHTML = "<p>" + esc(r.erro) + "</p>"; vbox.innerHTML = ""; return; }
       var bt = r.formatos.map(function (f) { return '<button data-f="' + f + '">' + t.baixar + " ." + f + "</button>"; }).join(" ");
       out.innerHTML = "<p><strong>" + esc(r.nome) + "</strong></p><h3 style='margin:.4rem 0;font-size:1rem'>" + t.calc + "</h3><table>" + r.calc.map(function (c) { return "<tr><td>" + esc(c[0]) + "</td><td>" + esc(c[1]) + "</td></tr>"; }).join("") +
-        "</table><p><small>" + t.aviso + "</small></p><div class='pmd-l'>" + bt + "</div><p><strong>" + t.sugestoes + ":</strong></p><ul>" + r.sugestoes.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
+        "</table><p><small>" + t.aviso + "</small></p><div class='pmd-l'>" + bt + "</div><p><strong>" + t.sugestoes + ":</strong></p><ul>" + sug(r.sugestoes).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
       Array.prototype.forEach.call(out.querySelectorAll("[data-f]"), function (b) {
         b.onclick = function () {
           var f = b.getAttribute("data-f");
