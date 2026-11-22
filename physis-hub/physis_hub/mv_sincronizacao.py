@@ -82,6 +82,9 @@ def rodar(mv: MV, aplicar: bool = True) -> dict:
         sinc = repo / "ferramentas" / "sincronizar.py"
         if sinc.exists():
             subprocess.run([sys.executable, str(sinc)], cwd=repo, capture_output=True, timeout=600)
+        demos = repo / "demos" / "gerar_demos.py"           # as demos levam cópias das páginas: geradas de novo
+        if demos.exists():
+            subprocess.run([sys.executable, str(demos)], cwd=repo, capture_output=True, timeout=600)
         mudou = _git(repo, "status", "--porcelain").stdout.decode().strip()
         if not mudou:
             res["repos"][nome] = "em dia"
