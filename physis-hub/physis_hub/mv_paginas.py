@@ -125,7 +125,8 @@ def conferir(html: str, nome: str, pal: set[str], original: str = "", pasta: Pat
     item("escuro", "Tema escuro (tipo A)", re.search(r'data-tema="?escuro|data-tema=escuro|prefers-color-scheme:\s*dark', html, re.I))
     item("fontes", "Fontes do guia (Josefin Sans nos títulos, Lora no corpo)", re.search(r"Josefin", html) and re.search(r"Lora", html))
     rod = " ".join(re.findall(r"(?is)<footer\b.*?</footer>", proprio)) or ""
-    item("cnpj", "Rodapé com razão social e CNPJ (ou [MARCADOR])", re.search(r"CNPJ", rod, re.I))
+    # decisão da dona (22/11/2026): as páginas NÃO mostram CNPJ nem cidade no rodapé
+    item("cnpj", "Rodapé sem CNPJ e sem cidade", not re.search(r"CNPJ|Petr[oó]polis|Belo Horizonte", rod, re.I))
     item("privacidade", "Privacidade/LGPD indicada", re.search(r"privacidade|LGPD", proprio, re.I))
     item("termos", "Termos de uso indicados", re.search(r"termos de uso", proprio, re.I))
     item("contato", "Contato indicado", re.search(r"contato|e-mail|fale com", proprio, re.I))
