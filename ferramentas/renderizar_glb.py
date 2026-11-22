@@ -56,7 +56,7 @@ def main(argv=None) -> int:
         return 2
     cmd = [blender, "-b", "--factory-startup", "--python", str(CENA), "--",
            str(Path(a.glb).resolve()), str(Path(a.png).resolve()), str(a.largura), str(a.altura), str(a.amostras), a.vista, a.fundo]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0 or not Path(a.png).is_file():
         print((r.stdout or "")[-2000:] + (r.stderr or "")[-2000:], file=sys.stderr)
         return 1

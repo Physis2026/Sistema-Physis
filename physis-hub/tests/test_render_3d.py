@@ -164,6 +164,44 @@ class Offline(unittest.TestCase):
         with self.assertRaises(SystemExit):
             mod.main(["m.glb", "x.png", "--fundo", "#123456"])
 
+    def test_blender_de_verdade(self):
+        """Só onde o Blender está instalado: GLB mínimo → PNG com o tamanho pedido e o canto na cor de fundo da paleta."""
+        import json, struct, tempfile, zlib
+        mod = self.carregar()
+        if not mod.achar_blender():
+            self.skipTest("Blender não instalado nesta máquina")
+        pos = struct.pack("<9f", 0, 0, 0, 1, 0, 0, 0, 1, 0)
+        js = json.dumps({"asset": {"version": "2.0"}, "scene": 0, "scenes": [{"nodes": [0]}], "nodes": [{"mesh": 0}],
+                         "meshes": [{"primitives": [{"attributes": {"POSITION": 0}}]}], "buffers": [{"byteLength": 36}],
+                         "bufferViews": [{"buffer": 0, "byteOffset": 0, "byteLength": 36}],
+                         "accessors": [{"bufferView": 0, "componentType": 5126, "count": 3, "type": "VEC3",
+                                        "min": [0, 0, 0], "max": [1, 1, 0]}]}).encode()
+        js += b" " * ((4 - len(js) % 4) % 4)
+        total = 12 + 8 + len(js) + 8 + len(pos)
+        glb = struct.pack("<III", 0x46546C67, 2, total) + struct.pack("<II", len(js), 0x4E4F534A) + js + struct.pack("<II", len(pos), 0x004E4942) + pos
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "m.glb").write_bytes(glb)
+            png = Path(d) / "m.png"
+            self.assertEqual(mod.main([str(Path(d) / "m.glb"), str(png), "--largura", "160", "--altura", "100", "--amostras", "4",
+                                       "--fundo", "#0B3D2E"]), 0)
+            b = png.read_bytes()
+        self.assertEqual(b[:8], bytes.fromhex("89504e470d0a1a0a"))
+        w, h, prof, tipo = struct.unpack(">IIBB", b[16:26])
+        self.assertEqual((w, h), (160, 100))
+        dados, i = b"", 8
+        while i < len(b):
+            n, t = struct.unpack(">I4s", b[i:i + 8]); dados += b[i + 8:i + 8 + n] if t == b"IDAT" else b""; i += 12 + n
+        cru = zlib.decompress(dados)
+        canais = {6: 4, 2: 3}[tipo] * (prof // 8)
+        filtro, linha = cru[0], bytearray(cru[1:1 + w * canais])
+        if filtro in (1, 4):                       # Sub e Paeth na 1ª linha: soma o pixel da esquerda
+            for k in range(canais, len(linha)):
+                linha[k] = (linha[k] + linha[k - canais]) & 0xFF
+        elif filtro == 3:                          # Average na 1ª linha
+            for k in range(canais, len(linha)):
+                linha[k] = (linha[k] + linha[k - canais] // 2) & 0xFF
+        self.assertEqual(tuple(linha[:3]) if prof == 8 else None, (0x0B, 0x3D, 0x2E))
+
     def test_cena_sem_internet(self):
         self.assertNotRegex(ler(RAIZ / "ferramentas" / "blender_cena.py"), r"https?://")
 

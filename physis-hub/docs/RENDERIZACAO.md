@@ -69,16 +69,16 @@ leitor de tela real, celular de verdade.
 | Pergunta | Resposta | M&A | Feito neste ramo |
 |---|---|---|---|
 | Trocar o 3D do Planejador pela `physis-3d.js`? | Trocar, em teste | pg:cf499965b745 | `ver3D` agora desenha pela vista comum (bloco `physis-3d` copiado por `sincronizar.py`); a conta das áreas é a mesma linha de antes. Conferido com um IFC de dois ambientes: 20,00 e 9,00 m², iguais à conta antiga. Plataforma (`painel.html`) e demos regeneradas. |
-| Blender no servidor para imagens de apresentação? | Sim, como opção | pg:b88441eec95b | `ferramentas/renderizar_glb.py` + `ferramentas/blender_cena.py` (GLB → Cycles, vistas iguais às do navegador, fundo da paleta). Sem Blender, avisa e sai com 2. **Não testado com o Blender** (não instalado nesta máquina). |
+| Blender no servidor para imagens de apresentação? | Sim, como opção | pg:b88441eec95b | `ferramentas/renderizar_glb.py` + `ferramentas/blender_cena.py` (GLB → Cycles, vistas e enquadramento iguais aos do navegador, fundo da paleta por composição de pixels, que não depende do compositor do Blender 5). Sem Blender, avisa e sai com 2. **Testado com o Blender 5.3** (instalado pelo winget a pedido da dona): IFC novo do gêmeo (177 peças, GLB de 815 kB), 1600×1000 px com 64 amostras em ~70 s, fundos `#F4F1EA` e `#0B3D2E`; teste automático roda o Blender quando ele existe. |
 | three.js em módulos ES? | Agora, em teste | pg:ea1020f44c18 | `ferramentas/baixar_three.py` baixou three.js 0.170.0 (núcleo + 14 addons) do jsDelivr e conferiu cada arquivo com o SHA-256 publicado (`vendor/three/SHA256.json`). O servidor entrega só a lista (`THREE_MODULOS`); `montar.py` leva para o pacote. A vista carrega por importmap, com oclusão de ambiente (GTAO) e leitura de GLB; sem os módulos, cai no `three.min.js` 0.160 sem esses dois recursos. |
 
 Capturas novas: `claro-iso-depois.png` (com oclusão de ambiente), `claro-iso-depois-sem-oclusao.png`, `escuro-iso-depois.png`,
-`planejador-ambientes-escuro.png` (dentro do Planejador, tema escuro).
+`planejador-ambientes-escuro.png` (dentro do Planejador, tema escuro), `navegador-ifc-novo-claro.png` e
+`blender-cycles-claro.png` (o mesmo IFC novo do gêmeo no navegador e no Blender/Cycles).
 
 ## 6. Ainda pendente
 
-- Instalar o Blender no servidor da Physis e rodar `renderizar_glb.py` de verdade (o compositor mudou no Blender 5: se o fundo da
-  paleta falhar, a imagem sai com fundo transparente).
+- Instalar o Blender no servidor da Physis (nesta máquina já está: Blender 5.3).
 - Merge no main: só com a aprovação da dona depois de ver o Planejador no ramo `teste/renderizacao-3d`.
 - Propostas para outras sessões, sem mexer aqui: mapas com fundo do tema escuro; vista STL/OBJ do M&A pela `physis-3d.js` (hoje
   com laço de quadros contínuo); `rasterizar` exportar com fundo do tema; acabamentos dos PDFs 09/09b no IFC do gêmeo (pedido
