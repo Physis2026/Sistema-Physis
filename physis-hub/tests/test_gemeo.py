@@ -118,7 +118,7 @@ class Semente(unittest.TestCase):
         self.assertEqual(self.fv["areas.quadro.total.construida_m2"]["valor"],
                          self.fv["areas.construida_total_m2"]["valor"])
         self.assertEqual(self.fv["areas.quadro.total.projecao_m2"]["valor"], self.fv["areas.projecao_m2"]["valor"])
-        cis = [d["valor"] for p, d in self.fv.items() if p.startswith("agua.cisterna.")]
+        cis = [d["valor"] for p, d in self.fv.items() if p.startswith("agua.cisterna.") and p.endswith(".volume_m3")]
         self.assertAlmostEqual(sum(cis), self.fv["agua.reservacao_total_m3"]["valor"], delta=0.05)
         self.assertEqual(self.fv["energia.fv.placas"]["valor"],
                          self.fv["energia.fv.placas_acumuladas.fase3"]["valor"])
@@ -129,7 +129,7 @@ class Semente(unittest.TestCase):
 
     def test_divergencias_conferir(self):
         ab = G.conferir_abertos(self.p)
-        self.assertEqual(sorted(set(ab.values())), ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"])
+        self.assertEqual(sorted(set(ab.values())), ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9"])
         esperado = {"lote.area_m2": ("D6", 1216.0), "areas.projecao_m2": ("D4", 244.4),
                     "energia.fv.placas": ("D1", 70.0), "energia.fv.kwp": ("D1", 38.5),
                     "programa.lofts": ("D3", 5)}
@@ -283,10 +283,8 @@ class IFC3D(unittest.TestCase):
         self.assertEqual(self.r["esquema"], "IFC4")
         self.assertEqual(self.r["elementos_por_tipo"]["IFCBUILDINGELEMENTPROXY"], 92)
         com_area = sum(1 for e in self.p["gemeo"]["elementos"].values() if not e["sem_area"])
-        # perfis das massas: os retângulos e círculos menos os dos blocos, do muro e dos contraventos
-        extras = (self.r["elementos_por_tipo"]["IFCFOOTING"] + self.r["elementos_por_tipo"].get("IFCWALL", 0)
-                  + len(re.findall(r"IFCRECTANGLEPROFILEDEF\(\.AREA\.,\$,#\d+,0\.03,0\.03\)", self.txt)))
-        self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"] - extras, com_area)
+        # toda massa com área tem perfil (os demais perfis são de blocos, muro, contraventos, tubos, caixas e tanques)
+        self.assertGreaterEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"], com_area)
         self.assertEqual(self.r["tipos"]["IFCZONE"], 3)
         self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 2)  # terreno + cobertura cônica
         for chave in self.p["gemeo"]["elementos"]:
@@ -405,6 +403,26 @@ class IFC3D(unittest.TestCase):
                       "[CONFERIR no catálogo]", "[MARCADOR] desenho 0,30 m"):
             self.assertIn(marca, legivel)
         self.assertIsNone(self.GI.apoios("hortaA", self.GI.forma(els["hortaA"], its["hortaA"]), self.p))
+
+    def test_hidraulica_esgoto_e_drenagem(self):
+        """Camada casa-gemeo-hidraulica: rede de esgoto da 20 com as cotas de fundo exatas, caixas, tanques e
+        cisternas com as dimensões úteis da 20; o que não tem posição entra sem geometria."""
+        ep = self.r["elementos_por_tipo"]
+        nos, tubos, avisos = self.GI.rede_esgoto(self.p)
+        self.assertEqual(ep["IFCPIPESEGMENT"], len(tubos))
+        self.assertEqual(len(tubos), 11)
+        self.assertEqual(avisos, [])                                    # os trechos da 20 fecham com as distâncias
+        fv = self.p["gemeo"]["fonte_por_valor"]
+        t0 = next(tb for tb in tubos if tb["nome"] == "Casa → CI-1")
+        self.assertEqual((t0["z0"], t0["z1"]), (fv["esgoto.trecho.casa_ci_1.fundo_inicio_m"]["valor"],
+                                                fv["esgoto.trecho.casa_ci_1.fundo_fim_m"]["valor"]))
+        self.assertEqual(set(nos) - set(self.GI.ANCORAS_ESGOTO), {"CI-1", "CI-2", "CI-3", "CI-4", "CI-5", "CI-6", "CI-7", "CGord"})
+        self.assertEqual(ep["IFCTANK"], 9)       # biodigestor, fossa, filtro, C1, C2 (2 tanques), C3, C4–C7, C8–C10
+        legivel = re.sub(r"\\X2\\([0-9A-F]+)\\X0\\",
+                         lambda m: "".join(chr(int(m.group(1)[k:k + 4], 16)) for k in range(0, len(m.group(1)), 4)), self.txt)
+        self.assertIn("fossa 2.6 + filtro 2.2 = 4.8 m > 4.1 m da 03", legivel)
+        self.assertIn("[MARCADOR] a 03 não desenha", legivel)          # C4–C10 sem posição
+        self.assertIn("D9: cota 884.5 (20) × 880 (03)", legivel)        # Loft 4: cota da 20 × geometria da 03
 
     def test_reprodutivel_e_arquivo_em_dia(self):
         self.assertEqual(self.GI.escrever(self.p), self.txt)

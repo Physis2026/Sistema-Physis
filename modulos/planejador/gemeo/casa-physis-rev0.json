@@ -4904,6 +4904,1032 @@
     "entidade": "Casa Physis",
     "nota": "6 m³ (calculado 4,2 a 5,5 m³ + margem)"
    },
+   "esgoto.trecho.casa_ci_1.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.comprimento_m": {
+    "valor": 1.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.declividade_pct": {
+    "valor": 2.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.terreno_inicio_m": {
+    "valor": 899.68,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.fundo_inicio_m": {
+    "valor": 899.28,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.terreno_fim_m": {
+    "valor": 899.86,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.fundo_fim_m": {
+    "valor": 899.25,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1; 0 caixas intermediárias"
+   },
+   "esgoto.trecho.ci_1_ci_2.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.comprimento_m": {
+    "valor": 13.6,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.terreno_inicio_m": {
+    "valor": 899.86,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.fundo_inicio_m": {
+    "valor": 899.25,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.terreno_fim_m": {
+    "valor": 893.96,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.fundo_fim_m": {
+    "valor": 893.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2; 1 caixas intermediárias; degraus somando 3,65 m"
+   },
+   "esgoto.trecho.ci_2_lab.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.comprimento_m": {
+    "valor": 5.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.terreno_inicio_m": {
+    "valor": 893.96,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.fundo_inicio_m": {
+    "valor": 893.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.terreno_fim_m": {
+    "valor": 892.04,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.fundo_fim_m": {
+    "valor": 891.64,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB; 0 caixas intermediárias; degraus somando 1,18 m"
+   },
+   "esgoto.trecho.lab_ci_3.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.comprimento_m": {
+    "valor": 3.9,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.declividade_pct": {
+    "valor": 2.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.terreno_inicio_m": {
+    "valor": 892.04,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.fundo_inicio_m": {
+    "valor": 891.64,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.terreno_fim_m": {
+    "valor": 892.75,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.fundo_fim_m": {
+    "valor": 891.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3; 0 caixas intermediárias"
+   },
+   "esgoto.trecho.ci_3_ci_4.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.comprimento_m": {
+    "valor": 6.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.terreno_inicio_m": {
+    "valor": 892.75,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.fundo_inicio_m": {
+    "valor": 891.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.terreno_fim_m": {
+    "valor": 889.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.fundo_fim_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4; 0 caixas intermediárias; degraus somando 1,37 m"
+   },
+   "esgoto.trecho.ci_4_biodigestor.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.comprimento_m": {
+    "valor": 6.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.terreno_inicio_m": {
+    "valor": 889.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.fundo_inicio_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.terreno_fim_m": {
+    "valor": 888.48,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.fundo_fim_m": {
+    "valor": 888.08,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor; 0 caixas intermediárias; degraus somando 0,21 m"
+   },
+   "esgoto.trecho.restaurante_cgord.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.comprimento_m": {
+    "valor": 2.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.declividade_pct": {
+    "valor": 1.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.terreno_inicio_m": {
+    "valor": 889.64,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.fundo_inicio_m": {
+    "valor": 889.24,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.terreno_fim_m": {
+    "valor": 890.08,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.fundo_fim_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord; 0 caixas intermediárias"
+   },
+   "esgoto.trecho.cgord_ci_5.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.comprimento_m": {
+    "valor": 7.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.terreno_inicio_m": {
+    "valor": 890.08,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.fundo_inicio_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.terreno_fim_m": {
+    "valor": 888.02,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.fundo_fim_m": {
+    "valor": 887.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5; 0 caixas intermediárias; degraus somando 0,52 m"
+   },
+   "esgoto.trecho.ci_5_ci_6.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.comprimento_m": {
+    "valor": 9.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.terreno_inicio_m": {
+    "valor": 888.02,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.fundo_inicio_m": {
+    "valor": 887.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.terreno_fim_m": {
+    "valor": 882.83,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.fundo_fim_m": {
+    "valor": 882.43,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6; 0 caixas intermediárias; degraus somando 3,76 m"
+   },
+   "esgoto.trecho.ci_6_ci_7.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.comprimento_m": {
+    "valor": 6.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.terreno_inicio_m": {
+    "valor": 882.83,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.fundo_inicio_m": {
+    "valor": 882.43,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.terreno_fim_m": {
+    "valor": 880.18,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.fundo_fim_m": {
+    "valor": 879.78,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7; 0 caixas intermediárias; degraus somando 1,75 m"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.comprimento_m": {
+    "valor": 4.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.terreno_inicio_m": {
+    "valor": 880.18,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.fundo_inicio_m": {
+    "valor": 879.78,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.terreno_fim_m": {
+    "valor": 878.68,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.fundo_fim_m": {
+    "valor": 878.28,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro; 0 caixas intermediárias; degraus somando 0,90 m"
+   },
+   "esgoto.dimensoes.biodigestor": {
+    "valor": "cilindro Ø 2,5 × 2,4",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.caixa_de_gordura": {
+    "valor": "0,60 × 0,60 × 0,45",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.fossa_septica": {
+    "valor": "2,6 × 1,6 × 1,6",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.filtro_anaerobio": {
+    "valor": "2,2 × 1,6 × 1,5 (leito de brita 1,2 m)",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.floresta_filtrante": {
+    "valor": "8,2 × 5,0 × 0,60 (brita e areia, plantas)",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.caixas_de_inspecao": {
+    "valor": "0,60 × 0,60; com degrau onde indicado",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c1.dimensoes": {
+    "valor": "5,3 × 3,4 × 2,5",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c2.dimensoes": {
+    "valor": "2 tanques de 3,1 × 1,6 × 2,0",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c3.dimensoes": {
+    "valor": "4,6 × 2,4 × 2,3",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c4_a_c7_modulares.dimensoes": {
+    "valor": "tanques de PEAD de 5 a 10 m³",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c8_a_c10_modulares.dimensoes": {
+    "valor": "tanques de PEAD de 5 a 10 m³",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.ponto.casa_1_terreo.cota_m": {
+    "valor": 901.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: casa"
+   },
+   "agua.ponto.casa_1_terreo.pressao_mca": {
+    "valor": 16.2,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; pressurizador (cota acima da rua menos perda)"
+   },
+   "agua.ponto.gourmet.cota_m": {
+    "valor": 895.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: gourmet"
+   },
+   "agua.ponto.gourmet.pressao_mca": {
+    "valor": 22.2,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.lab_inferior.cota_m": {
+    "valor": 891.36,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: lab"
+   },
+   "agua.ponto.lab_inferior.pressao_mca": {
+    "valor": 26.0,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.mec_superior.cota_m": {
+    "valor": 895.76,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: mec_up"
+   },
+   "agua.ponto.mec_superior.pressao_mca": {
+    "valor": 21.6,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.restaurante.cota_m": {
+    "valor": 891.8,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: bar"
+   },
+   "agua.ponto.restaurante.pressao_mca": {
+    "valor": 25.6,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.loft_4_mais_alto.cota_m": {
+    "valor": 884.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D9",
+     "alternativas": [
+      {
+       "valor": 880.0,
+       "fonte": "planilha 03 › Implantação, linha 56 (LF4, geometria da 03)"
+      }
+     ]
+    },
+    "nota": "elemento da 03: LF4"
+   },
+   "agua.ponto.loft_4_mais_alto.pressao_mca": {
+    "valor": 32.9,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 7, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.loft_2_mais_baixo.cota_m": {
+    "valor": 879.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 8, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D9",
+     "alternativas": [
+      {
+       "valor": 883.0,
+       "fonte": "planilha 03 › Implantação, linha 53 (LF2, geometria da 03)"
+      }
+     ]
+    },
+    "nota": "elemento da 03: LF2"
+   },
+   "agua.ponto.loft_2_mais_baixo.pressao_mca": {
+    "valor": 38.4,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 8, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.plato_da_rua_g.cota_m": {
+    "valor": 875.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 9, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D9",
+     "alternativas": [
+      {
+       "valor": 876.3,
+       "fonte": "planilha 03 › Implantação, linha 68 (garagem, geometria da 03)"
+      }
+     ]
+    },
+    "nota": "elemento da 03: garagem"
+   },
+   "agua.ponto.plato_da_rua_g.pressao_mca": {
+    "valor": 42.2,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 9, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; válvula redutora de pressão"
+   },
+   "drenagem.elemento.valetas_em_curva_de_nivel_4": {
+    "valor": "Ø 300 meia-cana em pedra, 0,30 × 0,20 · 1 a 2% para oeste · 25 a 36 L/s",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 2",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.descida_protegida": {
+    "valor": "canal em degraus de 0,30 m, largura 0,60, bacia a cada 5 m · ≈ 45% (encosta) · ≥ 45 L/s (T = 25 anos)",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 3",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.caixas_de_areia": {
+    "valor": "0,60 × 0,60 × 0,80 · — · no pé de cada valeta",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 4",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.jardim_de_chuva_rua_h": {
+    "valor": "2,2 × 3,4 × 0,40 · — · ≈ 3 m³",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 5",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.detencao_rua_g": {
+    "valor": "4,5 × 2,4 × 0,60 · saída Ø 100 · 6 m³ (calculado 4,2 a 5,5 m³ + margem)",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 6",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.valas_de_infiltracao": {
+    "valor": "0,60 × 0,60, brita e manta, em curva de nível · nível · a dimensionar após ensaio de infiltração (excedente de 26 m³ numa chuva de 2 h)",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 7",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.lancamento": {
+    "valor": "tubo Ø 200 até a sarjeta da Rua G · ≥ 1% · confirmar galeria",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 8",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
    "estrutura.apoios.casa_1": {
     "valor": 15.0,
     "unidade": "apoios",

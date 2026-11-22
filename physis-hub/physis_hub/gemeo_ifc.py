@@ -339,11 +339,224 @@ def _barra(W, oh, corpo, estilo, pl_site, p0, p1, perfil, cor, entidade, tipo, n
                 f"{W.add('IFCDIRECTION((0.,0.,1.))')},{r_(L)})")
     W.add(f"IFCSTYLEDITEM({sol},({estilo(cor)}),$)")
     rep = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sol}))')}))")
+    predef = {"IFCBEAM": "BEAM", "IFCMEMBER": "BRACE", "IFCPIPESEGMENT": "RIGIDSEGMENT"}.get(entidade, "USERDEFINED")
     ref_el = W.add(f"{entidade}({W.guid(*guid_partes)},{oh},{s_(nome)},$,{s_(tipo)},{W.add(f'IFCLOCALPLACEMENT({pl_site},{pos})')},"
-                   f"{rep},{s_(tag)},.{'BEAM' if entidade == 'IFCBEAM' else 'BRACE'}.)")
+                   f"{rep},{s_(tag)},.{predef}.)")
     W.pset(oh, "Physis_Estrutura", [W.propriedade(k, v, "m" if k == "Comprimento" else None) for k, v in props] +
            [W.propriedade("Comprimento", round(L, 3), "m")], [ref_el], "/".join(map(str, guid_partes)))
     return ref_el
+
+
+# ---------------------------------------------------------------- hidráulica, esgoto e drenagem (22/11)
+# Camada casa-gemeo-hidraulica (decisão pg:ee988f1fe957). A 20 dá a rede de esgoto trecho a trecho (DN, comprimento,
+# cotas de fundo) e as dimensões úteis das unidades; a posição em planta das caixas não existe: elas ficam ao longo
+# da reta entre as peças conhecidas, na proporção dos comprimentos da 20 [CONFERIR]. Sem posição: sem geometria.
+COR_ESGOTO = "#8A6410"     # PALETA.md (atenção, ocre)
+COR_AGUA = "#C9D2C4"       # PALETA.md (linha)
+ANCORAS_ESGOTO = {"Casa": "casa", "LAB": "lab", "Biodigestor": "biodig", "Restaurante": "bar", "Fossa e filtro": "fossa"}
+
+
+def _medidas(txt):
+    from .gemeo_importar import numeros_br
+    return numeros_br(re.split(r"\(", str(txt or ""))[0])
+
+
+def rede_esgoto(projeto):
+    """Nós (nome → (x, y)), tubos (de, para, DN, z0, z1, comprimento da 20, terreno no início) e avisos de coerência."""
+    fv = projeto["gemeo"]["fonte_por_valor"]
+    trechos = {}
+    for cam, d in fv.items():
+        m = re.match(r"esgoto\.trecho\.(.+)\.(dn_mm|comprimento_m|fundo_inicio_m|fundo_fim_m|terreno_inicio_m|terreno_fim_m)$", cam)
+        if m:
+            tr = trechos.setdefault(m.group(1), {"nome": d.get("nota", "").split(";")[0], "fonte": d["fonte"]})
+            tr[m.group(2)] = d["valor"]
+    if not trechos:
+        return {}, [], []
+    lista = list(trechos.values())
+    for tr in lista:
+        a, b = [s.strip() for s in tr["nome"].split("→")]
+        tr["de"], tr["para"] = a, b
+    # cadeias contínuas (fim de um = início do outro)
+    cadeias, usados = [], set()
+    for tr in lista:
+        if any(o["para"] == tr["de"] for o in lista) or id(tr) in usados:
+            continue
+        c, atual = [], tr
+        while atual and id(atual) not in usados:
+            usados.add(id(atual))
+            c.append(atual)
+            atual = next((o for o in lista if o["de"] == atual["para"]), None)
+        cadeias.append(c)
+    els = projeto["gemeo"]["elementos"]
+    itens = {i["id"]: i for i in projeto["itens"]}
+    pos_anc = {n: (itens[els[k]["item_id"]]["x"], itens[els[k]["item_id"]]["y"]) for n, k in ANCORAS_ESGOTO.items() if k in els}
+    nos, avisos = dict(pos_anc), []
+    for c in cadeias:
+        nomes = [c[0]["de"]] + [tr["para"] for tr in c]
+        idx = [i for i, n in enumerate(nomes) if n in pos_anc]
+        for i0, i1 in zip(idx, idx[1:]):
+            p0, p1 = pos_anc[nomes[i0]], pos_anc[nomes[i1]]
+            comps = [c[k]["comprimento_m"] for k in range(i0, i1)]
+            soma, reta = sum(comps), math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+            if reta > soma + 0.5:
+                avisos.append({"de": nomes[i0], "para": nomes[i1], "soma_20_m": round(soma, 2), "reta_03_m": round(reta, 2)})
+            acum = 0.0
+            for k in range(i0 + 1, i1):
+                acum += comps[k - i0 - 1]
+                f = acum / soma if soma else 0
+                nos.setdefault(nomes[k], (p0[0] + (p1[0] - p0[0]) * f, p0[1] + (p1[1] - p0[1]) * f))
+    tubos = [{**tr, "z0": tr["fundo_inicio_m"], "z1": tr["fundo_fim_m"]} for c in cadeias for tr in c
+             if tr["de"] in nos and tr["para"] in nos]
+    return nos, tubos, avisos
+
+
+def _caixa(W, corpo, estilo, cor, dx, dy, dz, centro=False):
+    p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
+    sol = W.add(f"IFCEXTRUDEDAREASOLID({W.add(f'IFCRECTANGLEPROFILEDEF(.AREA.,$,{p2},{r_(dx)},{r_(dy)})')},"
+                f"{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)')},{W.add('IFCDIRECTION((0.,0.,1.))')},{r_(dz)})")
+    W.add(f"IFCSTYLEDITEM({sol},({estilo(cor)}),$)")
+    return W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sol}))')}))")
+
+
+def _cilindro(W, corpo, estilo, cor, r, h):
+    p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
+    sol = W.add(f"IFCEXTRUDEDAREASOLID({W.add(f'IFCCIRCLEPROFILEDEF(.AREA.,$,{p2},{r_(r)})')},"
+                f"{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)')},{W.add('IFCDIRECTION((0.,0.,1.))')},{r_(h)})")
+    W.add(f"IFCSTYLEDITEM({sol},({estilo(cor)}),$)")
+    return W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sol}))')}))")
+
+
+def _hidraulica(W, oh, corpo, estilo, pl_site, projeto, T, ref_por_chave):
+    """Rede de esgoto, unidades de tratamento, cisternas, pontos de água e drenagem. Devolve (refs, zona de cada ref)."""
+    fv = projeto["gemeo"]["fonte_por_valor"]
+    els = projeto["gemeo"]["elementos"]
+    itens = {i["id"]: i for i in projeto["itens"]}
+    out = []
+    pos = lambda k: (itens[els[k]["item_id"]]["x"], itens[els[k]["item_id"]]["y"])
+    nos, tubos, avisos = rede_esgoto(projeto)
+    # tubos
+    for k, tb in enumerate(tubos, 1):
+        (x0, y0), (x1, y1) = nos[tb["de"]], nos[tb["para"]]
+        p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
+        r = tb["dn_mm"] / 2000
+        perf = W.add(f"IFCCIRCLEPROFILEDEF(.AREA.,{s_('DN ' + format(tb['dn_mm'], 'g'))},{p2},{r_(r)})")
+        ref = _barra(W, oh, corpo, estilo, pl_site, (x0, y0, tb["z0"] + r), (x1, y1, tb["z1"] + r), perf, COR_ESGOTO,
+                     "IFCPIPESEGMENT", "tubo de esgoto", f"Esgoto {tb['nome']}", f"ESG-{k}", ("esg", k),
+                     [("Trecho", tb["nome"]), ("DN", f"{tb['dn_mm']:g} mm"), ("ComprimentoPlanilha", f"{tb['comprimento_m']:g} m"),
+                      ("Fonte", tb["fonte"]), ("Cotas", f"fundo {tb['z0']:g} → {tb['z1']:g} m (20)"),
+                      ("Posicao", "traçado em planta pela reta entre as peças conhecidas [CONFERIR]")])
+        if ref:
+            out.append((ref, "Z2"))
+    # caixas de inspeção e de gordura nos nós intermediários (do fundo ao terreno)
+    dim_ci = _medidas((fv.get("esgoto.dimensoes.caixas_de_inspecao") or {}).get("valor")) or [0.6, 0.6]
+    dim_cg = _medidas((fv.get("esgoto.dimensoes.caixa_de_gordura") or {}).get("valor"))
+    for nome, (x, y) in nos.items():
+        if nome in ANCORAS_ESGOTO:
+            continue
+        sai = next((tb for tb in tubos if tb["de"] == nome), None)
+        chega = next((tb for tb in tubos if tb["para"] == nome), None)
+        fundo = min(v for v in ((sai or {}).get("z0"), (chega or {}).get("z1")) if v is not None)
+        terreno = (sai or {}).get("terreno_inicio_m") or (chega or {}).get("terreno_fim_m") or T.z(x, y)
+        gord = nome.lower().startswith("cgord")
+        dx, dy = (dim_cg[0], dim_cg[1]) if gord and len(dim_cg) >= 2 else (dim_ci[0], dim_ci[1])
+        h = max(terreno - fundo, dim_cg[2] if gord and len(dim_cg) >= 3 else 0.3)
+        rep = _caixa(W, corpo, estilo, COR_ESGOTO, dx, dy, h)
+        el = W.add(f"IFCDISTRIBUTIONCHAMBERELEMENT({W.guid('ci', nome)},{oh},{s_(nome)},$,"
+                   f"{s_('caixa de gordura' if gord else 'caixa de inspeção')},{W.colocacao(pl_site, x, y, fundo)},{rep},{s_(nome)},"
+                   f".{'USERDEFINED' if gord else 'INSPECTIONCHAMBER'}.)")
+        W.pset(oh, "Physis_Esgoto", [W.propriedade("Fundo", round(fundo, 3), "m"), W.propriedade("Terreno", round(terreno, 3), "m"),
+                                     W.propriedade("Fonte", (sai or chega)["fonte"]),
+                                     W.propriedade("Posicao", "na proporção dos comprimentos da 20 [CONFERIR]")], [el], "ci-" + nome)
+        out.append((el, "Z2"))
+    # unidades de tratamento
+    def tanque(chave_el, nome, rep, z0, props, zona, tag):
+        x, y = pos(chave_el)
+        el = W.add(f"IFCTANK({W.guid('tq', tag)},{oh},{s_(nome)},$,{s_(nome)},{W.colocacao(pl_site, x + tag_off.get(tag, 0.0), y, z0)},"
+                   f"{rep},{s_(tag)},.USERDEFINED.)")
+        W.pset(oh, "Physis_Tanque", [W.propriedade(k, v) for k, v in props], [el], "tq-" + tag)
+        out.append((el, zona))
+    tag_off = {}
+    bio = _medidas((fv.get("esgoto.dimensoes.biodigestor") or {}).get("valor"))
+    if "biodig" in els and len(bio) >= 2:
+        zt = els["biodig"]["piso_topo_m"]
+        tanque("biodig", "Biodigestor", _cilindro(W, corpo, estilo, COR_ESGOTO, bio[0] / 2, bio[1]), zt - bio[1],
+               [("Dimensoes", fv["esgoto.dimensoes.biodigestor"]["valor"]), ("Volume", f"{fv['esgoto.biodigestor']['valor']:g} m³"),
+                ("Fonte", fv["esgoto.dimensoes.biodigestor"]["fonte"]), ("Topo", "no piso / topo da 03")], "Z2", "biodigestor")
+    fos = _medidas((fv.get("esgoto.dimensoes.fossa_septica") or {}).get("valor"))
+    fil = _medidas((fv.get("esgoto.dimensoes.filtro_anaerobio") or {}).get("valor"))
+    if "fossa" in els and len(fos) >= 3 and len(fil) >= 3:
+        larg03 = itens[els["fossa"]["item_id"]]["w"]
+        cabe = fos[0] + fil[0] <= larg03 + 0.05
+        conf = "" if cabe else f" [CONFERIR: fossa {fos[0]:g} + filtro {fil[0]:g} = {fos[0] + fil[0]:g} m > {larg03:g} m da 03]"
+        zt = els["fossa"]["piso_topo_m"]
+        tag_off.update({"fossa": -(fos[0] + fil[0]) / 2 + fos[0] / 2, "filtro": (fos[0] + fil[0]) / 2 - fil[0] / 2})
+        tanque("fossa", "Fossa séptica", _caixa(W, corpo, estilo, COR_ESGOTO, fos[0], fos[1], fos[2]), zt - fos[2],
+               [("Dimensoes", fv["esgoto.dimensoes.fossa_septica"]["valor"]), ("Fonte", fv["esgoto.dimensoes.fossa_septica"]["fonte"]),
+                ("Posicao", "lado a lado no platô da Rua G" + conf)], "Z3", "fossa")
+        tanque("fossa", "Filtro anaeróbio", _caixa(W, corpo, estilo, COR_ESGOTO, fil[0], fil[1], fil[2]), zt - fil[2],
+               [("Dimensoes", fv["esgoto.dimensoes.filtro_anaerobio"]["valor"]), ("Fonte", fv["esgoto.dimensoes.filtro_anaerobio"]["fonte"]),
+                ("Posicao", "lado a lado no platô da Rua G" + conf)], "Z3", "filtro")
+    # cisternas: C1, C2, C3 nos elementos da 03; C4–C10 sem posição (sem geometria)
+    for cist, chave_el in (("c1", "cist1"), ("c2", "cist2"), ("c3", "cist4")):
+        d = fv.get(f"agua.cisterna.{cist}.dimensoes")
+        vol = fv.get(f"agua.cisterna.{cist}.volume_m3")
+        med = _medidas(d["valor"]) if d else []
+        if chave_el not in els or not d or len(med) < 3:
+            continue
+        n_tq = int(med[0]) if med[0] < 5 and len(med) >= 4 else 1           # "2 tanques de 3,1 × 1,6 × 2,0"
+        dims = med[1:4] if n_tq > 1 else med[0:3]
+        zt = els[chave_el]["piso_topo_m"]
+        for j in range(n_tq):
+            tag_off[f"{cist}-{j}"] = j * (dims[0] + 0.3)
+            tanque(chave_el, f"Cisterna {cist.upper()}" + (f" · tanque {j + 1}" if n_tq > 1 else ""),
+                   _caixa(W, corpo, estilo, COR_AGUA, dims[0], dims[1], dims[2]), zt - dims[2],
+                   [("Dimensoes", d["valor"]), ("Volume", f"{vol['valor']:g} m³" if vol else "[MARCADOR]"), ("Fonte", d["fonte"]),
+                    ("Posicao", "no elemento da 03" + (" (2º tanque ao lado: a 03 só desenha um) [CONFERIR]" if j else ""))],
+                   els[chave_el]["zona"], f"{cist}-{j}")
+    for cist in ("c4_a_c7_modulares", "c8_a_c10_modulares"):
+        d, vol = fv.get(f"agua.cisterna.{cist}.dimensoes"), fv.get(f"agua.cisterna.{cist}.volume_m3")
+        if d and vol:
+            el = W.add(f"IFCTANK({W.guid('tq', cist)},{oh},{s_('Cisternas ' + cist.split('_')[0].upper() + ' a ' + cist.split('_')[2].upper())},"
+                       f"$,'cisternas modulares',{W.colocacao(pl_site)},$,{s_(cist)},.USERDEFINED.)")
+            W.pset(oh, "Physis_Tanque", [W.propriedade("Volume", f"{vol['valor']:g} m³"), W.propriedade("Dimensoes", d["valor"]),
+                                         W.propriedade("Fonte", vol["fonte"]), W.propriedade("Local", vol.get("nota") or ""),
+                                         W.propriedade("Posicao", "[MARCADOR] a 03 não desenha")], [el], "tq-" + cist)
+            out.append((el, vol["zona"] if vol["zona"] in G.ZONAS else "Z2"))
+    # pontos de água (cota e pressão da 20) nos elementos da 03
+    for cam, d in fv.items():
+        m = re.match(r"agua\.ponto\.(.+)\.cota_m$", cam)
+        chave_el = (d.get("nota") or "").replace("elemento da 03: ", "") if m else None
+        if not m or chave_el not in ref_por_chave:
+            continue
+        pr = fv.get(f"agua.ponto.{m.group(1)}.pressao_mca", {})
+        props = [W.propriedade("CotaPlanilha20", d["valor"], "m"), W.propriedade("PressaoEstatica", pr.get("valor"), "m.c.a."),
+                 W.propriedade("Solucao", pr.get("nota") or ""), W.propriedade("Fonte", d["fonte"])]
+        if d.get("conferir"):
+            alt = d["conferir"]["alternativas"][0]
+            props.append(W.propriedade("Conferir", f"{d['conferir']['divergencia']}: cota {d['valor']:g} (20) × {alt['valor']:g} (03)"))
+        W.pset(oh, "Physis_Agua", props, [ref_por_chave[chave_el]], "agua-" + m.group(1))
+    # drenagem: dados da 20 sem posição (sem geometria), jardim de chuva no elemento da 03
+    for cam, d in fv.items():
+        m = re.match(r"drenagem\.elemento\.(.+)$", cam)
+        if not m:
+            continue
+        if m.group(1).startswith("jardim_de_chuva") and "chuva_h" in ref_por_chave:
+            W.pset(oh, "Physis_Drenagem", [W.propriedade("Dados", d["valor"]), W.propriedade("Fonte", d["fonte"])],
+                   [ref_por_chave["chuva_h"]], "dren-" + m.group(1))
+            continue
+        el = W.add(f"IFCDISTRIBUTIONCHAMBERELEMENT({W.guid('dren', m.group(1))},{oh},{s_(m.group(1).replace('_', ' '))},$,"
+                   f"'drenagem',{W.colocacao(pl_site)},$,{s_('DREN-' + m.group(1)[:20])},.USERDEFINED.)")
+        W.pset(oh, "Physis_Drenagem", [W.propriedade("Dados", d["valor"]), W.propriedade("Fonte", d["fonte"]),
+                                       W.propriedade("Posicao", "[MARCADOR] traçado sem planta (DWG)")], [el], "dren-" + m.group(1))
+        out.append((el, "Z3"))
+    # avisos de coerência da rede (viram achados do conferente)
+    for av in avisos:
+        el = W.add(f"IFCDISTRIBUTIONCHAMBERELEMENT({W.guid('aviso', av['de'], av['para'])},{oh},"
+                   f"{s_('Aviso de rede: ' + av['de'] + ' → ' + av['para'])},$,'aviso',{W.colocacao(pl_site)},$,'AVISO',.USERDEFINED.)")
+        W.pset(oh, "Physis_Esgoto", [W.propriedade("Conferir", f"soma dos trechos {av['soma_20_m']} m (20) menor que a reta "
+                                                              f"{av['reta_03_m']} m entre as peças (03) [CONFERIR]")], [el], "aviso-" + av["de"])
+        out.append((el, "Z2"))
+    return out
 
 
 def _vigas_e_contraventos(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
@@ -717,7 +930,7 @@ def escrever(projeto, agora=0, altura=None):
                   f"$,{pl_site},{rep_site},$,.ELEMENT.,$,$,$,$,$)")
     W.add(f"IFCRELAGGREGATES({W.guid('agg-proj')},{oh},$,$,{projeto_ifc},({sitio}))")
 
-    refs, por_zona = [], {z: [] for z in G.ZONAS}
+    refs, por_zona, ref_por_chave = [], {z: [] for z in G.ZONAS}, {}
     estado = g["estado_de_vida"]
     for chave, e in els.items():
         it = itens[e["item_id"]]
@@ -783,6 +996,7 @@ def escrever(projeto, agora=0, altura=None):
                     f"{s_(chave)},.USERDEFINED.)")
         refs.append(ref)
         por_zona[e["zona"]].append(ref)
+        ref_por_chave[chave] = ref
         if not e["sem_area"]:
             for est in (_estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto)
                         + _vigas_e_contraventos(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto)
@@ -803,6 +1017,9 @@ def escrever(projeto, agora=0, altura=None):
                 W.propriedade("Cobertura", cp["cob_origem"]), W.propriedade("Material", cp["material"] or "[MARCADOR]"),
                 W.propriedade("Cor", COR_NOTA + (" Andar de cima da Casa 1: contêineres laranja e azul (doc 10, 01, 09b), "
                                                  "não modelado." if chave == "casa" else ""))], [ref], "mat-" + chave)
+    for ref_h, zona_h in _hidraulica(W, oh, corpo, estilo, pl_site, projeto, T, ref_por_chave):
+        refs.append(ref_h)
+        por_zona[zona_h].append(ref_h)
     if "_sem_lugar" in placas:  # placas sem elemento com área na 03 (D3): entram sem geometria, para somar 56
         n, fontes = placas["_sem_lugar"]
         pv_ref = W.add(f"IFCSOLARDEVICE({W.guid('pv', '_sem_lugar')},{oh},'Placas solares sem lugar no modelo',"

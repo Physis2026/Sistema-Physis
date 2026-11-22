@@ -144,6 +144,21 @@ def detectar(projeto, cota_terreno=None):
                 "pilares": e.get("pilar_max_m") is not None, "cat": cat,
                 "enterrado_no_texto": "enterr" in str(e.get("descricao") or "").lower()}, prioridade=1 + min(abs(dz), 5) / 5))
     fv = g["fonte_por_valor"]
+    # rede de esgoto: soma dos trechos da 20 menor que a reta entre as peças da 03
+    _, _, avisos = GI.rede_esgoto(projeto)
+    for av in avisos:
+        out.append(_achado("soma", f"esgoto.{av['de']}>{av['para']}", f"esgoto {av['de']} → {av['para']}: trechos somam "
+                           f"{av['soma_20_m']} m (20), a reta entre as peças tem {av['reta_03_m']} m (03)",
+                           {"dif_abs": round(av["reta_03_m"] - av["soma_20_m"], 2)}, prioridade=2))
+    # unidades que não cabem no espaço desenhado na 03 (fossa + filtro lado a lado)
+    fos = GI._medidas((fv.get("esgoto.dimensoes.fossa_septica") or {}).get("valor"))
+    fil = GI._medidas((fv.get("esgoto.dimensoes.filtro_anaerobio") or {}).get("valor"))
+    if "fossa" in g["elementos"] and fos and fil:
+        larg = itens[g["elementos"]["fossa"]["item_id"]]["w"]
+        if fos[0] + fil[0] > larg + 0.05:
+            out.append(_achado("soma", "esgoto.fossa_filtro_cabe", f"fossa {fos[0]:g} m + filtro {fil[0]:g} m = "
+                               f"{fos[0] + fil[0]:g} m (20) não cabem nos {larg:g} m do espaço da 03",
+                               {"dif_abs": round(fos[0] + fil[0] - larg, 2)}, prioridade=2.5))
     for campo in ("construida_m2", "projecao_m2"):
         partes = [d["valor"] for p, d in fv.items() if p.startswith("areas.quadro.") and p.endswith(campo) and ".total." not in p]
         tot = fv.get(f"areas.quadro.total.{campo}", {}).get("valor")

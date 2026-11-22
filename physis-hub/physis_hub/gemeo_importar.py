@@ -473,6 +473,59 @@ def sistemas_e_divergencias(p20, p03, p18, els):
     v, f = p20.celula("Drenagem", "Detenção", "D")
     put("drenagem.detencao_m3", num_br(v), f, unidade="m³", zona="Z3", nota=str(v))
 
+    # --- hidráulica e esgoto (camada casa-gemeo-hidraulica, decisão pg:ee988f1fe957)
+    aba = "Esgoto trechos"
+    for n, lv in sorted(p20.aba(aba).items()):
+        tr = str(lv.get("A", "")).strip()
+        if n == 1 or "→" not in tr:
+            continue
+        base = f"esgoto.trecho.{_slug(tr)}"
+        put(base + ".dn_mm", num_br(lv["B"]), p20.fonte(aba, n, "B"), unidade="mm", nota=tr)
+        put(base + ".comprimento_m", num_br(lv["C"]), p20.fonte(aba, n, "C"), unidade="m", nota=tr)
+        put(base + ".declividade_pct", num_br(lv["D"]), p20.fonte(aba, n, "D"), unidade="%", nota=tr)
+        put(base + ".terreno_inicio_m", num_br(lv["E"]), p20.fonte(aba, n, "E"), unidade="m", nota=tr)
+        put(base + ".fundo_inicio_m", num_br(lv["F"]), p20.fonte(aba, n, "F"), unidade="m", nota=tr)
+        put(base + ".terreno_fim_m", num_br(lv["G"]), p20.fonte(aba, n, "G"), unidade="m", nota=tr)
+        put(base + ".fundo_fim_m", num_br(lv["H"]), p20.fonte(aba, n, "H"), unidade="m", nota=f"{tr}; {lv.get('I', '')}")
+    aba = "Tratamento"
+    for nome in ("Biodigestor", "Caixa de gordura", "Fossa séptica", "Filtro anaeróbio", "Floresta filtrante", "Caixas de inspeção"):
+        v, f = p20.celula(aba, nome, "C")
+        put(f"esgoto.dimensoes.{_slug(nome)}", str(v), f, zona=ZONA_TRATAMENTO.get(nome, LOTE),
+            nota="dimensões úteis (m), como escritas na planilha")
+    aba = "Cisternas"
+    for n, lv in sorted(p20.aba(aba).items()):
+        nome = str(lv.get("A", "")).strip()
+        if n == 1 or not nome or nome.startswith("Total"):
+            continue
+        put(f"agua.cisterna.{_slug(nome)}.dimensoes", str(lv.get("D", "")), p20.fonte(aba, n, "D"),
+            zona=ZONA_CISTERNA.get(nome, LOTE), nota="dimensões úteis (m), como escritas na planilha")
+    # água por cota: a cota do ponto é da 20; a geometria é da 03 (R1-1): diferença vira D9 [CONFERIR]
+    aba = "Água vertical"
+    ref03 = {"Casa 1": "casa", "Gourmet": "gourmet", "LAB inferior": "lab", "MEC superior": "mec_up",
+             "Restaurante": "bar", "Loft 4": "LF4", "Loft 2": "LF2", "Platô da Rua G": "garagem"}
+    cotas03 = {e["chave"]: (e["piso_topo_m"], e["fonte"]) for e in els}
+    for n, lv in sorted(p20.aba(aba).items()):
+        nome = str(lv.get("A", "")).strip()
+        if n == 1 or not nome:
+            continue
+        cota = num_br(lv["B"])
+        chave = next((c for pre, c in ref03.items() if nome.startswith(pre)), None)
+        conf = None
+        if chave and cotas03.get(chave, (None,))[0] is not None and abs(cotas03[chave][0] - cota) > 0.05:
+            conf = _conferir("D9", (cotas03[chave][0], cotas03[chave][1] + f" ({chave}, geometria da 03)"))
+        base = f"agua.ponto.{_slug(nome)}"
+        put(base + ".cota_m", cota, p20.fonte(aba, n, "B"), unidade="m", conferir=conf,
+            nota=f"elemento da 03: {chave}" if chave else None)
+        put(base + ".pressao_mca", num_br(lv["D"]), p20.fonte(aba, n, "D"), unidade="m.c.a.",
+            nota=f"pressão estática da rede; {lv.get('E', '')}")
+    aba = "Drenagem"
+    for n, lv in sorted(p20.aba(aba).items()):
+        nome = str(lv.get("A", "")).strip()
+        if n == 1 or not nome:
+            continue
+        put(f"drenagem.elemento.{_slug(nome)}", f"{lv.get('B', '')} · {lv.get('C', '')} · {lv.get('D', '')}",
+            p20.fonte(aba, n), nota="dimensão · declividade · capacidade, como escritas; posição [MARCADOR]")
+
     # --- estrutura: apoios por edificação (20 › Fundações)
     aba = "Fundações"
     for n, lv in sorted(p20.aba(aba).items()):

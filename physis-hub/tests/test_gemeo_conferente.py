@@ -39,7 +39,8 @@ class Conferente(unittest.TestCase):
         tipos = {a["tipo"] for a in self.ach}
         self.assertTrue({"divergencia", "terreno", "sem_area"} <= tipos)
         divs = {a["atributos"]["divergencia"] for a in self.ach if a["tipo"] == "divergencia"}
-        self.assertEqual(divs, {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"})
+        self.assertEqual(divs, {"D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9"})
+        self.assertIn("esgoto.fossa_filtro_cabe", {a["chave"] for a in self.ach if a["tipo"] == "soma"})
         terreno = {a["chave"] for a in self.ach if a["tipo"] == "terreno"}
         self.assertIn("comum", terreno)                  # abaixo do terreno sem corte na 03
         self.assertNotIn("cist1", terreno)               # corte intencional: não pergunta
