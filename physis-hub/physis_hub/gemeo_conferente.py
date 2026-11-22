@@ -36,6 +36,11 @@ from . import gemeo as G
 ORIGEM = "casa-gemeo-digital"
 APLICA = ["casa", "sistema-physis", "m&a"]
 MIN_EXEMPLOS = 3            # por tipo de achado, para usar o modelo em vez da regra inicial
+# Política de aplicação automática (decisão da dona, 22/11/2026, M&A pg:068bf675d5b9): num tipo de achado com pelo
+# menos 10 decisões humanas e acerto ≥ 90% (deixa-um-de-fora), a sugestão com confiança ≥ 90% é aplicada sozinha e
+# registrada no M&A para revisão; a correção vira exemplo. O que o sistema aplicou não entra no treino (só decisões
+# humanas ensinam, para o modelo não aprender com ele mesmo). O ciclo roda só quando a dona pede (pg:ba8cbff56e13).
+POLITICA_AUTO = {"min_decisoes": 10, "min_acerto": 0.9, "min_confianca": 0.9, "decisao": "pg:068bf675d5b9"}
 LIMITE_PUBLICAR = 5         # perguntas novas por ciclo (as mais importantes primeiro)
 
 ESQUEMA = """
@@ -114,8 +119,7 @@ def detectar(projeto, cota_terreno=None):
             "atual_vazio": d.get("valor") is None, "alt_texto": not isinstance(alt.get("valor"), (int, float)),
             "dif_rel": round(min(dif, 1.0), 4), "divergencia": c["divergencia"]}, prioridade=3 + min(dif, 1.0)))
     if cota_terreno is None:
-        v, tri = GI.malha_terreno(projeto)
-        cota_terreno = lambda x, y: GI.cota_no_terreno(v, tri, x, y)
+        cota_terreno = GI.terreno_planejador(projeto).z
     itens = {i["id"]: i for i in projeto["itens"]}
     from .gemeo_importar import tipo_planejador
     from .gemeo_versoes import CAT_PLANEJADOR
@@ -129,7 +133,9 @@ def detectar(projeto, cota_terreno=None):
             continue
         if e.get("piso_topo_m") is None:
             continue
-        rel = GI.relacao_terreno(e, e["piso_topo_m"], cota_terreno(it["x"], it["y"]))
+        fm = GI.forma(e, it)
+        rel = GI.relacao_terreno(e, e["piso_topo_m"], cota_terreno(it["x"], it["y"]),
+                                 apoiado=GI.apoio_de(k, fm, projeto))
         if "[CONFERIR" in rel:
             dz = e["piso_topo_m"] - cota_terreno(it["x"], it["y"])
             cat = CAT_PLANEJADOR.get(tipo_planejador(k), "perm")
@@ -207,7 +213,12 @@ def treinar(exemplos, agora=None):
         else:
             freq = {c: sum(e["escolha"] == c for e in exs) for c in classes}
             modelos[t] = {"modo": "frequencia", "freq": freq}
-            metricas[t] = {"n": len(exs), "acerto_loo": None}
+            acertos = 0
+            for i, e in enumerate(exs):
+                resto = exs[:i] + exs[i + 1:]
+                if resto:
+                    acertos += int(max(classes, key=lambda c: sum(r["escolha"] == c for r in resto)) == e["escolha"])
+            metricas[t] = {"n": len(exs), "acerto_loo": round(acertos / len(exs), 3) if len(exs) > 1 else None}
     return {"treinado_em": agora if agora is not None else time.time(), "n": len(exemplos), "modelos": modelos,
             "metricas": metricas}
 
@@ -231,6 +242,11 @@ def sugerir(modelo, achado):
     return ops[0], 0.5, "regra inicial (ainda sem decisões suficientes neste tipo): fonte única, doc 47 §7"
 
 
+def pode_aplicar_sozinho(modelo, tipo):
+    met = (modelo or {}).get("metricas", {}).get(tipo)
+    return bool(met and met["n"] >= POLITICA_AUTO["min_decisoes"] and (met["acerto_loo"] or 0) >= POLITICA_AUTO["min_acerto"])
+
+
 def explicar(modelo):
     """Texto em português: o que o sistema aprendeu até agora."""
     if not modelo or not modelo.get("n"):
@@ -243,7 +259,10 @@ def explicar(modelo):
                           f"escolhas vistas: {', '.join(m['classes'])}.")
         else:
             linhas.append(f"· {t}: {met['n']} decisões ({', '.join(f'{c} {n}×' for c, n in m['freq'].items())}); "
-                          "poucas para um modelo, vale a frequência.")
+                          "uma escolha só ou poucas decisões: vale a frequência.")
+        if pode_aplicar_sozinho(modelo, t):
+            linhas.append(f"  → aplica sozinho neste tipo (≥ {POLITICA_AUTO['min_decisoes']} decisões e acerto ≥ "
+                          f"{POLITICA_AUTO['min_acerto']:.0%}, {POLITICA_AUTO['decisao']}).")
     return "\n".join(linhas)
 
 
@@ -277,7 +296,7 @@ def _garantir(db):
 def exemplos_do_banco(db):
     _garantir(db)
     out = []
-    for r in db.execute("SELECT * FROM gemeo_achado WHERE escolha IS NOT NULL"):
+    for r in db.execute("SELECT * FROM gemeo_achado WHERE escolha IS NOT NULL AND origem_resposta != 'automatico'"):
         out.append({"id": r["id"], "tipo": r["tipo"], "chave": r["chave"], "atributos": json.loads(r["atributos"]),
                     "opcoes": json.loads(r["opcoes"]), "escolha": r["escolha"], "origem_resposta": r["origem_resposta"]})
     return out
@@ -313,7 +332,7 @@ def publicar(mv, achados, modelo, versao, limite=LIMITE_PUBLICAR, agora=None):
     db = mv.db
     _garantir(db)
     agora = agora if agora is not None else time.time()
-    novas = 0
+    novas, aplicadas = 0, []
     for a in achados:
         r = db.execute("SELECT escolha, pergunta_id FROM gemeo_achado WHERE id=?", (a["id"],)).fetchone()
         sug, conf, _ = sugerir(modelo, a)
@@ -324,12 +343,24 @@ def publicar(mv, achados, modelo, versao, limite=LIMITE_PUBLICAR, agora=None):
                         a["prioridade"], sug, conf, versao, agora))
         elif r["escolha"] is None:
             db.execute("UPDATE gemeo_achado SET sugestao=?, confianca=?, modelo_versao=? WHERE id=?", (sug, conf, versao, a["id"]))
+        if (r is None or r["escolha"] is None) and pode_aplicar_sozinho(modelo, a["tipo"]) and conf >= POLITICA_AUTO["min_confianca"]:
+            rot = dict(OPCOES[a["tipo"]])[sug]
+            pid = r["pergunta_id"] if r is not None and r["pergunta_id"] else C.perguntar(
+                mv, f"Gêmeo (conferente automático) · {a['descricao']}"[:1000], _rotulos(a, sug, conf), origem=ORIGEM,
+                aplica_em=APLICA)["id"]
+            C.responder(mv, pid, rot, f"aplicado pelo sistema ({conf:.0%}; política {POLITICA_AUTO['decisao']}): "
+                                      "corrija se discordar, a correção vira exemplo")
+            db.execute("UPDATE gemeo_achado SET escolha=?, origem_resposta='automatico', pergunta_id=?, respondido=? WHERE id=?",
+                       (sug, pid, agora, a["id"]))
+            aplicadas.append(a["id"])
+            continue
         if (r is None or (r["escolha"] is None and not r["pergunta_id"])) and novas < limite:
             q = C.perguntar(mv, f"Gêmeo (conferente automático) · {a['descricao']}"[:1000], _rotulos(a, sug, conf),
                             origem=ORIGEM, aplica_em=APLICA)
             db.execute("UPDATE gemeo_achado SET pergunta_id=? WHERE id=?", (q["id"], a["id"]))
             novas += 1
     db.commit()
+    publicar.aplicadas = aplicadas
     return novas
 
 
@@ -396,7 +427,8 @@ def ciclo(mv, projeto, limite=LIMITE_PUBLICAR, agora=None):
     novas = publicar(mv, achados, modelo, versao, limite, agora)
     pend = db.execute("SELECT COUNT(*) FROM gemeo_achado WHERE escolha IS NULL").fetchone()[0]
     return {"exemplos_iniciais": ini, "respostas_novas": resp, "modelo_versao": versao, "achados": len(achados),
-            "perguntas_novas": novas, "pendentes": pend, "explicacao": explicar(modelo)}
+            "perguntas_novas": novas, "aplicadas_sozinho": len(getattr(publicar, "aplicadas", [])), "pendentes": pend,
+            "explicacao": explicar(modelo)}
 
 
 def main(argv=None):

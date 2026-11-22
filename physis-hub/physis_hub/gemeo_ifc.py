@@ -146,8 +146,34 @@ def altura_pavimento(els):
 
 # ---------------------------------------------------------------- terreno
 
-def malha_terreno(projeto):
-    """Triângulos entre os lados x≈0 e x≈22 do lote, pelos pontos com cota da semente (curvas + vértices)."""
+def terreno_planejador(projeto):
+    """A mesma superfície do Planejador (grade de 110 células, inverso do quadrado da distância): o 3D, o comparador e
+    o Planejador passam a concordar (antes, a malha só das curvas laterais punha peças 'voando' ou 'enterradas')."""
+    from .gemeo_versoes import TerrenoPlanejador
+    return TerrenoPlanejador(projeto["terreno"]["poly"], projeto["terreno"]["pontos"])
+
+
+def malha_terreno(projeto, T=None):
+    """Malha do terreno para o IFC: nós da grade do Planejador e triângulos das células que tocam o lote."""
+    from .gemeo_versoes import dentro
+    T = T or terreno_planejador(projeto)
+    poly = projeto["terreno"]["poly"]
+    v = [(T.x0 + i * T.cs, T.y0 + j * T.cs, T.Z[j * T.nx + i]) for j in range(T.ny) for i in range(T.nx)]
+    ins = [dentro((x, y), poly) for x, y, _ in v]
+    idx = lambda i, j: j * T.nx + i
+    tri = []
+    for j in range(T.ny - 1):
+        for i in range(T.nx - 1):
+            c = (idx(i, j), idx(i + 1, j), idx(i + 1, j + 1), idx(i, j + 1))
+            if any(ins[k] for k in c):
+                tri += [(c[0], c[1], c[2]), (c[0], c[2], c[3])]
+    usados = sorted({k for t in tri for k in t})
+    novo = {k: n for n, k in enumerate(usados)}
+    return [v[k] for k in usados], [tuple(novo[k] for k in t) for t in tri]
+
+
+def malha_curvas(projeto):
+    """Malha antiga (até 22/11): triângulos só entre os lados x≈0 e x≈22 (curvas + vértices). Fica para comparação."""
     pts = projeto["terreno"]["pontos"]
     if len(pts) < 4:
         raise SementeIncompleta("terreno sem pontos com cota")
@@ -194,6 +220,127 @@ def cota_no_terreno(v, tri, x, y):
 def _rgb(hexa):
     h = hexa.lstrip("#")
     return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+
+
+# ---------------------------------------------------------------- estrutura até o terreno (22/11)
+# Pedido da dona: "as casas estão voando". Pilares e blocos com as quantidades da 20 › Fundações e as regras da 02b
+# (Casa 1: A1–A15 nos cantos e no meio dos contêineres; LAB/MEC: 8 pilares; lofts: grade, 8 apoios; restaurante:
+# C0–C8 centro e anel a cada 45°; pilar tubular 100 × 100 × 4,75; bloco 0,70 × 0,70 × 0,60 aflorando 30 cm, 0,60 nos
+# lofts e na Casa 1). A posição de cada apoio é distribuição regular pela regra escrita: [CONFERIR] no executivo.
+COR_PILAR = "#4A4F44"   # PALETA.md (texto secundário): aço galvanizado
+COR_BLOCO = "#C9D2C4"   # PALETA.md (linha): concreto
+PILAR_M, PAREDE_M = 0.100, 0.00475
+
+
+def _mundo(fm, it, xl, yl):
+    t = math.radians(fm["giro"])
+    return it["x"] + xl * math.cos(t) - yl * math.sin(t), it["y"] + xl * math.sin(t) + yl * math.cos(t)
+
+
+def _pontos_planta(fm, it):
+    if fm["tipo"] == "circ":
+        r = fm["r"]
+        loc = [(0, 0)] + [(r * math.cos(k * math.pi / 4), r * math.sin(k * math.pi / 4)) for k in range(8)]
+    else:
+        a, b = fm["a"] / 2, fm["b"] / 2
+        loc = [(0, 0), (-a, -b), (a, -b), (a, b), (-a, b)]
+    return [_mundo(fm, it, x, y) for x, y in loc]
+
+
+def apoios(chave, fm, projeto):
+    """(posições locais, lado do bloco, fonte) dos apoios da edificação, ou None se as fontes não dão regra."""
+    fv = lambda c: _fv(projeto, c)
+    if chave == "bar" and fm["tipo"] == "circ":
+        n, f = fv("estrutura.apoios.restaurante")
+        if n is None:
+            return None
+        r = fm["r"]
+        return ([(0.0, 0.0)] + [(r * math.cos(k * math.pi / 4), r * math.sin(k * math.pi / 4)) for k in range(8)], 0.70,
+                f"C0 a C8 ({fv('estrutura.restaurante')[1]}); a 20 soma {n:g} apoios com os D1 a D10 dos decks ({f})")
+    if fm["tipo"] != "ret":
+        return None
+    regras = {"casa": ("estrutura.apoios.casa_1", 5, 3, 0.60, "estrutura.casa1"),
+              "lab": ("estrutura.apoios.lab_ou_mec", 4, 2, 0.70, "estrutura.lab_mec"),
+              "mec": ("estrutura.apoios.lab_ou_mec", 4, 2, 0.70, "estrutura.lab_mec"),
+              "gourmet": ("estrutura.apoios.gourmet", 3, 2, 0.70, None)}
+    if chave.startswith("LF"):
+        cam = "estrutura.apoios.loft_20_m" if fm["a"] * fm["b"] >= 19.5 else "estrutura.apoios.loft_16_m"
+        regra = (cam, 4, 2, 0.60, "estrutura.lofts")
+    elif chave in ("deck1", "deck2"):
+        n, f = fv("estrutura.restaurante")
+        if n is None:
+            return None
+        a, b = fm["a"], fm["b"]
+        return [(-a / 2 + a * i / 4, 0.0) for i in range(5)], 0.70, f"D1 a D10 dos decks, 5 por deck ({f})"
+    elif chave in regras:
+        regra = regras[chave]
+    else:
+        return None
+    cam, nl, nc, lado, cam_txt = regra
+    n, f = fv(cam)
+    if n is None or nl * nc != int(n):
+        return None
+    a, b = fm["a"], fm["b"]
+    if b > a:
+        nl, nc = nc, nl
+    pts = [(-a / 2 + a * i / (nl - 1), -b / 2 + b * j / (nc - 1)) for i in range(nl) for j in range(nc)]
+    txt = fv(cam_txt)[0] if cam_txt else None
+    return pts, lado, f"{int(n)} apoios ({f})" + (f"; {txt}" if txt else "")
+
+
+EMPILHADOS = {"lab_up": "lab", "mec_up": "mec"}   # 03: LAB e MEC de cima sobre os de baixo
+
+
+def apoio_de(chave, fm, projeto):
+    """Texto do apoio quando as fontes explicam por que a peça está acima do terreno; senão None."""
+    if chave in EMPILHADOS:
+        return f"sobre o contêiner de baixo ({EMPILHADOS[chave]}, 03 › Implantação)"
+    if apoios(chave, fm, projeto) is not None:
+        return "sobre pilares e blocos (20 › Fundações e 02b)"
+    return None
+
+
+def _estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
+    """Pilares (IfcColumn) e blocos (IfcFooting) da edificação até o terreno do Planejador."""
+    reg = apoios(chave, fm, projeto)
+    if not reg:
+        return []
+    pts, lado, fonte = reg
+    afl = _fv(projeto, "estrutura.bloco_aflorando_m")[0] or 0.30
+    pilar_txt = _fv(projeto, "estrutura.pilar")[0]
+    refs = []
+    for k, (xl, yl) in enumerate(pts, 1):
+        wx, wy = _mundo(fm, it, xl, yl)
+        zt = T.z(wx, wy)
+        if z < zt:                 # piso abaixo do terreno (plataforma cortada): apoio enterrado, não aparece
+            continue
+        topo = zt + afl
+        p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
+        cima = W.add("IFCDIRECTION((0.,0.,1.))")
+        sb = W.add(f"IFCEXTRUDEDAREASOLID({W.add(f'IFCRECTANGLEPROFILEDEF(.AREA.,$,{p2},{r_(lado)},{r_(lado)})')},"
+                   f"{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)')},{cima},0.6)")
+        W.add(f"IFCSTYLEDITEM({sb},({estilo(COR_BLOCO)}),$)")
+        rb = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sb}))')}))")
+        bloco = W.add(f"IFCFOOTING({W.guid('bloco', chave, k)},{oh},{s_(f'Bloco {k} · {chave}')},$,'bloco de concreto',"
+                      f"{W.colocacao(pl_site, wx, wy, topo - 0.6)},{rb},{s_(f'{chave}-B{k}')},.PAD_FOOTING.)")
+        refs.append(bloco)
+        props = [W.propriedade("Hospedeiro", chave), W.propriedade("Peca", f"bloco {lado:g} × {lado:g} × 0,60 m, aflorando {afl:g} m"),
+                 W.propriedade("Fonte", fonte), W.propriedade("Posicao", "distribuição regular pela regra escrita [CONFERIR]")]
+        h = z - topo
+        if h > 0.05:
+            pp = W.add(f"IFCRECTANGLEHOLLOWPROFILEDEF(.AREA.,$,{p2},{r_(PILAR_M)},{r_(PILAR_M)},{r_(PAREDE_M)},$,$)")
+            sp = W.add(f"IFCEXTRUDEDAREASOLID({pp},{W.add(f'IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)')},{cima},{r_(h)})")
+            W.add(f"IFCSTYLEDITEM({sp},({estilo(COR_PILAR)}),$)")
+            rp = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({W.add(f'IFCSHAPEREPRESENTATION({corpo},{chr(39)}Body{chr(39)},{chr(39)}SweptSolid{chr(39)},({sp}))')}))")
+            pilar = W.add(f"IFCCOLUMN({W.guid('pilar', chave, k)},{oh},{s_(f'Pilar {k} · {chave}')},$,{s_('pilar ' + str(pilar_txt))},"
+                          f"{W.colocacao(pl_site, wx, wy, topo)},{rp},{s_(f'{chave}-P{k}')},.COLUMN.)")
+            refs.append(pilar)
+            W.pset(oh, "Physis_Estrutura", [W.propriedade("Hospedeiro", chave), W.propriedade("Peca", f"pilar {pilar_txt} mm"),
+                                            W.propriedade("Altura", round(h, 3), "m"), W.propriedade("Fonte", fonte),
+                                            W.propriedade("Posicao", "distribuição regular pela regra escrita [CONFERIR]")],
+                   [pilar], f"pilar-{chave}-{k}")
+        W.pset(oh, "Physis_Estrutura", props, [bloco], f"bloco-{chave}-{k}")
+    return refs
 
 
 # ---------------------------------------------------------------- alturas e coberturas da prancha 02b (22/11)
@@ -252,19 +399,27 @@ def corpo_edificacao(chave, fm, projeto, h_pav, f_pav):
     return d
 
 
-def relacao_terreno(e, z, z_terreno):
-    """Onde a peça fica em relação ao terreno aproximado (pedido da sessão de renderização, 22/11)."""
+def relacao_terreno(e, z, z_terreno, apoiado=False):
+    """Onde a peça fica em relação ao terreno do modelo (o do Planejador). `apoiado`: edificação com pilares e blocos
+    das fontes (20 › Fundações e 02b). Só vira [CONFERIR] o que nenhuma fonte explica."""
     if e.get("piso_topo_m") is None:
         return "na cota do terreno (interpolada: a 03 não dá cota)"
     dz = z - z_terreno
     desc = str(e.get("descricao") or "").lower()
+    intencional = (e.get("corte_m3") or 0) > 0 or "(enterrad" in desc or desc.startswith(("c3 (sob o", "fossa"))
+    motivo = f"corte de {e['corte_m3']:g} m³ na 03" if (e.get("corte_m3") or 0) > 0 else "descrição da 03"
+    if intencional and abs(dz) > 0.3:
+        lado = "abaixo" if dz < 0 else "acima"
+        return (f"{lado} do terreno do modelo {abs(dz):.1f} m: corte ou peça enterrada intencional ({motivo}); "
+                "a diferença é do terreno aproximado")
     if dz < -0.3:
-        if (e.get("corte_m3") or 0) > 0 or "(enterrad" in desc or desc.startswith(("c3 (sob o", "fossa")):
-            motivo = f"corte de {e['corte_m3']:g} m³ na 03" if (e.get("corte_m3") or 0) > 0 else "descrição da 03"
-            return f"abaixo do terreno {abs(dz):.1f} m: corte ou peça enterrada intencional ({motivo})"
         return (f"abaixo do terreno aproximado {abs(dz):.1f} m sem corte na 03 [CONFERIR com a topografia: o terreno "
-                "do modelo é aproximado pelas curvas]")
+                "do modelo é aproximado]")
     if dz > 0.3:
+        if apoiado:
+            return f"acima do terreno {dz:.1f} m, {apoiado if isinstance(apoiado, str) else 'sobre pilares e blocos (20 › Fundações e 02b)'}"
+        if (e.get("aterro_m3") or 0) > 0:
+            return f"acima do terreno {dz:.1f} m sobre aterro ({e['aterro_m3']:g} m³ na 03)"
         pil = e.get("pilar_max_m")
         return f"acima do terreno {dz:.1f} m" + (f" (sobre pilares, máx. {pil:g} m na 03)" if pil else
                                                  " (aterro ou estrutura elevada [CONFERIR])")
@@ -326,7 +481,8 @@ def escrever(projeto, agora=0, altura=None):
     els = g["elementos"]
     itens = {i["id"]: i for i in projeto["itens"]}
     h_pav, f_pav = altura or altura_pavimento(els)
-    v, tri = malha_terreno(projeto)
+    T = terreno_planejador(projeto)
+    v, tri = malha_terreno(projeto, T)
     fvs = g["fonte_por_valor"]
     inc = (fvs.get("telhados.inclinacao_graus") or {}).get("valor")
     inc_fonte = (fvs.get("telhados.inclinacao_graus") or {}).get("fonte")
@@ -379,7 +535,7 @@ def escrever(projeto, agora=0, altura=None):
         if e["piso_topo_m"] is not None:
             z, z_orig = e["piso_topo_m"], "03 › Implantação (piso / topo)"
         else:
-            z, z_orig = round(cota_no_terreno(v, tri, it["x"], it["y"]), 3), "cota do terreno interpolada (a 03 não traz)"
+            z, z_orig = round(T.z(it["x"], it["y"]), 3), "cota do terreno interpolada (a 03 não traz)"
         fm = forma(e, it)
         if chave in EDIFICACOES and not e["sem_area"]:
             cp = corpo_edificacao(chave, fm, projeto, h_pav, f_pav)
@@ -388,7 +544,8 @@ def escrever(projeto, agora=0, altura=None):
                   "origem": "placa de desenho de 0,20 m (não é dado de projeto)", "cob_origem": "sem cobertura",
                   "material": None}
         alt = cp["paredes"]
-        rel = relacao_terreno(e, z, cota_no_terreno(v, tri, it["x"], it["y"]))
+        rel = relacao_terreno(e, z, T.z(it["x"], it["y"]),
+                              apoiado=None if e["sem_area"] else apoio_de(chave, fm, projeto))
         pl = _coloc(W, pl_site, it["x"], it["y"], z, fm["giro"])
         rep = "$"
         if not e["sem_area"]:
@@ -402,6 +559,14 @@ def escrever(projeto, agora=0, altura=None):
             solido = W.add(f"IFCEXTRUDEDAREASOLID({perfil},{pos},{cima},{r_(alt)})")
             W.add(f"IFCSTYLEDITEM({solido},({estilo(COR_ENTIDADE[e['zona']])}),$)")
             itens_rep = [solido]
+            if chave not in EDIFICACOES and (e.get("aterro_m3") or 0) > 0:  # plataforma de aterro até o terreno (03)
+                zmin = min(T.z(*p) for p in _pontos_planta(fm, it))
+                if z - zmin > 0.05:
+                    pos_a = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(0, 0, zmin - z)},$,$)")
+                    ater = W.add(f"IFCEXTRUDEDAREASOLID({perfil},{pos_a},{cima},{r_(z - zmin)})")
+                    W.add(f"IFCSTYLEDITEM({ater},({estilo(COR_TERRENO)}),$)")
+                    itens_rep.append(ater)
+                    rel += "; aterro desenhado até o terreno"
             tel = _cobertura(W, cp, fm, alt)
             if tel:
                 W.add(f"IFCSTYLEDITEM({tel},({estilo(COR_TELHADO)}),$)")
@@ -429,6 +594,10 @@ def escrever(projeto, agora=0, altura=None):
                     f"{s_(chave)},.USERDEFINED.)")
         refs.append(ref)
         por_zona[e["zona"]].append(ref)
+        if not e["sem_area"]:
+            for est in _estrutura(W, oh, corpo, estilo, pl_site, chave, e, fm, it, z, T, projeto):
+                refs.append(est)
+                por_zona[e["zona"]].append(est)
         props = [W.propriedade("Chave", chave), W.propriedade("Zona", e["zona"]), W.propriedade("Entidade", e["entidade"]),
                  W.propriedade("Fonte", e["fonte"]), W.propriedade("Procedencia", e["procedencia"]),
                  W.propriedade("EstadoDeVida", estado["por_elemento"].get(chave, estado["padrao"])),

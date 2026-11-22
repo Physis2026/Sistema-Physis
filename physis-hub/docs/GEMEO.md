@@ -70,3 +70,38 @@ construída 435,5 m² e projeção 343,2 m² (20, somam as linhas do quadro); re
 - G2 vista no Planejador (planta por zona, ficha por elemento); `tipo_planejador` é só classificação de desenho.
 - G4 camada simulada; G5 aba na plataforma `casa-physis-inicial`; G6–G7 dependem de obra.
 - Georreferência (L-01): sem lat/long oficial, tudo em x/y local.
+
+## Conferente automático com aprendizado (22/11/2026)
+
+`physis_hub/gemeo_conferente.py`: o raciocínio de conferência vira rotina.
+
+    python -m physis_hub.gemeo_conferente ciclo        # só quando a dona pede (pg:ba8cbff56e13)
+    python -m physis_hub.gemeo_conferente relatorio
+    python -m physis_hub.gemeo_conferente corrigir ID OPCAO --nota "..."
+
+- Acha sozinho: divergência entre fontes, peça fora do nível do terreno que nenhuma fonte explica, elemento sem área,
+  soma das partes × total. Opções sempre fechadas (nunca número novo).
+- Cada achado vira pergunta única no M&A, com a sugestão do sistema em primeiro e a confiança.
+- Respostas e correções viram exemplos; regressão logística leve (`aprendizado.py`) por tipo de achado, versionada
+  (`gemeo_modelo`), acerto deixa-um-de-fora, explicação em português. Exemplos iniciais: 10 decisões reais do M&A.
+- Aplica sozinho só com ≥ 10 decisões humanas e acerto ≥ 90% no tipo (pg:068bf675d5b9); registra no M&A para
+  revisão; o que ele aplicou não entra no treino.
+
+## Estrutura até o terreno (22/11/2026)
+
+Terreno do IFC = grade do Planejador (antes, a malha só das curvas laterais punha peças "voando"). Pilares tubulares
+100 × 100 × 4,75 e blocos 0,70/0,60 aflorando 30 cm (02b), nas quantidades da 20 › Fundações; aterro da 03 desenhado
+até o terreno; LAB/MEC de cima reconhecidos sobre os de baixo. Posição de cada apoio: regra escrita, [CONFERIR].
+
+## Roteiro de camadas (decisão pg:ee988f1fe957; tarefas no M&A)
+
+| Tarefa | Camada | Fonte que já existe | Falta |
+|---|---|---|---|
+| `casa-gemeo-estrutura` | vigas, contraventamento, grelha do restaurante, contenções e gabiões | 20 › Vigas, 02b | projeto estrutural |
+| `casa-gemeo-hidraulica` | esgoto por trecho, água, cisternas, drenagem | 20 › Esgoto trechos, Cisternas, Água vertical, Drenagem | traçado em DWG |
+| `casa-gemeo-eletrica` | quadros, circuitos, strings, inversores, baterias, placas uma a uma | 20 › Quadro de cargas, Strings FV; 02b | posição do QGBT |
+| `casa-gemeo-interiores` | mobiliário, esquadrias, Casa 1 em L, mezaninos, vegetação | 09b, 20 › Esquadrias e Espécies, doc 10 | layout fino |
+| `casa-gemeo-avac-sbn` | ar-condicionado, aquecimento, SBN, demais itens | 03 › Aquecimento, Bioconstrução, Piscina natural; 18 | — |
+
+Texturas e materiais visuais: com a sessão de renderização (biblioteca aberta hospedada pela Physis); o acervo não
+traz código de cor, então cor de material só entra com fonte.

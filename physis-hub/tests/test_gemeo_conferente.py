@@ -100,13 +100,40 @@ class Conferente(unittest.TestCase):
         self.assertEqual(v, 3)
         self.assertEqual(modelo["modelos"]["terreno"]["modo"], "logistica")
         self.assertIn("terreno: 5 decisões", r3["explicacao"])
-        pend = db.execute("SELECT sugestao FROM gemeo_achado WHERE tipo='terreno' AND escolha IS NULL").fetchall()
-        self.assertTrue(any(p["sugestao"] == "intencional" for p in pend))   # aprendeu com as respostas
+        pend = db.execute("SELECT sugestao, confianca FROM gemeo_achado WHERE tipo='terreno' AND escolha IS NULL").fetchall()
+        # aprendeu: as sugestões saem das escolhas da dona (intencional / erro_cota), não mais da regra inicial
+        self.assertTrue(pend)
+        self.assertTrue(all(p["sugestao"] in ("intencional", "erro_cota") for p in pend))
+        self.assertTrue(all(p["confianca"] != 0.5 for p in pend))
         p = db.execute("SELECT resposta, nota FROM mv_pergunta WHERE id=?", (terr[4]["pergunta_id"],)).fetchone()
         self.assertEqual(p["resposta"], rot["erro_cota"])
         self.assertIn("correção", p["nota"])
         with self.assertRaises(ValueError):
             K.corrigir(self.mv, terr[4]["id"], "inventada")
+
+
+    def test_politica_aplica_sozinho_so_com_10_decisoes_e_90_por_cento(self):
+        """Decisão pg:068bf675d5b9: ≥ 10 decisões humanas e acerto ≥ 90% → aplica e registra; senão pergunta."""
+        from physis_hub import mv_comandos as C
+        K.ciclo(self.mv, self.p, limite=60, agora=1000.0)
+        db = self.mv.db
+        terr = [r for r in db.execute("SELECT * FROM gemeo_achado WHERE tipo='terreno' AND pergunta_id IS NOT NULL")]
+        rot = dict(K.OPCOES["terreno"])
+        for r in terr[:9]:
+            C.responder(self.mv, r["pergunta_id"], rot["intencional"], "plataforma")
+        r1 = K.ciclo(self.mv, self.p, limite=0, agora=2000.0)
+        self.assertEqual(r1["aplicadas_sozinho"], 0)                          # 9 decisões: ainda pergunta
+        C.responder(self.mv, terr[9]["pergunta_id"], rot["intencional"], "plataforma")
+        r2 = K.ciclo(self.mv, self.p, limite=0, agora=3000.0)
+        self.assertGreater(r2["aplicadas_sozinho"], 0)                        # 10 decisões, 100%: aplica
+        auto = db.execute("SELECT * FROM gemeo_achado WHERE origem_resposta='automatico'").fetchall()
+        self.assertTrue(all(a["escolha"] == "intencional" for a in auto))
+        p = db.execute("SELECT resposta, nota FROM mv_pergunta WHERE id=?", (auto[0]["pergunta_id"],)).fetchone()
+        self.assertIn("aplicado pelo sistema", p["nota"])
+        self.assertEqual(len(K.exemplos_do_banco(db)), 10 + 10)              # o automático não ensina
+        self.assertIn("aplica sozinho neste tipo", r2["explicacao"])
+        K.corrigir(self.mv, auto[0]["id"], "erro_cota", "este não")          # a correção vira exemplo
+        self.assertEqual(len(K.exemplos_do_banco(db)), 21)
 
 
 if __name__ == "__main__":

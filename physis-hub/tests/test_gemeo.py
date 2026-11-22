@@ -283,7 +283,8 @@ class IFC3D(unittest.TestCase):
         self.assertEqual(self.r["esquema"], "IFC4")
         self.assertEqual(self.r["elementos_por_tipo"]["IFCBUILDINGELEMENTPROXY"], 92)
         com_area = sum(1 for e in self.p["gemeo"]["elementos"].values() if not e["sem_area"])
-        self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"], com_area)
+        self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"]
+                         - self.r["elementos_por_tipo"]["IFCFOOTING"], com_area)  # os blocos também são retângulos
         self.assertEqual(self.r["tipos"]["IFCZONE"], 3)
         self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 2)  # terreno + cobertura cônica
         for chave in self.p["gemeo"]["elementos"]:
@@ -323,15 +324,15 @@ class IFC3D(unittest.TestCase):
 
     def test_relacao_com_o_terreno(self):
         els = self.p["gemeo"]["elementos"]
-        v, tri = self.GI.malha_terreno(self.p)
+        T = self.GI.terreno_planejador(self.p)
         its = {i["id"][2:]: i for i in self.p["itens"]}
-        r = {k: self.GI.relacao_terreno(e, e["piso_topo_m"], self.GI.cota_no_terreno(v, tri, its[k]["x"], its[k]["y"]))
+        r = {k: self.GI.relacao_terreno(e, e["piso_topo_m"], T.z(its[k]["x"], its[k]["y"]))
              for k, e in els.items() if not e["sem_area"]}
         for k in ("cist1", "cist4", "biodig", "fossa", "piscina", "garagem"):
             self.assertIn("intencional", r[k], k)
         self.assertIn("[CONFERIR", r["comum"])
-        self.assertIn("pilares", r["LF2"]) if "acima" in r["LF2"] else None
-        self.assertEqual(sum("intencional" in x for x in r.values()), 12)
+        self.assertNotIn("intencional", r["viveiro_s"])               # "sobre o biodigestor enterrado" não é enterrado
+        self.assertGreaterEqual(sum("intencional" in x for x in r.values()), 12)
         els = dict(self.p["gemeo"]["elementos"])
         els["mec_up"] = {**els["mec_up"], "piso_topo_m": els["mec_up"]["piso_topo_m"] + 0.5}
         with self.assertRaises(self.GI.SementeIncompleta):
@@ -354,10 +355,30 @@ class IFC3D(unittest.TestCase):
         self.assertGreaterEqual(self.txt.count("IFCARBITRARYCLOSEDPROFILEDEF"), 13)  # telhados + placas
 
     def test_terreno_pelas_curvas(self):
-        v, tri = self.GI.malha_terreno(self.p)
-        self.assertEqual(len(tri), len(v) - 2)
-        self.assertAlmostEqual(self.GI.cota_no_terreno(v, tri, 0.0, 0.0), 902.40, places=2)  # V1 (planilha 20)
+        """O terreno do IFC é a grade do Planejador (a mesma do comparador e da vista 3D)."""
+        T = self.GI.terreno_planejador(self.p)
+        v, tri = self.GI.malha_terreno(self.p, T)
+        self.assertTrue(all(0 <= i < len(v) for t in tri for i in t))
+        self.assertAlmostEqual(T.z(5, 30), 888.3558, places=3)            # o mesmo valor lido no Planejador
+        self.assertAlmostEqual(self.GI.cota_no_terreno(v, tri, 0.5, 0.5), 902.3, delta=0.4)  # perto de V1 (902,40)
         self.assertTrue(all(870 < z < 905 for _, _, z in v))
+
+    def test_estrutura_ate_o_terreno(self):
+        """Casas não 'voam': pilares tubulares e blocos com as quantidades da 20 e as regras da 02b."""
+        ep = self.r["elementos_por_tipo"]
+        self.assertGreater(ep["IFCCOLUMN"], 20)
+        self.assertGreater(ep["IFCFOOTING"], 30)
+        self.assertIn("IFCRECTANGLEHOLLOWPROFILEDEF(.AREA.,$,", self.txt)  # pilar tubular 100 × 100 × 4,75
+        its = {i["id"][2:]: i for i in self.p["itens"]}
+        els = self.p["gemeo"]["elementos"]
+        ap = lambda k: self.GI.apoios(k, self.GI.forma(els[k], its[k]), self.p)
+        self.assertEqual(len(ap("casa")[0]), 15)                      # A1 a A15
+        self.assertEqual(len(ap("lab")[0]), 8)
+        self.assertEqual(len(ap("LF1")[0]), 8)
+        self.assertEqual(len(ap("bar")[0]), 9)                        # C0 a C8
+        self.assertEqual(len(ap("deck1")[0]), 5)                      # D1 a D10, 5 por deck
+        self.assertIsNone(ap("hortaA"))                               # sem regra nas fontes: sem pilar inventado
+        self.assertIn("[CONFERIR]", self.txt)
 
     def test_reprodutivel_e_arquivo_em_dia(self):
         self.assertEqual(self.GI.escrever(self.p), self.txt)
