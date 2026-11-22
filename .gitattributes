@@ -3,3 +3,4 @@
 *.xlsx binary
 *.zip binary
 *.ino text eol=lf
+clientes/marcas/*.svg text eol=lf

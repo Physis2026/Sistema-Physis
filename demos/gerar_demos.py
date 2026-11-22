@@ -94,7 +94,9 @@ def marca_embutida(org: str) -> dict | None:
     for tom in ("clara", "escura"):
         arq = RAIZ / str(m.get(f"logo_{tom}") or "")
         if arq.suffix.lower() == ".svg" and arq.is_file():
-            r[f"logo_{tom}"] = "data:image/svg+xml;base64," + base64.b64encode(arq.read_bytes()).decode("ascii")
+            # sempre com fim de linha LF: o Git grava o SVG em LF, e a demo tem de sair igual em qualquer cópia (Windows ou Linux)
+            svg = arq.read_bytes().replace(b"\r\n", b"\n")
+            r[f"logo_{tom}"] = "data:image/svg+xml;base64," + base64.b64encode(svg).decode("ascii")
     return {"instalacao": org, "marca": r}
 
 # O que cada demo diz. Números só do próprio programa (dados simulados ou de exemplo); nada de preço nem limite novo.
