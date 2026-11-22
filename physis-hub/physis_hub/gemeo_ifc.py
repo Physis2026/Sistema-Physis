@@ -11,9 +11,11 @@ O que entra no IFC (tudo vem da semente; nada é inventado):
   entidade, fonte, procedência, estado de vida, cota e a origem da altura) e cor da entidade da zona (PALETA.md);
 - três IfcZone (Z1 Physis Engineering, Z2 Instituto Physis, Z3 Casa Physis) agrupando os elementos.
 
-Altura das massas (decisão da dona em 21/11/2026, M&A pg:16228b14d400): edificações do 20 › Quadro de áreas com a
-altura de pavimento que a própria 03 dá (LAB e MEC de cima − de baixo = 2,90 m); o resto é placa de 0,20 m só de
-desenho. Tudo [CONFERIR] até o projeto executivo. Elementos sem cota na 03 ficam na cota do terreno interpolada.
+Altura das massas (decisões da dona: pg:16228b14d400 em 21/11 e pg:58d2e859f36a em 22/11): lofts, restaurante,
+gourmet e Casa 1 com as alturas da prancha 02b; LAB e MEC e as demais edificações do 20 › Quadro de áreas com a altura
+de pavimento da 03 (2,90 m; D8 × 2,59 da 02b); o resto é placa de 0,20 m só de desenho. Coberturas da 02b
+(pg:74fabc0568d2): plana 3% nos contêineres, água única 15% nos lofts, cônica 45% no restaurante (D7 × 14° da 03).
+Cada peça leva a relação com o terreno (corte intencional ou [CONFERIR]). Tudo [CONFERIR] até o projeto executivo. Elementos sem cota na 03 ficam na cota do terreno interpolada.
 Elementos sem área na 03 (0,01 m) entram sem geometria, para a contagem bater.
 """
 from __future__ import annotations
@@ -194,6 +196,127 @@ def _rgb(hexa):
     return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
 
 
+# ---------------------------------------------------------------- alturas e coberturas da prancha 02b (22/11)
+# Decisões da dona: alturas da 02b onde a 03 se cala (pg:58d2e859f36a); coberturas da 02b por edificação, com os 14°
+# da 03 › Solar como D7 [CONFERIR] (pg:74fabc0568d2). O acervo não traz código de cor: a cor fica a da entidade.
+COR_NOTA = "[CONFERIR] o acervo não traz código de cor (só nomes); no modelo, cor da entidade da zona."
+
+
+def _fv(projeto, cam):
+    d = projeto["gemeo"]["fonte_por_valor"].get(cam)
+    return (d["valor"], d["fonte"]) if d else (None, None)
+
+
+def corpo_edificacao(chave, fm, projeto, h_pav, f_pav):
+    """Paredes, cobertura e origem de cada edificação. `total` = altura no ponto mais alto da cobertura."""
+    fv = lambda c: _fv(projeto, c)
+    d = {"paredes": h_pav, "cob": None, "pct": 0.0, "origem": f_pav, "material": None,
+         "cob_origem": "a 02b não dá a cobertura desta edificação: topo plano no modelo [MARCADOR]"}
+    prof = fm["b"] if fm["tipo"] == "ret" else 0.0
+    if chave.startswith("LF"):
+        tot, ft = fv("alturas.total.lofts_m")
+        pct, fp = fv("telhados.lofts_pct")
+        if tot and pct:
+            d.update(cob="agua", pct=pct, paredes=tot - prof * pct / 100, material="telha com isolamento (02b)",
+                     origem=f"altura total {tot:g} m ({ft}) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]",
+                     cob_origem=f"água única {pct:g}% para o norte do loft ({fp})")
+    elif chave == "bar" and fm["tipo"] == "circ":
+        tot, ft = fv("alturas.total.restaurante_m")
+        pct, fp = fv("telhados.restaurante_pct")
+        if tot and pct:
+            d.update(cob="cone", pct=pct, paredes=tot - fm["r"] * pct / 100, material="telha sanduíche (02b)",
+                     origem=f"altura total {tot:g} m ({ft})", cob_origem=f"cônica {pct:g}% ({fp})")
+    elif chave == "gourmet":
+        tot, ft = fv("alturas.total.gourmet_m")
+        tg, fg = fv("telhados.gourmet")
+        if tot:
+            d.update(paredes=tot, origem=f"altura {tot:g} m ({ft})", material="madeira e telha cerâmica (02b)",
+                     cob_origem=f"{tg}: inclinação [MARCADOR], topo plano no modelo ({fg})")
+    elif chave == "casa":
+        hc, fc = fv("casa1.altura_conteiner_m")
+        tc, ftc = fv("telhados.conteineres")
+        if hc:
+            d.update(paredes=hc, cob="plana", pct=3.0, material="contêiner metálico; manta no terraço (02b)",
+                     origem=f"contêiner de baixo {hc:g} m ({fc}); andar de cima em L não modelado [MARCADOR]",
+                     cob_origem=f"{tc} ({ftc})")
+    elif chave in ("lab_up", "mec_up"):
+        tc, ftc = fv("telhados.conteineres")
+        if tc:
+            d.update(cob="plana", pct=3.0, material="contêiner metálico; terraço-viveiro com manta (02b)",
+                     cob_origem=f"{tc} ({ftc})")
+    elif chave in ("lab", "mec"):
+        d.update(material="contêiner metálico (02b)", cob_origem="sem cobertura: o contêiner de cima fica sobre ele")
+    rise = (prof * d["pct"] / 100) if d["cob"] in ("agua", "plana") else (
+        fm["r"] * d["pct"] / 100 if d["cob"] == "cone" else 0.0)
+    d["total"] = d["paredes"] + rise
+    return d
+
+
+def relacao_terreno(e, z, z_terreno):
+    """Onde a peça fica em relação ao terreno aproximado (pedido da sessão de renderização, 22/11)."""
+    if e.get("piso_topo_m") is None:
+        return "na cota do terreno (interpolada: a 03 não dá cota)"
+    dz = z - z_terreno
+    desc = str(e.get("descricao") or "").lower()
+    if dz < -0.3:
+        if (e.get("corte_m3") or 0) > 0 or "(enterrad" in desc or desc.startswith(("c3 (sob o", "fossa")):
+            motivo = f"corte de {e['corte_m3']:g} m³ na 03" if (e.get("corte_m3") or 0) > 0 else "descrição da 03"
+            return f"abaixo do terreno {abs(dz):.1f} m: corte ou peça enterrada intencional ({motivo})"
+        return (f"abaixo do terreno aproximado {abs(dz):.1f} m sem corte na 03 [CONFERIR com a topografia: o terreno "
+                "do modelo é aproximado pelas curvas]")
+    if dz > 0.3:
+        pil = e.get("pilar_max_m")
+        return f"acima do terreno {dz:.1f} m" + (f" (sobre pilares, máx. {pil:g} m na 03)" if pil else
+                                                 " (aterro ou estrutura elevada [CONFERIR])")
+    return "no nível do terreno aproximado"
+
+
+def _cobertura(W, cp, fm, alt):
+    if cp["cob"] in ("agua", "plana") and fm["tipo"] == "ret":
+        t = cp["pct"] / 100
+        return _prisma_x(W, fm["a"], [(-fm["b"] / 2, 0.0), (fm["b"] / 2, 0.0), (-fm["b"] / 2, fm["b"] * t)], alt)
+    if cp["cob"] == "cone" and fm["tipo"] == "circ":
+        r, h, n = fm["r"], fm["r"] * cp["pct"] / 100, 24
+        pts = [(0.0, 0.0, alt + h), (0.0, 0.0, alt)] + [
+            (r * math.cos(2 * math.pi * k / n), r * math.sin(2 * math.pi * k / n), alt) for k in range(n)]
+        lista = W.add("IFCCARTESIANPOINTLIST3D((" + ",".join(f"({r_(x)},{r_(y)},{r_(z)})" for x, y, z in pts) + "))")
+        faces = [(1, 3 + k, 3 + (k + 1) % n) for k in range(n)] + [(2, 3 + (k + 1) % n, 3 + k) for k in range(n)]
+        return W.add(f"IFCTRIANGULATEDFACESET({lista},$,.T.,(" + ",".join(f"({a},{b},{c})" for a, b, c in faces) + "),$)")
+    return None
+
+
+def _placas(W, cp, fm, alt, area, incl):
+    """Placas sobre a cobertura: nas planas, inclinadas a `incl` (limite inferior da faixa 15–20° da 02b) voltadas ao
+    norte; na água única, paralelas ao telhado; no cone, na face norte."""
+    if fm["tipo"] == "circ":
+        r = fm["r"]
+        th = math.atan(cp["pct"] / 100) if cp["cob"] == "cone" else 0.0
+        h = r * cp["pct"] / 100 if cp["cob"] == "cone" else 0.0
+        w = min(math.sqrt(area), r * 1.2)
+        dp = min(r * 0.85, area * math.cos(th) / w)
+        zc = lambda y: alt + h * (1 - y / r)
+        y1, y2 = 0.15, 0.15 + dp
+        pl = _prisma_x(W, w, [(y1, zc(y1) + 0.03), (y2, zc(y2) + 0.03), (y2, zc(y2) + 0.08), (y1, zc(y1) + 0.08)])
+        return pl, f"face norte da cobertura cônica; {area:.1f} m² de placas [CONFERIR]"
+    a, b = fm["a"] * 0.9, fm["b"]
+    if cp["cob"] == "agua":
+        t = cp["pct"] / 100
+        dp = min(b * 0.9, area * math.cos(math.atan(t)) / a)
+        zt = lambda y: alt + (b / 2 - y) * t
+        y1, y2 = -dp / 2, dp / 2
+        pl = _prisma_x(W, a, [(y1, zt(y1) + 0.03), (y2, zt(y2) + 0.03), (y2, zt(y2) + 0.08), (y1, zt(y1) + 0.08)])
+        return pl, "paralelas à água única do loft; posição real no projeto [CONFERIR]"
+    t_cob = cp["pct"] / 100
+    ti = math.tan(math.radians(incl or 0))
+    dp = min(b * 0.9, area * math.cos(math.radians(incl or 0)) / a)
+    y1, y2 = -dp / 2, dp / 2
+    zr = lambda y: alt + (b / 2 - y) * t_cob + 0.15
+    zp = lambda y: zr(y2) + (y2 - y) * ti
+    pl = _prisma_x(W, a, [(y1, zp(y1)), (y2, zp(y2)), (y2, zp(y2) + 0.05), (y1, zp(y1) + 0.05)])
+    return pl, (f"inclinadas a {incl:g}° para o norte sobre a cobertura (faixa 15–20° da 02b; desenho no limite "
+                "inferior) [CONFERIR]")
+
+
 def escrever(projeto, agora=0, altura=None):
     """Texto STEP do IFC4. `agora` fixo por padrão para o arquivo ser reprodutível (mesma semente, mesmo IFC).
     `altura` = (m, fonte) para versões sem LAB/MEC empilhados (o comparador passa a da rev0)."""
@@ -210,6 +333,8 @@ def escrever(projeto, agora=0, altura=None):
     pv_kwp = (fvs.get("energia.fv.placa_kwp") or {}).get("valor")
     pv_area = (fvs.get("energia.fv.placa_area_m2") or {}).get("valor")
     placas = placas_por_elemento(projeto) if pv_kwp and pv_area else {}
+    incl_txt = (fvs.get("energia.fv.placa_inclinacao") or {}).get("valor")
+    pv_incl = float(re.match(r"(\d+)", incl_txt).group(1)) if incl_txt else 0.0
     W = Escritor("gemeo-" + g["semente"])
 
     pe = W.add("IFCPERSON($,$,'Physis',$,$,$,$,$)")
@@ -255,13 +380,17 @@ def escrever(projeto, agora=0, altura=None):
             z, z_orig = e["piso_topo_m"], "03 › Implantação (piso / topo)"
         else:
             z, z_orig = round(cota_no_terreno(v, tri, it["x"], it["y"]), 3), "cota do terreno interpolada (a 03 não traz)"
-        if chave in EDIFICACOES:
-            alt, alt_orig = h_pav, f_pav
-        else:
-            alt, alt_orig = ESPESSURA_DESENHO_M, "placa de desenho de 0,20 m (não é dado de projeto)"
         fm = forma(e, it)
+        if chave in EDIFICACOES and not e["sem_area"]:
+            cp = corpo_edificacao(chave, fm, projeto, h_pav, f_pav)
+        else:
+            cp = {"paredes": ESPESSURA_DESENHO_M, "total": ESPESSURA_DESENHO_M, "cob": None, "pct": 0.0,
+                  "origem": "placa de desenho de 0,20 m (não é dado de projeto)", "cob_origem": "sem cobertura",
+                  "material": None}
+        alt = cp["paredes"]
+        rel = relacao_terreno(e, z, cota_no_terreno(v, tri, it["x"], it["y"]))
         pl = _coloc(W, pl_site, it["x"], it["y"], z, fm["giro"])
-        rep, telhado_orig = "$", "sem telhado no modelo"
+        rep = "$"
         if not e["sem_area"]:
             p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
             if fm["tipo"] == "circ":
@@ -273,28 +402,16 @@ def escrever(projeto, agora=0, altura=None):
             solido = W.add(f"IFCEXTRUDEDAREASOLID({perfil},{pos},{cima},{r_(alt)})")
             W.add(f"IFCSTYLEDITEM({solido},({estilo(COR_ENTIDADE[e['zona']])}),$)")
             itens_rep = [solido]
-            if chave in EDIFICACOES and fm["tipo"] == "ret" and inc is not None:
-                t = math.tan(math.radians(inc))
-                tel = _prisma_x(W, fm["a"], [(-fm["b"] / 2, 0.0), (fm["b"] / 2, 0.0), (-fm["b"] / 2, fm["b"] * t)], alt)
+            tel = _cobertura(W, cp, fm, alt)
+            if tel:
                 W.add(f"IFCSTYLEDITEM({tel},({estilo(COR_TELHADO)}),$)")
                 itens_rep.append(tel)
-                telhado_orig = f"cai para o norte a {inc:g}° ({inc_fonte}); no loft girado, cai no eixo do próprio loft"
             sr = W.add(f"IFCSHAPEREPRESENTATION({corpo},'Body','SweptSolid',({','.join(itens_rep)}))")
             rep = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({sr}))")
             if chave in placas:
                 n, fontes = placas[chave]
                 area = n * pv_area
-                if fm["tipo"] == "circ":  # topo plano: quadrado com a área das placas, dentro do círculo
-                    lado = min(math.sqrt(area), fm["r"] * math.sqrt(2) * 0.95)
-                    pl_item = _prisma_x(W, lado, [(-lado / 2, 0.03), (lado / 2, 0.03), (lado / 2, 0.08), (-lado / 2, 0.08)], alt)
-                else:
-                    t = math.tan(math.radians(inc or 0))
-                    a = fm["a"] * 0.9
-                    dp = min(fm["b"] * 0.9, area * math.cos(math.radians(inc or 0)) / a)
-                    zt = lambda y: (fm["b"] / 2 - y) * t
-                    y1, y2 = -dp / 2, dp / 2
-                    pl_item = _prisma_x(W, a, [(y1, zt(y1) + 0.03), (y2, zt(y2) + 0.03), (y2, zt(y2) + 0.08),
-                                               (y1, zt(y1) + 0.08)], alt)
+                pl_item, disp = _placas(W, cp, fm, alt, area, pv_incl)
                 W.add(f"IFCSTYLEDITEM({pl_item},({estilo(COR_PLACA)}),$)")
                 srp = W.add(f"IFCSHAPEREPRESENTATION({corpo},'Body','SweptSolid',({pl_item}))")
                 rpp = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({srp}))")
@@ -306,8 +423,7 @@ def escrever(projeto, agora=0, altura=None):
                 W.pset(oh, "Physis_Solar", [
                     W.propriedade("Placas", n), W.propriedade("Potencia", round(n * pv_kwp, 3), "kWp"),
                     W.propriedade("AreaPlacas", round(area, 2), "m²"), W.propriedade("Fonte", "; ".join(sorted(set(fontes)))),
-                    W.propriedade("Disposicao", "desenho: área das placas centrada no telhado; posição real no projeto "
-                                                "[CONFERIR]")], [pv_ref], "pv-" + chave)
+                    W.propriedade("Disposicao", disp)], [pv_ref], "pv-" + chave)
         ref = W.add(f"IFCBUILDINGELEMENTPROXY({W.guid('el', chave)},{oh},{s_(it['nome'][:120])},"
                     f"{s_((e.get('descricao') or '')[:255]) if e.get('descricao') else '$'},{s_(it['tipo'])},{pl},{rep},"
                     f"{s_(chave)},.USERDEFINED.)")
@@ -317,10 +433,16 @@ def escrever(projeto, agora=0, altura=None):
                  W.propriedade("Fonte", e["fonte"]), W.propriedade("Procedencia", e["procedencia"]),
                  W.propriedade("EstadoDeVida", estado["por_elemento"].get(chave, estado["padrao"])),
                  W.propriedade("AreaPlanilha", e["area_m2"], "m²"), W.propriedade("Cota", z, "m"),
-                 W.propriedade("CotaOrigem", z_orig), W.propriedade("AlturaModelo", alt, "m"),
-                 W.propriedade("AlturaOrigem", alt_orig), W.propriedade("SemArea", bool(e["sem_area"])),
-                 W.propriedade("Forma", fm["origem"]), W.propriedade("Telhado", telhado_orig)]
+                 W.propriedade("CotaOrigem", z_orig), W.propriedade("AlturaModelo", round(cp["total"], 3), "m"),
+                 W.propriedade("AlturaOrigem", cp["origem"]), W.propriedade("SemArea", bool(e["sem_area"])),
+                 W.propriedade("Forma", fm["origem"]), W.propriedade("Telhado", cp["cob_origem"]),
+                 W.propriedade("RelacaoTerreno", rel)]
         W.pset(oh, "Physis_Gemeo", props, [ref], chave)
+        if chave in EDIFICACOES:
+            W.pset(oh, "Physis_Material", [
+                W.propriedade("Cobertura", cp["cob_origem"]), W.propriedade("Material", cp["material"] or "[MARCADOR]"),
+                W.propriedade("Cor", COR_NOTA + (" Andar de cima da Casa 1: contêineres laranja e azul (doc 10, 01, 09b), "
+                                                 "não modelado." if chave == "casa" else ""))], [ref], "mat-" + chave)
     if "_sem_lugar" in placas:  # placas sem elemento com área na 03 (D3): entram sem geometria, para somar 56
         n, fontes = placas["_sem_lugar"]
         pv_ref = W.add(f"IFCSOLARDEVICE({W.guid('pv', '_sem_lugar')},{oh},'Placas solares sem lugar no modelo',"

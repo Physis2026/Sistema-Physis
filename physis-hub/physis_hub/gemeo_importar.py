@@ -160,6 +160,42 @@ TIPO_PLANEJADOR = [
 ]
 
 
+# Prancha 02b (02b_Pranchas_Tecnicas_A3.pdf, idêntico em Documents e na cópia de Downloads, conferido por sha256 em
+# 22/11/2026). Valores copiados como estão escritos; TEXTOS_02B são os trechos que o teste procura no PDF.
+F02B_SOMBRAS = "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")"
+F02B_CORTES = "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)"
+F02B_PLACAS = "02b_Pranchas_Tecnicas_A3.pdf › energia (\"Placas de 550 W (≈ 1,13 × 2,28 m) a 15–20°\")"
+TEXTOS_02B = ["Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m",
+              "cobertura 3% + placas a 15–20°", "água única 15%, telha com isolamento", "cônica 45%, rufos e calha periférica",
+              "telhado de madeira com telha cerâmica", "+2,59", "+5,18", "a 15–20°",
+              "pilar tubular 100 × 100 × 4,75", "bloco 0,70 × 0,70 × 0,60", "tracejado 0,60 × 0,60",
+              "A1 a A15: apoios nos cantos e no meio dos contêineres de 40 pés, sobre blocos de concreto aflorando 30 cm",
+              "pilares na grade de 4 m", "contêineres em T sobre 8 pilares",
+              "C0 a C8: pilares da cozinha (centro e anel a cada 45°); D1 a D10: pilares dos decks"]
+F02B_ESTRUTURA = "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes"
+PRANCHA_02B = [  # caminho, valor, fonte, unidade, zona, nota
+    ("alturas.total.casa_lab_mec_m", 5.8, F02B_SOMBRAS, "m", LOTE, "LAB e MEC: a 03 dá baixo + cima = 5,80 m (igual)"),
+    ("alturas.total.lofts_m", 5.0, F02B_SOMBRAS, "m", "Z3",
+     "a tabela de cortes cita também \"5,00 (20 m²) e 3,00 (16 m²)\" em leiaute ambíguo [CONFERIR]"),
+    ("alturas.total.restaurante_m", 4.0, F02B_SOMBRAS, "m", "Z2", None),
+    ("alturas.total.gourmet_m", 3.2, F02B_SOMBRAS, "m", "Z1", "pé-direito 3,20 na tabela de cortes"),
+    ("casa1.altura_conteiner_m", 2.59, F02B_CORTES, "m", "Z1", "níveis ±0,00, +2,59 e +5,18 no corte longitudinal"),
+    ("telhados.conteineres", "plana 3% com placas a 15–20°", F02B_CORTES, None, LOTE, "Casa 1, LAB e MEC"),
+    ("telhados.lofts_pct", 15.0, F02B_CORTES, "%", "Z3", "água única, telha com isolamento"),
+    ("telhados.restaurante_pct", 45.0, F02B_CORTES, "%", "Z2", "cônica, rufos e calha periférica; telha sanduíche"),
+    ("telhados.gourmet", "telhado de madeira com telha cerâmica", F02B_CORTES, None, "Z1",
+     "inclinação [MARCADOR]: a prancha não dá"),
+    ("energia.fv.placa_inclinacao", "15–20°", F02B_PLACAS, None, LOTE, "placas voltadas à Rua G (norte de projeto)"),
+    ("estrutura.pilar", "tubular 100 × 100 × 4,75", F02B_ESTRUTURA, "mm", LOTE, "lofts, restaurante e pergolados"),
+    ("estrutura.bloco", "0,70 × 0,70 × 0,60", F02B_ESTRUTURA, "m", LOTE, "tracejado 0,60 × 0,60 indicativo na Casa 1 e nos lofts"),
+    ("estrutura.bloco_aflorando_m", 0.30, F02B_ESTRUTURA, "m", LOTE, "blocos de concreto aflorando 30 cm do solo"),
+    ("estrutura.casa1", "A1 a A15 nos cantos e no meio dos contêineres de 40 pés", F02B_ESTRUTURA, None, "Z1", None),
+    ("estrutura.lab_mec", "contêineres em T sobre 8 pilares", F02B_ESTRUTURA, None, "Z2", None),
+    ("estrutura.lofts", "pilares na grade de 4 m", F02B_ESTRUTURA, None, "Z3", None),
+    ("estrutura.restaurante", "C0 a C8: centro e anel a cada 45°; D1 a D10 nos decks", F02B_ESTRUTURA, None, "Z2", None),
+]
+
+
 def tipo_planejador(chave):
     for pre, tipo in TIPO_PLANEJADOR:
         if chave.startswith(pre):
@@ -333,7 +369,16 @@ def sistemas_e_divergencias(p20, p03, p18, els):
     if not m:
         raise FonteAusente("planilha 03 › Solar: inclinação dos telhados não encontrada")
     put("telhados.inclinacao_graus", num_br(m.group(1)), p03.fonte("Solar", n_tel, "A"), unidade="°",
-        nota="todos os telhados caem para o norte (Rua G, +y local)")
+        nota="todos os telhados caem para o norte (Rua G, +y local); o 3D usa as coberturas da 02b (pg:74fabc0568d2)",
+        conferir=_conferir("D7", ("plana 3% (contêineres), água única 15% (lofts), cônica 45% (restaurante), telha "
+                                  "cerâmica (gourmet)", F02B_CORTES)))
+    # prancha 02b (PDF do acervo): alturas e coberturas que a 20 e a 03 não têm (decisões pg:58d2e859f36a e
+    # pg:74fabc0568d2); os textos são conferidos no PDF pelo teste Acervo quando o pdftotext existe
+    for cam, v, fonte, un, zona, nota in PRANCHA_02B:
+        put(cam, v, fonte, unidade=un, zona=zona, nota=nota)
+    put("alturas.pavimento_m", 2.90, "planilha 03 › Implantação: LAB e MEC de cima − de baixo (891,36 → 894,26; "
+        "892,86 → 895,76)", unidade="m", conferir=_conferir("D8", (2.59, F02B_CORTES + ": níveis +2,59 e +5,18 dos "
+                                                                       "contêineres da Casa 1")))
     inv = {}
     for n, lv in sorted(p20.aba(aba).items()):
         m = re.search(r"inversor híbrido (\d+) \((\d+(?:,\d+)?) kW", str(lv.get("C", "")))
@@ -411,6 +456,16 @@ def sistemas_e_divergencias(p20, p03, p18, els):
     put("drenagem.jardim_de_chuva_m3", num_br(v), f, unidade="m³", zona="Z1", nota="valor aproximado na fonte (≈)")
     v, f = p20.celula("Drenagem", "Detenção", "D")
     put("drenagem.detencao_m3", num_br(v), f, unidade="m³", zona="Z3", nota=str(v))
+
+    # --- estrutura: apoios por edificação (20 › Fundações)
+    aba = "Fundações"
+    for n, lv in sorted(p20.aba(aba).items()):
+        nome = str(lv.get("A", "")).strip()
+        if n == 1 or not nome or "B" not in lv:
+            continue
+        z = {"Casa 1": "Z1", "Gourmet": "Z1", "Restaurante": "Z2", "LAB ou MEC": "Z2"}.get(nome, "Z3" if nome.startswith("Loft") else LOTE)
+        put(f"estrutura.apoios.{_slug(nome)}", num_br(lv["B"]), p20.fonte(aba, n, "B"), unidade="apoios", zona=z,
+            nota=f"bloco indicativo {lv.get('E', '')}; carga total {lv.get('C', '')} kN")
 
     # --- totais da 03 › Implantação (conferência do cadastro)
     n, lv = p03.linha("Implantação", "Total")

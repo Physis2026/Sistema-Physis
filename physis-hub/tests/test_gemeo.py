@@ -129,7 +129,7 @@ class Semente(unittest.TestCase):
 
     def test_divergencias_conferir(self):
         ab = G.conferir_abertos(self.p)
-        self.assertEqual(sorted(set(ab.values())), ["D1", "D2", "D3", "D4", "D5", "D6"])
+        self.assertEqual(sorted(set(ab.values())), ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"])
         esperado = {"lote.area_m2": ("D6", 1216.0), "areas.projecao_m2": ("D4", 244.4),
                     "energia.fv.placas": ("D1", 70.0), "energia.fv.kwp": ("D1", 38.5),
                     "programa.lofts": ("D3", 5)}
@@ -285,7 +285,7 @@ class IFC3D(unittest.TestCase):
         com_area = sum(1 for e in self.p["gemeo"]["elementos"].values() if not e["sem_area"])
         self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"], com_area)
         self.assertEqual(self.r["tipos"]["IFCZONE"], 3)
-        self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 1)
+        self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 2)  # terreno + cobertura cônica
         for chave in self.p["gemeo"]["elementos"]:
             self.assertIn(f"'{chave}',.USERDEFINED.", self.txt)
 
@@ -302,7 +302,36 @@ class IFC3D(unittest.TestCase):
         perfis = set(re.findall(r"#(\d+)=IFC(?:RECTANGLE|CIRCLE)PROFILEDEF", self.txt))
         alturas = [float(h) for pf, h in re.findall(r"IFCEXTRUDEDAREASOLID\(#(\d+),#\d+,#\d+,([^)]+)\)", self.txt)
                    if pf in perfis]
-        self.assertEqual(set(round(a, 3) for a in alturas), {2.9, 0.2})
+        self.assertTrue({2.9, 0.2, 2.59, 3.2} <= set(round(a, 3) for a in alturas))
+        # alturas e coberturas da 02b (pg:58d2e859f36a, pg:74fabc0568d2)
+        its = {i["id"][2:]: i for i in self.p["itens"]}
+        els = self.p["gemeo"]["elementos"]
+        cp = lambda k: self.GI.corpo_edificacao(k, self.GI.forma(els[k], its[k]), self.p, 2.9, "03")
+        self.assertAlmostEqual(cp("LF1")["total"], 5.0, places=3)
+        self.assertAlmostEqual(cp("LF4")["total"], 5.0, places=3)
+        self.assertEqual((cp("LF1")["cob"], cp("LF1")["pct"]), ("agua", 15.0))
+        self.assertAlmostEqual(cp("bar")["total"], 4.0, places=3)
+        self.assertEqual(cp("bar")["cob"], "cone")
+        self.assertAlmostEqual(cp("gourmet")["total"], 3.2, places=3)
+        self.assertIn("[MARCADOR]", cp("gourmet")["cob_origem"])
+        self.assertAlmostEqual(cp("casa")["paredes"], 2.59, places=3)
+        self.assertEqual(cp("lab")["paredes"], 2.9)
+        self.assertEqual(cp("mec_up")["cob"], "plana")
+        self.assertIn("02b", self.p["gemeo"]["fonte_por_valor"]["alturas.total.lofts_m"]["fonte"])
+        self.assertEqual(self.p["gemeo"]["fonte_por_valor"]["alturas.pavimento_m"]["conferir"]["alternativas"][0]["valor"], 2.59)
+        self.assertIn("[CONFERIR] o acervo n", self.txt)  # nota da cor (sem código de cor no acervo) [CONFERIR]
+
+    def test_relacao_com_o_terreno(self):
+        els = self.p["gemeo"]["elementos"]
+        v, tri = self.GI.malha_terreno(self.p)
+        its = {i["id"][2:]: i for i in self.p["itens"]}
+        r = {k: self.GI.relacao_terreno(e, e["piso_topo_m"], self.GI.cota_no_terreno(v, tri, its[k]["x"], its[k]["y"]))
+             for k, e in els.items() if not e["sem_area"]}
+        for k in ("cist1", "cist4", "biodig", "fossa", "piscina", "garagem"):
+            self.assertIn("intencional", r[k], k)
+        self.assertIn("[CONFERIR", r["comum"])
+        self.assertIn("pilares", r["LF2"]) if "acima" in r["LF2"] else None
+        self.assertEqual(sum("intencional" in x for x in r.values()), 12)
         els = dict(self.p["gemeo"]["elementos"])
         els["mec_up"] = {**els["mec_up"], "piso_topo_m": els["mec_up"]["piso_topo_m"] + 0.5}
         with self.assertRaises(self.GI.SementeIncompleta):
@@ -460,6 +489,16 @@ class Acervo(unittest.TestCase):
                     if G.zona_de(v.get("C")) and v.get("A")}
         tem = {(k, e["zona"]) for k, e in self.gravado["gemeo"]["elementos"].items()}
         self.assertEqual(tem, esperado)
+
+    def test_textos_da_prancha_02b_no_pdf(self):
+        import shutil, subprocess
+        pdf = I.PASTA_PADRAO.parent / "PDF" / "02b_Pranchas_Tecnicas_A3.pdf"
+        if not (shutil.which("pdftotext") and pdf.exists()):
+            self.skipTest("sem pdftotext ou sem o PDF da 02b")
+        txt = subprocess.run(["pdftotext", "-enc", "UTF-8", "-layout", str(pdf), "-"], capture_output=True).stdout.decode("utf-8")
+        txt = re.sub(r"\s+", " ", txt)
+        for trecho in I.TEXTOS_02B:
+            self.assertIn(trecho, txt)
 
     def test_semente_gravada_esta_em_dia(self):
         a, b = copy.deepcopy(self.novo), copy.deepcopy(self.gravado)

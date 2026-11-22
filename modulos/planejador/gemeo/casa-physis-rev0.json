@@ -4068,7 +4068,181 @@
     "procedencia": "estimado",
     "zona": "lote",
     "entidade": "lote (as três entidades)",
-    "nota": "todos os telhados caem para o norte (Rua G, +y local)"
+    "conferir": {
+     "divergencia": "D7",
+     "alternativas": [
+      {
+       "valor": "plana 3% (contêineres), água única 15% (lofts), cônica 45% (restaurante), telha cerâmica (gourmet)",
+       "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)"
+      }
+     ]
+    },
+    "nota": "todos os telhados caem para o norte (Rua G, +y local); o 3D usa as coberturas da 02b (pg:74fabc0568d2)"
+   },
+   "alturas.total.casa_lab_mec_m": {
+    "valor": 5.8,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB e MEC: a 03 dá baixo + cima = 5,80 m (igual)"
+   },
+   "alturas.total.lofts_m": {
+    "valor": 5.0,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "a tabela de cortes cita também \"5,00 (20 m²) e 3,00 (16 m²)\" em leiaute ambíguo [CONFERIR]"
+   },
+   "alturas.total.restaurante_m": {
+    "valor": 4.0,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "alturas.total.gourmet_m": {
+    "valor": 3.2,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "pé-direito 3,20 na tabela de cortes"
+   },
+   "casa1.altura_conteiner_m": {
+    "valor": 2.59,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "níveis ±0,00, +2,59 e +5,18 no corte longitudinal"
+   },
+   "telhados.conteineres": {
+    "valor": "plana 3% com placas a 15–20°",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa 1, LAB e MEC"
+   },
+   "telhados.lofts_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "água única, telha com isolamento"
+   },
+   "telhados.restaurante_pct": {
+    "valor": 45.0,
+    "unidade": "%",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "cônica, rufos e calha periférica; telha sanduíche"
+   },
+   "telhados.gourmet": {
+    "valor": "telhado de madeira com telha cerâmica",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "inclinação [MARCADOR]: a prancha não dá"
+   },
+   "energia.fv.placa_inclinacao": {
+    "valor": "15–20°",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › energia (\"Placas de 550 W (≈ 1,13 × 2,28 m) a 15–20°\")",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "placas voltadas à Rua G (norte de projeto)"
+   },
+   "estrutura.pilar": {
+    "valor": "tubular 100 × 100 × 4,75",
+    "unidade": "mm",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "lofts, restaurante e pergolados"
+   },
+   "estrutura.bloco": {
+    "valor": "0,70 × 0,70 × 0,60",
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "tracejado 0,60 × 0,60 indicativo na Casa 1 e nos lofts"
+   },
+   "estrutura.bloco_aflorando_m": {
+    "valor": 0.3,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "blocos de concreto aflorando 30 cm do solo"
+   },
+   "estrutura.casa1": {
+    "valor": "A1 a A15 nos cantos e no meio dos contêineres de 40 pés",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "estrutura.lab_mec": {
+    "valor": "contêineres em T sobre 8 pilares",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "estrutura.lofts": {
+    "valor": "pilares na grade de 4 m",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "estrutura.restaurante": {
+    "valor": "C0 a C8: centro e anel a cada 45°; D1 a D10 nos decks",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "alturas.pavimento_m": {
+    "valor": 2.9,
+    "unidade": "m",
+    "fonte": "planilha 03 › Implantação: LAB e MEC de cima − de baixo (891,36 → 894,26; 892,86 → 895,76)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D8",
+     "alternativas": [
+      {
+       "valor": 2.59,
+       "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100): níveis +2,59 e +5,18 dos contêineres da Casa 1"
+      }
+     ]
+    }
    },
    "energia.fv.inversor1_kw": {
     "valor": 15.0,
@@ -4639,6 +4813,60 @@
     "zona": "Z3",
     "entidade": "Casa Physis",
     "nota": "6 m³ (calculado 4,2 a 5,5 m³ + margem)"
+   },
+   "estrutura.apoios.casa_1": {
+    "valor": 15.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "bloco indicativo 0,70 × 0,70 × 0,60; carga total 330 kN"
+   },
+   "estrutura.apoios.lab_ou_mec": {
+    "valor": 8.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "bloco indicativo 0,70 × 0,70 × 0,60; carga total 190 kN"
+   },
+   "estrutura.apoios.loft_20_m": {
+    "valor": 8.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 135 kN"
+   },
+   "estrutura.apoios.loft_16_m": {
+    "valor": 8.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 95 kN"
+   },
+   "estrutura.apoios.restaurante": {
+    "valor": 19.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 200 kN"
+   },
+   "estrutura.apoios.gourmet": {
+    "valor": 6.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 90 kN"
    },
    "implantacao.corte_total_m3": {
     "valor": 489.3,
