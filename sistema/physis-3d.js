@@ -1,0 +1,318 @@
+/* physis-3d.js v1 · vista 3D de modelos (IFC lido pelo web-ifc) com three.js · VERSÃO DE TESTE (22/11/2026)
+   SPDX-License-Identifier: AGPL-3.0-only · Copyright (C) 2026 Physis Engineering
+
+   O que faz: monta uma vista 3D num elemento, com luz de céu e sol, sombras suaves, materiais PBR, mapeamento de tons
+   (ACES), arestas, vistas prontas, tela cheia, altura ajustável, captura em alta resolução (PNG) e exportação glTF
+   binário (GLB) para um renderizador offline (Blender/Cycles), sempre como opção.
+   Só aparência: não calcula áreas nem muda dados. Quem chama entrega as malhas e continua dono das contas.
+   Sem internet: usa o THREE (three.js 0.160, /vendor/three.min.js) já carregado pela página.
+   Cores: o fundo e as arestas seguem as variáveis da tela (--bg/--fundo, --ink/--tinta), então acompanham o tema claro e
+   escuro; as demais vêm de physis-hub/docs/PALETA.md.
+   O sol é de apresentação (posição fixa), não é estudo solar: a direção do norte do modelo não é lida.
+
+   Uso:
+     var v = Physis3D.criar(div, { qualidade: "alta" | "atual", nome: "casa-physis", rotulo: "Modelo BIM em 3D" });
+     v.adicionarMalha({ pos: Float32Array, nor: Float32Array, ix: Uint32Array, cor: [r, g, b, a] (sRGB 0–1), espaco: false, nome: "" });
+     v.terminar();                 // enquadra e desenha
+     v.capturar(2).then(blob)      // PNG com 2× os pixels da vista
+     v.glb()                       // ArrayBuffer .glb
+     v.destruir();
+   Ajudante para o web-ifc: Physis3D.malhasDoIFC(api, modelo, WebIFC, aoMalha) chama aoMalha({pos, nor, ix, cor, espaco, id}).
+*/
+(function (g) {
+  "use strict";
+  var ALTURAS = [["360", "Compacta"], ["540", "Média"], ["720", "Alta"]];
+  var ESCALAS = [["1", "1× (tela)"], ["2", "2×"], ["4", "4× (apresentação)"]];
+  var MAX_LADO = 8192;
+
+  function corDaTela(el, nomes, padrao) {
+    try {
+      var s = g.getComputedStyle(el);
+      for (var i = 0; i < nomes.length; i++) { var v = s.getPropertyValue(nomes[i]).trim(); if (v) return v; }
+    } catch (e) {}
+    return padrao;
+  }
+  function elem(tag, at, filhos) {
+    var e = g.document.createElement(tag);
+    for (var k in at || {}) { if (k === "texto") e.textContent = at[k]; else if (k.slice(0, 2) === "on") e[k] = at[k]; else e.setAttribute(k, at[k]); }
+    (filhos || []).forEach(function (f) { if (f) e.appendChild(f); });
+    return e;
+  }
+  function seletor(rotulo, opcoes, valor, aoMudar) {
+    var s = elem("select", { "aria-label": rotulo, "class": "p3d-sel" });
+    opcoes.forEach(function (o) { var op = elem("option", { value: o[0], texto: o[1] }); if (o[0] === valor) op.selected = true; s.appendChild(op); });
+    s.onchange = function () { aoMudar(s.value); };
+    return elem("label", { "class": "p3d-rot" }, [g.document.createTextNode(rotulo + " "), s]);
+  }
+  function botao(texto, acao, dica) { return elem("button", { type: "button", "class": "btn p3d-bt", title: dica || texto, onclick: acao, texto: texto }); }
+
+  var CSS = ".p3d{position:relative}.p3d-barra{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}" +
+    ".p3d-bt,.p3d-sel{min-height:44px;min-width:44px}.p3d-rot{display:inline-flex;align-items:center;gap:.3rem;font-size:.88rem}" +
+    ".p3d canvas{display:block;width:100%;border:1px solid var(--line,#D9D3C2);border-radius:10px;touch-action:none}" +
+    ".p3d canvas:focus-visible{outline:3px solid var(--focus,#C2410C);outline-offset:2px}" +
+    ".p3d:fullscreen{background:var(--bg,#F4F1EA);padding:.6rem;overflow:auto}.p3d:fullscreen canvas{height:calc(100vh - 9rem)!important}";
+
+  function criar(area, op) {
+    op = op || {};
+    var THREE = g.THREE;
+    if (!THREE) throw new Error("three.js não carregado");
+    var alta = op.qualidade !== "atual";
+    if (!g.document.getElementById("p3d-css")) g.document.head.appendChild(elem("style", { id: "p3d-css", texto: CSS }));
+    var altura = +(op.altura || 360);
+    var raiz = elem("div", { "class": "p3d", role: "group", "aria-label": op.rotulo || "Vista 3D" });
+    var dica = elem("p", { "class": "hint", id: "p3d-dica-" + Math.random().toString(36).slice(2, 8),
+      texto: "Arraste para girar (Shift ou botão direito: mover); roda ou pinça para aproximar. Teclado: setas giram, Shift+setas movem, + e − aproximam, 0 volta ao início." });
+    var cv = elem("canvas", { tabindex: "0", role: "img", "aria-label": (op.rotulo || "Modelo em 3D") + ". Use as setas para girar.", "aria-describedby": dica.id });
+    cv.style.height = altura + "px";
+    var aviso = elem("p", { "class": "hint", role: "status", "aria-live": "polite" });
+
+    var ren;
+    try { ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true, preserveDrawingBuffer: false }); }
+    catch (e) { area.replaceChildren(elem("p", { "class": "hint", texto: "Este navegador não abriu o 3D (WebGL desligado ou sem placa de vídeo)." })); throw e; }
+    var cena = new THREE.Scene(), malhas = [], caixa = new THREE.Box3(), arestas = new THREE.Group(), chao = null, sol = null;
+    var dpr = Math.min(g.devicePixelRatio || 1, 2);
+    if (alta) {
+      ren.outputColorSpace = THREE.SRGBColorSpace;
+      ren.toneMapping = THREE.ACESFilmicToneMapping; ren.toneMappingExposure = 1.05;
+      ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap;
+      ren.setPixelRatio(dpr);
+      cena.add(new THREE.HemisphereLight(0xFFFFFF, 0xD9D3C2, 1.6));
+      sol = new THREE.DirectionalLight(0xFFFFFF, 2.6); sol.castShadow = true;
+      sol.shadow.mapSize.set(2048, 2048);
+      cena.add(sol, sol.target, arestas);
+    } else {
+      /* igual à vista atual do Planejador (22/11/2026), para comparar */
+      cena.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1));
+      var s0 = new THREE.DirectionalLight(0xffffff, 0.8); s0.position.set(5, 10, 7); cena.add(s0);
+    }
+    function fundo() { cena.background = new THREE.Color(alta ? corDaTela(area, ["--bg", "--fundo"], "#F4F1EA") : 0xF4F6F1); }
+    fundo();
+
+    var cam = new THREE.PerspectiveCamera(45, 1, 0.01, 1000), alvo = new THREE.Vector3(), az = 0.8, el = 0.6, dist = 10, raio = 1, inicial = null;
+    function tamanho() {
+      var W = Math.max(280, cv.clientWidth || area.clientWidth || 640), H = cv.clientHeight || altura;
+      ren.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix();
+    }
+    function desenhar() {
+      cam.position.set(alvo.x + dist * Math.cos(el) * Math.sin(az), alvo.y + dist * Math.sin(el), alvo.z + dist * Math.cos(el) * Math.cos(az));
+      cam.lookAt(alvo); ren.render(cena, cam);
+    }
+    function mover(dx, dy) {
+      var dir = new THREE.Vector3(), dirx = new THREE.Vector3(), diry = new THREE.Vector3();
+      cam.getWorldDirection(dir); dirx.crossVectors(dir, cam.up).normalize(); diry.crossVectors(dirx, dir).normalize();
+      var k = dist * 0.0015; alvo.addScaledVector(dirx, -dx * k).addScaledVector(diry, dy * k); desenhar();
+    }
+    /* enquadra pelos vértices do modelo (amostra), não pela caixa: lote girado fica maior */
+    var amostra = [];
+    function enquadrar() {
+      tamanho();
+      var dir = new THREE.Vector3(-Math.cos(el) * Math.sin(az), -Math.sin(el), -Math.cos(el) * Math.cos(az)).normalize();
+      var dx = new THREE.Vector3().crossVectors(dir, cam.up); if (dx.lengthSq() < 1e-6) dx.set(1, 0, 0); dx.normalize();
+      var dy = new THREE.Vector3().crossVectors(dx, dir).normalize(), d = new THREE.Vector3();
+      var u0 = Infinity, u1 = -Infinity, v0 = Infinity, v1 = -Infinity, w0 = 0;
+      for (var i = 0; i < amostra.length; i += 3) { d.set(amostra[i] - alvo.x, amostra[i + 1] - alvo.y, amostra[i + 2] - alvo.z);
+        var u = d.dot(dx), v = d.dot(dy), w = d.dot(dir); if (u < u0) u0 = u; if (u > u1) u1 = u; if (v < v0) v0 = v; if (v > v1) v1 = v; if (w < w0) w0 = w; }
+      if (!isFinite(u0)) return;
+      /* centro do desenho no centro da vista; distância para caber ~85%, somando a parte do modelo à frente do alvo */
+      alvo.addScaledVector(dx, (u0 + u1) / 2).addScaledVector(dy, (v0 + v1) / 2);
+      var t = Math.tan(cam.fov * Math.PI / 360);
+      dist = Math.max(raio * 0.3, Math.max((u1 - u0) / 2 / (t * cam.aspect), (v1 - v0) / 2 / t) / 0.85 - w0);
+      /* refino pela projeção em perspectiva, partindo dessa distância segura (sempre fora do modelo) */
+      var minimo = dist * 0.35, p = new THREE.Vector3();
+      for (var it = 0; it < 5; it++) {
+        cam.position.copy(alvo).addScaledVector(dir, -dist); cam.lookAt(alvo); cam.updateMatrixWorld();
+        var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+        for (var k = 0; k < amostra.length; k += 3) { p.set(amostra[k], amostra[k + 1], amostra[k + 2]).project(cam); if (p.z > 1 || p.z < -1) continue;
+          if (p.x < x0) x0 = p.x; if (p.x > x1) x1 = p.x; if (p.y < y0) y0 = p.y; if (p.y > y1) y1 = p.y; }
+        var m = Math.max(x1 - x0, y1 - y0) / 2; if (!isFinite(m) || m <= 0) break;
+        var mh = dist * t; alvo.addScaledVector(dx, (x0 + x1) / 2 * mh * cam.aspect).addScaledVector(dy, (y0 + y1) / 2 * mh);
+        dist = Math.max(minimo, dist * Math.pow(m / 0.85, 0.8));
+      }
+    }
+    function zoom(f) { dist = Math.max(raio * 0.15, Math.min(raio * 20, dist * f)); desenhar(); }
+    function vista(nome) {
+      if (!inicial) return;
+      alvo.copy(inicial.alvo); dist = inicial.dist; mexeu = false;
+      var V = { iso: [0.8, 0.6], planta: [0, 1.5], frente: [0, 0.3], lado: [Math.PI / 2, 0.3] }[nome] || [0.8, 0.6];
+      az = V[0]; el = V[1]; if (alta) enquadrar(); desenhar(); aviso.textContent = "Vista: " + ({ iso: "isométrica", planta: "de cima", frente: "frente", lado: "lateral" }[nome] || nome) + ".";
+    }
+
+    /* mouse, toque e caneta */
+    var pts = {}, arr = null, pinca = 0, mexeu = false;
+    ["pointerdown", "wheel", "keydown"].forEach(function (t) { cv.addEventListener(t, function () { mexeu = true; }); });
+    cv.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    cv.addEventListener("pointerdown", function (e) { pts[e.pointerId] = [e.clientX, e.clientY]; arr = { x: e.clientX, y: e.clientY, mover: e.shiftKey || e.button === 2 }; try { cv.setPointerCapture(e.pointerId); } catch (x) {} });
+    function solta(e) { delete pts[e.pointerId]; pinca = 0; if (!Object.keys(pts).length) arr = null; }
+    cv.addEventListener("pointerup", solta); cv.addEventListener("pointercancel", solta);
+    cv.addEventListener("pointermove", function (e) {
+      if (!arr) return; pts[e.pointerId] = [e.clientX, e.clientY];
+      var ks = Object.keys(pts);
+      if (ks.length === 2) { var a = pts[ks[0]], b = pts[ks[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinca) zoom(pinca / d); pinca = d; return; }
+      var dx = e.clientX - arr.x, dy = e.clientY - arr.y; arr.x = e.clientX; arr.y = e.clientY;
+      if (arr.mover) mover(dx, dy); else { az -= dx * 0.01; el = Math.max(-1.45, Math.min(1.5, el + dy * 0.01)); desenhar(); }
+    });
+    cv.addEventListener("wheel", function (e) { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 0.9); }, { passive: false });
+    cv.addEventListener("keydown", function (e) {
+      var k = e.key, f = true;
+      if (k === "ArrowLeft") { if (e.shiftKey) mover(-30, 0); else { az += 0.1; desenhar(); } }
+      else if (k === "ArrowRight") { if (e.shiftKey) mover(30, 0); else { az -= 0.1; desenhar(); } }
+      else if (k === "ArrowUp") { if (e.shiftKey) mover(0, -30); else { el = Math.min(1.5, el + 0.08); desenhar(); } }
+      else if (k === "ArrowDown") { if (e.shiftKey) mover(0, 30); else { el = Math.max(-1.45, el - 0.08); desenhar(); } }
+      else if (k === "+" || k === "=") zoom(0.9);
+      else if (k === "-" || k === "_") zoom(1.1);
+      else if (k === "0" || k === "Home") vista("iso");
+      else f = false;
+      if (f) e.preventDefault();
+    });
+
+    var mats = {};
+    function material(cor, espaco) {
+      var r = cor[0], gg = cor[1], b = cor[2], a = espaco ? 0.25 : (cor[3] == null ? 1 : cor[3]);
+      var chave = [r, gg, b, a, espaco ? 1 : 0].map(function (x) { return (+x).toFixed(4); }).join(",");
+      if (mats[chave]) return mats[chave];
+      var c = alta ? new THREE.Color().setRGB(r, gg, b, THREE.SRGBColorSpace) : new THREE.Color(r, gg, b);
+      var m = alta ? new THREE.MeshStandardMaterial({ color: c, roughness: 0.82, metalness: 0, transparent: a < 1, opacity: a, side: THREE.DoubleSide, depthWrite: a >= 1 })
+                   : new THREE.MeshLambertMaterial({ color: c, transparent: espaco || a < 1, opacity: a, side: THREE.DoubleSide });
+      if (alta) { m.polygonOffset = true; m.polygonOffsetFactor = 1; m.polygonOffsetUnits = 1; }
+      return (mats[chave] = m);
+    }
+    var api = {
+      cena: cena, renderizador: ren, camera: cam, canvas: cv, qualidade: alta ? "alta" : "atual",
+      adicionarMalha: function (m) {
+        var geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(m.pos, 3));
+        if (m.nor) geo.setAttribute("normal", new THREE.BufferAttribute(m.nor, 3)); else geo.computeVertexNormals();
+        if (m.ix) geo.setIndex(new THREE.BufferAttribute(m.ix, 1));
+        var malha = new THREE.Mesh(geo, material(m.cor || [0.8, 0.8, 0.8, 1], !!m.espaco));
+        malha.name = m.nome || ""; malha.userData.espaco = !!m.espaco;
+        if (alta) { malha.castShadow = !m.espaco && malha.material.opacity >= 1; malha.receiveShadow = !m.espaco;
+          if (!m.espaco) arestas.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), linhaMat)); }
+        cena.add(malha); malhas.push(malha); geo.computeBoundingBox(); caixa.union(geo.boundingBox);
+        if (!m.espaco) { var passo = Math.max(1, Math.floor(m.pos.length / 3 / 400)) * 3; for (var q = 0; q < m.pos.length; q += passo) amostra.push(m.pos[q], m.pos[q + 1], m.pos[q + 2]); }
+        return malha;
+      },
+      terminar: function () {
+        if (caixa.isEmpty()) { aviso.textContent = "O modelo não tem geometria para mostrar em 3D."; return api; }
+        caixa.getCenter(alvo); raio = caixa.getSize(new THREE.Vector3()).length() / 2 || 1; dist = raio * (alta ? 2.2 : 2.6);
+        cam.near = raio / 100; cam.far = raio * 100;
+        if (alta) {
+          sol.position.set(alvo.x + raio * 1.1, alvo.y + raio * 1.6, alvo.z + raio * 0.7); sol.target.position.copy(alvo);
+          var sc = sol.shadow.camera; sc.left = sc.bottom = -raio * 1.2; sc.right = sc.top = raio * 1.2; sc.near = raio * 0.1; sc.far = raio * 5; sc.updateProjectionMatrix();
+          sol.shadow.bias = -0.0015; sol.shadow.normalBias = raio * 0.004;
+          /* chão que recebe sombra: útil para prédio solto; desligado quando o modelo já traz o terreno */
+          chao = new THREE.Mesh(new THREE.PlaneGeometry(raio * 8, raio * 8), new THREE.ShadowMaterial({ opacity: 0.22 }));
+          chao.rotation.x = -Math.PI / 2; chao.position.set(alvo.x, caixa.min.y - raio * 0.002, alvo.z); chao.receiveShadow = true; chao.visible = !!op.chao; cena.add(chao);
+        }
+        if (alta) enquadrar();
+        inicial = { alvo: alvo.clone(), dist: dist };
+        tamanho(); desenhar(); return api;
+      },
+      redesenhar: function () { fundo(); linhaMat.color.set(corArestas()); tamanho(); desenhar(); },
+      vista: vista,
+      capturar: function (escala) {
+        escala = Math.max(1, +escala || 2);
+        var W = cv.clientWidth || 640, H = cv.clientHeight || altura, k = Math.min(escala, MAX_LADO / Math.max(W, H));
+        var antes = ren.getPixelRatio();
+        ren.setPixelRatio(k); ren.setSize(W, H, false); desenhar();
+        var url = cv.toDataURL("image/png");
+        ren.setPixelRatio(alta ? dpr : antes); tamanho(); desenhar();
+        return fetch(url).then(function (r) { return r.blob(); });
+      },
+      glb: function () { return paraGLB(malhas, op.nome || "modelo"); },
+      destruir: function () { try { ro && ro.disconnect(); mo && mo.disconnect(); ren.dispose(); } catch (e) {} }
+    };
+
+    function corArestas() { return corDaTela(area, ["--ink", "--tinta"], "#1B1F23"); }
+    var linhaMat = new THREE.LineBasicMaterial({ color: new THREE.Color(corArestas()), transparent: true, opacity: 0.35 });
+
+    function baixar(blob, nome) { var a = elem("a", { href: URL.createObjectURL(blob), download: nome }); g.document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+    var escala = "2";
+    var barra = elem("div", { "class": "p3d-barra", role: "toolbar", "aria-label": "Ferramentas da vista 3D" }, [
+      botao("Isométrica", function () { vista("iso"); }), botao("De cima", function () { vista("planta"); }),
+      botao("Frente", function () { vista("frente"); }), botao("Lateral", function () { vista("lado"); }),
+      alta ? (function () { var c = elem("input", { type: "checkbox", checked: "checked" }); c.onchange = function () { arestas.visible = c.checked; desenhar(); };
+        return elem("label", { "class": "p3d-rot p3d-bt" }, [c, g.document.createTextNode(" Arestas")]); })() : null,
+      alta ? (function () { var c = elem("input", { type: "checkbox" }); if (op.chao) c.checked = true; c.onchange = function () { if (chao) chao.visible = c.checked; desenhar(); };
+        return elem("label", { "class": "p3d-rot p3d-bt" }, [c, g.document.createTextNode(" Sombra no chão")]); })() : null,
+      seletor("Altura", ALTURAS, String(altura), function (v) { altura = +v; cv.style.height = altura + "px"; tamanho(); desenhar(); }),
+      botao("Tela cheia", function () { if (g.document.fullscreenElement) g.document.exitFullscreen(); else if (raiz.requestFullscreen) raiz.requestFullscreen().then(function () { cv.focus(); }); }),
+      seletor("Imagem", ESCALAS, escala, function (v) { escala = v; }),
+      botao("Salvar imagem (PNG)", function () { api.capturar(+escala).then(function (b) { baixar(b, (op.nome || "vista-3d") + "-" + escala + "x.png"); aviso.textContent = "Imagem salva em " + escala + "× a resolução da vista."; }); }),
+      alta ? botao("Baixar modelo (GLB)", function () { baixar(new Blob([api.glb()], { type: "model/gltf-binary" }), (op.nome || "modelo") + ".glb"); aviso.textContent = "Modelo em glTF binário salvo: abre no Blender (Cycles) para imagens de apresentação."; }, "glTF binário para renderizar fora do navegador") : null
+    ]);
+    raiz.append(barra, cv, aviso, dica);
+    area.replaceChildren(raiz);
+
+    var ro = g.ResizeObserver ? new g.ResizeObserver(function () { if (!inicial) return; if (alta && !mexeu) { alvo.copy(inicial.alvo); enquadrar(); } else tamanho(); desenhar(); }) : null; if (ro) ro.observe(cv);
+    /* tema: a vista acompanha a troca de Claro/Escuro/Automático */
+    var mo = g.MutationObserver ? new g.MutationObserver(function () { if (inicial) api.redesenhar(); }) : null;
+    if (mo) mo.observe(g.document.documentElement, { attributes: true, attributeFilter: ["data-tema", "data-theme", "class"] });
+    try { g.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if (inicial) api.redesenhar(); }); } catch (e) {}
+    g.document.addEventListener("fullscreenchange", function () { if (inicial) { tamanho(); desenhar(); } });
+    return api;
+  }
+
+  /* glTF 2.0 binário (GLB): uma malha por elemento, material PBR com a cor do modelo. Eixo Y para cima (igual ao web-ifc). */
+  function paraGLB(malhas, nome) {
+    var partes = [], tam = 0, bviews = [], acess = [], materiais = [], chaves = {}, nos = [], meshes = [];
+    function junta(arr, alvo) { var pad = (4 - (tam % 4)) % 4; if (pad) { partes.push(new Uint8Array(pad)); tam += pad; }
+      var u = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength).slice(); partes.push(u);
+      bviews.push({ buffer: 0, byteOffset: tam, byteLength: u.byteLength, target: alvo }); tam += u.byteLength; return bviews.length - 1; }
+    malhas.forEach(function (m, i) {
+      var geo = m.geometry, p = geo.attributes.position, n = geo.attributes.normal;
+      if (!p) return;
+      var pos = new Float32Array(p.array), mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+      for (var k = 0; k < pos.length; k += 3) for (var j = 0; j < 3; j++) { if (pos[k + j] < mn[j]) mn[j] = pos[k + j]; if (pos[k + j] > mx[j]) mx[j] = pos[k + j]; }
+      var at = { POSITION: acess.push({ bufferView: junta(pos, 34962), componentType: 5126, count: pos.length / 3, type: "VEC3", min: mn, max: mx }) - 1 };
+      if (n) at.NORMAL = acess.push({ bufferView: junta(new Float32Array(n.array), 34962), componentType: 5126, count: n.count, type: "VEC3" }) - 1;
+      var prim = { attributes: at };
+      if (geo.index) { var ix = new Uint32Array(geo.index.array); prim.indices = acess.push({ bufferView: junta(ix, 34963), componentType: 5125, count: ix.length, type: "SCALAR" }) - 1; }
+      var mt = m.material, c = mt.color, a = mt.opacity == null ? 1 : mt.opacity, ch = [c.r, c.g, c.b, a].map(function (x) { return x.toFixed(4); }).join(",");
+      if (chaves[ch] == null) { chaves[ch] = materiais.length; materiais.push({ name: "cor-" + materiais.length, doubleSided: true, alphaMode: a < 1 ? "BLEND" : "OPAQUE",
+        pbrMetallicRoughness: { baseColorFactor: [c.r, c.g, c.b, a], metallicFactor: 0, roughnessFactor: 0.82 } }); }
+      prim.material = chaves[ch];
+      meshes.push({ name: m.name || ("elemento-" + i), primitives: [prim] });
+      nos.push({ name: m.name || ("elemento-" + i), mesh: meshes.length - 1 });
+    });
+    var bin = new Uint8Array((tam + 3) & ~3), o = 0;
+    partes.forEach(function (u) { bin.set(u, o); o += u.byteLength; });
+    var json = { asset: { version: "2.0", generator: "physis-3d.js v1 (Physis Engineering)" }, scene: 0,
+      scenes: [{ name: nome, nodes: nos.map(function (_, i) { return i; }) }], nodes: nos, meshes: meshes, materials: materiais,
+      accessors: acess, bufferViews: bviews, buffers: [{ byteLength: bin.byteLength }] };
+    var jt = new TextEncoder().encode(JSON.stringify(json)), jl = (jt.length + 3) & ~3;
+    var total = 12 + 8 + jl + 8 + bin.byteLength, out = new ArrayBuffer(total), dv = new DataView(out), u8 = new Uint8Array(out);
+    dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true);
+    dv.setUint32(12, jl, true); dv.setUint32(16, 0x4E4F534A, true); u8.fill(0x20, 20, 20 + jl); u8.set(jt, 20);
+    dv.setUint32(20 + jl, bin.byteLength, true); dv.setUint32(24 + jl, 0x004E4942, true); u8.set(bin, 28 + jl);
+    return out;
+  }
+
+  /* web-ifc → malhas (posições já com a transformação de cada peça) */
+  function malhasDoIFC(api, modelo, WebIFC, aoMalha) {
+    var espacos = new Set(), ids = api.GetLineIDsWithType(modelo, WebIFC.IFCSPACE);
+    for (var i = 0; i < ids.size(); i++) espacos.add(ids.get(i));
+    var M = g.THREE ? new g.THREE.Matrix4() : null;
+    function receber(malha) {
+      var pgs = malha.geometries;
+      for (var i = 0; i < pgs.size(); i++) {
+        var pg = pgs.get(i), geo = api.GetGeometry(modelo, pg.geometryExpressID);
+        var v = api.GetVertexArray(geo.GetVertexData(), geo.GetVertexDataSize()), ix = api.GetIndexArray(geo.GetIndexData(), geo.GetIndexDataSize());
+        var n = v.length / 6, pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), t = pg.flatTransformation;
+        M.fromArray(t); var Mn = new g.THREE.Matrix3().getNormalMatrix(M), vv = new g.THREE.Vector3();
+        for (var k = 0; k < n; k++) {
+          vv.set(v[k * 6], v[k * 6 + 1], v[k * 6 + 2]).applyMatrix4(M); pos[k * 3] = vv.x; pos[k * 3 + 1] = vv.y; pos[k * 3 + 2] = vv.z;
+          vv.set(v[k * 6 + 3], v[k * 6 + 4], v[k * 6 + 5]).applyMatrix3(Mn).normalize(); nor[k * 3] = vv.x; nor[k * 3 + 1] = vv.y; nor[k * 3 + 2] = vv.z;
+        }
+        var c = pg.color, nome = "";
+        try { var L = api.GetLine(modelo, malha.expressID); nome = (L.Name && L.Name.value) || ""; } catch (e) {}
+        aoMalha({ pos: pos, nor: nor, ix: new Uint32Array(ix), cor: [c.x, c.y, c.z, c.w], espaco: espacos.has(malha.expressID), id: malha.expressID, nome: nome });
+        geo.delete();
+      }
+    }
+    api.StreamAllMeshes(modelo, receber);
+    if (api.StreamAllMeshesWithTypes) api.StreamAllMeshesWithTypes(modelo, [WebIFC.IFCSPACE], receber);
+    return espacos;
+  }
+
+  g.Physis3D = { versao: 1, criar: criar, malhasDoIFC: malhasDoIFC, paraGLB: paraGLB };
+})(typeof window !== "undefined" ? window : this);

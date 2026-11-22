@@ -39,6 +39,8 @@ ALVOS = [
     RAIZ / "physis-hub" / "web" / "documento.html",
     RAIZ / "physis-hub" / "web" / "municipio.html",
     RAIZ / "app-nativo" / "site" / "baixar.html",
+    # vista 3D melhorada, versão de TESTE (22/11/2026): página de comparação, fora do Planejador
+    RAIZ / "modulos" / "planejador" / "visualizador-3d-teste.html",
 ]
 # A "Tela do cliente" (sistema/physis-tela-cliente.html) saiu em 15/11/2026: tudo o que ela fazia está nas abas da plataforma.
 PLATAFORMA = RAIZ / "physis-hub" / "web" / "painel.html"
@@ -75,6 +77,8 @@ BLOCOS = {
     "pc-ponte": RAIZ / "sistema" / "physis-ponte-cliente.js",      # ponte da plataforma com o servidor (dados do cliente)
     # contas comuns (Lei 14.300, plano inclinado, baterias, cisterna, calhas, aquecimento solar) com a base de premissas
     "physis-calc-comum": RAIZ / "sistema" / "physis-calc-comum.js",
+    # vista 3D (three.js): luz, sombras, PBR, captura em alta resolução e GLB. TESTE de 22/11/2026
+    "physis-3d": RAIZ / "sistema" / "physis-3d.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.
