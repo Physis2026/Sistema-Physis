@@ -20,6 +20,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import re
 import sys
 from pathlib import Path
 
@@ -37,6 +39,91 @@ SEMENTE_PADRAO = Path(__file__).resolve().parents[2] / "modulos" / "planejador" 
 
 class SementeIncompleta(ValueError):
     pass
+
+
+# ---------------------------------------------------------------- forma de cada elemento (refinamento, 21/11)
+
+COR_TELHADO = "#C9D2C4"  # linha, PALETA.md
+COR_PLACA = "#1B1F23"  # carvão, PALETA.md
+# trecho "Onde" da 03 › Placas solares (chave na semente) → elementos que recebem as placas (divididas por igual)
+PLACAS_LOCAL = {"casa_cobertura_dos_20_pes": ("casa",), "pergolado_do_terraco_da_casa": ("casa",),
+                "pergolados_do_lab_e_do_mec": ("lab_up", "mec_up"), "coberturas_do_lab_e_do_mec": ("lab_up", "mec_up"),
+                "gourmet": ("gourmet",), "restaurante_face_norte": ("bar",)}
+
+
+def forma(e, it):
+    """Forma real quando a descrição da 03 diz: 'Ø 5,0 m' (redondo) ou 'A × B … giro N°' (retângulo girado). A medida
+    só é aceita se reproduz a caixa envolvente da 03 (larg. × prof.) com 6 cm de folga; senão fica a caixa."""
+    import math
+    from .gemeo_importar import numeros_br
+    desc, w, d = str(e.get("descricao") or ""), it["w"], it["d"]
+    caixa = {"tipo": "ret", "a": w, "b": d, "giro": 0.0, "origem": "caixa da 03 (larg. × prof.)"}
+    m = re.search(r"Ø\s*(\d+(?:,\d+)?)\s*m", desc)
+    if m:
+        dia = numeros_br(m.group(1))[0]
+        if abs(dia - w) < 0.06 and abs(dia - d) < 0.06:
+            return {"tipo": "circ", "r": dia / 2, "giro": 0.0, "origem": f"redondo Ø {m.group(1)} m (descrição da 03)"}
+    g = re.search(r"giro (\d+(?:,\d+)?)°", desc)
+    md = re.search(r"(\d+(?:,\d+)?) × (\d+(?:,\d+)?)", desc)
+    if g and md:
+        t = math.radians(numeros_br(g.group(1))[0])
+        A, B = numeros_br(md.group(1))[0], numeros_br(md.group(2))[0]
+        for a, b in ((A, B), (B, A)):
+            bw, bd = a * math.cos(t) + b * math.sin(t), a * math.sin(t) + b * math.cos(t)
+            if abs(bw - w) < 0.06 and abs(bd - d) < 0.06:
+                return {"tipo": "ret", "a": a, "b": b, "giro": math.degrees(t),
+                        "origem": f"{md.group(0)} m girado {g.group(1)}° (descrição da 03; reproduz a caixa "
+                                  f"{w} × {d}); sentido do giro [CONFERIR]"}
+    return caixa
+
+
+def _coloc(W, rel, x, y, z, giro=0.0):
+    import math
+    p = W.ponto(x, y, z)
+    if giro:
+        t = math.radians(giro)
+        ax = W.add(f"IFCAXIS2PLACEMENT3D({p},{W.add('IFCDIRECTION((0.,0.,1.))')},"
+                   f"{W.add(f'IFCDIRECTION(({r_(math.cos(t))},{r_(math.sin(t))},0.))')})")
+    else:
+        ax = W.add(f"IFCAXIS2PLACEMENT3D({p},$,$)")
+    return W.add(f"IFCLOCALPLACEMENT({rel},{ax})")
+
+
+def _prisma_x(W, comprimento, pts_yz, z0=0.0):
+    """Sólido com perfil no plano (y, z) local, estendido ao longo de x (centrado)."""
+    pts = [W.add(f"IFCCARTESIANPOINT(({r_(y)},{r_(z)}))") for y, z in pts_yz]
+    poly = W.add(f"IFCPOLYLINE(({','.join(pts + pts[:1])}))")
+    perfil = W.add(f"IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,$,{poly})")
+    pos = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(-comprimento / 2, 0, z0)},{W.add('IFCDIRECTION((1.,0.,0.))')},"
+                f"{W.add('IFCDIRECTION((0.,1.,0.))')})")
+    return W.add(f"IFCEXTRUDEDAREASOLID({perfil},{pos},{W.add('IFCDIRECTION((0.,0.,1.))')},{r_(comprimento)})")
+
+
+def placas_por_elemento(projeto):
+    """{chave: (placas, [fontes])} pela 03 › Placas solares; lofts: 'N por loft' em cada loft com área. O que não
+    tem lugar (loft sem área na 03, divergência D3) volta em '_sem_lugar'."""
+    fv, els = projeto["gemeo"]["fonte_por_valor"], projeto["gemeo"]["elementos"]
+    out = {}
+    for cam, d in fv.items():
+        m = re.match(r"energia\.fv\.local\.(.+)\.placas$", cam)
+        if not m:
+            continue
+        local, n = m.group(1), d["valor"]
+        ml = re.match(r"lofts_(\d+)_por_loft_(\d+)$", local)
+        if ml:
+            por, lofts = int(ml.group(1)), sorted(k for k, e in els.items() if k.startswith("LF") and not e["sem_area"])
+            alvo = [(k, por) for k in lofts]
+            resto = n - por * len(lofts)
+            if resto:
+                alvo.append(("_sem_lugar", resto))
+        elif local in PLACAS_LOCAL:
+            alvo = [(k, n / len(PLACAS_LOCAL[local])) for k in PLACAS_LOCAL[local]]
+        else:
+            alvo = [("_sem_lugar", n)]
+        for k, q in alvo:
+            tot, fs = out.get(k, (0, []))
+            out[k] = (tot + q, fs + [d["fonte"]])
+    return out
 
 
 def altura_pavimento(els):
@@ -117,6 +204,12 @@ def escrever(projeto, agora=0, altura=None):
     itens = {i["id"]: i for i in projeto["itens"]}
     h_pav, f_pav = altura or altura_pavimento(els)
     v, tri = malha_terreno(projeto)
+    fvs = g["fonte_por_valor"]
+    inc = (fvs.get("telhados.inclinacao_graus") or {}).get("valor")
+    inc_fonte = (fvs.get("telhados.inclinacao_graus") or {}).get("fonte")
+    pv_kwp = (fvs.get("energia.fv.placa_kwp") or {}).get("valor")
+    pv_area = (fvs.get("energia.fv.placa_area_m2") or {}).get("valor")
+    placas = placas_por_elemento(projeto) if pv_kwp and pv_area else {}
     W = Escritor("gemeo-" + g["semente"])
 
     pe = W.add("IFCPERSON($,$,'Physis',$,$,$,$,$)")
@@ -166,17 +259,55 @@ def escrever(projeto, agora=0, altura=None):
             alt, alt_orig = h_pav, f_pav
         else:
             alt, alt_orig = ESPESSURA_DESENHO_M, "placa de desenho de 0,20 m (não é dado de projeto)"
-        pl = W.colocacao(pl_site, it["x"], it["y"], z)
-        rep = "$"
+        fm = forma(e, it)
+        pl = _coloc(W, pl_site, it["x"], it["y"], z, fm["giro"])
+        rep, telhado_orig = "$", "sem telhado no modelo"
         if not e["sem_area"]:
             p2 = W.add(f"IFCAXIS2PLACEMENT2D({W.add('IFCCARTESIANPOINT((0.,0.))')},$)")
-            perfil = W.add(f"IFCRECTANGLEPROFILEDEF(.AREA.,$,{p2},{r_(it['w'])},{r_(it['d'])})")
+            if fm["tipo"] == "circ":
+                perfil = W.add(f"IFCCIRCLEPROFILEDEF(.AREA.,$,{p2},{r_(fm['r'])})")
+            else:
+                perfil = W.add(f"IFCRECTANGLEPROFILEDEF(.AREA.,$,{p2},{r_(fm['a'])},{r_(fm['b'])})")
             pos = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(0, 0, 0)},$,$)")
             cima = W.add("IFCDIRECTION((0.,0.,1.))")
             solido = W.add(f"IFCEXTRUDEDAREASOLID({perfil},{pos},{cima},{r_(alt)})")
             W.add(f"IFCSTYLEDITEM({solido},({estilo(COR_ENTIDADE[e['zona']])}),$)")
-            sr = W.add(f"IFCSHAPEREPRESENTATION({corpo},'Body','SweptSolid',({solido}))")
+            itens_rep = [solido]
+            if chave in EDIFICACOES and fm["tipo"] == "ret" and inc is not None:
+                t = math.tan(math.radians(inc))
+                tel = _prisma_x(W, fm["a"], [(-fm["b"] / 2, 0.0), (fm["b"] / 2, 0.0), (-fm["b"] / 2, fm["b"] * t)], alt)
+                W.add(f"IFCSTYLEDITEM({tel},({estilo(COR_TELHADO)}),$)")
+                itens_rep.append(tel)
+                telhado_orig = f"cai para o norte a {inc:g}° ({inc_fonte}); no loft girado, cai no eixo do próprio loft"
+            sr = W.add(f"IFCSHAPEREPRESENTATION({corpo},'Body','SweptSolid',({','.join(itens_rep)}))")
             rep = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({sr}))")
+            if chave in placas:
+                n, fontes = placas[chave]
+                area = n * pv_area
+                if fm["tipo"] == "circ":  # topo plano: quadrado com a área das placas, dentro do círculo
+                    lado = min(math.sqrt(area), fm["r"] * math.sqrt(2) * 0.95)
+                    pl_item = _prisma_x(W, lado, [(-lado / 2, 0.03), (lado / 2, 0.03), (lado / 2, 0.08), (-lado / 2, 0.08)], alt)
+                else:
+                    t = math.tan(math.radians(inc or 0))
+                    a = fm["a"] * 0.9
+                    dp = min(fm["b"] * 0.9, area * math.cos(math.radians(inc or 0)) / a)
+                    zt = lambda y: (fm["b"] / 2 - y) * t
+                    y1, y2 = -dp / 2, dp / 2
+                    pl_item = _prisma_x(W, a, [(y1, zt(y1) + 0.03), (y2, zt(y2) + 0.03), (y2, zt(y2) + 0.08),
+                                               (y1, zt(y1) + 0.08)], alt)
+                W.add(f"IFCSTYLEDITEM({pl_item},({estilo(COR_PLACA)}),$)")
+                srp = W.add(f"IFCSHAPEREPRESENTATION({corpo},'Body','SweptSolid',({pl_item}))")
+                rpp = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({srp}))")
+                plp = _coloc(W, pl_site, it["x"], it["y"], z, fm["giro"])
+                pv_ref = W.add(f"IFCSOLARDEVICE({W.guid('pv', chave)},{oh},{s_(f'Placas solares · {it['nome'][:80]}')},$,"
+                               f"'Placas fotovoltaicas',{plp},{rpp},{s_('pv-' + chave)},.SOLARPANEL.)")
+                refs.append(pv_ref)
+                por_zona[e["zona"]].append(pv_ref)
+                W.pset(oh, "Physis_Solar", [
+                    W.propriedade("Placas", n), W.propriedade("Potencia", round(n * pv_kwp, 3), "kWp"),
+                    W.propriedade("AreaPlacas", round(area, 2), "m²"), W.propriedade("Fonte", "; ".join(sorted(set(fontes)))),
+                    W.propriedade("Disposicao", "desenho: área das placas centrada no telhado; posição real no projeto "
+                                                "[CONFERIR]")], [pv_ref], "pv-" + chave)
         ref = W.add(f"IFCBUILDINGELEMENTPROXY({W.guid('el', chave)},{oh},{s_(it['nome'][:120])},"
                     f"{s_((e.get('descricao') or '')[:255]) if e.get('descricao') else '$'},{s_(it['tipo'])},{pl},{rep},"
                     f"{s_(chave)},.USERDEFINED.)")
@@ -187,8 +318,17 @@ def escrever(projeto, agora=0, altura=None):
                  W.propriedade("EstadoDeVida", estado["por_elemento"].get(chave, estado["padrao"])),
                  W.propriedade("AreaPlanilha", e["area_m2"], "m²"), W.propriedade("Cota", z, "m"),
                  W.propriedade("CotaOrigem", z_orig), W.propriedade("AlturaModelo", alt, "m"),
-                 W.propriedade("AlturaOrigem", alt_orig), W.propriedade("SemArea", bool(e["sem_area"]))]
+                 W.propriedade("AlturaOrigem", alt_orig), W.propriedade("SemArea", bool(e["sem_area"])),
+                 W.propriedade("Forma", fm["origem"]), W.propriedade("Telhado", telhado_orig)]
         W.pset(oh, "Physis_Gemeo", props, [ref], chave)
+    if "_sem_lugar" in placas:  # placas sem elemento com área na 03 (D3): entram sem geometria, para somar 56
+        n, fontes = placas["_sem_lugar"]
+        pv_ref = W.add(f"IFCSOLARDEVICE({W.guid('pv', '_sem_lugar')},{oh},'Placas solares sem lugar no modelo',"
+                       f"{s_('loft sem área na 03 (divergência D3) [CONFERIR]')},'Placas fotovoltaicas',"
+                       f"{W.colocacao(pl_site)},$,'pv-sem-lugar',.SOLARPANEL.)")
+        refs.append(pv_ref)
+        W.pset(oh, "Physis_Solar", [W.propriedade("Placas", n), W.propriedade("Potencia", round(n * pv_kwp, 3), "kWp"),
+                                    W.propriedade("Fonte", "; ".join(sorted(set(fontes))))], [pv_ref], "pv-sem-lugar")
     W.add(f"IFCRELCONTAINEDINSPATIALSTRUCTURE({W.guid('cont-site')},{oh},$,$,({','.join(refs)}),{sitio})")
     for z, rs in por_zona.items():
         info = G.ZONAS[z]

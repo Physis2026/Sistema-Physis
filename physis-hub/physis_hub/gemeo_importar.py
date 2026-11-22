@@ -319,6 +319,21 @@ def sistemas_e_divergencias(p20, p03, p18, els):
     put("energia.fv.kwp", pl["F"], p03.fonte("Placas solares", pn, "F"), unidade="kWp",
         conferir=_conferir("D1", (sol["H"], p03.fonte("Solar", sol_n, "H"))),
         nota="a planilha 20 não traz o kWp; a 03 › Placas solares soma as mesmas 56 placas da 20 › Strings FV")
+    # onde ficam as placas (03 › Placas solares soma as mesmas 56 da 20) e a placa (03 › Premissas): para o 3D
+    for n, lv in sorted(p03.aba("Placas solares").items()):
+        if str(lv.get("A", "")).startswith("Fase") and isinstance(lv.get("C"), float):
+            put(f"energia.fv.local.{_slug(lv['B'])}.placas", lv["C"], p03.fonte("Placas solares", n, "C"),
+                unidade="placas", nota=f"{lv['A']} · {lv['B']}")
+    v, f = p03.celula("Premissas", "Potência da placa", "B")
+    put("energia.fv.placa_kwp", v, f, unidade="kWp")
+    v, f = p03.celula("Premissas", "Área da placa", "B")
+    put("energia.fv.placa_area_m2", v, f, unidade="m²")
+    n_tel, tel = p03.linha("Solar", "Norte = Rua G")
+    m = re.search(r"caem para o norte a (\d+(?:,\d+)?)°", str(tel["A"]))
+    if not m:
+        raise FonteAusente("planilha 03 › Solar: inclinação dos telhados não encontrada")
+    put("telhados.inclinacao_graus", num_br(m.group(1)), p03.fonte("Solar", n_tel, "A"), unidade="°",
+        nota="todos os telhados caem para o norte (Rua G, +y local)")
     inv = {}
     for n, lv in sorted(p20.aba(aba).items()):
         m = re.search(r"inversor híbrido (\d+) \((\d+(?:,\d+)?) kW", str(lv.get("C", "")))

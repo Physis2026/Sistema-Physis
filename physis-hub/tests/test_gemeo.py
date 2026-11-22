@@ -281,10 +281,9 @@ class IFC3D(unittest.TestCase):
 
     def test_reconta_os_elementos(self):
         self.assertEqual(self.r["esquema"], "IFC4")
-        self.assertEqual(self.r["elementos"], 92)
-        self.assertEqual(self.r["elementos_por_tipo"], {"IFCBUILDINGELEMENTPROXY": 92})
+        self.assertEqual(self.r["elementos_por_tipo"]["IFCBUILDINGELEMENTPROXY"], 92)
         com_area = sum(1 for e in self.p["gemeo"]["elementos"].values() if not e["sem_area"])
-        self.assertEqual(self.r["tipos"]["IFCEXTRUDEDAREASOLID"], com_area)
+        self.assertEqual(self.r["tipos"]["IFCRECTANGLEPROFILEDEF"] + self.r["tipos"]["IFCCIRCLEPROFILEDEF"], com_area)
         self.assertEqual(self.r["tipos"]["IFCZONE"], 3)
         self.assertEqual(self.r["tipos"]["IFCTRIANGULATEDFACESET"], 1)
         for chave in self.p["gemeo"]["elementos"]:
@@ -300,12 +299,30 @@ class IFC3D(unittest.TestCase):
         self.assertAlmostEqual(h, 2.90, places=3)
         self.assertIn("pg:16228b14d400", fonte)
         self.assertIn("[CONFERIR]", fonte)
-        alturas = [float(x) for x in re.findall(r"IFCEXTRUDEDAREASOLID\(#\d+,#\d+,#\d+,([^)]+)\)", self.txt)]
+        perfis = set(re.findall(r"#(\d+)=IFC(?:RECTANGLE|CIRCLE)PROFILEDEF", self.txt))
+        alturas = [float(h) for pf, h in re.findall(r"IFCEXTRUDEDAREASOLID\(#(\d+),#\d+,#\d+,([^)]+)\)", self.txt)
+                   if pf in perfis]
         self.assertEqual(set(round(a, 3) for a in alturas), {2.9, 0.2})
         els = dict(self.p["gemeo"]["elementos"])
         els["mec_up"] = {**els["mec_up"], "piso_topo_m": els["mec_up"]["piso_topo_m"] + 0.5}
         with self.assertRaises(self.GI.SementeIncompleta):
             self.GI.altura_pavimento(els)
+
+    def test_forma_telhados_e_placas_da_planilha(self):
+        its = {i["id"][2:]: i for i in self.p["itens"]}
+        els = self.p["gemeo"]["elementos"]
+        giros = {k: round(self.GI.forma(els[k], its[k])["giro"]) for k in ("LF1", "LF2", "LF3", "LF4", "LF5")}
+        self.assertEqual(giros, {"LF1": 58, "LF2": 62, "LF3": 62, "LF4": 17, "LF5": 32})
+        f4 = self.GI.forma(els["LF4"], its["LF4"])
+        self.assertEqual((f4["a"], f4["b"]), (4.0, 5.0))  # a medida que reproduz a caixa 5,30 × 5,96 da 03
+        self.assertEqual(self.GI.forma(els["bar"], its["bar"])["tipo"], "circ")
+        self.assertEqual(self.GI.forma(els["casa"], its["casa"])["giro"], 0.0)  # sem giro na descrição
+        self.assertEqual(self.r["elementos_por_tipo"]["IFCSOLARDEVICE"], 11)
+        placas = [float(x) for x in re.findall(r"IFCPROPERTYSINGLEVALUE\('Placas',\$,IFC(?:INTEGER|REAL)\(([\d.]+)\)", self.txt)]
+        self.assertEqual(sum(placas), self.p["gemeo"]["fonte_por_valor"]["energia.fv.placas"]["valor"])  # 56 da 20
+        self.assertIn("ncia D3) [CONFERIR]", self.txt)  # texto STEP com acentos escapados
+        self.assertEqual(self.p["gemeo"]["fonte_por_valor"]["telhados.inclinacao_graus"]["valor"], 14.0)
+        self.assertGreaterEqual(self.txt.count("IFCARBITRARYCLOSEDPROFILEDEF"), 13)  # telhados + placas
 
     def test_terreno_pelas_curvas(self):
         v, tri = self.GI.malha_terreno(self.p)

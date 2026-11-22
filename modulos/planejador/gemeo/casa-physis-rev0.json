@@ -3982,6 +3982,94 @@
     },
     "nota": "a planilha 20 não traz o kWp; a 03 › Placas solares soma as mesmas 56 placas da 20 › Strings FV"
    },
+   "energia.fv.local.casa_cobertura_dos_20_pes.placas": {
+    "valor": 10.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 1 · meses 0–12 · Casa (cobertura dos 20 pés)"
+   },
+   "energia.fv.local.pergolado_do_terraco_da_casa.placas": {
+    "valor": 4.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 1 · meses 0–12 · Pergolado do terraço da casa"
+   },
+   "energia.fv.local.pergolados_do_lab_e_do_mec.placas": {
+    "valor": 8.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 1 · meses 0–12 · Pergolados do LAB e do MEC"
+   },
+   "energia.fv.local.coberturas_do_lab_e_do_mec.placas": {
+    "valor": 8.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 2 · meses 12–24 · Coberturas do LAB e do MEC"
+   },
+   "energia.fv.local.gourmet.placas": {
+    "valor": 4.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 2 · meses 12–24 · Gourmet"
+   },
+   "energia.fv.local.restaurante_face_norte.placas": {
+    "valor": 4.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 2 · meses 12–24 · Restaurante (face norte)"
+   },
+   "energia.fv.local.lofts_3_por_loft_6.placas": {
+    "valor": 18.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 8, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 3 · meses 24–36 · Lofts (3 por loft × 6)"
+   },
+   "energia.fv.placa_kwp": {
+    "valor": 0.55,
+    "unidade": "kWp",
+    "fonte": "planilha 03 › Premissas, linha 19, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.fv.placa_area_m2": {
+    "valor": 2.58,
+    "unidade": "m²",
+    "fonte": "planilha 03 › Premissas, linha 20, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "telhados.inclinacao_graus": {
+    "valor": 14.0,
+    "unidade": "°",
+    "fonte": "planilha 03 › Solar, linha 30, col. A",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "todos os telhados caem para o norte (Rua G, +y local)"
+   },
    "energia.fv.inversor1_kw": {
     "valor": 15.0,
     "unidade": "kW",
