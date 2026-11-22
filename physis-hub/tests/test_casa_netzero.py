@@ -29,6 +29,15 @@ class CasaNetZero(unittest.TestCase):
             self.assertGreater(f(e["area_m2"]), 0, k)
         self.assertEqual(sum(1 for x in r if x["chave"].startswith("LF") and f(x["area_m2"]) > 0), 7)
 
+    def test_variante_A2_adotada(self):
+        t = [l for l in (PASTA / "versao_A2_netzero.csv").read_text(encoding="utf-8").splitlines() if l and not l.startswith("#")]
+        cols = t[0].split(";")
+        r = {d["chave"]: d for d in (dict(zip(cols, l.split(";"))) for l in t[1:])}
+        self.assertEqual(len(r), 93)                                   # 92 da lista + zona de regeneração
+        self.assertEqual(r["piscina_regen"]["area_m2"], "12,00")       # 50 % da piscina de 24 m² (FLL, 03)
+        self.assertEqual((r["LF6"]["x"], r["LF7"]["x"]), ("7,75", "7,75"))   # fora do caminho da água (aptidão 0,51)
+        self.assertIn(">NV<", (PASTA / "planta_A2_netzero.svg").read_text(encoding="utf-8"))
+
     def test_norte_na_planta(self):
         s = (PASTA / "planta_A_netzero.svg").read_text(encoding="utf-8")
         self.assertIn(">NP<", s)

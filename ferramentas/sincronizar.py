@@ -79,6 +79,8 @@ BLOCOS = {
     "physis-calc-comum": RAIZ / "sistema" / "physis-calc-comum.js",
     # vista 3D (three.js): luz, sombras, PBR, captura em alta resolução e GLB. TESTE de 22/11/2026
     "physis-3d": RAIZ / "sistema" / "physis-3d.js",
+    # aba Net zero do Planejador, dividida pelos planos (TESTE de 22/11/2026, M&A pg:b880e775e565)
+    "planejador-netzero": RAIZ / "sistema" / "planejador-netzero.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.

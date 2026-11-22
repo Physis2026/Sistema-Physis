@@ -7,15 +7,20 @@ Pedido da dona (22/11/2026): melhorias de design aproveitando o desnível e o es
 Regra 1: nenhum número inventado. Cada número tem fonte (documento técnico da Casa Physis, a semente rev0 do gêmeo ou uma
 conta mostrada aqui); o que falta é `[MARCADOR]` e o que diverge entre documentos é `[CONFERIR]`.
 
-Arquivos: `versao_A_netzero.csv` (variante no formato do comparador do gêmeo), `planta_A_netzero.svg` (planta com norte).
+Arquivos: `versao_A_netzero.csv` e `versao_A2_netzero.csv` (variantes no formato do comparador do gêmeo), `planta_A_netzero.svg` e
+`planta_A2_netzero.svg` (plantas com norte), `projeto_rev0.json` e `projeto_A2.json` (projetos do Planejador gerados pelo comparador).
+**Variante adotada em teste: A2** (M&A pg:da5c700b814d).
 
 ## 0. Norte
 
 - Documentos 01 §2 e 20: "Rua G = norte de projeto; norte verdadeiro a ≈ 17°" (nor-nordeste); a seta da prancha do topógrafo
   "a corrigir". **[CONFERIR] com o topógrafo.**
-- O IFC do gêmeo hoje declara `TrueNorth` = +Y, que é o **norte de projeto**, não o verdadeiro. Proposta à sessão do gêmeo:
-  gravar o norte verdadeiro (+Y girado ≈ 17° para leste: direção ≈ (0,29; 0,96)) como `[CONFERIR]`, para a rosa da vista 3D
-  e o estudo solar usarem o norte real.
+- Sentido (corrigido em 22/11/2026 com a sessão do gêmeo): na 20 › Perímetro o lado ao longo de +Y tem azimute 17° e a 03 ›
+  Levantamento diz que "o eixo do lote aponta a cerca de 17° (nor-nordeste)". Logo o norte de projeto (+Y, Rua G) fica 17° a
+  **leste** do norte verdadeiro, e o norte verdadeiro, em coordenadas locais, é **(−0,29; 0,96)**: 17° a oeste do +Y. O IFC do gêmeo
+  já grava esse `TrueNorth` e a semente tem `lote.norte_verdadeiro_graus = 17` com `[CONFERIR]` (M&A pg:afe44bbf677a).
+  Na aba Net zero do Planejador o campo "norte verdadeiro em relação ao de projeto (graus, horário)" fica **−17** para este lote.
+  `[CONFERIR]` também o sentido do eixo x local: a 20 dá 287° para o lado P-01→P-02, o que pediria x para oeste; o topógrafo confirma.
 - A encosta cai **para o norte** (Rua H ≈ 902–903 → Rua G ≈ 874–875): no hemisfério sul é a melhor face para sol e FV.
   Toda planta desta proposta traz NP (projeto) e NV (verdadeiro).
 
@@ -68,7 +73,7 @@ C2 885,48; C3 873,46 (sob o estacionamento da Rua G).
   +1,34 kWp** (2 a 3 placas de 550 W) só para empatar. Proposta: **meta de 110 %** (margem para degradação e sujeira) com
   FV nos telhados dos lofts 6–7 (36 m²) e uma **pérgola FV sobre as 4 vagas da Rua H** (40 m², 10 × 4). Potência por m²:
   `[MARCADOR]` (ficha da placa). Divergência a resolver: a 03 › Solar fala em 70 placas / 38,5 kWp para 7 lofts.
-- **Orientação:** telhados e FV voltados ao **norte verdadeiro** (≈ 17° da grade, [CONFERIR]); inclinação 14° (03) × 15–20°
+- **Orientação:** telhados e FV voltados ao **norte verdadeiro** (17° a oeste do norte de projeto, [CONFERIR]); inclinação 14° (03) × 15–20°
   (07/01) `[CONFERIR]`.
 - **Beirais:** latitude de Petrópolis ≈ −22,5° (o lote ainda não tem lat/long oficial) → sol ao meio-dia a ≈ 89° no verão e ≈ 44°
   no inverno. Um beiral de **0,76 m** sobre janela norte de 2,10 m barra o sol acima de 70° (verão) e deixa entrar o de inverno.
@@ -114,3 +119,45 @@ Preços em R$/m² por item: `[MARCADOR]` até haver tabela com fonte (critério 
 - Estrutura dos lofts 6–7 sobre o estacionamento; contenção do LAB/MEC; sondagem SPT (21).
 - Volume de águas cinzas; ficha da placa FV; R$/kWp; custo de bota-fora.
 - Posição da Casa 1 (rev0 901,22 × doc. 10 889–891).
+
+## 8. Piscina, lago, peixes e wetland (variante A2, adotada em teste)
+
+Números da planilha 03 (aba Piscina natural): piscina 4 × 6 = 24 m², 1,4 m, 33,6 m³; zona de regeneração mínima 30 % (7,2 m²) e
+máxima recomendada 50 % (12 m², FLL); lago + wetland adotado 15 m²; renovação 1 volume/dia; **altura manométrica 9,1 m
+("NA piscina − NA lago + perdas")**; 8 h de bomba; 4,2 m³/h; 231 W; **55,5 kWh/mês**. Perdas: evaporação de piscina, lago e
+mini-lago 125 L/dia; reposição dos peixes 134 L/dia (03, aba Água). Tanque de peixes: ≈ 180 kg/ano e água rica para as hortas
+(15, payback 1,55 ano). Piscina natural de pedras: R$ 17.250 (15).
+
+**Problema:** o lago que regenera a piscina está a 890,59 e a piscina a 895,05; a bomba sobe 9,1 m todo dia.
+
+**Proposta (A2):** quatro circuitos que não se misturam, cada um aproveitando o desnível:
+- **Banho:** zona de regeneração de **12 m² (50 % FLL)** colada no lado de cima da piscina, lâmina a 895,35 (0,30 m acima), no lugar
+  do antigo apoio técnico (removido). A água volta por gravidade; a bomba só vence ≈ 0,8 m (diferença + perdas). Com a mesma
+  vazão e o rendimento implícito da 03 (104 W hidráulicos ÷ 231 W = 0,45): **≈ 20 W e ≈ 4,9 kWh/mês, economia de ≈ 50,7 kWh/mês**
+  (≈ 1,5 % do consumo de projeto). Reposição da piscina por gravidade a partir da C1 (900,77).
+- **Produção:** tanque de peixes (890,26) ↔ lago + wetland (890,59), na mesma cota: o lago vira o biofiltro dos peixes
+  (aquaponia) e a água com nutrientes desce **por gravidade** para as hortas B (890,19), C (888,20) e D (886,23).
+- **Reserva:** excedente do lago → C2 (885,48) → mini-lago (878,83), ao lado do fogo de chão: água à mão para combate a fogo.
+- **Efluente:** cinzas e negras → fossa, filtro e floresta filtrante; nunca chegam à piscina nem ao lago (o 03 já pede "qualidade
+  da água e peixes separados").
+
+`[CONFERIR]`: qualidade da água da piscina natural (NBR 10339/10818, já citadas no 05); vazão real de recirculação com a regeneração
+colada; impermeabilização da regeneração na encosta.
+
+## 9. Cruzamento com a Aptidão do Planejador
+
+O módulo "Aptidão do terreno para construir" (Especialista: declividade 0,45, sol 0,25, acesso 0,20, caminhos da água 0,10)
+rodou no próprio Planejador sobre a rev0 e as variantes (projetos gerados pelo comparador do gêmeo):
+- Variante A: **Loft 6 com nota 0,31** ("rever posição"): 63 % da projeção sobre um caminho da água (lado oeste do
+  estacionamento, para onde a enxurrada corre até o canto baixo da Rua G). Loft 7: 0,45.
+- Variante A2: o par geminado "em pé" (4 × 9 m) em x = 7,75: **Loft 6 0,51 e Loft 7 0,51**, 2–8 % sobre caminho da água, 1,6 m do Loft 4.
+  Loja 24 h 0,57; zona de regeneração 0,62.
+- Já na rev0, nota baixa: Coelhos 0,26, LAB 0,34–0,35, 2 lavabos 0,37 → a aba Net zero (plano Especialista) sugere posições.
+- O projeto não tem item "acesso" desenhado: o critério de acesso foi ignorado. `[CONFERIR]` desenhar os acessos da Rua H e da Rua G.
+
+## 10. Aba Net zero no Planejador (construída em teste)
+
+Decisão da dona (M&A pg:b880e775e565). Código: `sistema/planejador-netzero.js` (bloco copiado no Planejador por `sincronizar.py`).
+Desenho: `desenhos/planejador-aba-netzero.html`. Livre: norte NP/NV, itens sem lugar, saldo de energia e água. Profissional: terra,
+desnível, pressão por gravidade (limite de 40 m do núcleo, NBR 5626), bomba, beirais, FV onde cabe. Especialista: aptidão com
+realocação (respeita lote, recuo lateral e folga de 1,5 m) e circuitos de água. Empresa: variantes e meta de certificação.

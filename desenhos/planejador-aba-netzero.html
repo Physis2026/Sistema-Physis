@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planejador · aba Net zero (desenho)</title>
+<!-- DESENHO, versão de TESTE (22/11/2026). Não construído: o Planejador é programa da Physis (regra 2) e a aba nova depende
+     da decisão da dona. Números da maquete: Casa Physis, variante A2 (physis-hub/docs/casa-physis/), cada um com fonte. -->
+<style>
+:root{--bg:#F4F1EA;--panel:#FFFFFF;--ink:#1B1F23;--muted:#4A4F44;--line:#D9D3C2;--acao:#C2410C;--titulo:#33512F;--ok:#1F4A1C;--okf:#DCEBD8;--at:#8A6410;--atf:#F6EAD0;--al:#7A2214;--alf:#F5E2D7;--in:#1C3550;--inf:#DBE7F1;--focus:#C2410C;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-tema="claro"]){--bg:#0B3D2E;--panel:#0F4535;--ink:#F4F1EA;--muted:#C3D0BD;--line:#2F5E4E;--titulo:#F4F1EA;--ok:#DCEBD8;--okf:#1F4A1C;--at:#F6EAD0;--atf:#8A6410;--al:#F5E2D7;--alf:#7A2214;--in:#DBE7F1;--inf:#1C3550;--focus:#F97316;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Lexend","Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:1200px;margin:0 auto;padding:1rem}
+h1{font-family:Fraunces,Georgia,serif;color:var(--titulo);font-weight:600;font-size:1.6rem;margin:.3rem 0;display:flex;gap:.5rem;align-items:center}
+h2{font-size:1.1rem;margin:.2rem 0 .6rem}h3{font-size:.98rem;margin:0 0 .3rem}
+.hint{color:var(--muted);font-size:.9rem}.marca{font-size:.75rem;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:.1rem .45rem;color:var(--muted)}
+.lado{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:1rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem}
+ol.passos{margin:0;padding-left:1.3rem}ol.passos li{margin:0 0 .7rem}
+.e{display:grid;grid-template-columns:5.5rem 1fr;gap:.1rem .5rem;font-size:.88rem}.e b{color:var(--muted);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.5rem;margin:.5rem 0}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:.5rem .6rem}.kpi strong{display:block;font-size:1.35rem;color:var(--acao)}
+.kpi span{font-size:.82rem;color:var(--muted)}
+.ck{list-style:none;padding:0;margin:.4rem 0}.ck li{padding:.35rem .55rem;border-radius:8px;margin:.3rem 0;font-size:.9rem}
+.ok{background:var(--okf);color:var(--ok)}.at{background:var(--atf);color:var(--at)}.al{background:var(--alf);color:var(--al)}.in{background:var(--inf);color:var(--in)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{text-align:left;border-bottom:1px solid var(--line);padding:.35rem .3rem;vertical-align:top}
+.pl{font-size:.72rem;font-weight:700;border-radius:6px;padding:.05rem .4rem;margin-left:.35rem;vertical-align:middle;border:1px solid var(--line)}
+.pl.l{background:var(--okf);color:var(--ok)}.pl.p{background:var(--inf);color:var(--in)}.pl.s{background:var(--atf);color:var(--at)}.pl.e{background:var(--alf);color:var(--al)}
+.tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin:.3rem 0 .8rem}.tabs span{border:1px solid var(--line);border-radius:8px;padding:.35rem .7rem;font-size:.85rem;min-height:36px;display:inline-flex;align-items:center}
+.tabs span.at2{background:var(--acao);border-color:var(--acao);color:#FFFFFF;font-weight:600}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+@media (max-width:420px){main{padding:.6rem}.e{grid-template-columns:1fr}}
+</style></head>
+<body><main id="main">
+<h1><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 5 12h4l-3 5h12l-3-5h4z" fill="#2F7D5B"/><rect x="11" y="17" width="2" height="5" fill="#BB6B4A"/></svg>Planejador · aba Net zero <span class="marca">DESENHO</span></h1>
+<p class="hint">O raciocínio usado no estudo da Casa Physis (22/11/2026), mapeado para virar uma aba do Planejador. Cada passo lê o que o Planejador já tem, faz uma conta com fonte e devolve verificação, número e sugestão. Nada é inventado: sem dado, a aba mostra <code>[MARCADOR]</code>. Não construído: depende da decisão da dona (o Planejador é programa, regra 2).</p>
+
+<div class="lado">
+<section class="card" aria-labelledby="h-r">
+<h2 id="h-r">Raciocínio, passo a passo</h2>
+<ol class="passos">
+<li><h3>Norte<span class="pl l">Livre</span></h3><div class="e"><b>Entra</b><span>norte do projeto (IFC <code>TrueNorth</code> ou campo novo), norte verdadeiro, lat/long</span><b>Conta</b><span>ângulo entre norte de projeto e verdadeiro</span><b>Sai</b><span>rosa NP/NV em toda planta e vista 3D; sem norte verdadeiro → <code>[MARCADOR]</code> e o estudo solar avisa</span></div></li>
+<li><h3>Lista completa<span class="pl l">Livre</span></h3><div class="e"><b>Entra</b><span>programa (O que construir) e itens desenhados</span><b>Conta</b><span>cada item com área &gt; 0, dentro do lote, sem sobreposição no mesmo nível, ocupação ≤ limite</span><b>Sai</b><span>“itens sem lugar”; nenhum item some do rearranjo</span></div></li>
+<li><h3>Aptidão cruzada<span class="pl s">Especialista</span></h3><div class="e"><b>Entra</b><span>módulo Aptidão (declividade, sol, acesso, caminhos da água)</span><b>Conta</b><span>nota por construção; se ≤ 0,4, varre a grade e propõe a posição de maior nota que respeita afastamentos (1,5 m entre edificações) e o lote</span><b>Sai</b><span>“rever posição” com a alternativa e a nota nova</span></div></li>
+<li><h3>Desnível<span class="pl p">Profissional</span></h3><div class="e"><b>Entra</b><span>terreno (grade T), cotas dos itens</span><b>Conta</b><span>corte × aterro; desnível sob a projeção (&gt; 1,5 m, NBR 11682)</span><b>Sai</b><span>sobra de terra → solo-cimento/platôs; desnível alto → estrutura elevada ou semi-enterrada (parede de montante como contenção)</span></div></li>
+<li><h3>Energia<span class="pl l">Livre</span></h3><div class="e"><b>Entra</b><span>consumo (Sistemas/Equipamentos), FV instalada, produtividade do clima (kWh/kWp·ano)</span><b>Conta</b><span>saldo = geração ÷ consumo; falta = (meta × consumo − geração) ÷ produtividade</span><b>Sai</b><span>saldo %, kWp que falta para a meta (padrão 110 %), onde cabe FV (telhados ao norte verdadeiro, pérgolas)</span></div></li>
+<li><h3>Água por gravidade<span class="pl p">Profissional</span></h3><div class="e"><b>Entra</b><span>reservatórios e consumidores com cota; vazão e horas de cada bomba</span><b>Conta</b><span>P = ρ·g·Q·H/η; pressão estática = cota do reservatório − cota do ponto</span><b>Sai</b><span>bombas que sobem água evitável (ex.: lago abaixo da piscina); pontos com pressão acima do limite <code>[CONFERIR NBR 5626]</code></span></div></li>
+<li><h3>Circuitos separados<span class="pl s">Especialista</span></h3><div class="e"><b>Entra</b><span>itens de água: piscina, regeneração, peixes, lago/wetland, cisternas, tratamento</span><b>Conta</b><span>classifica em banho, produção, reserva e efluente</span><b>Sai</b><span>alerta se efluente chega a banho ou produção; sugere cinzas → floresta filtrante → irrigação</span></div></li>
+<li><h3>Chuva e drenagem<span class="pl p">Profissional</span></h3><div class="e"><b>Entra</b><span>módulos de drenagem e triagem geotécnica (zonas onde não infiltrar)</span><b>Conta</b><span>excedente de projeto; onde a encosta é instável</span><b>Sai</b><span>“reter antes de infiltrar” onde não se deve infiltrar</span></div></li>
+<li><h3>Custo-benefício<span class="pl s">Especialista</span></h3><div class="e"><b>Entra</b><span>tabela de preços com fonte</span><b>Conta</b><span>só ordena por preço o que tem fonte (critério da dona, pg:97b6e5a48dcf)</span><b>Sai</b><span>sugestões em três faixas; sem preço → <code>[MARCADOR]</code></span></div></li>
+<li><h3>Documento e mapa<span class="pl l">Livre</span></h3><div class="e"><b>Sai</b><span>bloco “Net zero” no Documento EP; camada no mapa com norte, circuitos e caminhos da água</span></div></li>
+</ol>
+</section>
+
+<section class="card" aria-labelledby="h-m">
+<h2 id="h-m">Maquete da aba (Casa Physis, variante A2)</h2>
+<div class="tabs" aria-hidden="true"><span>Início</span><span>Terreno</span><span>Clima, solo e regras</span><span>O que construir</span><span>Cálculos e normas</span><span>Módulos e análises</span><span class="at2">Net zero</span><span>Documento EP</span></div>
+<div class="kpis">
+<div class="kpi"><strong>100,0 %</strong><span>energia: geração ÷ consumo (30,8 kWp; 07/18)</span></div>
+<div class="kpi"><strong>+0,8 a 1,3</strong><span>kWp por loft novo para empatar (03/18)</span></div>
+<div class="kpi"><strong>−50,7</strong><span>kWh/mês na bomba da piscina (9,1 → 0,8 m)</span></div>
+<div class="kpi"><strong>464 m³</strong><span>terra sobrando (corte 489,3 − aterro 24,8)</span></div>
+<div class="kpi"><strong>92 de 92</strong><span>itens da lista com lugar</span></div>
+<div class="kpi"><strong>NV = −17°</strong><span>norte verdadeiro <code>[CONFERIR]</code></span></div>
+</div>
+<h3>Verificações</h3>
+<ul class="ck">
+<li class="al">Energia sem margem (100,02 %): a meta de 110 % pede FV a mais. <code>[MARCADOR]</code> potência por m² (ficha da placa).</li>
+<li class="at">Bomba lago → piscina sobe 9,1 m (55,5 kWh/mês, 03): zona de regeneração colada na piscina reduz para ≈ 0,8 m.</li>
+<li class="at">Coelhos (0,26), LAB (0,34–0,35) e lavabos (0,37) em aptidão baixa: rever posição.</li>
+<li class="ok">Lofts 6 e 7 movidos para fora do caminho da água: 0,31 → 0,51 e 0,45 → 0,51.</li>
+<li class="in">Sem acesso desenhado: o critério de acesso da aptidão foi ignorado.</li>
+<li class="in">Cinzas: reúso (01) × fossa (08) divergem; a aba sugere cinzas → floresta filtrante → irrigação.</li>
+</ul>
+<h3>Sugestões por custo-benefício</h3>
+<table><thead><tr><th scope="col">Faixa</th><th scope="col">Sugestão</th><th scope="col">Efeito</th></tr></thead><tbody>
+<tr><td>baixo custo</td><td>regeneração colada na piscina</td><td>−50,7 kWh/mês de bomba</td></tr>
+<tr><td>baixo custo</td><td>beiral 0,76 m nas janelas norte de 2,10 m</td><td>barra o sol acima de 70°</td></tr>
+<tr><td>médio</td><td>lofts 6–7 sobre o estacionamento</td><td>+2 lofts sem corte novo</td></tr>
+<tr><td>médio</td><td>pérgola FV nas vagas da Rua H</td><td><code>[MARCADOR]</code> kWp</td></tr>
+<tr><td>a cotar</td><td>plano inclinado de carga</td><td><code>[MARCADOR]</code> preço</td></tr>
+</tbody></table>
+<p class="hint">Como seria construída: um módulo do Planejador (<code>MOD.registrar</code>, com <code>calcular</code>, <code>tela</code>, <code>verificar</code>, <code>blocos</code> e camada), reaproveitando a Aptidão, a grade do terreno e os Sistemas. Toda conta que existir também no servidor fica espelhada em Python, com teste (regra 4).</p>
+</section>
+</div>
+<section class="card" aria-labelledby="h-pl" style="margin-top:1rem">
+<h2 id="h-pl">O que cada plano vê na aba Net zero</h2>
+<p class="hint">Mesma divisão dos planos que o Planejador já usa (<code>PLANOS</code>): cada plano inclui o anterior. O norte e a lista completa ficam no Livre porque são regra da dona para todo sistema de construção.</p>
+<table><thead><tr><th scope="col">Plano</th><th scope="col">Já tem hoje</th><th scope="col">Net zero acrescenta</th></tr></thead><tbody>
+<tr><td><span class="pl l">Livre</span></td><td>terreno, programa, cálculos por NBR, documento EP</td><td>norte de projeto e verdadeiro (rosa em toda planta e vista 3D; sem dado, <code>[MARCADOR]</code>); itens sem lugar; saldo simples de energia (geração ÷ consumo) e de água não potável; bloco Net zero no Documento EP</td></tr>
+<tr><td><span class="pl p">Profissional</span></td><td>otimização da implantação, perfis do terreno, SCS-CN</td><td>desnível: corte × aterro, sobra de terra para solo-cimento/platôs, estrutura elevada ou semi-enterrada; água por gravidade (potência e energia de cada bomba, pressão estática por ponto); “reter antes de infiltrar” com o SCS-CN; FV onde cabe (telhados ao norte verdadeiro, pérgolas) e beirais pelo sol do lugar</td></tr>
+<tr><td><span class="pl s">Especialista</span></td><td>triagem geotécnica, aptidão, chuva diária, orçamento</td><td>aptidão cruzada com realocação automática (posição de maior nota que respeita lote e afastamentos); circuitos de água separados (banho, produção, reserva, efluente); balanço hídrico diário com cisternas e cinzas; biogás e solar térmico; custo-benefício pelo orçamento (só preço com fonte)</td></tr>
+<tr><td><span class="pl e">Empresa</span></td><td>todos os módulos, integrações, equipe e versões, base municipal, API</td><td>comparação de variantes (o comparador de versões do gêmeo: filtro de normas, depois custo-benefício); metas por certificação (EDGE, GBC, LEED/AQUA); planejado × medido com o gêmeo, o SCADA e a validação (M&amp;V); relatório net zero com marca própria; cálculos por API</td></tr>
+</tbody></table>
+<p class="hint">Na maquete acima: KPIs de energia e lista (Livre), bomba e terra (Profissional), aptidão e circuitos (Especialista). A comparação de variantes rev0 × A × A2 é do plano Empresa.</p>
+</section>
+</main></body></html>
