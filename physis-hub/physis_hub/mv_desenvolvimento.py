@@ -19,8 +19,8 @@ from .mv import MV
 MODULOS = {
     "modelagem3d": {"nome": "Modelagem 3D", "nome_en": "3D modelling",
                     "arquivo": "modulos/modelagem3d/modelagem-3d.html",
-                    "descricao": "Visualizador STL/OBJ, galeria com licença, pedidos de impressão (CrealityPrint, HALOT BOX) e escaneados (CrealityScan)",
-                    "regex": r"\b3D\b|STL|\bOBJ\b|impress[aã]o 3D|escane|Creality|HALOT|modelagem 3D",
+                    "descricao": "Visualizador STL/OBJ, galeria com licença, pedidos de impressão (qualquer impressora de filamento ou resina) e escaneados",
+                    "regex": r"\b3D\b|STL|\bOBJ\b|impress[aã]o 3D|escane|modelagem 3D",
                     "aprovacoes": ["ap-mv-3d", "ap-checklist-f23"]},
     "planejador": {"nome": "Planejador (BIM, GIS, solar)", "nome_en": "Planner (BIM, GIS, solar)",
                    "arquivo": "modulos/planejador/planejador-physis.html",

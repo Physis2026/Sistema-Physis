@@ -652,7 +652,7 @@ function telaLevarCargas(e, R) { const cargas = cargasCalculadas(), plano = plan
 function telaAvac() { const e = comSol(ler()), R = calcular(e), sub = SUBS.some(s => s[0] === ui.avacSub) ? ui.avacSub : "visao";
   const chips = `<div class="chips" role="group" aria-label="Partes do AVAC">${SUBS.map(([k, n]) => `<button type="button" id="avac-sub-${k}" data-avac-sub="${k}" aria-pressed="${k === sub}">${esc(n)}</button>`).join("")}</div>`;
   const corpo = { visao:telaVisao, tip:telaTip, carga: () => (typeof telaCargaTermica === "function" ? telaCargaTermica() : "<p class=\"t2\">Módulo de carga térmica não carregado.</p>") + telaLevarCargas(e, R), ac:telaAC, vent:telaVent, press:telaPress, solar:telaSolar, piscina:telaPiscina, dutos:telaDutos, resumo:telaResumo, memoria:telaMemoria }[sub](e, R);
-  return `<h1>AVAC e térmico</h1><p class="t2 apoio">Ar-condicionado, ventilação, pressurização de escada, aquecimento solar, piscina, dutos e quadro elétrico — as contas da planilha PHYSIS_AVAC-5. Altere os dados: tudo é recalculado.</p>${chips}<div id="avac-corpo">${corpo}</div>`; }
+  return `<h1>AVAC e térmico</h1><p class="t2 apoio">Ar-condicionado, ventilação, pressurização de escada, aquecimento solar, piscina, dutos e quadro elétrico — as contas da planilha PHYSIS_AVAC-5. Altere os dados: tudo é recalculado.</p>${sub === "visao" ? `<div data-physis-modelador="avac"></div>` : ""}${chips}<div id="avac-corpo">${corpo}</div>`; }
 
 /* ════════ Eventos (atributos data-avac-…) ════════ */
 function refocar(id) { const x = el(id); if (x) x.focus(); }

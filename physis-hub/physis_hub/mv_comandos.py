@@ -236,7 +236,7 @@ class Comandos:
         if r["destino"] != "modelos3d":
             raise ErroMV("só modelos 3D (aba Modelagem 3D) podem ir para impressão")
         res = (f"Pedido de impressão 3D: {r['nome']} · material: {material or '[MARCADOR]'} · aguarda aprovação.\n"
-               "Depois de aprovado: baixar o arquivo e abrir no CrealityPrint (filamento) ou HALOT BOX (resina) no computador da impressora.")
+               "Depois de aprovado: baixar o arquivo (STL em mm, malha fechada) e abrir no fatiador da impressora (filamento ou resina) no computador da impressora.")
         return self._pedido("impressao3d", texto, r["ref"] or "", "rascunho", res, aid, origem)
 
     # ------------------------------------------------------------ bots programáveis
