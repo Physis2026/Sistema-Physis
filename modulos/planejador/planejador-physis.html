@@ -254,10 +254,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function estilo() {
     if (d.getElementById("pex-estilo")) return;
     var s = d.createElement("style"); s.id = "pex-estilo";
-    s.textContent = ".pex{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--verde,#2F7D5B);border-radius:12px;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23);max-width:100%;overflow-wrap:anywhere}" +
-      ".pex summary{cursor:pointer;font-weight:700;padding:.6rem .9rem}.pex .pex-c{padding:0 .9rem .8rem}.pex input{flex:1 1 14rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:transparent;color:inherit}" +
-      ".pex .pex-l{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}.pex button{border:1px solid var(--linha,#D9D3C2);border-radius:999px;padding:.25rem .65rem;font:inherit;font-size:.88rem;cursor:pointer;background:var(--sup,#FFFFFF);color:inherit}" +
-      ".pex .pex-p{background:var(--botao,#C2410C);border-color:var(--botao,#C2410C);color:#FFFFFF;border-radius:8px;font-size:1rem}.pex .pex-r{margin-top:.5rem}.pex .pex-r h3{margin:.3rem 0;font-size:1rem}";
+    s.textContent = ".pex{border:1px solid #D9D3C2;border-left:5px solid #2F7D5B;border-radius:12px;margin:1rem 0;background:#FFFFFF;color:#1B1F23;max-width:100%;overflow-wrap:anywhere}" +
+      ".pex summary{cursor:pointer;font-weight:700;padding:.6rem .9rem}.pex .pex-c{padding:0 .9rem .8rem}.pex input{flex:1 1 14rem;font:inherit;padding:.4rem;border:1px solid #D9D3C2;border-radius:8px;background:transparent;color:inherit}" +
+      ".pex .pex-l{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}.pex button{border:1px solid #D9D3C2;border-radius:999px;padding:.25rem .65rem;font:inherit;font-size:.88rem;cursor:pointer;background:#FFFFFF;color:inherit}" +
+      ".pex .pex-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF;border-radius:8px;font-size:1rem}.pex .pex-r{margin-top:.5rem}.pex .pex-r h3{margin:.3rem 0;font-size:1rem}" + "html[data-tema='escuro'] .pex{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pex button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pex td,html[data-tema='escuro'] .pex .pdv-m{border-color:#2F5E4E}";
     d.head.appendChild(s);
   }
   function montar(el) {
@@ -684,11 +684,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function estilo() {
     if (d.getElementById("pmd-estilo")) return;
     var s = d.createElement("style"); s.id = "pmd-estilo";
-    s.textContent = ".pmd{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--botao,#C2410C);border-radius:12px;padding:.8rem 1rem;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23)}" +
-      ".pmd h2{margin:.1rem 0 .3rem;font-size:1.15rem}.pmd textarea{width:100%;min-height:3.2rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:transparent;color:inherit}" +
-      ".pmd .pmd-l{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}.pmd button,.pmd .pmd-b{border:1px solid var(--linha,#D9D3C2);border-radius:8px;padding:.35rem .7rem;font:inherit;cursor:pointer;background:var(--sup,#FFFFFF);color:inherit}" +
-      ".pmd .pmd-p{background:var(--botao,#C2410C);border-color:var(--botao,#C2410C);color:#FFFFFF}.pmd .pmd-ex{font-size:.88rem;opacity:.85;cursor:pointer;text-decoration:underline dotted}" +
-      ".pmd table{border-collapse:collapse;width:100%;font-size:.92rem}.pmd td{border-bottom:1px solid var(--linha,#D9D3C2);padding:.25rem .3rem;vertical-align:top}.pmd .pmd-v{min-height:0;margin:.5rem 0}.pmd small{opacity:.8}.pmd canvas{max-width:100%;height:auto}.pmd{overflow-wrap:anywhere;max-width:100%}";
+    s.textContent = ".pmd{border:1px solid #D9D3C2;border-left:5px solid #C2410C;border-radius:12px;padding:.8rem 1rem;margin:1rem 0;background:#FFFFFF;color:#1B1F23}" +
+      ".pmd h2{margin:.1rem 0 .3rem;font-size:1.15rem}.pmd textarea{width:100%;min-height:3.2rem;font:inherit;padding:.4rem;border:1px solid #D9D3C2;border-radius:8px;background:transparent;color:inherit}" +
+      ".pmd .pmd-l{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}.pmd button,.pmd .pmd-b{border:1px solid #D9D3C2;border-radius:8px;padding:.35rem .7rem;font:inherit;cursor:pointer;background:#FFFFFF;color:inherit}" +
+      ".pmd .pmd-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF}.pmd .pmd-ex{font-size:.88rem;opacity:.85;cursor:pointer;text-decoration:underline dotted}" +
+      ".pmd table{border-collapse:collapse;width:100%;font-size:.92rem}.pmd td{border-bottom:1px solid #D9D3C2;padding:.25rem .3rem;vertical-align:top}.pmd .pmd-v{min-height:0;margin:.5rem 0}.pmd small{opacity:.8}.pmd canvas{max-width:100%;height:auto}.pmd{overflow-wrap:anywhere;max-width:100%}" + "html[data-tema='escuro'] .pmd{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pmd button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pmd td,html[data-tema='escuro'] .pmd .pdv-m{border-color:#2F5E4E}";
     d.head.appendChild(s);
   }
   function baixar(blob, nome) { var u = URL.createObjectURL(blob), a = d.createElement("a"); a.href = u; a.download = nome; d.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 3000); }
@@ -793,10 +793,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function estilo() {
     if (d.getElementById("pdv-estilo")) return;
     var s = d.createElement("style"); s.id = "pdv-estilo";
-    s.textContent = ".pdv{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--terracota,#BB6B4A);border-radius:12px;padding:.6rem .9rem;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23);font-size:.92rem}" +
-      ".pdv summary{cursor:pointer;font-weight:700}.pdv .pdv-m{margin:.6rem 0;padding-top:.5rem;border-top:1px dashed var(--linha,#D9D3C2)}" +
-      ".pdv .pdv-barra{height:8px;border-radius:6px;background:var(--linha,#D9D3C2);overflow:hidden;margin:.35rem 0}.pdv .pdv-barra span{display:block;height:100%;background:var(--verde,#2F7D5B)}" +
-      ".pdv .pdv-n{display:inline-block;margin:.1rem .5rem .1rem 0}.pdv .pdv-at{color:var(--rotulo,#C2410C);font-weight:700}.pdv ul{margin:.3rem 0;padding-left:1.1rem}.pdv small{opacity:.8}";
+    s.textContent = ".pdv{border:1px solid #D9D3C2;border-left:5px solid #BB6B4A;border-radius:12px;padding:.6rem .9rem;margin:1rem 0;background:#FFFFFF;color:#1B1F23;font-size:.92rem}" +
+      ".pdv summary{cursor:pointer;font-weight:700}.pdv .pdv-m{margin:.6rem 0;padding-top:.5rem;border-top:1px dashed #D9D3C2}" +
+      ".pdv .pdv-barra{height:8px;border-radius:6px;background:#D9D3C2;overflow:hidden;margin:.35rem 0}.pdv .pdv-barra span{display:block;height:100%;background:#2F7D5B}" +
+      ".pdv .pdv-n{display:inline-block;margin:.1rem .5rem .1rem 0}.pdv .pdv-at{color:#C2410C;font-weight:700}.pdv ul{margin:.3rem 0;padding-left:1.1rem}.pdv small{opacity:.8}" + "html[data-tema='escuro'] .pdv{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pdv button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pdv td,html[data-tema='escuro'] .pdv .pdv-m{border-color:#2F5E4E}";
     d.head.appendChild(s);
   }
   function bloco(m, t) {
