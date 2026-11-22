@@ -40,6 +40,8 @@ ALVOS = [
     RAIZ / "physis-hub" / "web" / "municipio.html",
     RAIZ / "app-nativo" / "site" / "baixar.html",
     RAIZ / "physis-hub" / "web" / "mv.html",          # Physis M&A (20/11/2026): mesma barra de preferências e acessibilidade
+    RAIZ / "modulos" / "modelagem3d" / "modelagem-3d.html",  # módulo de modelagem 3D (22/11/2026): ferramentas que saíram do M&A
+    RAIZ / "modulos" / "estermic" / "estermic-avac.html",    # painel Desenvolvimento (22/11/2026)
 ]
 # A "Tela do cliente" (sistema/physis-tela-cliente.html) saiu em 15/11/2026: tudo o que ela fazia está nas abas da plataforma.
 PLATAFORMA = RAIZ / "physis-hub" / "web" / "painel.html"
@@ -76,6 +78,8 @@ BLOCOS = {
     "pc-ponte": RAIZ / "sistema" / "physis-ponte-cliente.js",      # ponte da plataforma com o servidor (dados do cliente)
     # contas comuns (Lei 14.300, plano inclinado, baterias, cisterna, calhas, aquecimento solar) com a base de premissas
     "physis-calc-comum": RAIZ / "sistema" / "physis-calc-comum.js",
+    # painel "Desenvolvimento" (22/11/2026): igual em todos os módulos, plataformas internas e Gestão; fonte única = M&A
+    "physis-desenvolvimento": RAIZ / "sistema" / "physis-desenvolvimento.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.

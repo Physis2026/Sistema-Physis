@@ -447,8 +447,14 @@ def scada() -> str:
     return marcar(t, nome, nome, "scada")
 
 
+def sem_painel_interno(t: str) -> str:
+    """Demo é pública: sai o painel "Desenvolvimento" (interno) e o link para os dados do M&A (22/11/2026)."""
+    t = re.sub(r'<script src="[^"]*desenvolvimento-dados\.js"></script>\n?', "", t)
+    return re.sub(r'<div data-physis-desenvolvimento="[^"]*"[^>]*></div>\n?', "", t)
+
+
 def planejador() -> str:
-    t = PLANEJADOR.read_text(encoding="utf-8")
+    t = sem_painel_interno(PLANEJADOR.read_text(encoding="utf-8"))
     nome = "physis-demo-planejador.html"
     pt, en = titulo(nome)
     t = troca(t, 'var T = {\n    "Planejador Physis": "Physis Planner",', 'var T = {\n    ' + json.dumps(pt, ensure_ascii=False) + ": " + json.dumps(en, ensure_ascii=False) +
