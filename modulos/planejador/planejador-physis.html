@@ -2861,9 +2861,11 @@ const MOD = {
     return S.mod[id];
   },
 
-  res(id) {
+  // R: resultado do núcleo já calculado (dentro de run, antes de CALC existir, chamar run() de novo entrava em laço)
+  res(id, R) {
     const m = MOD.porId[id];
     if (!m || m.estado !== 'disponível' || !LIC.liberado(id) || !T.build()) return null;
+    if (R && !CALC) { try { return m.calcular(R, MOD.p(id)); } catch (e) { return { erro: e.message }; } }
     const chave = id + '|' + JSON.stringify(S.mod?.[id] || {});
     if (MOD.cache[chave] && MOD.cache.__calc === CALC) return MOD.cache[chave];
     if (MOD.cache.__calc !== CALC) MOD.cache = { __calc: CALC };
@@ -2886,7 +2888,7 @@ const MOD = {
   verificar(R, C) {
     for (const m of MOD.lista) {
       if (!m.verificar || m.estado !== 'disponível' || !LIC.liberado(m.id) || !S.mod?.[m.id]) continue;
-      const r = MOD.res(m.id);
+      const r = MOD.res(m.id, R);
       if (r && !r.erro) m.verificar(r, C, R);
     }
   },
