@@ -78,6 +78,8 @@ BLOCOS = {
     "physis-calc-comum": RAIZ / "sistema" / "physis-calc-comum.js",
     # painel "Desenvolvimento" (22/11/2026): igual em todos os módulos, plataformas internas e Gestão; fonte única = M&A
     "physis-desenvolvimento": RAIZ / "sistema" / "physis-desenvolvimento.js",
+    # bot de modelagem (22/11/2026): pedido em texto ou imagem/KML → modelo + cálculos + STL/OBJ/IFC/GeoJSON
+    "physis-modelador": RAIZ / "sistema" / "physis-modelador.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.

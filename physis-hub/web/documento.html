@@ -807,8 +807,9 @@ footer{max-width:1240px;margin:0 auto;padding:0 16px 30px;color:var(--tinta2);fo
         var t = ev.target, k = t.getAttribute("data-pp"), patch = {};
         if (t.name === "pp-texto") return mudar({ texto: parseInt(t.value, 10) }, "ok");
         if (t.name === "pp-aviso") return mudar({ aviso: parseInt(t.value, 10) }, "ok");
-        if (!k) return;
+        /* o Tema (dentro do Modo de conforto) vem antes do "data-pp": os botões de tema não têm essa marca (20/11/2026) */
         if (t.name === "pp-tema") return mudar({ tema: t.value }, t.value === "auto" ? "aAuto" : t.value === "escuro" ? "aEsc" : "aClaro");
+        if (!k) return;
         if (k === "conforto") { patch = { conforto: t.checked, tema: t.checked ? "escuro" : "auto", calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
         patch[k] = t.checked; mudar(patch, k === "libras" && t.checked ? "librasOn" : "ok");
       });

@@ -19,8 +19,8 @@ from .mv import MV
 BASE = Path("C:/physis")
 REPOS = {"Sistema Physis (oficial)": BASE / "physis-sistema", "Sistema Physis (teste)": BASE / "physis-teste",
          "Instituto Physis": BASE / "instituto-physis", "InovaSTEM (ramo inovastem)": BASE / "instituto-physis-inovastem"}
-ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js"]
-TESTES = ["tests.test_preferencias", "tests.test_mv_traducao"]
+ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js", "sistema/physis-modelador.js"]
+TESTES = ["tests.test_preferencias", "tests.test_preferencias_paginas", "tests.test_mv_traducao", "tests.test_bases"]
 PLATAFORMAS = Path.home() / "OneDrive - Physis Engineering" / "Documents" / "Sistema Physis" / "_versoes_teste" / "2026-11-20_plataformas_iniciais"
 
 
@@ -33,6 +33,19 @@ def _versao(repo: Path, caminho: str):
     t = _git(repo, "log", "-1", "--format=%ct", "--", caminho).stdout.decode().strip()
     c = _git(repo, "show", f"HEAD:{caminho}")
     return (int(t), c.stdout) if t and c.returncode == 0 else None
+
+
+def _historico(repo: Path, caminho: str, n: int = 80) -> set:
+    """Conteúdos (normalizados) que o arquivo já teve no repositório: para saber se outra cópia está só "atrás"."""
+    hs = _git(repo, "log", f"-{n}", "--format=%H", "--", caminho).stdout.decode().split()
+    out = set()
+    for h in hs:
+        c = _git(repo, "show", f"{h}:{caminho}")
+        if c.returncode == 0:
+            out.add(c.stdout.replace(b"
+", b"
+"))
+    return out
 
 
 def _testes(repo: Path) -> tuple[bool, str]:
@@ -59,6 +72,23 @@ def rodar(mv: MV, aplicar: bool = True) -> dict:
             continue
         dono = max(vs, key=lambda n: vs[n][0])
         novos[cam] = vs[dono][1]
+        hist = _historico(REPOS[dono], cam)
+        # cópia que NÃO está no histórico da fonte tem melhorias próprias: não sobrescreve (evita apagar correções), pede para juntar
+        divergentes = [n for n, v in vs.items() if n != dono and v[1].replace(b"
+", b"
+") != novos[cam].replace(b"
+", b"
+")
+                       and v[1].replace(b"
+", b"
+") not in hist]
+        if divergentes:
+            res.setdefault("divergentes", {})[cam] = divergentes
+            mv.alertar("sincronizacao", "juntar_versoes", cam, "atencao", f"{cam}: versões com melhorias diferentes em {', '.join(divergentes)} e {dono}",
+                       "Juntar as melhorias numa versão só (commit); depois o bot leva a versão juntada a todos.")
+            res["alertas"] += 1
+            del novos[cam]
+            continue
         res["originais"][cam] = {"fonte": dono, "commit": time.strftime("%Y-%m-%d %H:%M", time.localtime(vs[dono][0]))}
     # 2. cada repositório: copia, sincroniza, testa, commit ou desfaz
     for nome, repo in REPOS.items():

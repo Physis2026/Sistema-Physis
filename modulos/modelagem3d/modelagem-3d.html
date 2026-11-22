@@ -28,18 +28,19 @@ footer{border-top:4px solid var(--terracota);background:var(--faixa);color:var(-
 <main id="conteudo">
   <p class="muted" style="margin:0;text-transform:uppercase;letter-spacing:.08em;color:var(--rotulo);font-size:.8rem">Módulo de modelagem</p>
   <h1>Modelagem 3D</h1>
-  <p class="muted">Visualizador 3D local, galeria com a licença de cada arquivo, pedidos de impressão (CrealityPrint para filamento, HALOT BOX para resina, abertos no computador da impressora) e modelos escaneados (CrealityScan). Os arquivos ficam só neste navegador. IFC (BIM) abre no Planejador.</p>
+  <p class="muted">Visualizador 3D local, galeria com a licença de cada arquivo, pedidos de impressão (no fatiador da impressora, de filamento ou de resina) e modelos escaneados. Os arquivos ficam só neste navegador. IFC (BIM) abre no Planejador.</p>
 
   <div data-physis-desenvolvimento="modelagem3d"></div>
+  <div data-physis-modelador="modelagem3d"></div>
 
   <h2>Enviar modelo</h2>
   <div class="caixa" id="caixa" tabindex="0" aria-label="Caixa de upload: arraste arquivos STL, OBJ, 3MF, GLB, PLY ou IFC, ou use o botão">
     <div class="ferr" style="margin:0">
       <label class="btn prim">Escolher arquivos <input type="file" id="arq" multiple accept=".stl,.obj,.3mf,.glb,.ply,.ifc" hidden></label>
       <label>Licença <select id="lic"><option value="">[definir licença]</option><option>CC0 (domínio público)</option><option>CC BY 4.0 (citar autoria)</option><option>CC BY-SA 4.0 (compartilhar igual)</option><option>CERN-OHL-S (hardware aberto)</option><option>Todos os direitos reservados</option></select></label>
-      <label><input type="checkbox" id="esc"> escaneado (CrealityScan)</label>
+      <label><input type="checkbox" id="esc"> escaneado</label>
     </div>
-    <p class="muted" style="margin:.5rem 0 0">STL e OBJ abrem no visualizador; 3MF, GLB e PLY ficam guardados; IFC abre no Planejador. CrealityScan: exporte em OBJ ou STL. Até 40 MB por arquivo.</p>
+    <p class="muted" style="margin:.5rem 0 0">STL e OBJ abrem no visualizador; 3MF, GLB e PLY ficam guardados; IFC abre no Planejador. Escaneamento 3D: exporte em OBJ ou STL. Até 40 MB por arquivo.</p>
     <div id="st" class="muted" role="status"></div>
   </div>
 
@@ -54,6 +55,674 @@ footer{border-top:4px solid var(--terracota);background:var(--faixa);color:var(-
 
 <script src="../../vendor/three.min.js"></script>
 <script src="../../sistema/desenvolvimento-dados.js"></script>
+<script src="../../vendor/jszip.min.js"></script>
+<script id="physis-calc-comum">
+/* physis-calc-comum.js v1 — contas que a plataforma, o SustainKit e o Planejador fazem do MESMO jeito (15/11/2026).
+   Uma regra só para: economia solar pela Lei 14.300 (autoconsumo, energia injetada, Fio B e custo de disponibilidade),
+   irradiação no plano das placas (modelo isotrópico), banco de baterias, cisterna de água de chuva mês a mês com descarte
+   inicial, calhas pela NBR 10844 e aquecimento solar mês a mês. Os números vêm da base de premissas
+   (sistema/physis-premissas.json), copiada abaixo entre PREMISSAS-INICIO e PREMISSAS-FIM.
+   Como atualizar: mude o JSON e rode `python ferramentas/sincronizar.py` (copia o JSON para cá e este arquivo para os
+   blocos <script id="physis-calc-comum"> do painel, do SustainKit e do Planejador). Espelho em Python e testes:
+   physis-hub/tests/test_adequacoes_normas.py. Normas citadas só pelo número e item; redação própria.
+   Contrato: window.PhysisCalc = { premissa, info, fioB, economiaSolar, h0Mensal, fatorPlano, bateria, diasChuva, cisterna,
+   calhas, coletorMensal }. Funções puras (não leem nem escrevem a tela). Sem internet. */
+(function (global) {
+"use strict";
+if (global.PhysisCalc) return;
+/*PREMISSAS-INICIO*/
+var PREMISSAS = {"versao":1,"atualizado":"2026-11-15","premissas":[{"id":"agua.per_capita","grandeza":"Consumo de água por pessoa","valor_padrao":130,"unidade":"L/pessoa·dia","opcoes":[{"rotulo":"Residência, padrão alto","valor":160,"quando":"casas de padrão alto; é o valor da Residência no Planejador"},{"rotulo":"Residência, padrão médio","valor":130,"quando":"padrão do SustainKit para moradia"},{"rotulo":"Residência, padrão baixo","valor":100,"quando":"moradia de padrão baixo ou uso muito econômico"},{"rotulo":"Edifício residencial (Planejador)","valor":150,"quando":"prédio de apartamentos, valor de catálogo do Planejador"},{"rotulo":"Hospedagem sem cozinha e lavanderia","valor":100,"quando":"hotel ou pousada em que cozinha e lavanderia são contadas à parte"},{"rotulo":"Hospedagem (Planejador)","valor":120,"quando":"chalé ou pousada, valor de catálogo do Planejador"},{"rotulo":"Escritório","valor":50,"quando":"escritório, estúdio, prédio comercial ou público"}],"fonte":"ABNT NBR 7229:1993, tabela de contribuição (os valores de residência, hospedagem e escritório); Planejador Physis (edifício residencial 150 e hospedagem 120, premissa Physis)","nota":"A tabela da NBR 7229 dá a contribuição de esgoto; aqui ela é usada como estimativa de consumo de água. Medição real do projeto sempre vale mais que este número."},{"id":"chuva.coef_escoamento","grandeza":"Coeficiente de escoamento do telhado (parte da chuva que chega à cisterna)","valor_padrao":0.8,"unidade":"adimensional (0 a 1)","opcoes":[{"rotulo":"Telha cerâmica","valor":0.8,"quando":"telhado de telha cerâmica"},{"rotulo":"Telha metálica","valor":0.9,"quando":"telhado metálico"},{"rotulo":"Fibrocimento","valor":0.85,"quando":"telha de fibrocimento"},{"rotulo":"Concreto ou laje","valor":0.8,"quando":"laje impermeabilizada"},{"rotulo":"Telhado verde","valor":0.3,"quando":"cobertura vegetada"}],"fonte":"premissa Physis (literatura técnica de aproveitamento de água de chuva); ABNT NBR 15527:2019 não fixa um valor único","nota":"Usado no SustainKit (captação) e no Planejador (balanço da cisterna). Valor do projeto escolhido pelo material real do telhado."},{"id":"app.declividade","grandeza":"Declividade a partir da qual a encosta é APP","valor_padrao":45,"unidade":"graus (°)","opcoes":[{"rotulo":"Limite legal","valor":45,"quando":"sempre: encostas acima de 45° são APP"}],"fonte":"Lei 12.651/2012 (Código Florestal), art. 4º, V","nota":"45° = 100% de declividade (sobe 100 m em 100 m andados). Não confundir com 45% (cerca de 24°). Lei municipal ou plano de manejo da APA podem ser mais restritivos."},{"id":"pv.pr","grandeza":"Rendimento global do sistema solar (PR)","valor_padrao":0.78,"unidade":"adimensional (0 a 1)","opcoes":[{"rotulo":"Padrão Physis","valor":0.78,"quando":"estudo preliminar, sem simulação do sistema real"}],"fonte":"premissa Physis","nota":"Inclui perdas de temperatura, sujeira, cabos e inversor. Trocar pelo valor simulado quando houver projeto executivo. Também é o PR do agro solar do SustainKit (antes 0,75 fixo)."},{"id":"bateria.dod","grandeza":"Profundidade de descarga da bateria (DoD)","valor_padrao":0.9,"unidade":"adimensional (0 a 1)","opcoes":[{"rotulo":"LiFePO4 (lítio-ferro-fosfato)","valor":0.9,"quando":"bateria de lítio-ferro-fosfato"},{"rotulo":"Li-NMC","valor":0.85,"quando":"bateria de lítio NMC"},{"rotulo":"Chumbo-ácido ou AGM","valor":0.5,"quando":"bateria de chumbo-ácido ou AGM"}],"fonte":"premissa Physis (conferir na folha de dados do fabricante escolhido)","nota":"Regra única do banco de baterias (plataforma, SustainKit e agro): consumo diário × horas ÷ 24 ÷ DoD ÷ bateria.rendimento."},{"id":"rede.fator_emissao","grandeza":"Fator de emissão da energia da rede (SIN)","valor_padrao":0.0289,"unidade":"tCO2/MWh","opcoes":[{"rotulo":"Fator médio do SIN","valor":0.0289,"quando":"inventário de emissões da energia comprada da rede"}],"fonte":"fator médio SIN (MCTI), conferir ano","nota":"Mesmo valor de FATORES.rede em sistema/physis-nucleo.js. O fator muda todo ano; atualizar aqui e no núcleo juntos."},{"id":"combustivel.diesel","grandeza":"Fator de emissão do diesel","valor_padrao":2.671,"unidade":"kgCO2e/L","opcoes":[],"fonte":"valor usado em sistema/physis-nucleo.js (FATORES.diesel); conferir fonte e ano","nota":"Mantido igual ao núcleo. O SustainKit usa este fator por litro, igual à aba Carbono (antes 0,74 kgCO2e/kWh)."},{"id":"combustivel.glp","grandeza":"Fator de emissão do GLP","valor_padrao":2.939,"unidade":"kgCO2e/kg","opcoes":[],"fonte":"valor usado em sistema/physis-nucleo.js (FATORES.glp); conferir fonte e ano","nota":"Mantido igual ao núcleo."},{"id":"combustivel.gn","grandeza":"Fator de emissão do gás natural","valor_padrao":1.999,"unidade":"kgCO2e/m³","opcoes":[],"fonte":"valor usado em sistema/physis-nucleo.js (FATORES.gn); conferir fonte e ano","nota":"Mantido igual ao núcleo."},{"id":"solar.fio_b_escala","grandeza":"Parte do Fio B que a energia injetada não compensa, por ano (Lei 14.300)","valor_padrao":{"2023":0.15,"2024":0.3,"2025":0.45,"2026":0.6,"2027":0.75,"2028":0.9},"unidade":"fração do componente Fio B da tarifa (0 a 1), por ano","opcoes":[{"rotulo":"Regra de transição (art. 27)","valor":"lei14300","quando":"unidade com pedido de acesso depois de 07/01/2023"},{"rotulo":"Regra antiga (art. 26)","valor":"antiga","quando":"pedido de acesso até 07/01/2023: sem Fio B até 2045"}],"fonte":"Lei 14.300/2022, art. 27 (escala de transição) e art. 26 (regra antiga até 2045); depois de 2028 a regra é da ANEEL (art. 17) [CONFERIR NA LEI]","status":"conferir","nota":"Percentuais lembrados da lei: o engenheiro confere no texto oficial antes de usar em proposta. Depois do último ano a conta repete o último percentual e avisa."},{"id":"tarifa.custo_disponibilidade","grandeza":"Custo de disponibilidade (consumo mínimo faturado por mês)","valor_padrao":{"monofasico":30,"bifasico":50,"trifasico":100},"unidade":"kWh/mês, por tipo de ligação","opcoes":[{"rotulo":"Monofásico","valor":30,"quando":"ligação monofásica"},{"rotulo":"Bifásico","valor":50,"quando":"ligação bifásica"},{"rotulo":"Trifásico","valor":100,"quando":"ligação trifásica"}],"fonte":"REN ANEEL 1.000/2021 (custo de disponibilidade por tipo de ligação) [CONFERIR NA RESOLUÇÃO]","status":"conferir","nota":"A conta de luz nunca fica abaixo deste mínimo, com ou sem geração própria."},{"id":"solar.albedo","grandeza":"Refletância do solo em volta das placas (albedo)","valor_padrao":0.2,"unidade":"adimensional (0 a 1)","opcoes":[{"rotulo":"Solo, grama ou telhado comum","valor":0.2,"quando":"valor usual sem neve"}],"fonte":"Duffie & Beckman, Solar Engineering of Thermal Processes, 4ª ed., 2013 (valor usual de refletância do solo no modelo isotrópico); premissa Physis","status":"conferir","nota":"Só pesa em placas muito inclinadas. Superfície clara (brita branca, membrana) reflete mais: trocar pelo valor medido."},{"id":"bateria.rendimento","grandeza":"Rendimento de ida e volta da bateria com o inversor","valor_padrao":0.95,"unidade":"adimensional (0 a 1)","opcoes":[{"rotulo":"Lítio (LiFePO4) com inversor híbrido","valor":0.95,"quando":"padrão da Physis; o valor que a aba Energia solar já usava"}],"fonte":"premissa Physis (regra única do banco de baterias desde 15/11/2026: plataforma, SustainKit e agro); conferir na folha de dados da bateria e do inversor","status":"conferir","nota":"Banco = consumo diário × horas ÷ 24 ÷ DoD ÷ rendimento. Substitui a margem de 1,2 do SustainKit e do agro."},{"id":"agro.autonomia_dias","grandeza":"Dias de autonomia da bateria no agro solar","valor_padrao":2,"unidade":"dias","opcoes":[{"rotulo":"Padrão do agro","valor":2,"quando":"cargas do campo sem rede"}],"fonte":"premissa Physis (valor que o agro do SustainKit já usava)","status":"conferir","nota":"Entra como horas = dias × 24 na regra única do banco de baterias."},{"id":"biogas.pci","grandeza":"Energia do biogás","valor_padrao":6,"unidade":"kWh/m³","opcoes":[],"fonte":"premissa Physis (mesmo valor do Planejador, physisBiogas, e da aba Carbono); conferir com o teor de metano medido","status":"conferir","nota":"Usado para dizer quanto GLP o biogás substitui (emissões evitadas)."},{"id":"glp.pci","grandeza":"Energia do GLP","valor_padrao":12.8,"unidade":"kWh/kg","opcoes":[],"fonte":"premissa Physis (valor da aba Carbono); conferir com a ficha do combustível","status":"conferir","nota":"Biogás evitado = m³ × biogas.pci ÷ glp.pci × fator do GLP (combustivel.glp). Regra única: aba Carbono e SustainKit."},{"id":"drenagem.calha_tr","grandeza":"Tempo de retorno da chuva para calhas e condutores","valor_padrao":5,"unidade":"anos","opcoes":[{"rotulo":"Área pavimentada onde empoçar é tolerável","valor":1,"quando":"[CONFERIR NA NORMA]"},{"rotulo":"Coberturas e terraços","valor":5,"quando":"padrão [CONFERIR NA NORMA]"},{"rotulo":"Coberturas onde não pode transbordar","valor":25,"quando":"[CONFERIR NA NORMA]"}],"fonte":"ABNT NBR 10844:1989 (período de retorno das instalações de águas pluviais) [CONFERIR NA NORMA]","status":"conferir","nota":"Usado com a equação IDF do lugar."},{"id":"drenagem.calha_duracao","grandeza":"Duração da chuva de projeto para calhas e condutores","valor_padrao":5,"unidade":"min","opcoes":[],"fonte":"ABNT NBR 10844:1989 (duração da precipitação) [CONFERIR NA NORMA]","status":"conferir","nota":"Entra na IDF do lugar: i = K·T^a ÷ (t + b)^c."},{"id":"drenagem.calha_manning_n","grandeza":"Coeficiente de rugosidade da calha (Manning)","valor_padrao":0.011,"unidade":"adimensional","opcoes":[{"rotulo":"Plástico, fibrocimento, aço ou metal","valor":0.011,"quando":"[CONFERIR NA NORMA]"},{"rotulo":"Concreto alisado ou alvenaria revestida","valor":0.012,"quando":"[CONFERIR NA NORMA]"},{"rotulo":"Cerâmica ou concreto não alisado","valor":0.013,"quando":"[CONFERIR NA NORMA]"}],"fonte":"ABNT NBR 10844:1989 (tabela de coeficientes de rugosidade) [CONFERIR NA NORMA]","status":"conferir","nota":"Usado na fórmula de Manning para a lâmina d'água da calha."},{"id":"drenagem.calha_declividade","grandeza":"Declividade da calha","valor_padrao":0.005,"unidade":"m/m","opcoes":[],"fonte":"ABNT NBR 10844:1989 (declividade mínima de calhas) [CONFERIR NA NORMA]","status":"conferir","nota":"Calha mais inclinada escoa mais com a mesma seção."},{"id":"drenagem.condutor_diam_min","grandeza":"Diâmetro interno mínimo do condutor vertical","valor_padrao":70,"unidade":"mm","opcoes":[],"fonte":"ABNT NBR 10844:1989 (condutores verticais) [CONFERIR NA NORMA]","status":"conferir","nota":"O diâmetro final sai do ábaco da norma com a vazão e a altura da lâmina na calha; o sistema mostra a vazão a conduzir."},{"id":"chuva.descarte_inicial","grandeza":"Descarte da primeira chuva (lavagem do telhado)","valor_padrao":2,"unidade":"mm por chuva","opcoes":[{"rotulo":"Sem dado do local","valor":2,"quando":"valor recomendado na falta de dados [CONFERIR NA NORMA]"}],"fonte":"ABNT NBR 15527:2019 (descarte da água do escoamento inicial) [CONFERIR NA NORMA]","status":"conferir","nota":"Descontado em cada dia de chuva: captado = área × (chuva × coeficiente − descarte × dias de chuva)."},{"id":"agua.fracao_nao_potavel","grandeza":"Parte do consumo das pessoas que pode ser água de chuva (usos não potáveis)","valor_padrao":0.3,"unidade":"adimensional (0 a 1)","opcoes":[{"rotulo":"Padrão do Planejador","valor":0.3,"quando":"descarga, limpeza e lavagem"}],"fonte":"premissa Physis (valor que o Planejador já usava); ABNT NBR 16783:2019 lista os usos não potáveis","status":"conferir","nota":"Mesma regra no Planejador e no SustainKit para a cisterna sair igual."},{"id":"agua.reserva_dias","grandeza":"Dias de reserva de água fria","valor_padrao":2,"unidade":"dias","opcoes":[{"rotulo":"Padrão Physis","valor":2,"quando":"estudo preliminar"}],"fonte":"premissa Physis; a ABNT NBR 5626:2020 deixa a reservação ao projetista e à concessionária","status":"conferir","nota":"Usado no Planejador (reservação) e no SustainKit (cisterna do fluxo da água)."},{"id":"esgoto.coef_retorno","grandeza":"Coeficiente de retorno (parte da água usada que vira esgoto)","valor_padrao":0.8,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"ABNT NBR 9649:1986 (coeficiente de retorno) [CONFERIR NA NORMA]","status":"conferir","nota":"Usado no fluxo da água do SustainKit."},{"id":"app.faixa_rio","grandeza":"Largura da faixa de APP ao longo de rios e córregos, pela largura do rio","valor_padrao":[{"largura_ate_m":10,"faixa_m":30},{"largura_ate_m":50,"faixa_m":50},{"largura_ate_m":200,"faixa_m":100},{"largura_ate_m":600,"faixa_m":200},{"largura_ate_m":null,"faixa_m":500}],"unidade":"m (medidos da borda da calha do leito regular, para cada lado)","opcoes":[{"rotulo":"Rio com menos de 10 m","valor":30,"quando":"[CONFERIR NA LEI]"},{"rotulo":"10 a 50 m","valor":50,"quando":"[CONFERIR NA LEI]"},{"rotulo":"50 a 200 m","valor":100,"quando":"[CONFERIR NA LEI]"},{"rotulo":"200 a 600 m","valor":200,"quando":"[CONFERIR NA LEI]"},{"rotulo":"Mais de 600 m","valor":500,"quando":"[CONFERIR NA LEI]"}],"fonte":"Lei 12.651/2012 (Código Florestal), art. 4º, I, alíneas a a e [CONFERIR NA LEI]","status":"conferir","nota":"O engenheiro aprova as larguras. Área urbana consolidada e lei municipal podem ter regra própria (conferir). A faixa só é desenhada quando há um rio no mapa e a largura dele foi digitada."},{"id":"app.raio_nascente","grandeza":"Raio da APP em volta de nascentes e olhos d'água perenes","valor_padrao":50,"unidade":"m","opcoes":[],"fonte":"Lei 12.651/2012 (Código Florestal), art. 4º, IV [CONFERIR NA LEI]","status":"conferir","nota":"O engenheiro aprova. Só é desenhado quando há uma nascente marcada no mapa."},{"id":"resiliencia.encosta_limiares","grandeza":"Chuva acumulada que muda o nível de alerta de encosta","valor_padrao":{"atencao_24h":40,"alerta_24h":80,"atencao_72h":60,"alerta_72h":120},"unidade":"mm","opcoes":[{"rotulo":"Referência de planejamento Physis","valor":"padrão","quando":"sem limiar da Defesa Civil do município"}],"fonte":"premissa Physis (valores que a aba Resiliência já usava); trocar pelos limiares da Defesa Civil do município","status":"conferir","nota":"Os limiares digitados na tela (Defesa Civil) valem no lugar destes."},{"id":"res.alertas_limiares","grandeza":"Limiares dos alertas por atividade (previsão do tempo)","valor_padrao":{"geada_tmin_c":3,"colheita_chuva_mm":10,"rebanho_tmax_c":30,"irrigacao_chuva_mm":5,"horta_chuva_mm":30,"horta_tmin_c":4,"horta_tmax_c":34,"hospedagem_chuva_mm":30,"geada_alerta_tmin_c":1,"colheita_alerta_chuva_mm":30,"rebanho_alerta_tmax_c":35,"horta_alerta_chuva_mm":50,"horta_alerta_tmin_c":2,"horta_alerta_tmax_c":37,"hospedagem_alerta_chuva_mm":50},"unidade":"°C ou mm por dia","opcoes":[],"fonte":"premissa Physis (valores que os alertas da plataforma já usavam); conferir com o técnico da atividade","status":"conferir","nota":"Alertas de planejamento; não substituem a Defesa Civil nem o agrônomo. Os campos *_alerta_* são o nível mais forte (ALERTA) [CONFERIR]."},{"id":"residuos.rendimentos","grandeza":"Rendimento de cada rota de resíduo no próprio lugar","valor_padrao":{"compostagem":0.35,"vermi":0.3,"larvas":0.15,"biodiesel_l_por_l_oleo":0.9,"filamento":0.85,"agregado":0.9,"biomassa_kwh_por_kg":4.0,"biochar":0.25},"unidade":"kg de produto por kg de resíduo (biodiesel em L por L de óleo; biomassa em kWh por kg)","opcoes":[],"fonte":"premissa Physis (estimativas de literatura que a Economia circular já usava) [CONFERIR]","status":"conferir","nota":"Ordem de grandeza para planejar; o rendimento real é medido."},{"id":"residuos.biogas_por_kg","grandeza":"Biogás por kg de resíduo fresco","valor_padrao":{"alimentos":0.1,"esterco_bov":0.04,"esterco_sui":0.06,"cama_aviario":0.07,"colheita":0.05,"outros":0.05},"unidade":"m³/kg","opcoes":[],"fonte":"premissa Physis (estimativas de literatura que a Economia circular já usava) [CONFERIR]","status":"conferir","nota":"Mesmos valores na aba Carbono (biogás do plano de resíduos)."},{"id":"agua.referencias_por_uso","grandeza":"Faixas de referência por uso da água (só informação, nunca limite)","valor_padrao":{"beber":{"rotulo":"Água para beber","fonte":"Portaria GM/MS 888/2021 [CONFERIR NA PORTARIA]","turbidez_max_ut":5,"cloro_min_mgl":0.2,"cloro_max_mgl":5,"ph_min":6,"ph_max":9},"rio":{"rotulo":"Rio ou represa (água doce classe 2)","fonte":"Resolução CONAMA 357/2005 [CONFERIR NA RESOLUÇÃO]","turbidez_max_ut":100,"ph_min":6,"ph_max":9},"efluente":{"rotulo":"Efluente lançado","fonte":"Resolução CONAMA 430/2011 [CONFERIR NA RESOLUÇÃO]","ph_min":5,"ph_max":9},"reuso":{"rotulo":"Reúso (classe mais exigente)","fonte":"ABNT NBR 13969:1997 (classes de reúso) [CONFERIR NA NORMA]","turbidez_max_ut":5,"cloro_min_mgl":0.5,"cloro_max_mgl":1.5,"ph_min":6,"ph_max":8}},"unidade":"uT, mg/L e pH","opcoes":[],"fonte":"Portaria GM/MS 888/2021; Resoluções CONAMA 357/2005 e 430/2011; ABNT NBR 13969:1997 [CONFERIR]","status":"conferir","nota":"Aparece ao lado de cada limite como informação. Nada é preenchido e nenhum alerta sai sem o limite digitado pela pessoa (regra 3)."},{"id":"avac.exaustao","grandeza":"Vazões e trocas de ar das exaustões (banheiro, lixo, garagem)","valor_padrao":{"vazao_banheiro_m3h":90,"trocas_banheiro_h":15,"trocas_lixo_h":20,"trocas_garagem_h":6,"garagem_ls_por_m2":7.5,"garagem_m3h_por_vaga":300},"unidade":"m³/h, trocas por hora, L/s·m²","opcoes":[],"fonte":"planilha PHYSIS_AVAC-5 (premissa Physis); exaustão de banheiro, lixo e garagem não tem vazão em NBR: conferir com o código de obras do município e a NBR 16401-3","status":"conferir","nota":"Valores de partida da tela de Ventilação; o projeto troca pelos do código de obras."},{"id":"avac.velocidade_dutos","grandeza":"Velocidade máxima do ar por tipo de duto","valor_padrao":{"Prumada residencial (shaft)":8,"Ramal em forro — residencial":5,"Exaustão técnica (lixo, bombas)":8,"Garagem":12,"Pressurização e fumaça":12,"Duto principal — comercial":10},"unidade":"m/s","opcoes":[],"fonte":"planilha PHYSIS_AVAC-5 (premissa Physis); conferir os limites de velocidade e ruído na ABNT NBR 16401-1 [CONFERIR NA NORMA]","status":"conferir","nota":"Usado para conferir a velocidade adotada em cada sistema de dutos."},{"id":"app.topo_morro","grandeza":"APP de topo de morro: altura mínima, inclinação média e cota de início (terço superior)","valor_padrao":{"altura_min_m":100,"inclinacao_media_graus":25,"fracao_base":0.666667},"unidade":"m, graus e fração da altura medida da base (0,666667 = 2/3)","opcoes":[],"fonte":"Lei 12.651/2012 (Código Florestal), art. 4º, IX [CONFERIR NA LEI]","status":"conferir","nota":"Triagem pelo relevo que o Planejador tem: a base do morro pode estar fora do terreno importado; o engenheiro confirma com o modelo de elevação da região."},{"id":"eletrica.fator_potencia_padrao","grandeza":"Fator de potência adotado quando não há medição","valor_padrao":0.92,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"premissa Physis para estimativa, igual à referência regulatória abaixo [CONFERIR]; vale a medição (V6, medidor) quando houver","status":"conferir","nota":"Usado para dar Q (kvar) e S (kVA) a partir de P (kW) em todos os módulos de energia."},{"id":"eletrica.fator_potencia_minimo","grandeza":"Fator de potência de referência (abaixo dele, aviso de FP baixo)","valor_padrao":0.92,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"REN ANEEL 1.000/2021 (fator de potência de referência para cobrança de reativo) [CONFERIR NA NORMA]","status":"conferir","nota":"Só aviso: FP abaixo do valor de referência costuma gerar cobrança de energia reativa."},{"id":"gestao.taxa_desconto","grandeza":"Taxa de desconto do ranking de investimentos (quando a pessoa não digita)","valor_padrao":10,"unidade":"% ao ano","opcoes":[],"fonte":"premissa Physis (valor que o ranking da Gestão já usava)","status":"conferir","nota":"Usada no VPL e no retorno descontado; a pessoa pode digitar a taxa de cada investimento."},{"id":"gestao.inflacao","grandeza":"Inflação usada para corrigir o ganho mensal (quando a pessoa não digita)","valor_padrao":4,"unidade":"% ao ano","opcoes":[],"fonte":"premissa Physis (valor que o ranking da Gestão já usava)","status":"conferir","nota":"Correção do ganho mensal no fluxo do investimento."},{"id":"solar.arranjo_afastamento_borda","grandeza":"Afastamento dos módulos até a borda do telhado ou do terreno","valor_padrao":null,"unidade":"m","opcoes":[],"fonte":"[CONFERIR] sem fonte na base: a tela do Mapeamento pede o valor (regra do Corpo de Bombeiros do estado e do fabricante da estrutura)","status":"conferir","nota":"Sem valor na base: o campo fica para digitar na Planta solar."},{"id":"solar.arranjo_folga_modulos","grandeza":"Folga entre módulos vizinhos no arranjo","valor_padrao":null,"unidade":"m","opcoes":[],"fonte":"[CONFERIR] sem fonte na base: a tela do Mapeamento pede o valor (manual de instalação do módulo e da estrutura)","status":"conferir","nota":"Sem valor na base: o campo fica para digitar na Planta solar."},{"id":"solar.arranjo_hora_critica_inicio","grandeza":"Início da janela sem sombra entre fileiras (hora solar, no solstício de inverno)","valor_padrao":null,"unidade":"h (hora solar)","opcoes":[],"fonte":"[CONFERIR] sem fonte na base: a tela do Mapeamento pede o valor","status":"conferir","nota":"Sem valor na base: o campo fica para digitar na Planta solar (arranjo no solo)."},{"id":"solar.arranjo_hora_critica_fim","grandeza":"Fim da janela sem sombra entre fileiras (hora solar, no solstício de inverno)","valor_padrao":null,"unidade":"h (hora solar)","opcoes":[],"fonte":"[CONFERIR] sem fonte na base: a tela do Mapeamento pede o valor","status":"conferir","nota":"Sem valor na base: o campo fica para digitar na Planta solar (arranjo no solo)."},{"id":"sim.termica.resistencias_superficiais","grandeza":"Resistências superficiais interna e externa (Rsi, Rse)","valor_padrao":{"parede":{"rsi":0.13,"rse":0.04},"cobertura_verao":{"rsi":0.17,"rse":0.04}},"unidade":"m²·K/W","opcoes":[],"fonte":"ABNT NBR 15220-2 (tabela de resistências superficiais), mesmos valores de sistema/physis-materiais.json (resistencias_superficiais) [CONFERIR NA NORMA]","status":"conferir","nota":"Teste confere que é igual à base de materiais. Cobertura no verão = fluxo descendente."},{"id":"sim.termica.h_conv_vento","grandeza":"Coeficiente de convecção externa em função do vento (h = a + b·v)","valor_padrao":{"a":5.7,"b":3.8},"unidade":"W/(m²·K), v em m/s","opcoes":[],"fonte":"correlação de McAdams para superfície ao vento (literatura de transferência de calor) [CONFERIR]","status":"conferir","nota":"Só para quem precisa separar convecção de radiação (câmara do Secador). Paredes usam Rse."},{"id":"sim.termica.emissividade","grandeza":"Emissividade de superfícies comuns de construção (onda longa)","valor_padrao":0.9,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"ordem de grandeza de literatura para alvenaria, terra, madeira e tinta não metálica [CONFERIR]","status":"conferir","nota":"Metal polido e manta aluminizada têm emissividade muito menor: digite o valor do fabricante."},{"id":"sim.estrutura.materiais","grandeza":"Propriedades estruturais por material (E, G, fy, ν, densidade)","valor_padrao":{"aco_estrutural":{"nome":"Aço estrutural de perfil","E_Pa":200000000000,"G_Pa":77000000000,"fy_Pa":250000000,"nu":0.3,"densidade":7800},"aluminio":{"nome":"Alumínio de perfil (liga a definir)","E_Pa":70000000000,"G_Pa":26000000000,"fy_Pa":null,"nu":0.33,"densidade":2700},"madeira_eucalipto":{"nome":"Eucalipto tratado","E_Pa":null,"G_Pa":null,"fy_Pa":null,"nu":null,"densidade":750},"bambu":{"nome":"Bambu (colmo)","E_Pa":null,"G_Pa":null,"fy_Pa":null,"nu":null,"densidade":700}},"unidade":"Pa; kg/m³","opcoes":[],"fonte":"aço: valores usuais de aço estrutural (fy do aço ASTM A36 / MR250) [CONFERIR NA NORMA ABNT NBR 8800]; alumínio: E usual, fy depende da liga e da têmpera [MARCADOR]; madeira: classe de resistência da ABNT NBR 7190 ou ensaio [MARCADOR]; bambu: ensaio (ISO 22156 / ABNT NBR 16828) [MARCADOR]. Densidades de sistema/physis-materiais.json.","status":"conferir","nota":"null = a conta pede o valor ([MARCADOR]). Bambu e madeira variam muito de peça para peça."},{"id":"sim.estrutura.k_flambagem","grandeza":"Coeficiente de comprimento de flambagem K por condição de apoio","valor_padrao":{"biapoiada":1.0,"engaste_livre":2.0,"engaste_engaste":0.5,"engaste_apoio":0.7},"unidade":"adimensional","opcoes":[],"fonte":"valores teóricos da flambagem de Euler (livros de resistência dos materiais); as normas recomendam valores um pouco maiores para projeto [CONFERIR NA NORMA]","status":"conferir","nota":"Engaste real nunca é perfeito: usar o K de projeto da norma do material."},{"id":"sim.estrutura.fs_tensao","grandeza":"Fator de segurança global na tensão (σ ≤ fy/FS)","valor_padrao":1.5,"unidade":"adimensional","opcoes":[],"fonte":"premissa Physis provisória para triagem por tensões admissíveis; o dimensionamento segue os coeficientes da norma do material [CONFERIR NA NORMA]","status":"conferir","nota":"Triagem, não dimensionamento."},{"id":"sim.estrutura.fs_flambagem","grandeza":"Fator de segurança na flambagem (|N| ≤ Pcr/FS)","valor_padrao":2.0,"unidade":"adimensional","opcoes":[],"fonte":"premissa Physis provisória [CONFERIR NA NORMA]","status":"conferir","nota":"Imperfeições e excentricidade reduzem a carga real; a norma tem curvas próprias."},{"id":"sim.vento.pressao_dinamica","grandeza":"Pressão dinâmica do vento: q = coef·Vk², Vk = V0·S1·S2·S3, F = Cf·q·A","valor_padrao":{"coef_q":0.613,"v0":null,"s1":null,"s2":null,"s3":null,"cf":null},"unidade":"coef em N·s²/m⁴; V0 em m/s; S e Cf adimensionais","opcoes":[],"fonte":"método da ABNT NBR 6123 (só o nome do método; V0 do mapa de isopletas, S1, S2, S3 e Cf das tabelas da norma) [CONFERIR NA NORMA]","status":"conferir","nota":"coef_q = ½·ρ do ar padrão. Os fatores do lugar e da peça são digitados pelo engenheiro; null vira [MARCADOR]."},{"id":"sim.turbinas.ct_empuxo","grandeza":"Coeficiente de empuxo do rotor (C_T) para a força no topo da torre","valor_padrao":0.89,"unidade":"adimensional","opcoes":[],"fonte":"teoria do disco atuador no ponto de Betz (C_T = 8/9) [CONFERIR com o fabricante]","status":"conferir","nota":"Na velocidade de sobrevivência a carga vem do rotor parado e do arrasto: dado do fabricante."},{"id":"sim.ventilacao.cd","grandeza":"Coeficiente de descarga de aberturas (ventilação natural)","valor_padrao":0.6,"unidade":"adimensional","opcoes":[],"fonte":"valor usual de orifício de borda viva na literatura de ventilação natural [CONFERIR]","status":"conferir","nota":"Venezianas e telas reduzem: usar o dado do fabricante."},{"id":"sim.ventilacao.cp_vento","grandeza":"Coeficientes de pressão do vento na fachada (barlavento e sotavento)","valor_padrao":{"barlavento":0.5,"sotavento":-0.3},"unidade":"adimensional","opcoes":[],"fonte":"ordem de grandeza de literatura para prédio baixo isolado [CONFERIR]; túnel de vento ou norma valem mais","status":"conferir","nota":"ΔCp = barlavento − sotavento entra em Q = Cd·A·v·√ΔCp."},{"id":"sim.hidro.cn_por_uso","grandeza":"Número de curva (CN) por uso do solo e grupo hidrológico (A a D)","valor_padrao":{"mata":{"A":30,"B":55,"C":70,"D":77},"pasto_bom":{"A":39,"B":61,"C":74,"D":80},"pasto_degradado":{"A":68,"B":79,"C":86,"D":89},"lavoura":{"A":67,"B":78,"C":85,"D":89},"solo_exposto":{"A":77,"B":86,"C":91,"D":94},"estrada_terra":{"A":72,"B":82,"C":87,"D":89},"urbano_denso":{"A":77,"B":85,"C":90,"D":92},"impermeavel":{"A":98,"B":98,"C":98,"D":98},"agrofloresta":{"A":null,"B":null,"C":null,"D":null}},"unidade":"adimensional (0 a 100)","opcoes":[],"fonte":"USDA NRCS, TR-55 (1986), tabelas de número de curva para condição de umidade média [CONFERIR]","status":"conferir","nota":"Agrofloresta não está na tabela: [MARCADOR] até haver valor de estudo. Solo do lugar define o grupo A–D."},{"id":"sim.hidro.ia_razao","grandeza":"Abstração inicial do SCS-CN (Ia = razão·S)","valor_padrao":0.2,"unidade":"adimensional","opcoes":[],"fonte":"USDA NRCS, método do número de curva [CONFERIR]","status":"conferir","nota":"Alguns estudos recentes usam 0,05."},{"id":"sim.erosao.ls","grandeza":"Fator topográfico LS da USLE: (λ/λ_ref)^m·(a·sen²θ + b·senθ + c)","valor_padrao":{"lambda_ref":22.13,"a":65.41,"b":4.56,"c":0.065},"unidade":"λ em m","opcoes":[],"fonte":"Wischmeier & Smith (1978), USDA Agriculture Handbook 537 [CONFERIR]","status":"conferir","nota":"Expoente m pela declividade (0,5 ≥ 5 %; 0,4; 0,3; 0,2 < 1 %). R, K, C e P são digitados do estudo do lugar."},{"id":"sim.mc.amostras","grandeza":"Número de amostras do Monte Carlo","valor_padrao":2000,"unidade":"amostras","opcoes":[],"fonte":"premissa Physis","status":"conferir","nota":"Mais amostras = percentis mais estáveis."},{"id":"sim.mc.semente","grandeza":"Semente do gerador pseudoaleatório (mulberry32)","valor_padrao":42,"unidade":"inteiro","opcoes":[],"fonte":"premissa Physis (reprodutível: mesma semente, mesmo resultado no servidor e no navegador)","status":"conferir","nota":"Fixa nos testes."},{"id":"sim.qubo.penalidade_fator","grandeza":"Fator da penalidade das restrições no QUBO","valor_padrao":1.5,"unidade":"adimensional (× maior ganho)","opcoes":[],"fonte":"premissa Physis","status":"conferir","nota":"Penalidade pequena deixa violar restrição; grande demais atrapalha o recozimento."},{"id":"sim.qubo.limite_exato","grandeza":"Até quantas variáveis o QUBO é resolvido por enumeração exata","valor_padrao":20,"unidade":"variáveis","opcoes":[],"fonte":"premissa Physis","status":"conferir","nota":"Acima disso, recozimento simulado."},{"id":"sim.qubo.varreduras","grandeza":"Varreduras do recozimento simulado","valor_padrao":400,"unidade":"varreduras","opcoes":[],"fonte":"premissa Physis","status":"conferir","nota":""},{"id":"sim.qubo.suavidade","grandeza":"Peso da suavidade na topologia grossa (β)","valor_padrao":0.2,"unidade":"adimensional","opcoes":[],"fonte":"premissa Physis","status":"conferir","nota":"Maior β = peça com menos furos isolados."},{"id":"sim.biogas.substratos","grandeza":"Substratos do biodigestor: ST, SV, BMP, fração de CH₄ e N-P-K do digestato","valor_padrao":{"esterco_bovino":{"nome":"Esterco bovino (fresco, com urina)","st":0.1,"sv":0.8,"bmp":0.38,"ch4":0.55,"esterco":true,"rebanho":"gado_leite","npk":{"N":3.5,"P2O5":1.5,"K2O":4.0}},"esterco_suino":{"nome":"Dejeto suíno (chorume)","st":0.06,"sv":0.8,"bmp":0.42,"ch4":0.6,"esterco":true,"rebanho":"suino","npk":{"N":4.5,"P2O5":2.5,"K2O":2.5}},"cama_aviario":{"nome":"Cama de aviário / esterco de aves","st":0.25,"sv":0.75,"bmp":0.4,"ch4":0.6,"esterco":true,"rebanho":null,"npk":{"N":20.0,"P2O5":15.0,"K2O":15.0}},"restos_alimentos":{"nome":"Restos de alimentos","st":0.2,"sv":0.9,"bmp":0.65,"ch4":0.6,"esterco":false,"npk":null},"residuos_colheita":{"nome":"Resíduos de colheita (palha seca)","st":0.85,"sv":0.9,"bmp":0.35,"ch4":0.52,"esterco":false,"npk":null},"lodo_esgoto":{"nome":"Lodo de esgoto","st":0.04,"sv":0.7,"bmp":0.4,"ch4":0.62,"esterco":false,"npk":null},"outro":{"nome":"Outro substrato","st":null,"sv":null,"bmp":null,"ch4":null,"esterco":false,"npk":null}},"unidade":"st: fração da massa fresca; sv: fração dos ST; bmp: m³ de biogás por kg SV; ch4: fração do biogás; npk: kg por tonelada fresca","opcoes":[],"fonte":"faixas típicas de tabelas de substratos para biogás (FNR, Leitfaden Biogas; KTBL) e literatura de digestão anaeróbia [CONFERIR]; N-P-K de tabelas de adubação com dejetos [CONFERIR]","status":"conferir","nota":"Ensaio de BMP e análise de ST/SV do substrato real valem mais. 'outro' sem valores: [MARCADOR]. Conferência cruzada: ST × SV × BMP perto de residuos.biogas_por_kg (m³ por kg fresco)."},{"id":"sim.biogas.cinetica","grandeza":"Cinética de 1ª ordem: k(T) = k_ref·θ^(T − T_ref)","valor_padrao":{"k_ref_dia":0.15,"theta":1.06,"t_ref_c":35},"unidade":"k em 1/dia; T em °C","opcoes":[],"fonte":"ordem de grandeza de literatura de digestão anaeróbia de dejetos (correção de temperatura na forma θ, tipo Arrhenius) [CONFERIR]","status":"conferir","nota":"Cada substrato pode ter k_ref próprio (campo k_ref do substrato)."},{"id":"sim.biogas.cov_max","grandeza":"Carga orgânica volumétrica máxima por regime","valor_padrao":{"psicrofilico":1.0,"mesofilico":3.0,"termofilico":5.0,"ambiente":1.0},"unidade":"kg SV/(m³·dia)","opcoes":[],"fonte":"faixas usuais de literatura para digestores rurais e de mistura completa [CONFERIR]","status":"conferir","nota":"Acima: aviso de sobrecarga (acidificação)."},{"id":"sim.biogas.trh_min_dias","grandeza":"Tempo de retenção hidráulica mínimo por regime (e TRH alvo padrão do dimensionamento)","valor_padrao":{"psicrofilico":40,"mesofilico":20,"termofilico":12,"ambiente":40},"unidade":"dias","opcoes":[],"fonte":"faixas usuais de literatura [CONFERIR]","status":"conferir","nota":"Abaixo: aviso de TRH curto (lavagem das bactérias)."},{"id":"sim.biogas.temperaturas","grandeza":"Temperatura de operação por regime aquecido","valor_padrao":{"psicrofilico":20,"mesofilico":37,"termofilico":55},"unidade":"°C","opcoes":[],"fonte":"faixas clássicas de digestão anaeróbia [CONFERIR]","status":"conferir","nota":"Sem aquecimento ('ambiente'): temperatura média mensal do local da instalação, nunca um padrão."},{"id":"sim.biogas.t_min_c","grandeza":"Temperatura abaixo da qual a produção cai muito (aviso)","valor_padrao":15,"unidade":"°C","opcoes":[],"fonte":"literatura de digestores rurais [CONFERIR]","status":"conferir","nota":""},{"id":"sim.biogas.ganho_enterrado_c","grandeza":"Ganho de temperatura do digestor enterrado ou em estufa sobre a média do ar","valor_padrao":2.0,"unidade":"°C","opcoes":[],"fonte":"premissa Physis [CONFERIR com medição]","status":"conferir","nota":"Medir a temperatura do digestor (sensor) troca esta premissa."},{"id":"sim.biogas.tipos_digestor","grandeza":"Tipos de digestor e modelo de reator usado na cinética","valor_padrao":{"tubular":{"nome":"Tubular (manga plástica)","modelo":"pistonado"},"lagoa_coberta":{"nome":"Lagoa coberta","modelo":"mistura"},"indiano":{"nome":"Indiano (gasômetro flutuante)","modelo":"mistura"},"chines":{"nome":"Chinês (cúpula fixa)","modelo":"mistura"},"mistura_completa":{"nome":"Mistura completa (CSTR)","modelo":"mistura"}},"unidade":"","opcoes":[],"fonte":"classificação usual de biodigestores rurais [CONFERIR]","status":"conferir","nota":""},{"id":"sim.biogas.folga_volume","grandeza":"Folga do volume total sobre o volume útil (gás e borda)","valor_padrao":1.25,"unidade":"adimensional","opcoes":[],"fonte":"premissa Physis (mesma folga do biodigestor da Economia circular: × 1,25)","status":"conferir","nota":""},{"id":"sim.biogas.eta_eletrica","grandeza":"Rendimento elétrico do gerador a biogás","valor_padrao":0.3,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"ordem de grandeza de motogeradores pequenos [CONFERIR com o fabricante]","status":"conferir","nota":""},{"id":"sim.biogas.eta_termica","grandeza":"Rendimento do queimador/caldeira para calor útil (Secador, AVAC, água quente)","valor_padrao":0.75,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"ordem de grandeza [CONFERIR com o fabricante]","status":"conferir","nota":""},{"id":"sim.biogas.queimador_m3_h","grandeza":"Consumo de um queimador de fogão doméstico a biogás","valor_padrao":0.35,"unidade":"m³/h","opcoes":[],"fonte":"ordem de grandeza de literatura de biodigestores domésticos [CONFERIR]","status":"conferir","nota":"Dá as horas de cozinha por dia."},{"id":"sim.biogas.horas_gerador","grandeza":"Horas de funcionamento do gerador por dia","valor_padrao":24,"unidade":"h/dia","opcoes":[],"fonte":"premissa Physis","status":"conferir","nota":"Gerador que só roda no horário de ponta tem potência maior para a mesma energia."},{"id":"sim.biogas.vazamento","grandeza":"Fração do metano perdida em vazamentos do sistema","valor_padrao":0.05,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"ordem de grandeza de literatura e de metodologias de crédito [CONFERIR]","status":"conferir","nota":"Desconta das emissões evitadas."},{"id":"sim.biogas.densidade_biogas","grandeza":"Densidade do biogás","valor_padrao":1.15,"unidade":"kg/m³","opcoes":[],"fonte":"ordem de grandeza para 55–65 % de CH₄ [CONFERIR]","status":"conferir","nota":"Usada no volume do digestato."},{"id":"sim.biogas.incerteza","grandeza":"Coeficientes de variação das entradas do biogás (faixa de Monte Carlo)","valor_padrao":{"kg_cv":0.1,"st_cv":0.1,"sv_cv":0.05,"bmp_cv":0.2,"ch4_cv":0.05},"unidade":"adimensional","opcoes":[],"fonte":"premissa Physis [CONFERIR]","status":"conferir","nota":"Distribuição normal em cada entrada."},{"id":"fornecedores.dias_desatualizado","grandeza":"Dias até os dados de um fornecedor numa região ficarem desatualizados","valor_padrao":90,"unidade":"dias","opcoes":[{"rotulo":"Mercado estável","valor":180,"quando":"regiões com poucos fornecedores e preço que muda pouco"},{"rotulo":"Padrão","valor":90,"quando":"revisão trimestral da fila do Ryan"},{"rotulo":"Mercado agitado","valor":30,"quando":"preço de módulo mudando todo mês"}],"fonte":"política interna da Physis (proposta; a direção confirma)","status":"conferir","nota":"Usado por physis_hub/fornecedores.py (premissa_dias); sem a base, 90."},{"id":"frota.anomalia_z","grandeza":"Limite do z robusto para consumo acima do normal de um veículo","valor_padrao":3.5,"unidade":"adimensional (z robusto = 0,6745 × (x − mediana) ÷ MAD)","opcoes":[{"rotulo":"Mais sensível","valor":3.0,"quando":"frota pequena e bem conhecida"},{"rotulo":"Padrão","valor":3.5,"quando":"referência da literatura para o z modificado"},{"rotulo":"Menos alarmes","valor":4.5,"quando":"uso muito variado (trator em serviços diferentes)"}],"fonte":"Iglewicz e Hoaglin (1993), How to Detect and Handle Outliers: z modificado acima de 3,5 como candidato a valor atípico. [CONFERIR] com os dados da frota da Casa Physis.","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.anomalia_desvio_min_pct","grandeza":"Diferença mínima acima do normal para o consumo virar alerta","valor_padrao":15.0,"unidade":"% acima da mediana do veículo","opcoes":[],"fonte":"proposta da Physis: variação menor que essa é ruído de operação (carga, terreno, trânsito) e a amostra pequena exagera o z. [CONFERIR] com os dados da frota.","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento). O alerta pede o z robusto acima do limite E esta diferença."},{"id":"frota.anomalia_amostra_min","grandeza":"Amostras de consumo antes de o sistema dizer o normal de um veículo","valor_padrao":8,"unidade":"amostras (dias medidos ou trechos entre abastecimentos)","opcoes":[],"fonte":"política proposta da Physis (com menos amostras, mediana e MAD variam demais). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.ewma_alfa","grandeza":"Peso da amostra nova na média móvel exponencial do consumo","valor_padrao":0.3,"unidade":"0 a 1","opcoes":[],"fonte":"valor usual de suavização exponencial (0,2 a 0,3 em controle estatístico de processo). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.queda_nivel_pct","grandeza":"Queda de nível do tanque, com o veículo parado, que vira alerta de vazamento ou furto","valor_padrao":5.0,"unidade":"% do tanque (já descontado o que a vazão mediu)","opcoes":[],"fonte":"proposta da Physis; depende da resolução do sensor de nível do veículo (folha de dados). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.parado_distancia_km","grandeza":"Distância máxima do ponto de partida para o veículo contar como parado","valor_padrao":0.2,"unidade":"km","opcoes":[],"fonte":"proposta da Physis; acima do erro típico de posição de um GPS comum parado. [CONFERIR] com o rastreador escolhido.","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.marcha_lenta_vel_kmh","grandeza":"Velocidade abaixo da qual o motor ligado conta como marcha lenta","valor_padrao":3.0,"unidade":"km/h","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.marcha_lenta_min","grandeza":"Tempo de marcha lenta seguida que vira alerta","valor_padrao":20.0,"unidade":"min","opcoes":[],"fonte":"proposta da Physis. [CONFERIR] com a operação (trator parado com tomada de força ligada não é marcha lenta).","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.gps_salto_kmh","grandeza":"Velocidade implícita acima da qual um trecho de GPS é descartado (salto de posição)","valor_padrao":200.0,"unidade":"km/h","opcoes":[],"fonte":"proposta da Physis (filtro de ponto errado do GPS). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento)."},{"id":"frota.retencao_dias","grandeza":"Dias que os pontos de GPS dos veículos ficam guardados","valor_padrao":365,"unidade":"dias","opcoes":[{"rotulo":"Mínimo para relatório anual","valor":365,"quando":"inventário de emissões do ano"},{"rotulo":"Curto","valor":90,"quando":"só operação do dia a dia"}],"fonte":"LGPD (Lei 13.709/2018, art. 15 e 16: término do tratamento quando a finalidade acaba); prazo proposto pela Physis, a direção confirma. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/frota.py e sistema/physis-frota.js (Frota e combustível, em desenvolvimento). A direção muda na aba (POST /api/frota/config)."},{"id":"validacao.desvio_limite_pct","grandeza":"Desvio entre planejado e medido que conta como fora do plano","valor_padrao":10.0,"unidade":"% do planejado no mês","opcoes":[{"rotulo":"Rigoroso","valor":5.0,"quando":"medição com medidor de faturamento e plano bem calibrado"},{"rotulo":"Padrão","valor":10.0,"quando":"proposta inicial da Physis"},{"rotulo":"Folgado","valor":15.0,"quando":"primeiro ano de operação ou plano feito por estimativa"}],"fonte":"proposta da Physis (o mesmo limite vale para todo módulo). [CONFERIR] com 12 meses de dados da Casa Physis.","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). É o limite do QUANDO e do POR QUÊ."},{"id":"validacao.cobertura_min_pct","grandeza":"Dias com leitura no mês abaixo dos quais o mês conta como falha de dado","valor_padrao":90.0,"unidade":"% dos dias do mês","opcoes":[],"fonte":"proposta da Physis (abaixo disso o total do mês fica baixo por falta de leitura, não por geração ou consumo). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'equipamento desligado ou falha de dado'."},{"id":"validacao.clima_min_pct","grandeza":"Diferença mínima do clima medido para o esperado para o clima explicar o desvio","valor_padrao":10.0,"unidade":"% do esperado (irradiação, chuva ou graus-dia)","opcoes":[],"fonte":"proposta da Physis. [CONFERIR] com a estação meteorológica da Resiliência.","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'clima diferente do esperado'."},{"id":"validacao.premissa_meses_min","grandeza":"Meses seguidos com desvio no mesmo sentido para apontar premissa divergente","valor_padrao":3,"unidade":"meses","opcoes":[],"fonte":"proposta da Physis (um trimestre tira o efeito de um mês atípico). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'premissa do projeto diverge do medido'."},{"id":"validacao.premissa_variacao_max_pct","grandeza":"Variação máxima da razão medido ÷ planejado nesses meses para ser premissa","valor_padrao":15.0,"unidade":"% (coeficiente de variação)","opcoes":[],"fonte":"proposta da Physis (desvio quase constante indica número de partida errado, não evento). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'premissa do projeto diverge do medido'."},{"id":"validacao.plano_plano_max_pct","grandeza":"Variação máxima do planejado entre os meses para o plano contar como igual todo mês","valor_padrao":2.0,"unidade":"% (coeficiente de variação)","opcoes":[],"fonte":"proposta da Physis (plano anual dividido por 12 não tem estação). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'efeito sazonal'."},{"id":"validacao.anomalia_z","grandeza":"Limite do z robusto para consumo do mês fora do normal","valor_padrao":3.5,"unidade":"adimensional (z robusto = 0,6745 × (x − mediana) ÷ MAD)","opcoes":[],"fonte":"Iglewicz e Hoaglin (1993): z modificado acima de 3,5 como candidato a valor atípico; a mesma conta da Frota (frota.anomalia_consumo). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Regra 'consumo fora do normal aprendido'."},{"id":"validacao.anomalia_amostra_min","grandeza":"Meses de histórico antes de dizer o normal do consumo","valor_padrao":6,"unidade":"meses","opcoes":[],"fonte":"proposta da Physis (com menos meses, mediana e MAD variam demais). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.grau_dia_base_c","grandeza":"Temperatura base dos graus-dia de resfriamento","valor_padrao":18.3,"unidade":"°C","opcoes":[{"rotulo":"Base usual (65 °F)","valor":18.3,"quando":"referência internacional de graus-dia"},{"rotulo":"Clima quente","valor":24.0,"quando":"prédio que só liga o ar acima de 24 °C"}],"fonte":"ASHRAE Handbook Fundamentals: graus-dia na base de 65 °F (18,3 °C). [CONFERIR] a base certa para o clima e o uso de cada prédio.","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento). Variável da linha de base de energia e AVAC."},{"id":"validacao.baseline_meses_min","grandeza":"Meses mínimos do período de base da linha de base","valor_padrao":12,"unidade":"meses","opcoes":[],"fonte":"IPMVP (só citado): a base deve cobrir um ciclo completo de operação; 12 meses é a proposta da Physis. [CONFERIR] na edição vigente.","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.baseline_cvrmse_max_pct","grandeza":"CV(RMSE) máximo da regressão mensal da linha de base","valor_padrao":15.0,"unidade":"%","opcoes":[],"fonte":"ASHRAE Guideline 14 (só citado): critério usual de calibração de modelo mensal. [CONFERIR] na edição vigente.","status":"conferir","nota":"Usada por physis_hub/validacao.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.aceite_r2_min","grandeza":"R² mínimo para aceitar o modelo da linha de base","valor_padrao":0.75,"unidade":"adimensional (0 a 1)","opcoes":[],"fonte":"proposta da Physis no estilo da ASHRAE Guideline 14 (só citada). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.aceite_nmbe_max_pct","grandeza":"NMBE máximo (em módulo) para aceitar o modelo da linha de base","valor_padrao":5.0,"unidade":"%","opcoes":[],"fonte":"critério usual de modelo mensal no estilo da ASHRAE Guideline 14 (só citada). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.aceite_cvrmse_diario_max_pct","grandeza":"CV(RMSE) máximo do modelo diário (ponto de mudança)","valor_padrao":25.0,"unidade":"%","opcoes":[],"fonte":"proposta da Physis entre os critérios mensal e horário usuais da ASHRAE Guideline 14 (só citada). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.modelo_ganho_min_pct","grandeza":"Ganho mínimo de CV(RMSE) para escolher um modelo mais complexo","valor_padrao":5.0,"unidade":"% do CV(RMSE) do melhor","opcoes":[],"fonte":"proposta da Physis (preferir o modelo mais simples quando o ajuste é parecido). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.ml_amostra_min","grandeza":"Amostras mínimas para usar o modelo de vizinhos (tipo ML)","valor_padrao":365,"unidade":"amostras (dias)","opcoes":[],"fonte":"proposta da Physis (um ano de dias). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.ml_k","grandeza":"Vizinhos do modelo k-NN","valor_padrao":7,"unidade":"amostras","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.incerteza_confianca_pct","grandeza":"Nível de confiança combinado da incerteza da economia","valor_padrao":68.0,"unidade":"%","opcoes":[],"fonte":"exemplo do pedido da direção (68 %); combinar com o cliente no plano de M&V. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.incerteza_max_pct","grandeza":"Incerteza máxima aceita, em parte da economia anual","valor_padrao":50.0,"unidade":"% da economia","opcoes":[],"fonte":"exemplo do pedido da direção (50 %); combinar com o cliente no plano de M&V. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.perda_dados_max_pct","grandeza":"Perda de dados máxima aceita no plano de coleta","valor_padrao":10.0,"unidade":"% das leituras esperadas","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.limpeza_z","grandeza":"z robusto acima do qual a leitura é marcada como atípica","valor_padrao":5.0,"unidade":"adimensional","opcoes":[],"fonte":"proposta da Physis (mais folgado que o 3,5 de Iglewicz e Hoaglin, porque marca leitura isolada). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.travado_n","grandeza":"Leituras iguais seguidas que marcam o sensor como travado","valor_padrao":12,"unidade":"leituras","opcoes":[],"fonte":"proposta da Physis (3 h de leituras de 15 min). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.inspecao_dias_max","grandeza":"Dias máximos entre duas inspeções de cada medida de eficiência","valor_padrao":90,"unidade":"dias","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.revisao_aviso_dias","grandeza":"Dias antes da revisão anual do plano de M&V em que a tarefa aparece","valor_padrao":30,"unidade":"dias","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.fdd_dias_min","grandeza":"Dias seguidos acima da linha de base para virar alarme (FDD)","valor_padrao":3,"unidade":"dias","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao.py, validacao_modelos.py e sistema/physis-validacao.js (Validação · planejado × gerado, em desenvolvimento)."},{"id":"validacao.cv_k","grandeza":"Blocos da validação cruzada que escolhe o modelo","valor_padrao":5,"unidade":"blocos seguidos","opcoes":[],"fonte":"proposta da Physis (estilo CalTRACK, citado só pelo nome). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.aceite_cvrmse_ou_max_pct","grandeza":"CV(RMSE) abaixo do qual o modelo passa no ajuste mínimo (ou R² acima do mínimo)","valor_padrao":20.0,"unidade":"%","opcoes":[],"fonte":"pedido da direção: R² > 0,75 ou CV(RMSE) < 20 % (estilo NMEC Rulebook e CalTRACK, citados só pelo nome). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.cusum_k","grandeza":"Folga do CUSUM (em desvios-padrão)","valor_padrao":0.5,"unidade":"desvio-padrão","opcoes":[],"fonte":"valor usual do CUSUM tabular (meio desvio-padrão). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.cusum_h","grandeza":"Limite de decisão do CUSUM","valor_padrao":5.0,"unidade":"desvio-padrão","opcoes":[],"fonte":"valor usual do CUSUM tabular. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.ip_confianca_pct","grandeza":"Nível do intervalo de previsão do FDD","valor_padrao":95.0,"unidade":"%","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.mc_n","grandeza":"Sorteios do Monte Carlo da incerteza","valor_padrao":2000,"unidade":"sorteios","opcoes":[],"fonte":"proposta da Physis (equilíbrio entre tempo e estabilidade do intervalo). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.mc_confianca_pct","grandeza":"Nível do intervalo de confiança da economia (Monte Carlo)","valor_padrao":95.0,"unidade":"%","opcoes":[],"fonte":"pedido da direção (IC de 95 %). [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.nre_dias_min","grandeza":"Dias mínimos antes e depois de um degrau para virar evento não rotineiro","valor_padrao":14,"unidade":"dias","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.nre_limite_pct","grandeza":"Tamanho mínimo do degrau, em parte do esperado","valor_padrao":10.0,"unidade":"% do esperado do dia","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.nre_z","grandeza":"t mínimo do degrau para virar evento não rotineiro","valor_padrao":3.0,"unidade":"adimensional","opcoes":[],"fonte":"proposta da Physis. [CONFERIR]","status":"conferir","nota":"Usada por physis_hub/validacao_nucleo.py e sistema/physis-validacao.js (Validação · M&V 2.0, em desenvolvimento)."},{"id":"validacao.pee.confianca_pct","grandeza":"Confiança exigida na M&V do PEE","valor_padrao":null,"unidade":"%","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.precisao_pct","grandeza":"Precisão exigida na M&V do PEE","valor_padrao":null,"unidade":"%","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.amostra_min","grandeza":"Tamanho mínimo de amostra por estrato no PEE","valor_padrao":null,"unidade":"unidades","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.duracao_medicao_dias","grandeza":"Duração mínima da medição no PEE","valor_padrao":null,"unidade":"dias","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.vida_util_anos","grandeza":"Vida útil dos equipamentos para o PEE","valor_padrao":null,"unidade":"anos","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.taxa_desconto_pct","grandeza":"Taxa de desconto do cálculo da RCB no PEE","valor_padrao":null,"unidade":"% ao ano","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.rcb_max","grandeza":"RCB máxima aceita no PEE","valor_padrao":null,"unidade":"adimensional","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.custo_mv_max_pct","grandeza":"Parte máxima do custo da M&V no custo total do projeto PEE","valor_padrao":null,"unidade":"% do custo total","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."},{"id":"validacao.pee.prazo_relatorio_dias","grandeza":"Prazo do relatório final do projeto PEE","valor_padrao":null,"unidade":"dias","opcoes":[],"fonte":"[MARCADOR: conferir no Guia de M&V da ANEEL]","status":"conferir","nota":"Perfil PEE (ANEEL) do plano de M&V: physis_hub/validacao_nucleo.py e sistema/physis-validacao.js. Sem número até a leitura do Guia de M&V da ANEEL."}]};
+/*PREMISSAS-FIM*/
+var DIAS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], DIA_REP = [17, 47, 75, 105, 135, 162, 198, 228, 258, 288, 318, 344];
+var RAD = Math.PI / 180, POR_ID = {};
+(PREMISSAS.premissas || []).forEach(function (p) { POR_ID[p.id] = p; });
+
+/* valor padrão de uma premissa da base (ou null se não existir) */
+function premissa(id) { var p = POR_ID[id]; return p ? p.valor_padrao : null; }
+function info(id) { return POR_ID[id] || null; }
+function num(x, d) { return typeof x === "number" && isFinite(x) ? x : d; }
+
+/* ── Lei 14.300/2022, art. 27: parte do Fio B que a energia injetada NÃO compensa, por ano ──
+   escala = premissa solar.fio_b_escala ({"2023": 0.15, …}); depois do último ano da escala a lei manda a ANEEL
+   definir a regra (art. 17): a conta repete o último percentual e avisa (alem = true). regra "antiga" = pedido de
+   acesso até 07/01/2023 (art. 26): sem Fio B até 2045. */
+function fioB(ano, regra, escala) {
+  escala = escala || premissa("solar.fio_b_escala") || {};
+  if (regra === "antiga") return { pct: ano <= 2045 ? 0 : null, alem: ano > 2045 };
+  var anos = Object.keys(escala).map(Number).sort(function (a, b) { return a - b; });
+  if (!anos.length) return { pct: null, alem: false };
+  if (ano < anos[0]) return { pct: 0, alem: false };
+  var ult = anos[anos.length - 1];
+  if (ano > ult) return { pct: escala[String(ult)], alem: true };
+  var k = anos.filter(function (a) { return a <= ano; }).pop();
+  return { pct: escala[String(k)], alem: false };
+}
+
+/* ── Economia da energia solar, mês a mês ──
+   p.ger_meses[12] kWh gerados; p.consumo_ano kWh (ou p.consumo_meses[12]); p.autoconsumo 0–1 (parte da geração usada
+   na hora); p.tarifa R$/kWh; p.fio_b R$/kWh (componente Fio B da TUSD) ou null; p.ano 1º ano; p.regra "lei14300"|"antiga";
+   p.disponibilidade kWh/mês (mínimo por tipo de ligação) ou null.
+   Mês a mês: autoconsumo = min(geração × parte, consumo); injetada = geração − autoconsumo; créditos compensam o que
+   veio da rede (sobra fica como crédito); a energia compensada paga pct(ano) × Fio B; a conta nunca fica abaixo do custo
+   de disponibilidade. economia = conta sem solar − conta com solar. */
+function economiaSolar(p) {
+  var ger = p.ger_meses || [], a = Math.max(0, Math.min(1, num(p.autoconsumo, 1))), t = num(p.tarifa, 0), fb = num(p.fio_b, null);
+  var temCons = p.consumo_meses ? true : num(p.consumo_ano, 0) > 0, disp = num(p.disponibilidade, 0), ano = num(p.ano, new Date().getFullYear());
+  var f = fioB(ano, p.regra, p.escala), pct = f.pct == null ? 0 : f.pct, cred = 0, r = { auto: 0, injetada: 0, compensada: 0, credito_sobra: 0, economia: 0, ano: ano, pct_fio_b: f.pct, alem_da_escala: f.alem, avisos: [] };
+  for (var m = 0; m < 12; m++) {
+    var g = num(ger[m], 0), cons = temCons ? (p.consumo_meses ? num(p.consumo_meses[m], 0) : p.consumo_ano / 12) : Infinity;
+    var au = Math.min(g * a, cons), inj = g - au, rede = cons - au;
+    cred += inj; var comp = Math.min(cred, rede); cred -= comp;
+    var custoFio = fb != null ? comp * pct * fb : 0;
+    if (temCons) {
+      var antes = Math.max(cons, disp) * t, depoisE = (rede - comp) * t + custoFio, depois = Math.max(depoisE, disp * t);
+      r.economia += antes - depois;
+    } else r.economia += au * t + comp * t - custoFio;
+    r.auto += au; r.injetada += inj; r.compensada += comp;
+  }
+  r.credito_sobra = cred;
+  if (fb == null && a < 1) r.avisos.push("Sem o valor do Fio B da tarifa: a economia da energia injetada está sem o desconto da Lei 14.300.");
+  if (f.alem) r.avisos.push("Depois do último ano da escala do art. 27 a regra é da ANEEL: a conta repete o último percentual [CONFERIR].");
+  if (!temCons) r.avisos.push("Sem consumo informado: não dá para aplicar o custo de disponibilidade nem limitar os créditos.");
+  if (cred > 0.5) r.avisos.push("Sobram créditos no fim do ano: energia injetada além do consumo não vira dinheiro (vale como crédito por até 60 meses).");
+  return r;
+}
+
+/* ── Sol fora da atmosfera, média do mês (Duffie & Beckman, cap. 1) ── kWh/m²·dia */
+function h0Mensal(lat) {
+  return DIA_REP.map(function (n) {
+    var d = 23.45 * Math.sin(RAD * 360 * (284 + n) / 365) * RAD, f = lat * RAD, ws = Math.acos(Math.max(-1, Math.min(1, -Math.tan(f) * Math.tan(d))));
+    var E = 1 + 0.033 * Math.cos(2 * Math.PI * n / 365);
+    return 24 / Math.PI * 1.367 * E * (Math.cos(f) * Math.cos(d) * Math.sin(ws) + ws * Math.sin(f) * Math.sin(d));
+  });
+}
+
+/* ── Irradiação no plano das placas, modelo isotrópico (Liu e Jordan; Duffie & Beckman, cap. 2) ──
+   H[12] horizontal (kWh/m²·dia); lat (°); incl β (°, 0 = plano); azim (°, para onde a face aponta: 0 = norte,
+   90 = leste, 180 = sul, 270 = oeste); albedo ρ (premissa solar.albedo).
+   HT/H = (1 − Hd/H)·Rb + (Hd/H)·(1 + cos β)/2 + ρ·(1 − cos β)/2
+   Hd/H pela correlação mensal de Erbs (Duffie & Beckman, eq. da fração difusa média do mês) com KT = H/H0;
+   Rb = razão entre o sol direto no plano e no horizontal, integrada ao longo do dia médio do mês.
+   Plano horizontal (β = 0) dá fator 1 em todos os meses. */
+function fatorPlano(H, lat, incl, azim, albedo) {
+  var b = num(incl, 0) * RAD, A = num(azim, 0) * RAD, rho = num(albedo, num(premissa("solar.albedo"), 0.2)), H0 = h0Mensal(lat), f = lat * RAD;
+  var n = [Math.sin(b) * Math.sin(A), Math.sin(b) * Math.cos(A), Math.cos(b)];
+  var fator = DIA_REP.map(function (dn, m) {
+    var h = num(H[m], 0); if (!(h > 0) || b === 0) return 1;
+    var d = 23.45 * Math.sin(RAD * 360 * (284 + dn) / 365) * RAD, ws = Math.acos(Math.max(-1, Math.min(1, -Math.tan(f) * Math.tan(d))));
+    var sP = 0, sH = 0, N = 240;
+    for (var k = 0; k < N; k++) {
+      var w = -ws + (k + 0.5) * 2 * ws / N;
+      var s = [-Math.cos(d) * Math.sin(w), Math.sin(d) * Math.cos(f) - Math.cos(d) * Math.sin(f) * Math.cos(w), Math.sin(f) * Math.sin(d) + Math.cos(f) * Math.cos(d) * Math.cos(w)];
+      if (s[2] <= 0) continue;
+      sH += s[2]; sP += Math.max(0, n[0] * s[0] + n[1] * s[1] + n[2] * s[2]);
+    }
+    var Rb = sH > 0 ? sP / sH : 1, kt = Math.max(0.3, Math.min(0.8, h / H0[m]));
+    var fd = ws <= 81.4 * RAD ? 1.391 - 3.560 * kt + 4.189 * kt * kt - 2.137 * kt * kt * kt : 1.311 - 3.022 * kt + 3.427 * kt * kt - 1.821 * kt * kt * kt;
+    return (1 - fd) * Rb + fd * (1 + Math.cos(b)) / 2 + rho * (1 - Math.cos(b)) / 2;
+  });
+  var hT = fator.map(function (x, m) { return num(H[m], 0) * x; }), sh = 0, st = 0;
+  for (var m = 0; m < 12; m++) { sh += num(H[m], 0) * DIAS[m]; st += hT[m] * DIAS[m]; }
+  return { fator: fator, Ht: hT, anual: sh > 0 ? st / sh : 1 };
+}
+
+/* ── Banco de baterias: uma regra para a plataforma, o SustainKit e o agro ──
+   E (kWh) = consumo diário (kWh) × horas de autonomia ÷ 24 ÷ DoD ÷ rendimento (premissas bateria.dod e bateria.rendimento) */
+function bateria(consumoDia, horas, dod, rend) {
+  dod = num(dod, premissa("bateria.dod")); rend = num(rend, premissa("bateria.rendimento"));
+  if (!(consumoDia > 0) || !(horas > 0) || !(dod > 0) || !(rend > 0)) return 0;
+  return consumoDia * horas / 24 / dod / rend;
+}
+
+/* dias de chuva por mês estimados pela chuva do mês (mesma regra do Planejador desde 2026): 2 + mm/12, entre 3 e (dias do mês − 2).
+   Estimativa: a normal climatológica do INMET dá o valor real. */
+function diasChuva(ch) { return ch.map(function (c, m) { return Math.max(3, Math.min(DIAS[m] - 2, Math.round(2 + num(c, 0) / 12))); }); }
+
+/* ── Cisterna de água de chuva, balanço mês a mês (ABNT NBR 15527:2019, dimensionamento do reservatório) ──
+   p.chuva[12] mm; p.area m² de telhado; p.coef (premissa chuva.coef_escoamento); p.demanda m³/mês (usos não potáveis);
+   p.descarte mm por chuva (premissa chuva.descarte_inicial); p.dias[12] dias de chuva (ou estimados);
+   p.volumes m³ candidatos; p.alvo parte da demanda atendida (0,95); p.anos de simulação (10).
+   captado no mês = área × max(0, chuva × coef − descarte × dias de chuva) ÷ 1000 (m³);
+   S(m) = min(V, S(m−1) + captado − demanda); falta quando S < 0 (conta só o último ano, já em regime).
+   Devolve o menor volume que atinge o alvo (ou o maior testado), a cobertura, o captado e o descarte de cada mês e o pior mês. */
+var VOLUMES = [5, 10, 15, 20, 30, 45, 60, 90, 120, 160, 220];
+function cisterna(p) {
+  var ch = p.chuva || [], area = num(p.area, 0), coef = num(p.coef, premissa("chuva.coef_escoamento")), dem = num(p.demanda, 0);
+  var desc = num(p.descarte, premissa("chuva.descarte_inicial")) || 0, dias = p.dias && p.dias.length === 12 ? p.dias : diasChuva(ch);
+  var cap = ch.map(function (c, m) { return area * Math.max(0, num(c, 0) * coef - desc * dias[m]) / 1000; });
+  var desc_m3 = ch.map(function (c, m) { return area * Math.min(num(c, 0) * coef, desc * dias[m]) / 1000; });
+  var vols = p.volumes || VOLUMES, alvo = num(p.alvo, 0.95), anos = num(p.anos, 10), best = null;
+  for (var i = 0; i < vols.length; i++) {
+    var V = vols[i], e = V, f = 0;
+    for (var k = 0; k < anos; k++) for (var m = 0; m < 12; m++) { e = Math.min(V, e + cap[m] - dem); if (e < 0) { if (k === anos - 1) f += -e; e = 0; } }
+    var cob = 1 - f / (dem * 12 || 1);
+    best = { V: V, cob: cob };
+    if (cob >= alvo) break;
+  }
+  var pior = 0; for (var j = 1; j < 12; j++) if (cap[j] - dem < cap[pior] - dem) pior = j;
+  return { V: best ? best.V : null, cob: best ? best.cob : null, dem: dem, roofs: area, coef: coef, descarte_mm: desc, dias: dias,
+    captado: cap, descartado: desc_m3, captado_ano: cap.reduce(function (a, b) { return a + b; }, 0), pior_mes: pior };
+}
+
+/* ── Calhas e condutores (ABNT NBR 10844:1989): vazão de cada água de telhado ──
+   aguas: [{ nome, a (m, projeção horizontal no sentido do caimento), b (m, comprimento da calha), incl (°) }];
+   i = intensidade (mm/h) da IDF do lugar no tempo de retorno e na duração da premissa;
+   área de contribuição de superfície inclinada = (a + h/2) · b, com h = a · tan(incl) (correção da norma pela inclinação);
+   Q (L/min) = i · A / 60.
+   Calha retangular com largura = 2 × lâmina (seção hidráulica mais econômica), fórmula de Manning em L/min:
+   Q = 60.000 · (S/n) · Rh^(2/3) · I^(1/2) → lâmina y; n e I das premissas (conferir na norma).
+   O diâmetro do condutor vertical sai do ábaco da norma: aqui só o mínimo da premissa e a vazão a conduzir. */
+function calhas(aguas, i, opc) {
+  opc = opc || {}; var n = num(opc.n, premissa("drenagem.calha_manning_n")), I = num(opc.declividade, premissa("drenagem.calha_declividade"));
+  return (aguas || []).map(function (w) {
+    var h = w.a * Math.tan(num(w.incl, 0) * RAD), A = (w.a + h / 2) * w.b, Q = i * A / 60, y = null;
+    if (n > 0 && I > 0 && Q > 0) y = Math.pow(Q * n / (60000 * 2 * Math.sqrt(I) * Math.pow(0.5, 2 / 3)), 3 / 8);
+    return { nome: w.nome, a: w.a, b: w.b, incl: num(w.incl, 0), h: h, area: A, q_l_min: Q, lamina_m: y, largura_m: y == null ? null : 2 * y,
+      condutor_min_mm: premissa("drenagem.condutor_diam_min") };
+  });
+}
+
+/* ── Aquecimento solar de água mês a mês (ABNT NBR 15569:2020, roteiro do método simplificado) ──
+   produção do coletor no mês (kWh/m²·dia) = eficiência média da etiqueta Inmetro (ENCE, 0–1) × irradiação no plano
+   do coletor no mês; área = parcela solar ÷ produção do PIOR mês (o sistema atende o ano todo). */
+function coletorMensal(Ht, eta, parcela) {
+  var prod = (Ht || []).map(function (h) { return num(h, 0) * num(eta, 0); }), pior = 0;
+  for (var m = 1; m < prod.length; m++) if (prod[m] < prod[pior]) pior = m;
+  return { prod: prod, pior_mes: pior, prod_pior: prod.length ? prod[pior] : null, area: prod.length && prod[pior] > 0 ? parcela / prod[pior] : null };
+}
+
+/* ── Fator de potência (regra de 15/11/2026: sempre nos módulos de energia) ──
+   P (kW) ativa; S = P ÷ FP (kVA) aparente; Q = √(S² − P²) (kvar) reativa. FP medido (V6, medidor) vale antes da premissa
+   eletrica.fator_potencia_padrao; aviso quando o FP fica abaixo de eletrica.fator_potencia_minimo (referência regulatória). */
+function potencias(pkw, fpMedido) {
+  var fpM = num(fpMedido, null), fp = fpM != null && fpM > 0 && fpM <= 1 ? fpM : num(premissa("eletrica.fator_potencia_padrao"), null), lim = num(premissa("eletrica.fator_potencia_minimo"), null);
+  var p = num(pkw, 0);
+  if (!(fp > 0)) return { p: p, fp: null, s: null, q: null, fonte: "sem fator de potência", baixo: false, limite: lim };
+  var s = p / fp, q = Math.sqrt(Math.max(0, s * s - p * p));
+  return { p: p, fp: fp, s: s, q: q, fonte: fpM != null && fpM > 0 && fpM <= 1 ? "medido" : "premissa", baixo: lim != null && fp < lim, limite: lim };
+}
+/* tabela acessível P, Q, S e FP (linhas: [rótulo, objeto de potencias()]); en = inglês */
+function potenciasHtml(linhas, en, titulo) {
+  var f = function (v, c) { return v == null ? "—" : Number(v).toLocaleString(en ? "en-GB" : "pt-BR", { minimumFractionDigits: c, maximumFractionDigits: c }); };
+  var E = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (x) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[x]; }); };
+  var baixo = linhas.some(function (l) { return l[1] && l[1].baixo; }), lim = linhas.length ? linhas[0][1].limite : null;
+  var fonte = linhas.some(function (l) { return l[1] && l[1].fonte === "medido"; }) ? (en ? "measured" : "medido") : (en ? "assumption eletrica.fator_potencia_padrao (to be checked)" : "premissa eletrica.fator_potencia_padrao (a conferir)");
+  return "<div class='rolagem'><table><caption><span>" + E(titulo || (en ? "Active, reactive and apparent power" : "Potência ativa, reativa e aparente")) + "</span> · <span>FP: " + E(fonte) + "</span></caption><thead><tr><th scope='col'>" + (en ? "Item" : "Item")
+    + "</th><th scope='col'>P (kW)</th><th scope='col'>Q (kvar)</th><th scope='col'>S (kVA)</th><th scope='col'>FP</th></tr></thead><tbody>"
+    + linhas.map(function (l) { var x = l[1] || {}; return "<tr><th scope='row'>" + E(l[0]) + "</th><td>" + f(x.p, 2) + "</td><td>" + f(x.q, 2) + "</td><td>" + f(x.s, 2) + "</td><td>" + f(x.fp, 2) + "</td></tr>"; }).join("")
+    + "</tbody></table></div>" + (baixo ? "<p class='faixa at' role='status'>" + (en ? "Low power factor: below the reference of " : "Fator de potência baixo: abaixo da referência de ") + f(lim, 2) + (en ? " (REN ANEEL 1.000/2021, to be checked). It usually leads to a reactive-energy charge." : " (REN ANEEL 1.000/2021, a conferir). Costuma gerar cobrança de energia reativa.") + "</p>" : "");
+}
+
+global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info: info, fioB: fioB, economiaSolar: economiaSolar, h0Mensal: h0Mensal,
+  fatorPlano: fatorPlano, bateria: bateria, diasChuva: diasChuva, cisterna: cisterna, calhas: calhas, coletorMensal: coletorMensal, potencias: potencias, potenciasHtml: potenciasHtml };
+})(typeof window !== "undefined" ? window : this);
+</script>
+<script id="physis-modelador">
+/* physis-modelador.js v1 (22/11/2026): bot de modelagem na página inicial de todo projeto com modelagem 3D.
+   Pedido em texto (PT/EN) ou imagem/arquivo → modelo gerado LOCALMENTE (sem internet, sempre o mesmo resultado)
+   + cálculos preliminares + exportação no formato certo (STL, OBJ, IFC, GeoJSON, CSV).
+   Geradores v1: turbina eólica para impressão 3D (Savonius), dutos de ar-condicionado (IFC), chuva no terreno
+   (KML/KMZ do Google Earth, GeoJSON, GPX ou área digitada) e relevo a partir de imagem. Pedido que nenhum gerador
+   entende vira texto para a caixa de comandos do M&A (fila do Claude); quando a IA da Physis estiver no servidor,
+   ela usa estes mesmos geradores. Premissas e números de regra prática vêm marcados [CONFERIR]: é estimativa
+   preliminar, não projeto. Uso: <div data-physis-modelador="modelagem3d"></div>. Original único: sistema/physis-modelador.js. */
+(function (w) {
+  "use strict";
+  var d = w.document;
+  function lingua() { try { return (localStorage.getItem("physis-pref-idioma") || d.documentElement.lang || "pt").slice(0, 2) === "en" ? "en" : "pt"; } catch (e) { return "pt"; } }
+  var TX = {
+    pt: { tit: "Bot de modelagem", sub: "Escreva o pedido ou envie uma imagem ou arquivo (KML/KMZ do Google Earth, GeoJSON, GPX; terreno em grade .asc ou XYZ). Exemplos:",
+      ex: ["gere uma turbina para impressão 3D de 40 cm", "inclua a previsão de passagem de ar-condicionado numa sala de 60 m²", "mapeie a incidência de chuva no terreno com 1.500 mm/ano", "balanço net zero de uma casa com 450 kWh por mês", "carga térmica NBR 16401 de uma sala de 40 m² com 8 pessoas", "calha e cisterna para telhado de 120 m²", "estufa de 3 x 6 m", "caixa para sensores 10 x 8 x 5 cm", "relevo da imagem com 12 cm"],
+      gerar: "Gerar", arquivo: "Imagem ou arquivo", calc: "Cálculos preliminares", baixar: "Baixar", naoEntendi: "Nenhum gerador local entende este pedido ainda. Copie o texto para a caixa de comandos do M&A: ele vai para a fila do Claude e volta como rascunho.",
+      copiar: "Copiar pedido", copiado: "Copiado.", aviso: "Estimativa preliminar para conversar e decidir; não substitui projeto assinado. Itens [CONFERIR] são premissas a confirmar.",
+      semTerreno: "Para a chuva, envie o contorno do terreno (KML/KMZ do Google Earth, GeoJSON ou GPX) ou escreva a área (ex.: 2.000 m²).",
+      lido: "Arquivo lido", pontos: "pontos", sugestoes: "Sugestões" },
+    en: { tit: "Modelling bot", sub: "Write the request or upload an image or file (Google Earth KML/KMZ, GeoJSON, GPX; terrain as .asc or XYZ grid). Examples:",
+      ex: ["generate a 40 cm wind turbine for 3D printing", "add the air-conditioning duct route for a 60 m² room", "map rainfall on the site with 1,500 mm/year", "net zero balance for a house using 450 kWh per month", "cooling load NBR 16401 for a 40 m² room with 8 people", "gutter and cistern for a 120 m² roof", "greenhouse 3 x 6 m", "sensor case 10 x 8 x 5 cm", "relief from the image, 12 cm"],
+      gerar: "Generate", arquivo: "Image or file", calc: "Preliminary calculations", baixar: "Download", naoEntendi: "No local generator understands this request yet. Copy it to the M&V command box: it goes to Claude's queue and comes back as a draft.",
+      copiar: "Copy request", copiado: "Copied.", aviso: "Preliminary estimate to discuss and decide; it does not replace a signed design. [TO CHECK] items are assumptions to confirm.",
+      semTerreno: "For rainfall, upload the site outline (Google Earth KML/KMZ, GeoJSON or GPX) or type the area (e.g., 2,000 m²).",
+      lido: "File read", pontos: "points", sugestoes: "Suggestions" }
+  };
+  var CONF = { pt: "[CONFERIR]", en: "[TO CHECK]" };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function num(s) { return parseFloat(String(s).replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); }
+  function fmt(n, k) { return (Math.round(n * Math.pow(10, k || 0)) / Math.pow(10, k || 0)).toLocaleString(lingua() === "en" ? "en-GB" : "pt-BR"); }
+
+  // ------------------------------------------------------------------ geometria básica (triângulos em mm)
+  function Malha() { this.t = []; }
+  Malha.prototype.tri = function (a, b, c) { this.t.push([a, b, c]); };
+  Malha.prototype.quad = function (a, b, c, e) { this.tri(a, b, c); this.tri(a, c, e); };
+  Malha.prototype.caixa = function (x0, y0, z0, x1, y1, z1) {
+    var p = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], m = this;
+    [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]].forEach(function (f) { m.quad(p[f[0]], p[f[1]], p[f[2]], p[f[3]]); });
+  };
+  Malha.prototype.hexa = function (p) {  // sólido de 8 vértices (0–3 base, 4–7 topo), como a caixa
+    var m = this; [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]].forEach(function (f) { m.quad(p[f[0]], p[f[1]], p[f[2]], p[f[3]]); });
+  };
+  Malha.prototype.cilindro = function (cx, cy, r, z0, z1, n) {  // disco/cilindro fechado
+    for (var i = 0; i < n; i++) {
+      var a = 2 * Math.PI * i / n, b = i + 1 === n ? 0 : 2 * Math.PI * (i + 1) / n, p0 = [cx + r * Math.cos(a), cy + r * Math.sin(a)], p1 = [cx + r * Math.cos(b), cy + r * Math.sin(b)];
+      this.quad([p0[0], p0[1], z0], [p1[0], p1[1], z0], [p1[0], p1[1], z1], [p0[0], p0[1], z1]);
+      this.tri([cx, cy, z1], [p0[0], p0[1], z1], [p1[0], p1[1], z1]); this.tri([cx, cy, z0], [p1[0], p1[1], z0], [p0[0], p0[1], z0]);
+    }
+  };
+  Malha.prototype.arco = function (cx, cy, r, e, a0, a1, z0, z1, n) {  // casca de cilindro (pá, tubo, anel) com espessura e: SEMPRE fechada
+    var cheio = Math.abs(a1 - a0) >= 2 * Math.PI - 1e-9, rI = r - e, M = this;
+    if (!cheio) [a0, a1].forEach(function (a, k) {   // tampas das pontas: sem elas a malha fica com arestas abertas (erro no fatiador)
+      var o = [cx + r * Math.cos(a), cy + r * Math.sin(a)], q = [cx + rI * Math.cos(a), cy + rI * Math.sin(a)];
+      if (k === 0) M.quad([q[0], q[1], z0], [o[0], o[1], z0], [o[0], o[1], z1], [q[0], q[1], z1]);
+      else M.quad([o[0], o[1], z0], [q[0], q[1], z0], [q[0], q[1], z1], [o[0], o[1], z1]);
+    });
+    for (var i = 0; i < n; i++) {
+      var a = a0 + (a1 - a0) * i / n, b = cheio && i + 1 === n ? a0 : a0 + (a1 - a0) * (i + 1) / n, ri = r - e;
+      var o0 = [cx + r * Math.cos(a), cy + r * Math.sin(a)], o1 = [cx + r * Math.cos(b), cy + r * Math.sin(b)], i0 = [cx + ri * Math.cos(a), cy + ri * Math.sin(a)], i1 = [cx + ri * Math.cos(b), cy + ri * Math.sin(b)];
+      this.quad([o0[0], o0[1], z0], [o1[0], o1[1], z0], [o1[0], o1[1], z1], [o0[0], o0[1], z1]);
+      this.quad([i1[0], i1[1], z0], [i0[0], i0[1], z0], [i0[0], i0[1], z1], [i1[0], i1[1], z1]);
+      this.quad([o0[0], o0[1], z1], [o1[0], o1[1], z1], [i1[0], i1[1], z1], [i0[0], i0[1], z1]);
+      this.quad([i0[0], i0[1], z0], [i1[0], i1[1], z0], [o1[0], o1[1], z0], [o0[0], o0[1], z0]);
+    }
+  };
+  Malha.prototype.anelRet = function (x0, y0, x1, y1, e, z0, z1) {  // moldura retangular fechada (sólido único)
+    var o = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], i = [[x0 + e, y0 + e], [x1 - e, y0 + e], [x1 - e, y1 - e], [x0 + e, y1 - e]], M = this;
+    for (var k = 0; k < 4; k++) { var q = (k + 1) % 4;
+      M.quad([o[k][0], o[k][1], z0], [o[q][0], o[q][1], z0], [o[q][0], o[q][1], z1], [o[k][0], o[k][1], z1]);
+      M.quad([i[q][0], i[q][1], z0], [i[k][0], i[k][1], z0], [i[k][0], i[k][1], z1], [i[q][0], i[q][1], z1]);
+      M.quad([o[k][0], o[k][1], z1], [o[q][0], o[q][1], z1], [i[q][0], i[q][1], z1], [i[k][0], i[k][1], z1]);
+      M.quad([i[k][0], i[k][1], z0], [i[q][0], i[q][1], z0], [o[q][0], o[q][1], z0], [o[k][0], o[k][1], z0]); }
+  };
+  Malha.prototype.caixaOca = function (X, Y, Z, e) {  // caixa aberta em cima: fundo + paredes num sólido único, sem arestas compartilhadas
+    var o = [[0, 0], [X, 0], [X, Y], [0, Y]], i = [[e, e], [X - e, e], [X - e, Y - e], [e, Y - e]], M = this;
+    M.quad([0, 0, 0], [0, Y, 0], [X, Y, 0], [X, 0, 0]);                       // fundo por fora
+    M.quad([e, e, e], [X - e, e, e], [X - e, Y - e, e], [e, Y - e, e]);         // fundo por dentro
+    for (var k = 0; k < 4; k++) { var q = (k + 1) % 4;
+      M.quad([o[k][0], o[k][1], 0], [o[q][0], o[q][1], 0], [o[q][0], o[q][1], Z], [o[k][0], o[k][1], Z]);
+      M.quad([i[q][0], i[q][1], e], [i[k][0], i[k][1], e], [i[k][0], i[k][1], Z], [i[q][0], i[q][1], Z]);
+      M.quad([o[k][0], o[k][1], Z], [o[q][0], o[q][1], Z], [i[q][0], i[q][1], Z], [i[k][0], i[k][1], Z]); }
+  };
+  function stl(m, nome) {  // STL binário
+    var n = m.t.length, buf = new ArrayBuffer(84 + 50 * n), dv = new DataView(buf), o = 84;
+    dv.setUint32(80, n, true);
+    m.t.forEach(function (t) {
+      var u = [t[1][0] - t[0][0], t[1][1] - t[0][1], t[1][2] - t[0][2]], v = [t[2][0] - t[0][0], t[2][1] - t[0][1], t[2][2] - t[0][2]];
+      var nx = u[1] * v[2] - u[2] * v[1], ny = u[2] * v[0] - u[0] * v[2], nz = u[0] * v[1] - u[1] * v[0], l = Math.hypot(nx, ny, nz) || 1;
+      [nx / l, ny / l, nz / l].concat(t[0], t[1], t[2]).forEach(function (x, k) { dv.setFloat32(o + 4 * k, x, true); });
+      o += 50;
+    });
+    return new Blob([buf], { type: "model/stl" });
+  }
+  function obj(m) {
+    var s = "# Physis · modelador\n", k = 1;
+    m.t.forEach(function (t) { t.forEach(function (p) { s += "v " + p[0].toFixed(3) + " " + p[1].toFixed(3) + " " + p[2].toFixed(3) + "\n"; }); s += "f " + k + " " + (k + 1) + " " + (k + 2) + "\n"; k += 3; });
+    return new Blob([s], { type: "text/plain" });
+  }
+  function checar(m) {  // malha fechada: cada aresta usada por exatamente 2 triângulos (o que os fatiadores acusam como problema de "arestas")
+    var f = function (v) { return (Math.round(v * 1000) / 1000 + 0).toFixed(3); }, k = function (p) { return f(p[0]) + "," + f(p[1]) + "," + f(p[2]); }, E = {};
+    m.t.forEach(function (t) { for (var i = 0; i < 3; i++) { var a = k(t[i]), b = k(t[(i + 1) % 3]), e = a < b ? a + "|" + b : b + "|" + a; E[e] = (E[e] || 0) + 1; } });
+    var abertas = 0, mais = 0; Object.keys(E).forEach(function (e) { if (E[e] === 1) abertas++; else if (E[e] > 2) mais++; });
+    return { abertas: abertas, nao_manifold: mais, ok: abertas === 0 && mais === 0 };
+  }
+  function bico(x, min) { return Math.max(min || 1.2, Math.ceil(x / 0.4 - 1e-9) * 0.4); }  // espessura em múltiplos do bico de 0,4 mm
+  function volume(m) { var v = 0; m.t.forEach(function (t) { var a = t[0], b = t[1], c = t[2]; v += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6; }); return Math.abs(v); }
+  function caixaDe(m) { var lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9]; m.t.forEach(function (t) { t.forEach(function (p) { for (var i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i]); hi[i] = Math.max(hi[i], p[i]); } }); }); return [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]]; }
+
+  // ------------------------------------------------------------------ IFC4 mínimo (STEP), com elementos extrudados
+  function ifc(nome, elementos) {
+    var L = [], id = 0, ag = Date.now().toString(36).toUpperCase();
+    function e(s) { id += 1; L.push("#" + id + "=" + s + ";"); return "#" + id; }
+    function g() { var c = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$", s = ""; for (var i = 0; i < 22; i++) s += c[Math.floor(Math.random() * 64)]; return "'" + s + "'"; }
+    var pessoa = e("IFCPERSON($,'Physis',$,$,$,$,$,$)"), org = e("IFCORGANIZATION($,'Physis Engineering',$,$,$)"), po = e("IFCPERSONANDORGANIZATION(" + pessoa + "," + org + ",$)");
+    var app = e("IFCAPPLICATION(" + org + ",'1','Physis modelador','physis-modelador')"), dono = e("IFCOWNERHISTORY(" + po + "," + app + ",$,.ADDED.,$,$,$," + Math.floor(Date.now() / 1000) + ")");
+    var orig = e("IFCCARTESIANPOINT((0.,0.,0.))"), eixo = e("IFCAXIS2PLACEMENT3D(" + orig + ",$,$)"), ctx = e("IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05," + eixo + ",$)");
+    var um = e("IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.)"), un = e("IFCUNITASSIGNMENT((" + um + "))");
+    var proj = e("IFCPROJECT(" + g() + "," + dono + ",'" + nome.replace(/'/g, "") + "',$,$,$,$,(" + ctx + ")," + un + ")");
+    var lp = e("IFCLOCALPLACEMENT($," + eixo + ")"), site = e("IFCSITE(" + g() + "," + dono + ",'Terreno',$,$," + lp + ",$,$,.ELEMENT.,$,$,$,$,$)");
+    var bld = e("IFCBUILDING(" + g() + "," + dono + ",'Edificação',$,$," + lp + ",$,$,.ELEMENT.,$,$,$)"), sto = e("IFCBUILDINGSTOREY(" + g() + "," + dono + ",'Pavimento',$,$," + lp + ",$,$,.ELEMENT.,0.)");
+    e("IFCRELAGGREGATES(" + g() + "," + dono + ",$,$," + proj + ",(" + site + "))"); e("IFCRELAGGREGATES(" + g() + "," + dono + ",$,$," + site + ",(" + bld + "))"); e("IFCRELAGGREGATES(" + g() + "," + dono + ",$,$," + bld + ",(" + sto + "))");
+    var filhos = [];
+    elementos.forEach(function (el) {  // el: {tipo:'IFCDUCTSEGMENT'|..., nome, x,y,z (mm), dx,dy (perfil), comp (mm), dir:[x,y,z]}
+      var p = e("IFCCARTESIANPOINT((" + el.x.toFixed(1) + "," + el.y.toFixed(1) + "," + el.z.toFixed(1) + "))"), dz = e("IFCDIRECTION((" + el.dir.join(",") + "))");
+      var ref = e("IFCDIRECTION((" + (Math.abs(el.dir[2]) > 0.9 ? "1.,0.,0." : "0.,0.,1.") + "))");
+      var pl = e("IFCLOCALPLACEMENT(" + lp + "," + e("IFCAXIS2PLACEMENT3D(" + p + "," + dz + "," + ref + ")") + ")");
+      var perfil = e("IFCRECTANGLEPROFILEDEF(.AREA.,$," + e("IFCAXIS2PLACEMENT2D(" + e("IFCCARTESIANPOINT((0.,0.))") + ",$)") + "," + el.dx.toFixed(1) + "," + el.dy.toFixed(1) + ")");
+      var solido = e("IFCEXTRUDEDAREASOLID(" + perfil + "," + eixo + "," + e("IFCDIRECTION((0.,0.,1.))") + "," + el.comp.toFixed(1) + ")");
+      var forma = e("IFCPRODUCTDEFINITIONSHAPE($,$,(" + e("IFCSHAPEREPRESENTATION(" + ctx + ",'Body','SweptSolid',(" + solido + "))") + "))");
+      filhos.push(e(el.tipo + "(" + g() + "," + dono + ",'" + el.nome.replace(/'/g, "") + "',$,$," + pl + "," + forma + ",$,$)"));
+    });
+    if (filhos.length) e("IFCRELCONTAINEDINSPATIALSTRUCTURE(" + g() + "," + dono + ",$,$,(" + filhos.join(",") + ")," + sto + ")");
+    var cab = "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('ViewDefinition [ReferenceView]'),'2;1');\nFILE_NAME('" + nome.replace(/'/g, "") + ".ifc','" + new Date().toISOString().slice(0, 19) + "',('Physis'),('Physis Engineering'),'physis-modelador','Physis','');\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n";
+    return new Blob([cab + L.join("\n") + "\nENDSEC;\nEND-ISO-10303-21;\n"], { type: "application/x-step" });
+  }
+
+  // ------------------------------------------------------------------ leitura de arquivos geográficos (Google Earth e similares)
+  function lerKML(txt) {
+    var xml = new DOMParser().parseFromString(txt, "application/xml"), cs = xml.getElementsByTagName("coordinates"), pts = [];
+    for (var i = 0; i < cs.length; i++) cs[i].textContent.trim().split(/\s+/).forEach(function (c) { var p = c.split(",").map(Number); if (p.length >= 2 && isFinite(p[0])) pts.push([p[0], p[1]]); });
+    return pts;
+  }
+  function lerGPX(txt) {
+    var xml = new DOMParser().parseFromString(txt, "application/xml"), pts = [];
+    ["trkpt", "rtept", "wpt"].forEach(function (t) { var n = xml.getElementsByTagName(t); for (var i = 0; i < n.length; i++) pts.push([+n[i].getAttribute("lon"), +n[i].getAttribute("lat")]); });
+    return pts;
+  }
+  function lerGeoJSON(o) {
+    var pts = [];
+    (function andar(c) { if (typeof c[0] === "number") pts.push([c[0], c[1]]); else c.forEach(andar); })(
+      (o.features ? o.features : [o]).map(function (f) { return (f.geometry || f).coordinates; }));
+    return pts;
+  }
+  function areaM2(pts) {  // polígono lon/lat → m² (projeção local equiretangular; erro pequeno em terrenos)
+    if (pts.length < 3) return 0;
+    var lat0 = pts.reduce(function (s, p) { return s + p[1]; }, 0) / pts.length, kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110574, a = 0;
+    for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += (p[0] * kx) * (q[1] * ky) - (q[0] * kx) * (p[1] * ky); }
+    return Math.abs(a) / 2;
+  }
+
+  // ------------------------------------------------------------------ geradores
+  function gTurbina(txt, L) {
+    // Feita para imprimir SEM SUPORTE e com pouco filamento: cada seção (até 200 mm) é um disco apoiado na mesa com as pás e o
+    // cubo subindo na vertical; a tampa de cima é um disco à parte. Tudo monta num eixo roscado M8 com porcas (encaixe e aperto).
+    var m = txt.match(/(\d+[.,]?\d*)\s*(cm|mm|m)\b/i), alt = m ? num(m[1]) * ({ cm: 10, mm: 1, m: 1000 })[m[2].toLowerCase()] : 400;
+    var vel = (txt.match(/(\d+[.,]?\d*)\s*m\/s/i) || [])[1], v = vel ? num(vel) : 5, MAX = 200;
+    var D = Math.min(alt * 0.5, MAX - 12), r = D / 4, e = bico(D / 110, 1.6), ch = bico(alt / 120, 2.4), R = D / 2 + 4, furo = 4.3, cubo = bico(4.3 + 2.4, 6.8);
+    var nSec = Math.max(1, Math.ceil(alt / MAX)), hs = alt / nSec, partes = [], M = new Malha();
+    function secao(z0) {  // disco-base (anel com furo do eixo) + 2 pás em S + cubo; nada fica no ar
+      var p = new Malha();
+      p.arco(0, 0, R, R - furo, 0, 2 * Math.PI, z0, z0 + ch, 72);
+      p.arco(-r + 1.5 * e, 0, r, e, 0, Math.PI, z0 + ch, z0 + hs, 48); p.arco(r - 1.5 * e, 0, r, e, Math.PI, 2 * Math.PI, z0 + ch, z0 + hs, 48);  // pontas afastadas: nenhuma aresta dividida por 4 faces
+      p.arco(0, 0, cubo, cubo - furo, 0, 2 * Math.PI, z0 + ch, z0 + hs, 32);
+      return p;
+    }
+    for (var k = 0; k < nSec; k++) { var p = secao(0); partes.push({ nome: "secao_" + (k + 1), malha: p }); secao(k * (hs + 8)).t.forEach(function (t) { M.t.push(t); }); }
+    var tampa = new Malha(); tampa.arco(0, 0, R, R - furo, 0, 2 * Math.PI, 0, ch, 72); partes.push({ nome: "tampa", malha: tampa });
+    tampa.t.forEach(function (t) { M.t.push(t.map(function (q) { return [q[0], q[1], q[2] + nSec * (hs + 8)]; })); });
+    var Am = (D / 1000) * (alt / 1000), cp = 0.15, P = 0.5 * 1.225 * Am * Math.pow(v, 3) * cp, vol = 0, ok = true, ab = 0;
+    partes.forEach(function (q) { vol += volume(q.malha) / 1000; var c = checar(q.malha); ok = ok && c.ok; ab += c.abertas; });
+    var calc = [
+      [L === "en" ? "Type" : "Tipo", "Savonius (S) · " + nSec + (L === "en" ? " section(s) of " : " seção(ões) de ") + fmt(hs, 0) + " mm + " + (L === "en" ? "top disc" : "tampa")],
+      [L === "en" ? "Height × diameter" : "Altura × diâmetro", fmt(alt / 10, 1) + " × " + fmt(D / 10, 1) + " cm" + (D < alt * 0.5 ? " (" + (L === "en" ? "diameter limited to the 200 mm bed" : "diâmetro limitado à mesa de 200 mm") + ")" : "")],
+      [L === "en" ? "Swept area" : "Área varrida", fmt(Am, 3) + " m²"],
+      [L === "en" ? "Power at " : "Potência a ", fmt(v, 1) + " m/s, Cp " + cp + " " + CONF[L] + ": " + fmt(P, 2) + " W"],
+      [L === "en" ? "Print without supports" : "Impressão sem suporte", (L === "en" ? "yes: each part lies flat on its disc, walls vertical, nothing floating" : "sim: cada peça apoia no próprio disco, paredes verticais, nada no ar")],
+      [L === "en" ? "Closed mesh (no open edges)" : "Malha fechada (sem arestas abertas)", ok ? (L === "en" ? "yes" : "sim") : (L === "en" ? "no: " : "não: ") + ab],
+      [L === "en" ? "Walls / discs" : "Paredes / discos", fmt(e, 1) + " / " + fmt(ch, 1) + " mm (" + (L === "en" ? "multiples of the 0.4 mm nozzle" : "múltiplos do bico de 0,4 mm") + ")"],
+      [L === "en" ? "Filament (approx.)" : "Filamento (aprox.)", fmt(vol, 0) + " cm³ " + (L === "en" ? "of walls" : "de paredes") + " · PLA ≈ " + fmt(vol * 1.24, 0) + " g " + CONF[L] + " · " + (L === "en" ? "3 perimeters, 15% gyroid" : "3 perímetros, giroide 15%")],
+      [L === "en" ? "Assembly" : "Montagem", (L === "en" ? "M8 threaded rod " : "barra roscada M8 de ") + fmt(alt + 40, 0) + " mm + " + (2 * nSec + 2) + (L === "en" ? " M8 nuts/washers; hole Ø " : " porcas/arruelas M8; furo Ø ") + fmt(furo * 2, 1) + " mm (+0,6 mm " + (L === "en" ? "clearance" : "de folga") + ")"]];
+    return { nome: "turbina_savonius_" + Math.round(alt / 10) + "cm", malha: M, partes: partes, calc: calc, formatos: ["stl", "obj"],
+      sugestoes: L === "en" ? ["Align the sections by the blades before tightening; a drop of glue (CA) between discs adds stiffness.", "Outdoors: PETG or ASA; add a 608 bearing at the base.", "Measure wind on site before choosing the generator."]
+        : ["Alinhar as seções pelas pás antes de apertar; uma gota de cola (cianoacrilato) entre discos dá mais rigidez.", "Uso externo: PETG ou ASA; rolamento 608 na base.", "Medir o vento no local antes de escolher o gerador."] };
+  }
+  function gDutos(txt, L, trCalc) {
+    var a = (txt.match(/(\d+[.,]?\d*)\s*m²|(\d+[.,]?\d*)\s*m2/i) || []), area = a[1] ? num(a[1]) : a[2] ? num(a[2]) : 40;
+    var pe = (txt.match(/p[eé][- ]?direito\s*(?:de\s*)?(\d+[.,]?\d*)/i) || [])[1], h = pe ? num(pe) : 2.8;
+    var lado = Math.sqrt(area), btu = area * 600, tr = trCalc || btu / 12000, q = tr * 400 * 1.699, vAr = 4, secao = q / 3600 / vAr, w = Math.sqrt(secao * 2), hd = secao / w;
+    var L1 = lado * 1000, z = (h - 0.25) * 1000, els = [{ tipo: "IFCDUCTSEGMENT", nome: "Duto tronco " + Math.round(w * 1000) + "x" + Math.round(hd * 1000), x: 0, y: L1 / 2, z: z, dx: w * 1000, dy: hd * 1000, comp: L1, dir: [1, 0, 0] }];
+    var nBocas = Math.max(2, Math.round(area / 15));
+    for (var i = 0; i < nBocas; i++) els.push({ tipo: "IFCAIRTERMINAL", nome: "Difusor " + (i + 1), x: L1 * (i + 0.5) / nBocas, y: L1 / 2, z: z - 150, dx: 300, dy: 300, comp: 150, dir: [0, 0, 1] });
+    var M = new Malha(); M.caixa(0, L1 / 2 - w * 500, z - hd * 1000, L1, L1 / 2 + w * 500, z);
+    els.slice(1).forEach(function (el) { M.caixa(el.x - 150, el.y - 150, el.z - 150, el.x + 150, el.y + 150, el.z); });
+    var calc = [
+      [L === "en" ? "Room" : "Ambiente", fmt(area, 1) + " m² · " + (L === "en" ? "ceiling " : "pé-direito ") + fmt(h, 2) + " m"],
+      [L === "en" ? "Cooling load (rule of thumb)" : "Carga térmica (regra prática)", fmt(btu, 0) + " BTU/h ≈ " + fmt(tr, 2) + " TR (600 BTU/h·m²) " + CONF[L]],
+      [L === "en" ? "Air flow" : "Vazão de ar", fmt(q, 0) + " m³/h (400 cfm/TR) " + CONF[L]],
+      [L === "en" ? "Trunk duct at 4 m/s" : "Duto tronco a 4 m/s", fmt(w * 1000, 0) + " × " + fmt(hd * 1000, 0) + " mm (" + fmt(secao, 3) + " m²)"],
+      [L === "en" ? "Diffusers" : "Difusores", nBocas + " × 300 × 300 mm"]];
+    return { nome: "dutos_ac_" + Math.round(area) + "m2", malha: M, ifc: els, calc: calc, formatos: ["ifc", "stl"],
+      sugestoes: L === "en" ? ["Replace the rule of thumb with the HVAC module's load calculation (NBR 16401) before sizing.", "Import the building IFC in the Planner to route the duct through the real rooms."]
+        : ["Trocar a regra prática pelo cálculo de carga do módulo AVAC (NBR 16401) antes de dimensionar.", "Importar o IFC da edificação no Planejador para passar o duto pelos ambientes reais."] };
+  }
+  function gChuva(txt, L, geo) {
+    var mm = (txt.match(/(\d[\d.,]*)\s*mm/i) || [])[1], P = mm ? num(mm) : NaN, a = (txt.match(/(\d[\d.,]*)\s*m²|(\d[\d.,]*)\s*m2/i) || []);
+    var area = geo && geo.pts.length >= 3 ? areaM2(geo.pts) : a[1] ? num(a[1]) : a[2] ? num(a[2]) : 0;
+    if (!area) return { erro: TX[L].semTerreno };
+    var c = /telhado|cobertura|roof/i.test(txt) ? 0.8 : /grama|gramado|vegeta|lawn|grass/i.test(txt) ? 0.3 : 0.5, chuvaMM = isFinite(P) ? P : 1500;
+    var vol = area * chuvaMM / 1000 * c, M = new Malha(), lado = Math.sqrt(area) * 1000; M.caixa(0, 0, 0, lado, lado, 200);
+    var calc = [[L === "en" ? "Site area" : "Área do terreno", fmt(area, 0) + " m²" + (geo ? " (" + esc(geo.nome) + ", " + geo.pts.length + " " + TX[L].pontos + ")" : "")],
+      [L === "en" ? "Annual rainfall" : "Chuva anual", fmt(chuvaMM, 0) + " mm" + (isFinite(P) ? "" : " " + CONF[L] + (L === "en" ? " (use INMET/CHIRPS for the site)" : " (usar INMET/CHIRPS do local)"))],
+      [L === "en" ? "Runoff coefficient" : "Coeficiente de escoamento", c + " " + CONF[L]],
+      [L === "en" ? "Water falling and running off per year" : "Água que cai e escoa por ano", fmt(area * chuvaMM / 1000, 0) + " m³ · " + fmt(vol, 0) + " m³ " + (L === "en" ? "runoff" : "escoados")],
+      [L === "en" ? "Cistern for 30 days of rain (approx.)" : "Cisterna para 30 dias de chuva (aprox.)", fmt(vol / 12, 1) + " m³ " + CONF[L]]];
+    var gj = { type: "FeatureCollection", features: [{ type: "Feature", properties: { area_m2: Math.round(area), chuva_mm_ano: chuvaMM, coef_escoamento: c, escoamento_m3_ano: Math.round(vol), fonte: "Physis modelador (estimativa preliminar)" },
+      geometry: geo && geo.pts.length >= 3 ? { type: "Polygon", coordinates: [geo.pts.concat([geo.pts[0]])] } : null }] };
+    return { nome: "chuva_terreno", malha: M, geojson: gj, calc: calc, formatos: ["geojson", "csv", "stl"],
+      sugestoes: L === "en" ? ["With a terrain model (DEM/GeoTIFF or contour lines) the bot will map slope and flow direction.", "Cross with the planned roofs to size gutters (NBR 10844)."]
+        : ["Com o modelo do terreno (MDT/GeoTIFF ou curvas de nível), o bot passa a mapear declividade e direção do escoamento.", "Cruzar com os telhados previstos para dimensionar calhas (NBR 10844)."] };
+  }
+  function gRelevo(txt, L, img) {
+    var m = txt.match(/(\d+[.,]?\d*)\s*(cm|mm)\b/i), larg = m ? num(m[1]) * (m[2].toLowerCase() === "cm" ? 10 : 1) : 100, n = 120;
+    var cv = d.createElement("canvas"), r = img.height / img.width, nx = n, ny = Math.max(2, Math.round(n * r)); cv.width = nx; cv.height = ny;
+    var c = cv.getContext("2d"); c.drawImage(img, 0, 0, nx, ny); var px = c.getImageData(0, 0, nx, ny).data, H = [], hmax = 4, base = 1.2, s = larg / (nx - 1);
+    for (var j = 0; j < ny; j++) { H.push([]); for (var i = 0; i < nx; i++) { var k = 4 * (j * nx + i); H[j].push(base + hmax * (1 - (0.3 * px[k] + 0.59 * px[k + 1] + 0.11 * px[k + 2]) / 255)); } }
+    var M = new Malha();
+    for (j = 0; j < ny - 1; j++) for (i = 0; i < nx - 1; i++) {
+      var p = function (a, b, z) { return [a * s, b * s, z]; };
+      M.quad(p(i, j, H[j][i]), p(i + 1, j, H[j][i + 1]), p(i + 1, j + 1, H[j + 1][i + 1]), p(i, j + 1, H[j + 1][i]));
+      M.quad(p(i, j, 0), p(i, j + 1, 0), p(i + 1, j + 1, 0), p(i + 1, j, 0));
+    }
+    for (i = 0; i < nx - 1; i++) { M.quad([i * s, 0, 0], [(i + 1) * s, 0, 0], [(i + 1) * s, 0, H[0][i + 1]], [i * s, 0, H[0][i]]); M.quad([(i + 1) * s, (ny - 1) * s, 0], [i * s, (ny - 1) * s, 0], [i * s, (ny - 1) * s, H[ny - 1][i]], [(i + 1) * s, (ny - 1) * s, H[ny - 1][i + 1]]); }
+    for (j = 0; j < ny - 1; j++) { M.quad([0, (j + 1) * s, 0], [0, j * s, 0], [0, j * s, H[j][0]], [0, (j + 1) * s, H[j + 1][0]]); M.quad([(nx - 1) * s, j * s, 0], [(nx - 1) * s, (j + 1) * s, 0], [(nx - 1) * s, (j + 1) * s, H[j + 1][nx - 1]], [(nx - 1) * s, j * s, H[j][nx - 1]]); }
+    var calc = [[L === "en" ? "Size" : "Tamanho", fmt(larg / 10, 1) + " × " + fmt(larg * r / 10, 1) + " cm, " + (L === "en" ? "relief up to " : "relevo até ") + (base + hmax) + " mm"],
+      [L === "en" ? "Volume (approx.)" : "Volume (aprox.)", fmt(volume(M) / 1000, 1) + " cm³"]];
+    return { nome: "relevo_imagem", malha: M, calc: calc, formatos: ["stl", "obj"],
+      sugestoes: L === "en" ? ["Photo → full 3D object (several photos around it): use Physis 3D on the InovaSTEM platform or a 3D scanning app."] : ["Foto → objeto 3D completo (várias fotos ao redor): usar a Physis 3D da plataforma InovaSTEM ou um aplicativo de escaneamento 3D."] };
+  }
+  // ------------------------------------------------------------------ v2 (22/11/2026): net zero, água, estufa, caixa, terreno real, AVAC NBR 16401
+  function pr(id, d) { try { var v = w.PhysisCalc && w.PhysisCalc.premissa(id); return typeof v === "number" ? v : d; } catch (e) { return d; } }
+  function centro(geo) { if (!geo || !geo.pts.length) return null; var x = 0, y = 0; geo.pts.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / geo.pts.length, y / geo.pts.length]; }
+  function achar(txt, rx, d) { var m = txt.match(rx); return m ? num(m[1]) : d; }
+  function placas(M, n, lat, x0, y0) {  // fileiras de módulos 1,13 × 2,28 m inclinados na latitude (mm)
+    var inc = Math.min(35, Math.max(10, Math.abs(lat))) * Math.PI / 180, a = 1134, b = 2279, porF = Math.ceil(Math.sqrt(n * 2)), k = 0;
+    for (var i = 0; k < n; i++) for (var j = 0; j < porF && k < n; j++, k++) {
+      var x = x0 + j * (a + 20), y = y0 + i * (b * Math.cos(inc) + 900), h = b * Math.sin(inc);
+      var yb = y + b * Math.cos(inc); M.hexa([[x, y, 265], [x + a, y, 265], [x + a, yb, 265 + h], [x, yb, 265 + h], [x, y, 300], [x + a, y, 300], [x + a, yb, 300 + h], [x, yb, 300 + h]]);  // módulo com 35 mm de espessura
+      M.caixa(x + 40, y + b * Math.cos(inc) - 60, 0, x + 100, y + b * Math.cos(inc), 300 + h); M.caixa(x + a - 100, y + b * Math.cos(inc) - 60, 0, x + a - 40, y + b * Math.cos(inc), 300 + h);
+    }
+  }
+  function gNetZero(txt, L, geo) {
+    var c = centro(geo), lat = c ? c[1] : -22.5, kwh = achar(txt, /(\d[\d.,]*)\s*kwh/i, NaN), area = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, geo && geo.pts.length >= 3 ? areaM2(geo.pts) : 150);
+    var cons = isFinite(kwh) ? kwh : area * 30 / 12, hsp = achar(txt, /(\d[\d.,]*)\s*(?:hsp|kwh\/m²·dia|h de sol)/i, 4.5), PR = pr("pv.pr", 0.78), fe = pr("rede.fator_emissao", 0.0289);
+    var kwp = cons * 12 / (hsp * 365 * PR), wp = 550, n = Math.max(1, Math.ceil(kwp * 1000 / wp)), ger = n * wp / 1000 * hsp * 365 * PR, co2 = ger / 1000 * fe;
+    var chuva = achar(txt, /(\d[\d.,]*)\s*mm/i, 1500), telh = achar(txt, /telhado\s*(?:de\s*)?(\d[\d.,]*)/i, area), agua = telh * chuva / 1000 * pr("chuva.coef_escoamento", 0.8);
+    var M = new Malha(); placas(M, Math.min(n, 60), lat, 0, 0);
+    var calc = [
+      [L === "en" ? "Consumption" : "Consumo", fmt(cons, 0) + " kWh/" + (L === "en" ? "month" : "mês") + (isFinite(kwh) ? "" : " (" + fmt(area, 0) + " m² × 30 kWh/m²·" + (L === "en" ? "year" : "ano") + " " + CONF[L] + ")")],
+      [L === "en" ? "Solar for net zero energy" : "Solar para energia net zero", fmt(kwp, 2) + " kWp · " + n + " × " + wp + " Wp " + CONF[L] + " · HSP " + fmt(hsp, 1) + (L === "en" ? " h " : " h ") + CONF[L] + " · PR " + PR],
+      [L === "en" ? "Generation / roof area" : "Geração / área de telhado", fmt(ger, 0) + " kWh/" + (L === "en" ? "year" : "ano") + " · ≈ " + fmt(n * 2.6, 0) + " m² " + (L === "en" ? "of modules" : "de módulos")],
+      [L === "en" ? "Avoided emissions" : "Emissões evitadas", fmt(co2, 2) + " tCO₂/" + (L === "en" ? "year" : "ano") + " (" + fe + " tCO₂/MWh, " + (L === "en" ? "grid factor" : "fator da rede") + " " + CONF[L] + ")"],
+      [L === "en" ? "Rainwater from the roof" : "Água de chuva do telhado", fmt(agua, 0) + " m³/" + (L === "en" ? "year" : "ano") + " (" + fmt(telh, 0) + " m², " + fmt(chuva, 0) + " mm)"],
+      [L === "en" ? "Tilt / latitude" : "Inclinação / latitude", fmt(Math.min(35, Math.max(10, Math.abs(lat))), 0) + "° · " + fmt(lat, 3) + (c ? "" : " " + CONF[L])]];
+    return { nome: "net_zero_" + Math.round(cons) + "kwh", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
+      sugestoes: L === "en" ? ["Confirm HSP with the Planner's solar map (pvlib) for the exact site and shading.", "Add batteries or biogas only if the goal includes resilience (off-grid hours).", "Enter the 12 bills to replace the estimated consumption."]
+        : ["Confirmar a HSP com o mapa solar do Planejador (pvlib) para o local e o sombreamento exatos.", "Somar baterias ou biogás só se a meta incluir resiliência (horas sem rede).", "Informar as 12 contas de luz para trocar o consumo estimado."] };
+  }
+  function gAgua(txt, L) {
+    var A = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, 120), I = achar(txt, /(\d[\d.,]*)\s*mm\/h/i, 150), chuva = achar(txt, /(\d[\d.,]*)\s*mm(?!\/)/i, 1500), C = pr("chuva.coef_escoamento", 0.8);
+    // NBR 10844, calha semicircular, n 0,011, declividade 0,5%: capacidade por diâmetro (L/min)
+    var TAB = [[100, 130], [125, 236], [150, 384], [200, 829]], Q = I * A / 60, nq = 1, larg;
+    while (Q / nq > TAB[TAB.length - 1][1]) nq++;
+    larg = (TAB.filter(function (t) { return t[1] >= Q / nq; })[0] || TAB[TAB.length - 1])[0];
+    var cist = A * chuva / 1000 * C / 12 * 1.5;
+    var M = new Malha(), Lm = Math.sqrt(A) * 1000; M.caixa(0, 0, 0, Lm, larg, larg * 0.6); M.cilindro(Lm + 1500, 0, Math.sqrt(cist / Math.PI / 2) * 1000, 0, 2000, 48);
+    var calc = [[L === "en" ? "Roof" : "Telhado", fmt(A, 0) + " m²"],
+      [L === "en" ? "Design flow (NBR 10844)" : "Vazão de projeto (NBR 10844)", fmt(Q, 1) + " L/min · I = " + fmt(I, 0) + " mm/h " + CONF[L]],
+      [L === "en" ? "Gutters / downpipes" : "Calhas / condutores", nq + " × " + (L === "en" ? "semicircular gutter Ø " : "calha semicircular Ø ") + larg + " mm (0,5%) · " + (L === "en" ? "downpipe Ø min. " : "condutor Ø mín. ") + pr("drenagem.condutor_diam_min", 70) + " mm " + CONF[L]],
+      [L === "en" ? "Cistern (1.5 month of runoff)" : "Cisterna (1,5 mês de escoamento)", fmt(cist, 1) + " m³ " + CONF[L] + " · " + (L === "en" ? "first flush " : "descarte inicial ") + pr("chuva.descarte_inicial", 2) + " mm"]];
+    return { nome: "calha_cisterna_" + Math.round(A) + "m2", malha: M, calc: calc, formatos: ["stl", "csv"],
+      sugestoes: L === "en" ? ["Size month by month with the platform's cistern calculation (NBR 15527) and real demand."] : ["Dimensionar mês a mês com a conta de cisterna da plataforma (NBR 15527) e a demanda real."] };
+  }
+  function gEstufa(txt, L) {
+    var m = txt.match(/(\d+[.,]?\d*)\s*[x×]\s*(\d+[.,]?\d*)\s*m/i), a = m ? num(m[1]) : 3, b = m ? num(m[2]) : 6, h = achar(txt, /altura\s*(?:de\s*)?(\d+[.,]?\d*)/i, 2.4), M = new Malha();
+    var arcos = Math.max(2, Math.round(b / 1.2) + 1);
+    for (var k = 0; k < arcos; k++) { var y = b * 1000 * k / (arcos - 1); M.arco(a * 500, y, a * 500, 30, 0, Math.PI, 0, 30, 24); }
+    M.caixa(0, 0, 0, a * 1000, 40, 300); M.caixa(0, b * 1000 - 40, 0, a * 1000, b * 1000, 300);
+    var vent = a * b * 0.2, calc = [[L === "en" ? "Floor / growing area" : "Piso / área de cultivo", fmt(a * b, 1) + " m² · " + fmt(a * b * 0.7, 1) + " m² " + (L === "en" ? "beds" : "de canteiros") + " " + CONF[L]],
+      [L === "en" ? "Hoops" : "Arcos", arcos + " × " + (L === "en" ? "every " : "a cada ") + fmt(b / (arcos - 1), 2) + " m"],
+      [L === "en" ? "Natural ventilation" : "Ventilação natural", "≥ " + fmt(vent, 1) + " m² (20% " + (L === "en" ? "of floor" : "do piso") + ") " + CONF[L]],
+      [L === "en" ? "Rainwater from the cover" : "Água de chuva da cobertura", fmt(a * b * 1.5 * 0.8, 1) + " m³/" + (L === "en" ? "year" : "ano") + " (1.500 mm) " + CONF[L]]];
+    return { nome: "estufa_" + a + "x" + b + "m", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
+      sugestoes: L === "en" ? ["Add SustainKit sensors (temperature, humidity, soil) and drip irrigation fed by the cistern."] : ["Incluir sensores do SustainKit (temperatura, umidade, solo) e gotejamento alimentado pela cisterna."] };
+  }
+  function gCaixa(txt, L) {
+    var m = txt.match(/(\d+[.,]?\d*)\s*[x×]\s*(\d+[.,]?\d*)\s*[x×]\s*(\d+[.,]?\d*)\s*(cm|mm)/i), f = m && m[4].toLowerCase() === "cm" ? 10 : 1;
+    var X = m ? num(m[1]) * f : 100, Y = m ? num(m[2]) * f : 80, Z = m ? num(m[3]) * f : 50, e = 2, M = new Malha();
+    var tampa = new Malha(), corpo = new Malha();
+    corpo.caixaOca(X, Y, Z, e);                                                   // corpo: um sólido só
+    tampa.caixa(0, 0, 0, X, Y, e); tampa.anelRet(e + 0.3, e + 0.3, X - e - 0.3, Y - e - 0.3, 1.6, e, e + 4);  // tampa + aba de encaixe (folga 0,3 mm)
+    corpo.t.forEach(function (t) { M.t.push(t); }); tampa.t.forEach(function (t) { M.t.push(t.map(function (q) { return [q[0] + X + 10, q[1], q[2]]; })); });
+    var calc = [[L === "en" ? "Inside" : "Interno", fmt(X - 2 * e, 0) + " × " + fmt(Y - 2 * e, 0) + " × " + fmt(Z - e, 0) + " mm"], [L === "en" ? "Material" : "Material", fmt(volume(M) / 1000, 1) + " cm³ · PETG/ASA " + (L === "en" ? "outdoors" : "para área externa")]];
+    return { nome: "caixa_sensores_" + Math.round(X) + "x" + Math.round(Y) + "x" + Math.round(Z), malha: M, partes: [{ nome: "corpo", malha: corpo }, { nome: "tampa", malha: tampa }], calc: calc, formatos: ["stl", "obj"],
+      sugestoes: L === "en" ? ["Add a cable gland hole (PG7) and a rubber gasket for IP54."] : ["Prever furo para prensa-cabo (PG7) e vedação de borracha para IP54."] };
+  }
+  function gAvac(txt, L) {  // NBR 16401-1 (método simplificado de componentes) e 16401-3 (ar externo)
+    var A = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, 40), h = achar(txt, /p[eé][- ]?direito\s*(?:de\s*)?(\d+[.,]?\d*)/i, 2.8), pes = achar(txt, /(\d+)\s*pessoas|(\d+)\s*people/i, Math.max(1, Math.round(A / 6)));
+    var jan = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)\s*de\s*janela|janelas?\s*(?:de\s*)?(\d[\d.,]*)/i, A * 0.15), dT = achar(txt, /Δ?T\s*(?:de\s*)?(\d+)/i, 8);
+    var qEnv = (A * 0.6 * 2.5 + A * 1.0) * dT, qJan = jan * 200 * 0.6, qPes = pes * (75 + 55), qIlu = A * 10, qEq = A * 15, qAr = (pes * 2.5 + A * 0.3) * 1.2 * (dT * 1.0 + 15);
+    var Q = qEnv + qJan + qPes + qIlu + qEq + qAr, btu = Q * 3.412, tr = btu / 12000, r = gDutos("sala de " + A + " m² pé-direito " + h, L, tr);
+    var calc = [[L === "en" ? "Room" : "Ambiente", fmt(A, 1) + " m² · " + pes + (L === "en" ? " people" : " pessoas") + " · " + (L === "en" ? "windows " : "janelas ") + fmt(jan, 1) + " m² · ΔT " + dT + " K " + CONF[L]],
+      [L === "en" ? "Envelope + windows" : "Envoltória + janelas", fmt(qEnv + qJan, 0) + " W (U 2,5 W/m²K; FS 0,6; 200 W/m² " + CONF[L] + ")"],
+      [L === "en" ? "People, lighting, equipment" : "Pessoas, iluminação, equipamentos", fmt(qPes + qIlu + qEq, 0) + " W (75+55 W/" + (L === "en" ? "person" : "pessoa") + "; 10 e 15 W/m²)"],
+      [L === "en" ? "Outdoor air (NBR 16401-3)" : "Ar externo (NBR 16401-3)", fmt(pes * 2.5 + A * 0.3, 0) + " L/s · " + fmt(qAr, 0) + " W " + CONF[L]],
+      [L === "en" ? "Total cooling load" : "Carga térmica total", fmt(Q / 1000, 2) + " kW · " + fmt(btu, 0) + " BTU/h · " + fmt(tr, 2) + " TR"],
+      [L === "en" ? "Rule of thumb (check)" : "Regra prática (conferência)", fmt(A * 600, 0) + " BTU/h"]];
+    r.calc = calc.concat(r.calc.slice(2)); r.nome = "avac_nbr16401_" + Math.round(A) + "m2"; return r;
+  }
+  function lerGrade(txt) {  // ESRI ASCII (.asc) ou XYZ (x y z por linha) → {nx, ny, cel, z[]}
+    var ls = txt.trim().split(/\r?\n/), cab = {}, i = 0;
+    while (i < ls.length && /^[a-z_]+\s/i.test(ls[i])) { var p = ls[i].trim().split(/\s+/); cab[p[0].toLowerCase()] = +p[1]; i++; }
+    if (cab.ncols) { var z = []; ls.slice(i).forEach(function (l) { l.trim().split(/\s+/).forEach(function (v) { z.push(+v); }); }); return { nx: cab.ncols, ny: cab.nrows, cel: cab.cellsize || 1, sem: cab.nodata_value, z: z }; }
+    var pts = ls.map(function (l) { return l.trim().split(/[\s,;]+/).map(Number); }).filter(function (p) { return p.length >= 3 && isFinite(p[2]); });
+    var xs = Array.from(new Set(pts.map(function (p) { return p[0]; }))).sort(function (a, b) { return a - b; }), ys = Array.from(new Set(pts.map(function (p) { return p[1]; }))).sort(function (a, b) { return b - a; });
+    var mz = {}, zz = []; pts.forEach(function (p) { mz[p[0] + "," + p[1]] = p[2]; });
+    ys.forEach(function (y) { xs.forEach(function (x) { zz.push(mz[x + "," + y]); }); });
+    return { nx: xs.length, ny: ys.length, cel: xs.length > 1 ? xs[1] - xs[0] : 1, z: zz };
+  }
+  function gTerreno(txt, L, grade) {
+    var g = grade, nx = g.nx, ny = g.ny, passo = Math.max(1, Math.ceil(Math.max(nx, ny) / 150)), Z = function (i, j) { var v = g.z[j * nx + i]; return v == null || v === g.sem || !isFinite(v) ? NaN : v; };
+    var zmin = Infinity, zmax = -Infinity, imin = 0, jmin = 0, decl = [];
+    for (var j = 0; j < ny; j++) for (var i = 0; i < nx; i++) { var v = Z(i, j); if (isFinite(v)) { if (v < zmin) { zmin = v; imin = i; jmin = j; } zmax = Math.max(zmax, v); }
+      if (i > 0 && j > 0 && isFinite(v)) { var dx = (v - Z(i - 1, j)) / g.cel, dy = (v - Z(i, j - 1)) / g.cel; if (isFinite(dx) && isFinite(dy)) decl.push(Math.atan(Math.hypot(dx, dy)) * 180 / Math.PI); } }
+    decl.sort(function (a, b) { return a - b; });
+    var M = new Malha(), esc = 1000 * g.cel;
+    for (j = 0; j + passo < ny; j += passo) for (i = 0; i + passo < nx; i += passo) {
+      var a = Z(i, j), b = Z(i + passo, j), c = Z(i + passo, j + passo), e = Z(i, j + passo); if (![a, b, c, e].every(isFinite)) continue;
+      M.quad([i * esc, -j * esc, (a - zmin) * 1000], [(i + passo) * esc, -j * esc, (b - zmin) * 1000], [(i + passo) * esc, -(j + passo) * esc, (c - zmin) * 1000], [i * esc, -(j + passo) * esc, (e - zmin) * 1000]);
+    }
+    var acima = decl.filter(function (x) { return x > pr("app.declividade", 45); }).length, area = (nx - 1) * (ny - 1) * g.cel * g.cel;
+    var calc = [[L === "en" ? "Grid" : "Grade", nx + " × " + ny + " · " + (L === "en" ? "cell " : "célula ") + g.cel + " m · " + fmt(area, 0) + " m²"],
+      [L === "en" ? "Elevation range" : "Desnível", fmt(zmin, 1) + " → " + fmt(zmax, 1) + " m (" + fmt(zmax - zmin, 1) + " m)"],
+      [L === "en" ? "Slope (median / max)" : "Declividade (mediana / máx.)", fmt(decl[Math.floor(decl.length / 2)] || 0, 1) + "° / " + fmt(decl[decl.length - 1] || 0, 1) + "°"],
+      [L === "en" ? "Above 45° (APP, Forest Code)" : "Acima de 45° (APP, Código Florestal)", fmt(100 * acima / Math.max(1, decl.length), 1) + "% " + (L === "en" ? "of cells" : "das células")],
+      [L === "en" ? "Water runs to" : "A água escoa para", (L === "en" ? "lowest point at cell " : "o ponto mais baixo, célula ") + imin + ", " + jmin + " (" + fmt(zmin, 1) + " m)"]];
+    return { nome: "terreno", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
+      sugestoes: L === "en" ? ["GeoTIFF (Copernicus/ALOS/SRTM): export as ASCII grid (.asc) in QGIS until the GeoTIFF reader is added.", "Cross with rainfall to size drainage and with the APP map in the Planner."]
+        : ["GeoTIFF (Copernicus/ALOS/SRTM): exportar como grade ASCII (.asc) no QGIS até entrar a leitura de GeoTIFF.", "Cruzar com a chuva para dimensionar a drenagem e com o mapa de APP do Planejador."] };
+  }
+  function chuvaOnline(geo) {  // média anual 2015–2024 (Open-Meteo/ERA5) quando há internet; sem internet fica [CONFERIR]
+    var c = centro(geo); if (!c || !w.fetch) return Promise.resolve(null);
+    var u = "https://archive-api.open-meteo.com/v1/archive?latitude=" + c[1].toFixed(4) + "&longitude=" + c[0].toFixed(4) + "&start_date=2015-01-01&end_date=2024-12-31&daily=precipitation_sum&timezone=UTC";
+    return w.fetch(u).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (!j || !j.daily) return null; var s = 0, n = 0; j.daily.precipitation_sum.forEach(function (v) { if (v != null) { s += v; n++; } }); return n > 3000 ? { mm: s / (n / 365.25), fonte: "Open-Meteo/ERA5 2015–2024" } : null;
+    }).catch(function () { return null; });
+  }
+  function entender(txt, temImg) {
+    if (/net ?zero|carbono zero|zerar (a )?(energia|conta|emiss)|balan[cç]o energ|energia solar|fotovolt|solar panel/i.test(txt)) return "netzero";
+    if (/calha|cisterna|[aá]gua de chuva|capta[cç][aã]o de chuva|gutter|cistern/i.test(txt)) return "agua";
+    if (/estufa|greenhouse/i.test(txt)) return "estufa";
+    if (/caixa|case|gabinete/i.test(txt) && /sensor|eletr[oô]nic|placa|esp32|arduino/i.test(txt)) return "caixa";
+    if (/carga t[eé]rmica|NBR ?16401|cooling load/i.test(txt)) return "avac";
+    if (/turbina|aerogerador|rotor e[oó]lic|wind turbine|turbine/i.test(txt)) return "turbina";
+    if (/ar[- ]condicionado|\bduto|\bAVAC\b|\bHVAC\b|climatiza|air[- ]condition|\bduct/i.test(txt)) return "dutos";
+    if (/chuva|pluvi|precipita|rain/i.test(txt)) return "chuva";
+    if (temImg || /relevo|litofan|heightmap|relief/i.test(txt)) return "relevo";
+    return "";
+  }
+
+  // ------------------------------------------------------------------ interface
+  function estilo() {
+    if (d.getElementById("pmd-estilo")) return;
+    var s = d.createElement("style"); s.id = "pmd-estilo";
+    s.textContent = ".pmd{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--botao,#C2410C);border-radius:12px;padding:.8rem 1rem;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23)}" +
+      ".pmd h2{margin:.1rem 0 .3rem;font-size:1.15rem}.pmd textarea{width:100%;min-height:3.2rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:var(--fundo,#F4F1EA);color:inherit}" +
+      ".pmd .pmd-l{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}.pmd button,.pmd .pmd-b{border:1px solid var(--linha,#D9D3C2);border-radius:8px;padding:.35rem .7rem;font:inherit;cursor:pointer;background:var(--sup,#FFFFFF);color:inherit}" +
+      ".pmd .pmd-p{background:var(--botao,#C2410C);border-color:var(--botao,#C2410C);color:#FFFFFF}.pmd .pmd-ex{font-size:.88rem;opacity:.85;cursor:pointer;text-decoration:underline dotted}" +
+      ".pmd table{border-collapse:collapse;width:100%;font-size:.92rem}.pmd td{border-bottom:1px solid var(--linha,#D9D3C2);padding:.25rem .3rem;vertical-align:top}.pmd .pmd-v{min-height:0;margin:.5rem 0}.pmd small{opacity:.8}.pmd canvas{max-width:100%;height:auto}.pmd{overflow-wrap:anywhere;max-width:100%}";
+    d.head.appendChild(s);
+  }
+  function baixar(blob, nome) { var u = URL.createObjectURL(blob), a = d.createElement("a"); a.href = u; a.download = nome; d.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 3000); }
+  function ver(box, m) {
+    var THREE = w.THREE; box.innerHTML = ""; if (!THREE || !m.t.length) return;
+    var W = Math.min(box.clientWidth || 560, 720), H = Math.round(W * 0.55), ren = new THREE.WebGLRenderer({ antialias: true }); ren.setSize(W, H); box.appendChild(ren.domElement);
+    var pos = []; m.t.forEach(function (t) { t.forEach(function (p) { pos.push(p[0], p[1], p[2]); }); });
+    var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); g.computeBoundingBox();
+    var c = new THREE.Vector3(), tam = new THREE.Vector3(); g.boundingBox.getCenter(c); g.boundingBox.getSize(tam); g.translate(-c.x, -c.y, -c.z); g.rotateX(-Math.PI / 2);
+    var cena = new THREE.Scene(), cs = getComputedStyle(d.documentElement); cena.background = new THREE.Color((cs.getPropertyValue("--sup") || "#FFFFFF").trim() || "#FFFFFF");
+    cena.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: new THREE.Color("#B07A12"), roughness: .6, side: THREE.DoubleSide })));
+    cena.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.1)); var l = new THREE.DirectionalLight(0xffffff, .8); l.position.set(1, 2, 3); cena.add(l);
+    var r = Math.max(tam.x, tam.y, tam.z) || 1, cam = new THREE.PerspectiveCamera(40, W / H, r / 100, r * 100), ang = 0.6, vivo = true;
+    (function laco() { if (!vivo || !box.contains(ren.domElement)) return; ang += 0.01; cam.position.set(Math.sin(ang) * r * 2, r * 0.9, Math.cos(ang) * r * 2); cam.lookAt(0, 0, 0); ren.render(cena, cam); requestAnimationFrame(laco); })();
+    ren.domElement.setAttribute("role", "img"); ren.domElement.setAttribute("aria-label", "Prévia 3D do modelo gerado");
+  }
+  function montar(el) {
+    if (el.getAttribute("data-pmd-ok")) return; el.setAttribute("data-pmd-ok", "1");
+    var L = lingua(), t = TX[L], ctx = el.getAttribute("data-physis-modelador") || "";
+    var emQuadro = false; try { emQuadro = d.documentElement.hasAttribute("data-physis-demo"); } catch (e) { emQuadro = false; }
+    if (emQuadro) { el.hidden = true; return; }
+    estilo();
+    el.innerHTML = '<section class="pmd" aria-label="' + t.tit + '"><h2>' + t.tit + "</h2><small>" + t.sub + " " + t.ex.map(function (x) { return '<span class="pmd-ex" tabindex="0">' + esc(x) + "</span>"; }).join(" · ") + "</small>" +
+      '<div class="pmd-l"><textarea class="pmd-t" aria-label="' + t.tit + '"></textarea></div><div class="pmd-l"><label class="pmd-b">' + t.arquivo +
+      ' <input type="file" class="pmd-f" accept="image/*,.kml,.kmz,.geojson,.json,.gpx,.asc,.xyz,.txt,.csv" hidden></label><span class="pmd-fn"></span><button class="pmd-p pmd-g">' + t.gerar + '</button></div><div class="pmd-o" role="status"></div><div class="pmd-v"></div></section>';
+    var ta = el.querySelector(".pmd-t"), out = el.querySelector(".pmd-o"), vbox = el.querySelector(".pmd-v"), img = null, geo = null, grade = null;
+    Array.prototype.forEach.call(el.querySelectorAll(".pmd-ex"), function (x) { var f = function () { ta.value = x.textContent; ta.focus(); }; x.onclick = f; x.onkeydown = function (e) { if (e.key === "Enter") f(); }; });
+    el.querySelector(".pmd-f").onchange = function (e) {
+      var f = e.target.files[0]; if (!f) return; img = null; geo = null; grade = null; var nm = f.name.toLowerCase(), fn = el.querySelector(".pmd-fn"); fn.textContent = f.name;
+      if (/^image\//.test(f.type)) { var im = new Image(); im.onload = function () { img = im; }; im.src = URL.createObjectURL(f); return; }
+      var ok = function (pts) { geo = { nome: f.name, pts: pts }; fn.textContent = t.lido + ": " + f.name + " (" + pts.length + " " + t.pontos + ")"; };
+      if (/\.kmz$/.test(nm)) {
+        if (!w.JSZip) { fn.textContent = "KMZ: " + (L === "en" ? "unzip it and upload the .kml" : "descompacte e envie o .kml"); return; }
+        w.JSZip.loadAsync(f).then(function (z) { var k = Object.keys(z.files).filter(function (n) { return /\.kml$/i.test(n); })[0]; return k ? z.files[k].async("string") : ""; }).then(function (s) { ok(lerKML(s)); });
+      } else if (/\.(asc|xyz|txt|csv)$/.test(nm)) f.text().then(function (s) { grade = lerGrade(s); fn.textContent = t.lido + ": " + f.name + " (" + grade.nx + " × " + grade.ny + ")"; });
+      else f.text().then(function (s) { ok(/\.kml$/.test(nm) ? lerKML(s) : /\.gpx$/.test(nm) ? lerGPX(s) : lerGeoJSON(JSON.parse(s))); });
+    };
+    el.querySelector(".pmd-g").onclick = function () {
+      var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
+      if (!qual) {
+        out.innerHTML = "<p>" + t.naoEntendi + "</p><button class='pmd-c'>" + t.copiar + "</button>"; vbox.innerHTML = "";
+        out.querySelector(".pmd-c").onclick = function () { var b = this; (navigator.clipboard ? navigator.clipboard.writeText("Modelagem (" + ctx + "): " + txt) : Promise.reject()).then(function () { b.textContent = t.copiado; }, function () { ta.select(); }); };
+        return;
+      }
+      if (qual === "chuva" && geo && !/\d\s*mm/i.test(txt)) { out.innerHTML = "<p>" + (L === "en" ? "Looking up the site's rainfall…" : "Buscando a chuva do local…") + "</p>";
+        chuvaOnline(geo).then(function (c) { if (c) { ta.value = txt + " " + Math.round(c.mm) + " mm"; fonteChuva = c.fonte; } gerarAgora(); }); return; }
+      gerarAgora();
+    };
+    var fonteChuva = "";
+    function gerarAgora() {
+      var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
+      r = qual === "turbina" ? gTurbina(txt, L) : qual === "dutos" ? gDutos(txt, L) : qual === "avac" ? gAvac(txt, L) : qual === "chuva" ? gChuva(txt, L, geo) : qual === "netzero" ? gNetZero(txt, L, geo)
+        : qual === "agua" ? gAgua(txt, L) : qual === "estufa" ? gEstufa(txt, L) : qual === "caixa" ? gCaixa(txt, L) : qual === "terreno" ? gTerreno(txt, L, grade) : img ? gRelevo(txt, L, img) : { erro: L === "en" ? "Upload an image for the relief." : "Envie uma imagem para o relevo." };
+      if (fonteChuva && r.calc) { r.calc.push([L === "en" ? "Rainfall source" : "Fonte da chuva", fonteChuva]); fonteChuva = ""; }
+      if (r.erro) { out.innerHTML = "<p>" + esc(r.erro) + "</p>"; vbox.innerHTML = ""; return; }
+      var bt = r.formatos.map(function (f) { return '<button data-f="' + f + '">' + t.baixar + " ." + f + "</button>"; }).join(" ");
+      out.innerHTML = "<p><strong>" + esc(r.nome) + "</strong></p><h3 style='margin:.4rem 0;font-size:1rem'>" + t.calc + "</h3><table>" + r.calc.map(function (c) { return "<tr><td>" + esc(c[0]) + "</td><td>" + esc(c[1]) + "</td></tr>"; }).join("") +
+        "</table><p><small>" + t.aviso + "</small></p><div class='pmd-l'>" + bt + "</div><p><strong>" + t.sugestoes + ":</strong></p><ul>" + r.sugestoes.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
+      Array.prototype.forEach.call(out.querySelectorAll("[data-f]"), function (b) {
+        b.onclick = function () {
+          var f = b.getAttribute("data-f");
+          if (f === "stl" && r.partes) r.partes.forEach(function (q, i) { setTimeout(function () { baixar(stl(q.malha), r.nome + "_" + q.nome + ".stl"); }, 400 * i); });
+          else if (f === "stl") baixar(stl(r.malha), r.nome + ".stl"); else if (f === "obj") baixar(obj(r.malha), r.nome + ".obj");
+          else if (f === "ifc") baixar(ifc(r.nome, r.ifc || []), r.nome + ".ifc");
+          else if (f === "geojson") baixar(new Blob([JSON.stringify(r.geojson, null, 1)], { type: "application/geo+json" }), r.nome + ".geojson");
+          else if (f === "csv") baixar(new Blob(["﻿item;valor\n" + r.calc.map(function (c) { return '"' + c[0] + '";"' + String(c[1]).replace(/"/g, "'") + '"'; }).join("\n")], { type: "text/csv" }), r.nome + ".csv");
+        };
+      });
+      w.PhysisModelador.ultimo = r; ver(vbox, r.malha);
+    };
+  }
+  w.PhysisModelador = { checar: checar, montar: montar, entender: entender, gerar: { turbina: gTurbina, dutos: gDutos, chuva: gChuva, netzero: gNetZero, agua: gAgua, estufa: gEstufa, caixa: gCaixa, avac: gAvac, terreno: gTerreno }, lerGrade: lerGrade, chuvaOnline: chuvaOnline, exportar: { stl: stl, obj: obj, ifc: ifc }, lerKML: lerKML, areaM2: areaM2, ultimo: null };
+  function tudo() { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]"), montar); }
+  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", tudo); else tudo();
+  if (w.MutationObserver) new MutationObserver(function () { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]:not([data-pmd-ok])"), montar); }).observe(d.documentElement, { childList: true, subtree: true });
+})(typeof window !== "undefined" ? window : this);
+</script>
 <script id="physis-desenvolvimento">
 /* physis-desenvolvimento.js v1 (22/11/2026): painel "Desenvolvimento" igual em todos os módulos, plataformas internas e Gestão.
    Fonte única: o Physis M&A. O bot "desenvolvimento" grava sistema/desenvolvimento-dados.js (window.PHYSIS_DESENV);
@@ -472,8 +1141,9 @@ footer{border-top:4px solid var(--terracota);background:var(--faixa);color:var(-
         var t = ev.target, k = t.getAttribute("data-pp"), patch = {};
         if (t.name === "pp-texto") return mudar({ texto: parseInt(t.value, 10) }, "ok");
         if (t.name === "pp-aviso") return mudar({ aviso: parseInt(t.value, 10) }, "ok");
-        if (!k) return;
+        /* o Tema (dentro do Modo de conforto) vem antes do "data-pp": os botões de tema não têm essa marca (20/11/2026) */
         if (t.name === "pp-tema") return mudar({ tema: t.value }, t.value === "auto" ? "aAuto" : t.value === "escuro" ? "aEsc" : "aClaro");
+        if (!k) return;
         if (k === "conforto") { patch = { conforto: t.checked, tema: t.checked ? "escuro" : "auto", calma: t.checked, espaco: t.checked }; return mudar(patch, t.checked ? "aConfOn" : "aConfOff"); }
         patch[k] = t.checked; mudar(patch, k === "libras" && t.checked ? "librasOn" : "ok");
       });
@@ -1034,7 +1704,7 @@ async function enviar(files){const st=$("#st");for(const f of files){const ext=(
   if(f.size>40*1048576){st.textContent=`${f.name}: maior que 40 MB, não guardado.`;continue;}
   const buf=await f.arrayBuffer(),h=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",buf))).slice(0,8).map(x=>x.toString(16).padStart(2,"0")).join("");
   const ja=(await todos("modelos")).some(m=>m.hash===h);if(ja){st.textContent=`${f.name}: já está na galeria (mesmo arquivo).`;continue;}
-  await tx("modelos","readwrite",s=>s.put({id:"m"+Date.now()+Math.random().toString(16).slice(2,6),nome:f.name,extensao:ext,tamanho:f.size,hash:h,quando:agora(),licenca:$("#lic").value,origem:$("#esc").checked?"escaneado (CrealityScan)":"upload",dados:buf}));
+  await tx("modelos","readwrite",s=>s.put({id:"m"+Date.now()+Math.random().toString(16).slice(2,6),nome:f.name,extensao:ext,tamanho:f.size,hash:h,quando:agora(),licenca:$("#lic").value,origem:$("#esc").checked?"escaneado":"upload",dados:buf}));
   st.textContent=`${f.name} guardado.`;}
   galeria();}
 $("#arq").onchange=e=>enviar(e.target.files);
@@ -1078,7 +1748,7 @@ function ver(a){const box=$("#v3d"),info=$("#info");
    <div class="ferr"><label>Material <select id="mat"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>Resina padrão</option><option>Resina tough</option></select></label>
    <label>Cópias <input type="number" id="qtd" min="1" value="1" style="width:4rem"></label><button class="btn prim" id="imp">Pedir impressão</button></div>`;
   $("#imp").onclick=async()=>{const m=$("#mat").value,resina=/Resina/.test(m);
-    await tx("fila","readwrite",s=>s.put({id:"p"+Date.now(),modelo:a.id,nome:a.nome,material:m,copias:+$("#qtd").value||1,programa:resina?"HALOT BOX (resina)":"CrealityPrint (filamento)",estado:"aguardando",quando:agora()}));fila();};}
+    await tx("fila","readwrite",s=>s.put({id:"p"+Date.now(),modelo:a.id,nome:a.nome,material:m,copias:+$("#qtd").value||1,programa:resina?"fatiador (resina)":"fatiador (filamento)",estado:"aguardando",quando:agora()}));fila();};}
 // ---- fila de impressão: a impressão é feita no computador da impressora
 async function fila(){const ls=(await todos("fila")).sort((a,b)=>b.quando.localeCompare(a.quando)),ms=await todos("modelos");
   $("#fila").innerHTML=ls.length?`<div style="overflow-x:auto"><table><thead><tr><th>Quando</th><th>Modelo</th><th>Material</th><th>Cópias</th><th>Abrir em</th><th>Situação</th><th></th></tr></thead><tbody>${ls.map(p=>`<tr><td>${esc(p.quando)}</td><td>${esc(p.nome)}</td><td>${esc(p.material)}</td><td>${p.copias}</td><td>${esc(p.programa)}</td>
@@ -1090,18 +1760,18 @@ galeria();fila();
 })();
 </script>
 <script>
-PhysisPreferencias.iniciar({chave:"physis-pref",ondeColocar:"#pp-lugar",conteudo:"#conteudo",excecoes:["Physis Engineering","Sistema Physis","CrealityPrint","HALOT BOX","CrealityScan"],
+PhysisPreferencias.iniciar({chave:"physis-pref",ondeColocar:"#pp-lugar",conteudo:"#conteudo",excecoes:["Physis Engineering","Sistema Physis"],
  dicionario:{"Módulo de modelagem":"Modelling module","Modelagem 3D":"3D modelling","Enviar modelo":"Upload model","Galeria":"Gallery","Visualizador":"Viewer","Fila de impressão":"Print queue",
   "Escolher arquivos":"Choose files","Licença":"Licence","[definir licença]":"[set licence]","CC0 (domínio público)":"CC0 (public domain)","CC BY 4.0 (citar autoria)":"CC BY 4.0 (credit the author)",
   "CC BY-SA 4.0 (compartilhar igual)":"CC BY-SA 4.0 (share alike)","CERN-OHL-S (hardware aberto)":"CERN-OHL-S (open hardware)","Todos os direitos reservados":"All rights reserved",
-  "escaneado (CrealityScan)":"scanned (CrealityScan)","Ver em 3D":"View in 3D","Baixar":"Download","Remover":"Remove","Pedir impressão":"Request print","Material":"Material","Cópias":"Copies",
+  "escaneado":"scanned","Ver em 3D":"View in 3D","Baixar":"Download","Remover":"Remove","Pedir impressão":"Request print","Material":"Material","Cópias":"Copies",
   "Baixar arquivo":"Download file","Quando":"When","Modelo":"Model","Abrir em":"Open in","Situação":"Status","Pular para o conteúdo":"Skip to content",
   "versão de teste · funciona sem internet":"test version · works offline",
   "Nenhum modelo ainda. Envie STL/OBJ (ou 3MF, GLB, PLY, IFC) na caixa acima.":"No models yet. Upload STL/OBJ (or 3MF, GLB, PLY, IFC) in the box above.",
   "Nenhum pedido. Abra um modelo e use \"Pedir impressão\".":"No requests. Open a model and use \"Request print\".",
   "Escolha \"Ver em 3D\" num modelo da galeria. Arraste para girar, role para aproximar; no teclado, setas e + / −.":"Choose \"View in 3D\" on a gallery model. Drag to rotate, scroll to zoom; on the keyboard, arrows and + / −.",
-  "STL e OBJ abrem no visualizador; 3MF, GLB e PLY ficam guardados; IFC abre no Planejador. CrealityScan: exporte em OBJ ou STL. Até 40 MB por arquivo.":"STL and OBJ open in the viewer; 3MF, GLB and PLY are stored; IFC opens in the Planner. CrealityScan: export as OBJ or STL. Up to 40 MB per file.",
-  "Visualizador 3D local, galeria com a licença de cada arquivo, pedidos de impressão (CrealityPrint para filamento, HALOT BOX para resina, abertos no computador da impressora) e modelos escaneados (CrealityScan). Os arquivos ficam só neste navegador. IFC (BIM) abre no Planejador.":"Local 3D viewer, gallery with each file's licence, print requests (CrealityPrint for filament, HALOT BOX for resin, opened on the printer's computer) and scanned models (CrealityScan). Files stay in this browser only. IFC (BIM) opens in the Planner.",
+  "STL e OBJ abrem no visualizador; 3MF, GLB e PLY ficam guardados; IFC abre no Planejador. Escaneamento 3D: exporte em OBJ ou STL. Até 40 MB por arquivo.":"STL and OBJ open in the viewer; 3MF, GLB and PLY are stored; IFC opens in the Planner. 3D scans: export as OBJ or STL. Up to 40 MB per file.",
+  "Visualizador 3D local, galeria com a licença de cada arquivo, pedidos de impressão (no fatiador da impressora, de filamento ou de resina) e modelos escaneados. Os arquivos ficam só neste navegador. IFC (BIM) abre no Planejador.":"Local 3D viewer, gallery with each file's licence, print requests (in the printer's slicer, filament or resin) and scanned models. Files stay in this browser only. IFC (BIM) opens in the Planner.",
   "Sem cookies de rastreamento; arquivos e preferências ficam só neste navegador.":"No tracking cookies; files and preferences stay in this browser only."},
  aoMudar:function(){if(window.PhysisDesenvolvimento)PhysisDesenvolvimento.atualizar();}});
 </script>
