@@ -1,0 +1,46 @@
+/* explica-planejador.js (22/11/2026): perguntas e respostas do bot de explicação do Planejador (motor: physis-explica.js). */
+(function (w) {
+  "use strict";
+  w.PHYSIS_EXPLICA = w.PHYSIS_EXPLICA || {};
+  w.PHYSIS_EXPLICA.planejador = { itens: [
+    { id: "oque", tema: { pt: "O que é", en: "What it is" }, k: ["planejador", "serve", "para", "que", "planner"],
+      p: { pt: "O que é o Planejador?", en: "What is the Planner?" },
+      r: { pt: "É a tela de projeto do lugar: mapa, normas por bloco, APP, insolação, calhas (NBR 10844), conversão de DWG e leitura de modelo BIM (IFC). O mapa funciona sem internet.",
+           en: "It is the site design screen: map, rules per block, permanent preservation areas (APP), sun exposure, gutters (NBR 10844), DWG conversion and BIM model (IFC) reading. The map works offline." },
+      ver: ["mapa", "bim", "bot"] },
+    { id: "mapa", tema: { pt: "Mapa e terreno", en: "Map and site" }, k: ["mapa", "terreno", "lote", "kml", "google", "earth", "gis", "area", "map", "site"],
+      p: { pt: "Como coloco o meu terreno no mapa?", en: "How do I put my site on the map?" },
+      r: { pt: "Importe o contorno do terreno (KML/KMZ do Google Earth, GeoJSON ou GPX) ou desenhe no mapa. O mapa base vem guardado no computador, então funciona sem internet. Com o contorno, o Planejador calcula a área e confere APP e normas por bloco.",
+           en: "Import the site outline (Google Earth KML/KMZ, GeoJSON or GPX) or draw it on the map. The base map is stored on the computer, so it works offline. With the outline, the Planner computes the area and checks APP and block rules." },
+      ver: ["app", "chuva"] },
+    { id: "app", tema: { pt: "APP e normas", en: "APP and rules" }, k: ["app", "norma", "normas", "codigo", "florestal", "rio", "nascente", "declividade", "rules"],
+      p: { pt: "Como o Planejador confere APP e normas?", en: "How does the Planner check APP and rules?" },
+      r: { pt: "Ele marca na tela o que não atende: faixas de rio e nascente (Código Florestal), encostas acima de 45° e topo de morro, além das normas por bloco do projeto. Não manda alertas: o aviso aparece no próprio desenho.",
+           en: "It marks on screen what does not comply: river and spring buffers (Forest Code), slopes above 45° and hilltops, plus the project's per-block rules. It sends no alerts: the warning shows on the drawing itself." },
+      ver: ["mapa"] },
+    { id: "bim", tema: { pt: "BIM, IFC e DWG", en: "BIM, IFC and DWG" }, k: ["bim", "ifc", "dwg", "cad", "modelo", "planta", "revit", "model"],
+      p: { pt: "Posso abrir IFC e DWG?", en: "Can I open IFC and DWG?" },
+      r: { pt: "Sim. O IFC (BIM) abre com um leitor local (web-ifc), sem internet. O DWG é convertido para leitura. O bot de modelagem também gera IFC (por exemplo, dutos de ar-condicionado) que pode ser aberto aqui.",
+           en: "Yes. IFC (BIM) opens with a local reader (web-ifc), offline. DWG is converted for reading. The modelling bot also produces IFC (e.g., air-conditioning ducts) that can be opened here." },
+      ver: ["bot"] },
+    { id: "chuva", tema: { pt: "Chuva e calhas", en: "Rain and gutters" }, k: ["chuva", "calha", "cisterna", "agua", "drenagem", "nbr", "10844", "rain", "gutter"],
+      p: { pt: "Como dimensiono calhas e cisterna?", en: "How do I size gutters and a cistern?" },
+      r: { pt: "As calhas seguem a NBR 10844 (vazão pela intensidade de chuva e área do telhado) e a cisterna é calculada mês a mês com descarte inicial. Os números vêm da base de premissas da Physis; valores marcados [CONFERIR] devem ser confirmados para o local.",
+           en: "Gutters follow NBR 10844 (flow from rainfall intensity and roof area) and the cistern is computed month by month with first flush. Numbers come from the Physis assumptions base; values marked [TO CHECK] must be confirmed for the site." },
+      ver: ["bot"] },
+    { id: "sol", tema: { pt: "Insolação e solar", en: "Sun and solar" }, k: ["sol", "solar", "insolacao", "sombra", "placa", "fotovoltaico", "sun", "shading"],
+      p: { pt: "Como vejo a insolação e o potencial solar?", en: "How do I see sun exposure and solar potential?" },
+      r: { pt: "O Planejador mostra a insolação do lugar e as sombras. Para o potencial solar completo (irradiação com dados do local), o cálculo usa o serviço de cálculo do servidor da Physis quando ele estiver instalado.",
+           en: "The Planner shows site sun exposure and shadows. For the full solar potential (irradiance with site data), the calculation uses the Physis server's calculation service once it is installed." },
+      ver: ["bot"] },
+    { id: "bot", tema: { pt: "Bot de modelagem", en: "Modelling bot" }, k: ["bot", "gerar", "modelo", "turbina", "estufa", "net", "zero", "stl", "impressao", "generate"],
+      p: { pt: "O que o bot de modelagem faz?", en: "What does the modelling bot do?" },
+      r: { pt: "No topo da tela: escreva um pedido (\"estufa de 3 x 6 m\", \"balanço net zero com 450 kWh por mês\", \"calha para telhado de 120 m²\") ou envie uma imagem, KML ou grade de terreno. Ele gera o modelo, faz cálculos preliminares e exporta STL, OBJ, IFC, GeoJSON ou CSV.",
+           en: "At the top of the screen: type a request (\"greenhouse 3 x 6 m\", \"net zero balance with 450 kWh per month\", \"gutter for a 120 m² roof\") or upload an image, KML or terrain grid. It builds the model, runs preliminary calculations and exports STL, OBJ, IFC, GeoJSON or CSV." },
+      ver: ["bim", "chuva"] },
+    { id: "assistente", tema: { pt: "Assistente com IA", en: "AI assistant" }, k: ["assistente", "ia", "inteligencia", "indisponivel", "servidor", "ai", "assistant"],
+      p: { pt: "Por que o assistente diz \"indisponível\"?", en: "Why does the assistant say \"unavailable\"?" },
+      r: { pt: "O assistente com IA (perguntas sobre terreno, normas e revisão do estudo) precisa do servidor da Physis. Aberto direto do computador, ele fica indisponível, e este bot de explicação responde com o que já está pronto.",
+           en: "The AI assistant (questions on site, rules and study review) needs the Physis server. Opened straight from the computer it is unavailable, and this explanation bot answers with ready content." } }
+  ] };
+})(typeof window !== "undefined" ? window : this);

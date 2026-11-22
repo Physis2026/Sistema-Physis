@@ -31,6 +31,7 @@ footer{border-top:4px solid var(--terracota);background:var(--faixa);color:var(-
   <p class="muted">Visualizador 3D local, galeria com a licença de cada arquivo, pedidos de impressão (no fatiador da impressora, de filamento ou de resina) e modelos escaneados. Os arquivos ficam só neste navegador. IFC (BIM) abre no Planejador.</p>
 
   <div data-physis-desenvolvimento="modelagem3d"></div>
+  <div data-physis-explica="modelagem3d"></div>
   <div data-physis-modelador="modelagem3d"></div>
 
   <h2>Enviar modelo</h2>
@@ -255,6 +256,125 @@ function potenciasHtml(linhas, en, titulo) {
 
 global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info: info, fioB: fioB, economiaSolar: economiaSolar, h0Mensal: h0Mensal,
   fatorPlano: fatorPlano, bateria: bateria, diasChuva: diasChuva, cisterna: cisterna, calhas: calhas, coletorMensal: coletorMensal, potencias: potencias, potenciasHtml: potenciasHtml };
+})(typeof window !== "undefined" ? window : this);
+</script>
+<script id="explica-inovastem">
+/* explica-inovastem.js (22/11/2026): perguntas e respostas do bot de explicação do laboratório InovaSTEM e do módulo de
+   modelagem 3D (motor: physis-explica.js). Texto para o público: sem nomes de ferramentas internas. */
+(function (w) {
+  "use strict";
+  w.PHYSIS_EXPLICA = w.PHYSIS_EXPLICA || {};
+  var itens = [
+    { id: "oque", tema: { pt: "O que é o laboratório", en: "What the lab is" }, k: ["laboratorio", "lab", "inovastem", "physis", "3d", "serve", "what"],
+      p: { pt: "O que dá para fazer aqui?", en: "What can I do here?" },
+      r: { pt: "Desenhar e ajustar peças 3D, abrir modelos BIM, colocar um projeto num lugar do mapa, simular e imprimir. Tudo funciona no navegador, sem instalar nada, e muitas partes funcionam sem internet.",
+           en: "Design and adjust 3D parts, open BIM models, place a project on the map, simulate and print. Everything runs in the browser, nothing to install, and many parts work offline." },
+      ver: ["enviar", "pecas", "imprimir"] },
+    { id: "enviar", tema: { pt: "Enviar arquivo ou foto", en: "Upload a file or photo" }, k: ["enviar", "arquivo", "foto", "imagem", "upload", "stl", "obj", "3mf", "photo"],
+      p: { pt: "Que arquivos posso enviar?", en: "Which files can I upload?" },
+      r: { pt: "STL, OBJ e 3MF para peças; IFC para modelos BIM; KML/KMZ (Google Earth), GeoJSON e GPX para lugares; e fotos, que viram relevo ou ponto de partida para um modelo 3D.",
+           en: "STL, OBJ and 3MF for parts; IFC for BIM models; KML/KMZ (Google Earth), GeoJSON and GPX for places; and photos, which become a relief or a starting point for a 3D model." },
+      ver: ["bot", "lugar"] },
+    { id: "pecas", tema: { pt: "Peças 3D", en: "3D parts" }, k: ["peca", "pecas", "desenhar", "ajustar", "escala", "girar", "medida", "part", "parts"],
+      p: { pt: "Como ajusto uma peça?", en: "How do I adjust a part?" },
+      r: { pt: "Na subaba Peças 3D: escala, giro, espelho, pôr na mesa e medidas. A vista mostra as camadas e marca em vermelho as partes em balanço, que precisariam de suporte.",
+           en: "In the 3D parts sub-tab: scale, rotate, mirror, lay flat and measure. The view shows the layers and marks overhangs, which would need supports, in red." },
+      ver: ["dicas", "imprimir"] },
+    { id: "dicas", tema: { pt: "Imprimir sem erro", en: "Print without errors" }, k: ["erro", "suporte", "aresta", "balanco", "forte", "filamento", "parede", "encaixe", "support", "error"],
+      p: { pt: "Como fazer peças fortes, com pouco filamento e sem suporte?", en: "How do I make strong parts with little filament and no supports?" },
+      r: { pt: "Malha fechada; a maior face plana apoiada na mesa; saliências até 45°; paredes em múltiplos do bico (0,4 mm → 1,2 / 1,6 / 2,0 mm); 3 perímetros com preenchimento de 15%; folga de 0,15 a 0,3 mm nos encaixes; peças maiores que 20 cm divididas com eixo, pinos ou parafusos.",
+           en: "Closed mesh; largest flat face on the bed; overhangs up to 45°; walls in multiples of the nozzle (0.4 mm → 1.2 / 1.6 / 2.0 mm); 3 perimeters with 15% infill; 0.15–0.3 mm clearance on fits; parts larger than 20 cm split with a shaft, pins or screws." },
+      ver: ["imprimir", "bot"] },
+    { id: "imprimir", tema: { pt: "Fila de impressão", en: "Print queue" }, k: ["imprimir", "impressao", "fila", "impressora", "fatiar", "fatiador", "print", "printer"],
+      p: { pt: "Como peço uma impressão?", en: "How do I request a print?" },
+      r: { pt: "Escolha a peça, o material e as cópias e envie para a fila. O arquivo sai em STL em milímetros, com malha fechada, e abre no fatiador de qualquer impressora de filamento ou resina.",
+           en: "Pick the part, material and copies and send it to the queue. The file is STL in millimetres with a closed mesh, and opens in any filament or resin printer's slicer." },
+      ver: ["dicas"] },
+    { id: "lugar", tema: { pt: "Lugar no mapa (GIS)", en: "Place on the map (GIS)" }, k: ["lugar", "mapa", "gis", "terreno", "kml", "google", "earth", "chuva", "place", "map"],
+      p: { pt: "Como uso o mapa?", en: "How do I use the map?" },
+      r: { pt: "Na subaba Lugar (GIS), envie o contorno (KML/KMZ do Google Earth, GeoJSON ou GPX) ou desenhe. Com ele, dá para estimar área, chuva que cai no terreno e água que pode ser captada.",
+           en: "In the Place (GIS) sub-tab, upload the outline (Google Earth KML/KMZ, GeoJSON or GPX) or draw it. With it you can estimate area, rain falling on the site and water that can be harvested." },
+      ver: ["bot"] },
+    { id: "bim", tema: { pt: "Modelos BIM", en: "BIM models" }, k: ["bim", "ifc", "cad", "casa", "edificio", "planta", "building"],
+      p: { pt: "O que são os modelos BIM?", en: "What are BIM models?" },
+      r: { pt: "São modelos de construções com informação (paredes, portas, dutos, equipamentos). Na subaba Modelos BIM (CAD e IFC) você abre arquivos IFC e vê cada elemento.",
+           en: "They are building models with information (walls, doors, ducts, equipment). In the BIM models (CAD and IFC) sub-tab you open IFC files and inspect each element." },
+      ver: ["bot"] },
+    { id: "bot", tema: { pt: "Bot de modelagem", en: "Modelling bot" }, k: ["bot", "gerar", "turbina", "estufa", "caixa", "pedido", "escrever", "generate"],
+      p: { pt: "O que o bot de modelagem faz?", en: "What does the modelling bot do?" },
+      r: { pt: "Você escreve o pedido (\"gere uma turbina para impressão 3D de 40 cm\", \"estufa de 3 x 6 m\", \"caixa para sensores 10 x 8 x 5 cm\") e ele gera o modelo, mostra cálculos simples e deixa baixar o arquivo. Se ele não entender, sugira a ideia em Desafios e projetos ou no Fórum.",
+           en: "You type the request (\"generate a 40 cm wind turbine for 3D printing\", \"greenhouse 3 x 6 m\", \"sensor case 10 x 8 x 5 cm\") and it builds the model, shows simple calculations and lets you download the file. If it does not understand, suggest the idea in Challenges and projects or in the Forum." },
+      ver: ["dicas"] }
+  ];
+  w.PHYSIS_EXPLICA["inovastem-lab"] = { itens: itens };
+  w.PHYSIS_EXPLICA.modelagem3d = { itens: itens };
+})(typeof window !== "undefined" ? window : this);
+</script>
+<script id="physis-explica">
+/* physis-explica.js v1 (22/11/2026): bot de explicação de cada tela, que funciona SEM servidor e sem internet.
+   Busca nas perguntas e respostas da própria tela (window.PHYSIS_EXPLICA[contexto], vindas de sistema/explica-*.js) e
+   mostra a melhor resposta + temas ligados. Quando a página tiver uma IA disponível (window.PhysisIA.perguntar), tenta
+   primeiro por ela e cai nas respostas prontas se não houver. PT/EN pelas preferências. Sem rastreamento.
+   Uso: <div data-physis-explica="planejador"></div>. Original único: sistema/physis-explica.js. */
+(function (w) {
+  "use strict";
+  var d = w.document;
+  function lingua() { try { return (localStorage.getItem("physis-pref-idioma") || localStorage.getItem("physis-idioma") || d.documentElement.lang || "pt").slice(0, 2) === "en" ? "en" : "pt"; } catch (e) { return "pt"; } }
+  var TX = { pt: { tit: "Como funciona? Pergunte", dica: "Escreva sua dúvida ou escolha um tema.", perguntar: "Perguntar", nada: "Não encontrei uma resposta pronta para isso. Temas que posso explicar:", ver: "Ver também", ia: "Resposta da IA" },
+             en: { tit: "How does it work? Ask", dica: "Type your question or pick a topic.", perguntar: "Ask", nada: "I have no ready answer for that. Topics I can explain:", ver: "See also", ia: "AI answer" } };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function palavras(s) { return norm(s).split(/[^a-z0-9]+/).filter(function (x) { return x.length > 2; }); }
+  function campo(x, L) { return x && typeof x === "object" ? (x[L] || x.pt || "") : (x || ""); }
+  function buscar(base, txt, L) {
+    var q = palavras(txt); if (!q.length) return [];
+    return base.map(function (e) {
+      var alvo = palavras(campo(e.p, L) + " " + (e.k || []).join(" ")), s = 0;
+      q.forEach(function (p) { alvo.forEach(function (a) { if (a === p) s += 3; else if (a.indexOf(p) === 0 || p.indexOf(a) === 0) s += 1; }); });
+      return { e: e, s: s };
+    }).filter(function (x) { return x.s >= 3; }).sort(function (a, b) { return b.s - a.s; }).map(function (x) { return x.e; });
+  }
+  function estilo() {
+    if (d.getElementById("pex-estilo")) return;
+    var s = d.createElement("style"); s.id = "pex-estilo";
+    s.textContent = ".pex{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--verde,#2F7D5B);border-radius:12px;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23);max-width:100%;overflow-wrap:anywhere}" +
+      ".pex summary{cursor:pointer;font-weight:700;padding:.6rem .9rem}.pex .pex-c{padding:0 .9rem .8rem}.pex input{flex:1 1 14rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:transparent;color:inherit}" +
+      ".pex .pex-l{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.4rem 0}.pex button{border:1px solid var(--linha,#D9D3C2);border-radius:999px;padding:.25rem .65rem;font:inherit;font-size:.88rem;cursor:pointer;background:var(--sup,#FFFFFF);color:inherit}" +
+      ".pex .pex-p{background:var(--botao,#C2410C);border-color:var(--botao,#C2410C);color:#FFFFFF;border-radius:8px;font-size:1rem}.pex .pex-r{margin-top:.5rem}.pex .pex-r h3{margin:.3rem 0;font-size:1rem}";
+    d.head.appendChild(s);
+  }
+  function montar(el) {
+    if (el.getAttribute("data-pex-ok")) return; el.setAttribute("data-pex-ok", "1");
+    try { if (d.documentElement.hasAttribute("data-physis-demo")) { el.hidden = true; return; } } catch (e) { /* segue */ }
+    var L = lingua(), t = TX[L], ctx = el.getAttribute("data-physis-explica") || "", base = ((w.PHYSIS_EXPLICA || {})[ctx] || {}).itens || [];
+    if (!base.length) { el.hidden = true; return; }
+    estilo();
+    var temas = base.filter(function (e) { return e.tema; });
+    el.innerHTML = '<details class="pex"><summary>' + t.tit + '</summary><div class="pex-c"><small>' + t.dica + '</small><div class="pex-l"><input type="text" aria-label="' + t.tit + '"><button class="pex-p">' + t.perguntar +
+      '</button></div><div class="pex-l">' + temas.map(function (e, i) { return '<button data-i="' + base.indexOf(e) + '">' + esc(campo(e.tema, L)) + "</button>"; }).join("") + '</div><div class="pex-r" role="status"></div></div></details>';
+    var inp = el.querySelector("input"), out = el.querySelector(".pex-r");
+    function mostrar(e, extra) {
+      var rel = (e.ver || []).map(function (id) { return base.filter(function (x) { return x.id === id; })[0]; }).filter(Boolean);
+      out.innerHTML = "<h3>" + esc(campo(e.p, L)) + "</h3><p>" + esc(campo(e.r, L)) + "</p>" + (rel.length ? "<p><small>" + t.ver + ": " + rel.map(function (x) { return '<button data-i="' + base.indexOf(x) + '">' + esc(campo(x.tema || x.p, L)) + "</button>"; }).join(" ") + "</small></p>" : "") + (extra || "");
+      ligar(out);
+    }
+    function ligar(raiz) { Array.prototype.forEach.call(raiz.querySelectorAll("[data-i]"), function (b) { b.onclick = function () { mostrar(base[+b.getAttribute("data-i")]); }; }); }
+    function perguntar() {
+      var txt = inp.value.trim(); if (!txt) return;
+      var achou = buscar(base, txt, L), pronta = function () {
+        if (achou.length) mostrar(achou[0]); else { out.innerHTML = "<p>" + t.nada + "</p><div class='pex-l'>" + temas.map(function (e) { return '<button data-i="' + base.indexOf(e) + '">' + esc(campo(e.tema, L)) + "</button>"; }).join("") + "</div>"; ligar(out); }
+      };
+      if (w.PhysisIA && typeof w.PhysisIA.perguntar === "function") {
+        Promise.resolve(w.PhysisIA.perguntar(txt, { contexto: ctx, idioma: L })).then(function (r) { if (r) out.innerHTML = "<h3>" + t.ia + "</h3><p>" + esc(r) + "</p>"; else pronta(); }, pronta);
+      } else pronta();
+    }
+    el.querySelector(".pex-p").onclick = perguntar; inp.onkeydown = function (e) { if (e.key === "Enter") perguntar(); };
+    ligar(el);
+  }
+  function tudo() { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-explica]"), montar); }
+  w.PhysisExplica = { montar: montar, buscar: buscar };
+  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", tudo); else tudo();
+  if (w.MutationObserver) new MutationObserver(function () { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-explica]:not([data-pex-ok])"), montar); }).observe(d.documentElement, { childList: true, subtree: true });
 })(typeof window !== "undefined" ? window : this);
 </script>
 <script id="physis-modelador">
@@ -648,7 +768,7 @@ global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info
     if (d.getElementById("pmd-estilo")) return;
     var s = d.createElement("style"); s.id = "pmd-estilo";
     s.textContent = ".pmd{border:1px solid var(--linha,#D9D3C2);border-left:5px solid var(--botao,#C2410C);border-radius:12px;padding:.8rem 1rem;margin:1rem 0;background:var(--sup,#FFFFFF);color:var(--texto,#1B1F23)}" +
-      ".pmd h2{margin:.1rem 0 .3rem;font-size:1.15rem}.pmd textarea{width:100%;min-height:3.2rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:var(--fundo,#F4F1EA);color:inherit}" +
+      ".pmd h2{margin:.1rem 0 .3rem;font-size:1.15rem}.pmd textarea{width:100%;min-height:3.2rem;font:inherit;padding:.4rem;border:1px solid var(--linha,#D9D3C2);border-radius:8px;background:transparent;color:inherit}" +
       ".pmd .pmd-l{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}.pmd button,.pmd .pmd-b{border:1px solid var(--linha,#D9D3C2);border-radius:8px;padding:.35rem .7rem;font:inherit;cursor:pointer;background:var(--sup,#FFFFFF);color:inherit}" +
       ".pmd .pmd-p{background:var(--botao,#C2410C);border-color:var(--botao,#C2410C);color:#FFFFFF}.pmd .pmd-ex{font-size:.88rem;opacity:.85;cursor:pointer;text-decoration:underline dotted}" +
       ".pmd table{border-collapse:collapse;width:100%;font-size:.92rem}.pmd td{border-bottom:1px solid var(--linha,#D9D3C2);padding:.25rem .3rem;vertical-align:top}.pmd .pmd-v{min-height:0;margin:.5rem 0}.pmd small{opacity:.8}.pmd canvas{max-width:100%;height:auto}.pmd{overflow-wrap:anywhere;max-width:100%}";

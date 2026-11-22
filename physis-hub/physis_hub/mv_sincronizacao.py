@@ -19,7 +19,8 @@ from .mv import MV
 BASE = Path("C:/physis")
 REPOS = {"Sistema Physis (oficial)": BASE / "physis-sistema", "Sistema Physis (teste)": BASE / "physis-teste",
          "Instituto Physis": BASE / "instituto-physis", "InovaSTEM (ramo inovastem)": BASE / "instituto-physis-inovastem"}
-ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js", "sistema/physis-modelador.js"]
+ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js", "sistema/physis-modelador.js",
+             "sistema/physis-explica.js", "sistema/explica-inovastem.js"]
 TESTES = ["tests.test_preferencias", "tests.test_preferencias_paginas", "tests.test_mv_traducao", "tests.test_bases", "tests.test_inovastem"]
 # páginas que são GERADAS a partir das cópias (não se edita o arquivo pronto): rodar o gerador depois de sincronizar
 GERADORES = ["demos/gerar_demos.py", "ferramentas/montar_lab_inovastem.py"]
