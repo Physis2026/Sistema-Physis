@@ -1087,6 +1087,7 @@ function ppIniciar(){
   if (!window.PhysisPreferencias) return;
   var par = function(s){ return PhysisPreferencias.par(s); };
   var T = {
+    "(latitude −23° até informar a do terreno)": "(latitude −23° until the plot's latitude is entered)", "(vista 3D)": "(3D view)", "), base": "), base", "A vista 3D usa bibliotecas guardadas no servidor da plataforma: abra o Planejador pela aba Planejador.": "The 3D view uses libraries stored on the platform server: open the Planner from the Planner tab.", "Altura (m)": "Height (m)", "Baixar imagem (PNG)": "Download image (PNG)", "Clique numa massa para selecionar; arraste para mover no terreno. Fora das massas, arraste para girar a vista e use a roda para aproximar. Com a vista em foco: setas movem 0,5 m, + e − mudam a altura em 0,10 m, Q e E giram 5°; Ctrl+Z desfaz.": "Click a mass to select it; drag to move it on the terrain. Away from the masses, drag to orbit and use the wheel to zoom. With the view focused: arrows move 0.5 m, + and − change the height by 0.10 m, Q and E rotate 5°; Ctrl+Z undoes.", "Cota da plataforma (m)": "Platform level (m)", "Dia do ano:": "Day of the year:", "Escolher a massa para editar": "Choose the mass to edit", "Imagem": "Image", "Massa selecionada": "Selected mass", "Pé-direito do projeto": "Project storey height", "Vista 3D com": "3D view with", "Vista 3D do terreno e das massas; use as setas, + e −, Q e E para editar a massa selecionada": "3D view of the terrain and masses; use the arrows, + and −, Q and E to edit the selected mass", "cobertura do solo (sem altura)": "ground cover (no height)", "dia do sol (vista 3D)": "sun day (3D view)", "edificações sem altura informada (placas de desenho).": "buildings without a height entered (drawing slabs).", "edificações sem altura na vista 3D: informe a altura do item ou o pé-direito do projeto": "buildings without height in the 3D view: enter the item height or the project storey height", "edificações sem altura: aparecem como placas de 0,20 m; informe a altura na ficha ou o pé-direito acima.": "buildings without height: shown as 0.20 m slabs; enter the height in the card or the storey height above.", "editado na vista 3D (": "edited in the 3D view (", "escolher no 3D ou nesta lista": "choose in 3D or in this list", "hora do sol (vista 3D)": "sun hour (3D view)", "informada no item": "entered on the item", "m, altura": "m, height", "massas sobre o terreno; sol no dia": "masses on the terrain; sun on day", "massas ·": "masses ·", "movido na vista 3D": "moved in the 3D view", "placa de desenho de 0,20 m: informe a altura": "0.20 m drawing slab: enter the height", "pé-direito do projeto ×": "project storey height ×", "sol a": "sun at", "sol abaixo do horizonte nesta hora": "sun below the horizon at this hour", "terreno, plataformas e construções em 3D no navegador, com sombras por hora e dia; mover, altura e giro direto no 3D": "terrain, platforms and buildings in 3D in the browser, with shadows by hour and day; move, height and rotation directly in 3D", "vazio: edificações sem altura viram placas de desenho": "empty: buildings without height become drawing slabs", "° de altura": "° high",
     "Planejador Physis": "Physis Planner", "do terreno ao estudo preliminar": "from the plot to the preliminary study", "Pular para o conteúdo": "Skip to content",
     "Potência ativa, reativa e aparente": "Active, reactive and apparent power", "Demanda média (consumo do mês ÷ 730 h)": "Average demand (monthly consumption ÷ 730 h)", "Potências da demanda média · fator de potência": "Power at average demand · power factor",
     "Ajustes de leitura": "Reading settings", "Desfazer": "Undo", "Refazer": "Redo", "Desfazer (Ctrl+Z)": "Undo (Ctrl+Z)", "Refazer (Ctrl+Y)": "Redo (Ctrl+Y)", "Salvar": "Save", "Abrir projeto": "Open project", "Novo": "New",
@@ -3404,10 +3405,171 @@ MOD.registrar({
   }
 });
 
+// SPDX-License-Identifier: BUSL-1.1
+// Módulo Profissional · Vista 3D do terreno e das massas (versão de TESTE, 22/11/2026)
+// O terreno (a mesma grade do núcleo, T.build/T.z) e as massas dos itens em 3D, com sol por dia e hora (SOL.pos) e
+// edição direta (decisão da dona, M&A pg:4bd340f67b73): clicar seleciona, arrastar move no chão, altura, giro e cota
+// na ficha e pelo teclado. Toda edição passa por mutate (Desfazer e recálculo como no mapa).
+// Altura (decisão pg:99df166fe3f6): a do item (alt); sem ela, pé-direito do projeto × pavimentos; sem os dois, placa
+// de desenho de 0,20 m, com aviso para informar. Nenhuma altura inventada.
+const V3D = { cam: { az: 0.8, el: 0.55, dist: null }, sel: null, ren: null, cv: null, alvo: null };
+const V3D_PLACA = 0.2;
+function v3dAltura(it, p) {
+  if (it.alt != null) return { h: +it.alt, origem: 'informada no item' };
+  const cat = TIPOS[it.tipo]?.cat;
+  if (cat === 'ed' && p.pd != null) return { h: p.pd * (it.pav || 1), origem: 'pé-direito do projeto × ' + (it.pav || 1) + ' pavimento(s)' };
+  if (cat === 'perm') return { h: 0.05, origem: 'cobertura do solo (sem altura)' };
+  return { h: V3D_PLACA, origem: 'placa de desenho de 0,20 m: informe a altura', aviso: cat === 'ed' };
+}
+function v3dCorFundo() { return document.documentElement.dataset.tema === 'escuro' ? 0x1C2B21 : 0xF4F6F1; }
+
+MOD.registrar({
+  id: 'vista3d', nome: 'Vista 3D do terreno e das massas', plano: 'profissional', estado: 'disponível',
+  resumo: 'terreno, plataformas e construções em 3D no navegador, com sombras por hora e dia; mover, altura e giro direto no 3D',
+  normas: [],
+  padrao: { pd: null, dia: 172, hora: 10 },
+  calcular(R, p) {
+    const g = T.build();
+    const massas = S.itens.filter(i => TIPOS[i.tipo] && TIPOS[i.tipo].cat !== 'ponto').map(i => {
+      const a = v3dAltura(i, p);
+      return { id: i.id, nome: i.nome, tipo: i.tipo, x: i.x, y: i.y, w: i.w, d: i.d, rot: i.rot || 0,
+        base: i.cota ?? T.z(i.x, i.y), h: a.h, origem: a.origem, aviso: !!a.aviso, cor: TIPOS[i.tipo].cor };
+    });
+    const lat = S.terreno.lat0 ?? -23, s = SOL.pos(p.dia ?? 172, p.hora ?? 10, lat);
+    return { massas, semAltura: massas.filter(m => m.aviso).length, sol: s, lat, latPadrao: S.terreno.lat0 == null, zref: g.zmin };
+  },
+  tela(r, p) {
+    const area = h('div', { id: 'v3d-area' });
+    const sel = r.massas.find(m => m.id === V3D.sel) || null;
+    const it = sel && S.itens.find(i => i.id === sel.id);
+    const num = (rot, val, set, o = {}) => { const id = 'v3d_' + rot.replace(/\W/g, ''); return h('div', { class: 'field' }, h('label', { for: id }, rot),
+      h('input', { id, type: 'number', step: o.step || 'any', value: val ?? '', placeholder: o.ph || '', onchange: e => mutate(() => set(e.target.value === '' ? null : +e.target.value), rot + ' (vista 3D)') })); };
+    const lista = h('select', { id: 'v3d_sel', 'aria-label': 'Escolher a massa para editar', onchange: e => { V3D.sel = e.target.value || null; refresh(); } },
+      h('option', { value: '' }, 'escolher no 3D ou nesta lista'), ...r.massas.map(m => h('option', { value: m.id, selected: m.id === V3D.sel }, m.nome)));
+    const ficha = sel && it ? h('div', { class: 'grid' },
+      num('Altura (m)', it.alt, v => { it.alt = v; }, { step: 0.1, ph: NF(sel.h, 2) + ' (' + sel.origem + ')' }),
+      num('Giro (°)', it.rot || 0, v => { it.rot = v || 0; }, { step: 1 }),
+      num('Cota da plataforma (m)', it.cota, v => { it.cota = v; }, { step: 0.01, ph: NF(sel.base, 2) + ' (terreno)' }),
+      num('Pavimentos', it.pav, v => { it.pav = v || 1; }, { step: 1 })) : null;
+    const baixar = h('button', { type: 'button', onclick: () => { if (!V3D.ren) return; V3D.desenhar?.(); const a = h('a', { href: V3D.ren.domElement.toDataURL('image/png'), download: (S.meta.nome || 'vista-3d').replace(/[^\w-]+/g, '_') + '-3d.png' }); document.body.append(a); a.click(); a.remove(); } }, 'Baixar imagem (PNG)');
+    const sol = r.sol.alt > 0 ? `sol a ${NF(r.sol.alt / RAD, 0)}° de altura` : 'sol abaixo do horizonte nesta hora';
+    const el = h('div', {},
+      h('div', { class: 'grid' },
+        mfld('vista3d', 'pd', 'Pé-direito do projeto', { unit: 'm', step: 0.01, dica: 'vazio: edificações sem altura viram placas de desenho' }),
+        h('div', { class: 'field' }, h('label', { for: 'v3d_dia' }, 'Dia do ano: ' + (p.dia ?? 172)), h('input', { id: 'v3d_dia', type: 'range', min: 1, max: 365, value: p.dia ?? 172, onchange: e => mutate(() => { MOD.p('vista3d').dia = +e.target.value; }, 'dia do sol (vista 3D)') })),
+        h('div', { class: 'field' }, h('label', { for: 'v3d_hora' }, 'Hora: ' + NF(p.hora ?? 10, 1) + ' h'), h('input', { id: 'v3d_hora', type: 'range', min: 5, max: 19, step: 0.5, value: p.hora ?? 10, onchange: e => mutate(() => { MOD.p('vista3d').hora = +e.target.value; }, 'hora do sol (vista 3D)') }))),
+      h('p', { class: 'hint' }, `${r.massas.length} massas · ${sol}` + (r.latPadrao ? ' (latitude −23° até informar a do terreno)' : '') +
+        (r.semAltura ? ` · ${r.semAltura} edificações sem altura: aparecem como placas de 0,20 m; informe a altura na ficha ou o pé-direito acima.` : '')),
+      area,
+      h('p', { class: 'hint' }, 'Clique numa massa para selecionar; arraste para mover no terreno. Fora das massas, arraste para girar a vista e use a roda para aproximar. Com a vista em foco: setas movem 0,5 m, + e − mudam a altura em 0,10 m, Q e E giram 5°; Ctrl+Z desfaz.'),
+      h('div', { class: 'grid' }, h('div', { class: 'field' }, h('label', { for: 'v3d_sel' }, 'Massa selecionada'), lista), h('div', { class: 'field' }, h('label', {}, 'Imagem'), baixar)),
+      ficha,
+      sel ? h('p', { class: 'hint' }, `${sel.nome}: ${NF(sel.w, 2)} × ${NF(sel.d, 2)} m, altura ${NF(sel.h, 2)} m (${sel.origem}), base ${NF(sel.base, 2)} m.`) : null);
+    if (!VENDOR.temServidor()) { area.append(h('p', { class: 'hint' }, 'A vista 3D usa bibliotecas guardadas no servidor da plataforma: abra o Planejador pela aba Planejador.')); return el; }
+    v3dMontar(area, r).catch(e => area.replaceChildren(h('p', { class: 'hint' }, 'Não foi possível montar o 3D: ' + e.message)));
+    return el;
+  },
+  verificar(r, C) { if (r.semAltura) C('info', `${r.semAltura} edificações sem altura na vista 3D: informe a altura do item ou o pé-direito do projeto`, 'modulos'); },
+  blocos(r, { P }) {
+    P(`Vista 3D com ${r.massas.length} massas sobre o terreno; sol no dia ${MOD.p('vista3d').dia ?? 172} às ${NF(MOD.p('vista3d').hora ?? 10, 1)} h` +
+      (r.semAltura ? `; ${r.semAltura} edificações sem altura informada (placas de desenho).` : '.'));
+  }
+});
+
+async function v3dMontar(area, r) {
+  await VENDOR.js('three.min.js');
+  const g = T.build(), zr = r.zref;
+  const P3 = (x, y, z) => new THREE.Vector3(x, z - zr, -y); // x leste, y norte (local) → three com Y para cima
+  const W = Math.max(320, area.clientWidth || 640), H = Math.round(Math.min(560, Math.max(360, W * 0.62)));
+  if (!V3D.ren) {
+    V3D.cv = h('canvas', { tabindex: 0, role: 'application', 'aria-label': 'Vista 3D do terreno e das massas; use as setas, + e −, Q e E para editar a massa selecionada', style: 'width:100%;border:1px solid var(--line);border-radius:10px;touch-action:none;display:block' });
+    V3D.ren = new THREE.WebGLRenderer({ canvas: V3D.cv, antialias: true, preserveDrawingBuffer: true });
+    V3D.ren.shadowMap.enabled = true; V3D.ren.shadowMap.type = THREE.PCFSoftShadowMap;
+    V3D.ren.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  }
+  const ren = V3D.ren, cv = V3D.cv;
+  ren.setSize(W, H, false);
+  area.replaceChildren(cv);
+  const cena = new THREE.Scene(); cena.background = new THREE.Color(v3dCorFundo());
+  cena.add(new THREE.HemisphereLight(0xffffff, 0x8a7f63, 0.55));
+  // terreno: células da grade do núcleo com algum canto dentro do lote
+  const pos = [], idx = [], id = (i, j) => j * g.nx + i;
+  for (let j = 0; j < g.ny; j++) for (let i = 0; i < g.nx; i++) { const v = P3(g.x0 + i * g.cs, g.y0 + j * g.cs, g.Z[id(i, j)]); pos.push(v.x, v.y, v.z); }
+  for (let j = 0; j < g.ny - 1; j++) for (let i = 0; i < g.nx - 1; i++) {
+    if (!(g.ins[id(i, j)] || g.ins[id(i + 1, j)] || g.ins[id(i, j + 1)] || g.ins[id(i + 1, j + 1)])) continue;
+    idx.push(id(i, j), id(i + 1, j), id(i + 1, j + 1), id(i, j), id(i + 1, j + 1), id(i, j + 1));
+  }
+  const gt = new THREE.BufferGeometry(); gt.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gt.setIndex(idx); gt.computeVertexNormals();
+  const terreno = new THREE.Mesh(gt, new THREE.MeshLambertMaterial({ color: 0xB9A97F, side: THREE.DoubleSide })); terreno.receiveShadow = true; cena.add(terreno);
+  const contorno = S.terreno.poly.map(q => P3(q[0], q[1], T.z(q[0], q[1]) + 0.05)); contorno.push(contorno[0]);
+  cena.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(contorno), new THREE.LineBasicMaterial({ color: 0x1B1F23 })));
+  // massas
+  const malhas = [];
+  for (const m of r.massas) {
+    const geo = new THREE.BoxGeometry(Math.max(m.w, 0.05), Math.max(m.h, 0.02), Math.max(m.d, 0.05));
+    const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(m.cor), transparent: m.aviso, opacity: m.aviso ? 0.75 : 1 });
+    const me = new THREE.Mesh(geo, mat); const c = P3(m.x, m.y, m.base); me.position.set(c.x, c.y + m.h / 2, c.z); me.rotation.y = m.rot * RAD;
+    me.castShadow = me.receiveShadow = true; me.userData = m; cena.add(me); malhas.push(me);
+  }
+  let caixa = null;
+  const marcar = () => { if (caixa) { cena.remove(caixa); caixa = null; } const s = malhas.find(x => x.userData.id === V3D.sel); if (s) { caixa = new THREE.BoxHelper(s, 0xF97316); cena.add(caixa); } };
+  marcar();
+  // sol (SOL.pos: azimute a partir do norte, positivo para o leste)
+  const bb = new THREE.Box3().setFromObject(terreno), centro = bb.getCenter(new THREE.Vector3()), raio = bb.getSize(new THREE.Vector3()).length() / 2 || 1;
+  const luz = new THREE.DirectionalLight(0xffffff, r.sol.alt > 0 ? 0.95 : 0.15), dir = new THREE.Vector3(Math.sin(r.sol.az) * Math.cos(r.sol.alt), Math.max(Math.sin(r.sol.alt), 0.05), -Math.cos(r.sol.az) * Math.cos(r.sol.alt)).normalize();
+  luz.position.copy(centro).addScaledVector(dir, raio * 3); luz.target.position.copy(centro); luz.castShadow = r.sol.alt > 0;
+  Object.assign(luz.shadow.camera, { left: -raio, right: raio, top: raio, bottom: -raio, near: 0.5, far: raio * 6 }); luz.shadow.mapSize.set(2048, 2048); luz.shadow.bias = -0.0005;
+  cena.add(luz, luz.target);
+  // câmera e desenho
+  const cam = new THREE.PerspectiveCamera(45, W / H, raio / 100, raio * 100);
+  if (V3D.cam.dist == null || V3D.alvo !== S.meta.criado) { V3D.cam.dist = raio * 2.4; V3D.alvo = S.meta.criado; }
+  const desenhar = () => { const k = V3D.cam; cam.position.set(centro.x + k.dist * Math.cos(k.el) * Math.sin(k.az), centro.y + k.dist * Math.sin(k.el), centro.z + k.dist * Math.cos(k.el) * Math.cos(k.az)); cam.lookAt(centro); if (caixa) caixa.update(); ren.render(cena, cam); };
+  V3D.desenhar = desenhar;
+  // interação
+  const rc = new THREE.Raycaster(), ptr = new THREE.Vector2();
+  const raio3 = e => { const b = cv.getBoundingClientRect(); ptr.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); rc.setFromCamera(ptr, cam); return rc; };
+  let modo = null, ini = null, chao = null, desl = null;
+  cv.onpointerdown = e => {
+    cv.focus(); cv.setPointerCapture(e.pointerId); ini = [e.clientX, e.clientY];
+    const hit = raio3(e).intersectObjects(malhas)[0];
+    if (hit) {
+      const me = hit.object; V3D.sel = me.userData.id; marcar(); desenhar();
+      chao = new THREE.Plane(new THREE.Vector3(0, 1, 0), -me.position.y); const p0 = new THREE.Vector3(); rc.ray.intersectPlane(chao, p0);
+      desl = me.position.clone().sub(p0); modo = { me, x0: me.userData.x, y0: me.userData.y, moveu: false };
+    } else modo = 'orbita';
+  };
+  cv.onpointermove = e => {
+    if (!modo || !ini) return;
+    if (modo === 'orbita') { V3D.cam.az -= (e.clientX - ini[0]) * 0.01; V3D.cam.el = clamp(V3D.cam.el + (e.clientY - ini[1]) * 0.01, 0.05, 1.45); ini = [e.clientX, e.clientY]; desenhar(); return; }
+    const p = new THREE.Vector3(); if (!raio3(e).ray.intersectPlane(chao, p)) return;
+    p.add(desl); modo.me.position.x = Math.round(p.x * 10) / 10; modo.me.position.z = Math.round(p.z * 10) / 10; modo.moveu = true; desenhar();
+  };
+  cv.onpointerup = () => {
+    if (modo && modo !== 'orbita' && modo.moveu) { const me = modo.me, idI = me.userData.id, nx = +me.position.x.toFixed(2), ny = +(-me.position.z).toFixed(2);
+      mutate(() => { const it = S.itens.find(i => i.id === idI); if (it) { it.x = nx; it.y = ny; } }, me.userData.nome + ' movido na vista 3D'); }
+    else if (modo && modo !== 'orbita') refresh();
+    modo = null; ini = null;
+  };
+  cv.onwheel = e => { e.preventDefault(); V3D.cam.dist = clamp(V3D.cam.dist * (e.deltaY > 0 ? 1.1 : 0.9), raio * 0.15, raio * 20); desenhar(); };
+  cv.onkeydown = e => {
+    const it = S.itens.find(i => i.id === V3D.sel); if (!it) return;
+    const m = r.massas.find(x => x.id === it.id), passo = 0.5;
+    const acoes = { ArrowLeft: () => { it.x = +(it.x - passo).toFixed(2); }, ArrowRight: () => { it.x = +(it.x + passo).toFixed(2); },
+      ArrowUp: () => { it.y = +(it.y + passo).toFixed(2); }, ArrowDown: () => { it.y = +(it.y - passo).toFixed(2); },
+      '+': () => { it.alt = +((it.alt ?? m.h) + 0.1).toFixed(2); }, '=': () => { it.alt = +((it.alt ?? m.h) + 0.1).toFixed(2); },
+      '-': () => { it.alt = Math.max(0.1, +((it.alt ?? m.h) - 0.1).toFixed(2)); },
+      q: () => { it.rot = ((it.rot || 0) + 5) % 360; }, e: () => { it.rot = ((it.rot || 0) - 5 + 360) % 360; } };
+    const f = acoes[e.key] || acoes[e.key.toLowerCase()];
+    if (!f || e.ctrlKey || e.metaKey) return;
+    e.preventDefault(); mutate(f, it.nome + ' editado na vista 3D (' + e.key + ')');
+    setTimeout(() => V3D.cv?.focus(), 0);
+  };
+  desenhar();
+}
+
 // SPDX-License-Identifier: AGPL-3.0-only
 // Catálogo de módulos planejados (aparecem na página de módulos como roteiro).
 [
-  ['vista3d',   'Vista 3D do terreno e das massas', 'profissional', 'terreno, plataformas e construções em 3D no navegador, com sombras por hora e dia'],
   ['exporta',   'Exportação DXF e IFC',             'profissional', 'curvas, perímetro e implantação em DXF; sítio e massas em IFC4 para os projetistas'],
   ['crono',     'Cronograma de obra',               'profissional', 'fases por item, Gantt e curva de desembolso ligada ao orçamento'],
   ['swmm',      'Exportação para o EPA SWMM',       'profissional', 'sub-bacias, valas e detenção em arquivo .inp para simulação hidráulica detalhada'],
