@@ -2,8 +2,8 @@
  "schema": "physis.terreno/1.0",
  "meta": {
   "nome": "Casa Physis · Lote 168 · gêmeo digital (semente rev0, TESTE)",
-  "municipio": "",
-  "uf": "",
+  "municipio": "Petrópolis",
+  "uf": "RJ",
   "responsavel": "",
   "criado": "2026-11-21"
  },
@@ -194,20 +194,34 @@
   ],
   "kt": 0.5,
   "pr": 0.8,
+  "pvgis": [
+   119.04,
+   115.3152,
+   116.3616,
+   106.848,
+   100.936,
+   91.392,
+   99.1008,
+   111.4512,
+   103.824,
+   112.9392,
+   105.984,
+   115.444
+  ],
   "idf": {
-   "K": null,
-   "a": null,
-   "b": null,
-   "c": null,
-   "nome": ""
+   "nome": "Petrópolis (RJ) · CPRM 2016",
+   "K": 2655.6,
+   "a": 0.1644,
+   "b": 30.6,
+   "c": 0.8862
   },
   "temp": 18.53
  },
  "solo": {
-  "classe": "",
-  "sadm": null,
-  "ci": null,
-  "spt": ""
+  "classe": "residual",
+  "sadm": 200,
+  "ci": 40,
+  "spt": "NSPT 8 a 20 entre 1,5 a 5 m de profundidade (hipótese, planilha 20 › Geotecnia (hipóteses), linha 3)"
  },
  "regras": {
   "to": 40.0,
@@ -282,7 +296,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 6,
-   "cota": 901.22
+   "cota": 901.22,
+   "alt": 2.74
   },
   {
    "id": "g-piscina",
@@ -334,7 +349,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 895.2
+   "cota": 895.2,
+   "alt": 3.2
   },
   {
    "id": "g-apoio",
@@ -464,7 +480,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 891.36
+   "cota": 891.36,
+   "alt": 2.9
   },
   {
    "id": "g-lab_up",
@@ -477,7 +494,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 894.26
+   "cota": 894.26,
+   "alt": 3.09
   },
   {
    "id": "g-mec",
@@ -490,7 +508,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 892.86
+   "cota": 892.86,
+   "alt": 2.9
   },
   {
    "id": "g-mec_up",
@@ -503,7 +522,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 895.76
+   "cota": 895.76,
+   "alt": 3.09
   },
   {
    "id": "g-viveiro",
@@ -672,7 +692,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 891.8
+   "cota": 891.8,
+   "alt": 2.9
   },
   {
    "id": "g-bar",
@@ -685,7 +706,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 891.8
+   "cota": 891.8,
+   "alt": 4.0
   },
   {
    "id": "g-deck1",
@@ -750,7 +772,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 885.21
+   "cota": 885.21,
+   "alt": 2.9
   },
   {
    "id": "g-staff",
@@ -763,7 +786,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 883.83
+   "cota": 883.83,
+   "alt": 2.9
   },
   {
    "id": "g-coelhos",
@@ -849,12 +873,13 @@
    "nome": "Loft 1 4 × 4",
    "x": 16.505,
    "y": 40.845,
-   "w": 5.51,
-   "d": 5.51,
-   "rot": 0,
+   "w": 4.0,
+   "d": 4.0,
+   "rot": 58.0,
    "pav": 1,
    "ocup": 4,
-   "cota": 884.5
+   "cota": 884.5,
+   "alt": 5.0
   },
   {
    "id": "g-LF2",
@@ -862,12 +887,13 @@
    "nome": "Loft 2 4 × 4",
    "x": 10.5,
    "y": 42.12,
-   "w": 5.42,
-   "d": 5.42,
-   "rot": 0,
+   "w": 4.0,
+   "d": 4.0,
+   "rot": 62.0,
    "pav": 1,
    "ocup": 4,
-   "cota": 883.0
+   "cota": 883.0,
+   "alt": 5.0
   },
   {
    "id": "g-LF3",
@@ -875,12 +901,13 @@
    "nome": "Loft 3 4 × 4",
    "x": 5.0,
    "y": 43.62,
-   "w": 5.42,
-   "d": 5.42,
-   "rot": 0,
+   "w": 4.0,
+   "d": 4.0,
+   "rot": 62.0,
    "pav": 1,
    "ocup": 4,
-   "cota": 881.5
+   "cota": 881.5,
+   "alt": 5.0
   },
   {
    "id": "g-pet",
@@ -893,7 +920,8 @@
    "rot": 0,
    "pav": 1,
    "ocup": 0,
-   "cota": 887.8
+   "cota": 887.8,
+   "alt": 2.9
   },
   {
    "id": "g-LF4",
@@ -901,12 +929,13 @@
    "nome": "Loft 4 4 × 5",
    "x": 16.0,
    "y": 50.75,
-   "w": 5.3,
-   "d": 5.96,
-   "rot": 0,
+   "w": 4.0,
+   "d": 5.0,
+   "rot": 17.0,
    "pav": 1,
    "ocup": 4,
-   "cota": 880.0
+   "cota": 880.0,
+   "alt": 5.0
   },
   {
    "id": "g-LF5",
@@ -914,12 +943,13 @@
    "nome": "Loft 5 4 × 5",
    "x": 16.0,
    "y": 58.885,
-   "w": 6.02,
-   "d": 6.35,
-   "rot": 0,
+   "w": 4.0,
+   "d": 5.0,
+   "rot": 32.0,
    "pav": 1,
    "ocup": 4,
-   "cota": 877.5
+   "cota": 877.5,
+   "alt": 5.0
   },
   {
    "id": "g-LF6",
@@ -1414,6 +1444,32 @@
    "pav": 1,
    "ocup": 0,
    "cota": 881.92
+  },
+  {
+   "id": "g-acesso-rua-g",
+   "tipo": "acesso",
+   "nome": "Acesso pela Rua G (existente)",
+   "x": 0.09,
+   "y": 60.46,
+   "w": 1.0,
+   "d": 1.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-acesso-rua-h",
+   "tipo": "acesso",
+   "nome": "Acesso pela Rua H (4 vagas)",
+   "x": 7.6,
+   "y": 0.0,
+   "w": 1.0,
+   "d": 1.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
   }
  ],
  "hidro": {
@@ -1468,6 +1524,14 @@
    "st": "est",
    "src": "padrão do Planejador (a planilha 03 não traz kt)"
   },
+  "clima.pvgis": {
+   "st": "est",
+   "src": "planilha 03 › Solar, linha 24 (kWh/kWp por mês, jan a dez; não é o PVGIS: é a estimativa da 03)"
+  },
+  "clima.idf": {
+   "st": "conf",
+   "src": "06_Estudo_Hidrologico_e_Drenagem.pdf › 1 · Chuva de projeto (CPRM 2016, estação Rio da Cidade, código 02243011); coeficientes iguais ao preset do Planejador"
+  },
   "regras.to": {
    "st": "est",
    "src": "planilha 03 › Implantação, linha 92, col. A (limite citado na planilha)"
@@ -1491,6 +1555,118 @@
   "sistemas.reuso": {
    "st": "est",
    "src": "[CONFERIR] reúso não aparece na planilha 20; mantido desligado"
+  },
+  "meta.municipio": {
+   "st": "conf",
+   "src": "cabeçalho dos documentos 01 e 10 (\"Lote 168 · Parque Bom Clima · Petrópolis (RJ)\")"
+  },
+  "meta.uf": {
+   "st": "conf",
+   "src": "cabeçalho dos documentos 01 e 10 (\"Lote 168 · Parque Bom Clima · Petrópolis (RJ)\")"
+  },
+  "solo.classe": {
+   "st": "est",
+   "src": "hipótese da 20 › Geotecnia (solo residual de gnaisse, 1,5 a 5 m) até a sondagem SPT"
+  },
+  "solo.sadm": {
+   "st": "est",
+   "src": "valor típico do Planejador para solo residual (hipótese; sondagem SPT [MARCADOR])"
+  },
+  "solo.ci": {
+   "st": "est",
+   "src": "valor típico do Planejador para solo residual (hipótese; ensaio de infiltração [MARCADOR])"
+  },
+  "itens.g-casa.alt": {
+   "st": "est",
+   "src": "contêiner de baixo 2.59 m (02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)); andar de cima em L não modelado [MARCADOR]"
+  },
+  "itens.g-gourmet.alt": {
+   "st": "est",
+   "src": "altura 3.2 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\"))"
+  },
+  "itens.g-lab.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-lab_up.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-mec.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-mec_up.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-lavabos.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-bar.alt": {
+   "st": "est",
+   "src": "altura total 4 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\"))"
+  },
+  "itens.g-cogu.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-staff.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-LF1.rot": {
+   "st": "est",
+   "src": "4 × 4 m girado 58° (descrição da 03; reproduz a caixa 5.51 × 5.51); sentido do giro [CONFERIR]"
+  },
+  "itens.g-LF1.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-LF2.rot": {
+   "st": "est",
+   "src": "4 × 4 m girado 62° (descrição da 03; reproduz a caixa 5.42 × 5.42); sentido do giro [CONFERIR]"
+  },
+  "itens.g-LF2.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-LF3.rot": {
+   "st": "est",
+   "src": "4 × 4 m girado 62° (descrição da 03; reproduz a caixa 5.42 × 5.42); sentido do giro [CONFERIR]"
+  },
+  "itens.g-LF3.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-pet.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-LF4.rot": {
+   "st": "est",
+   "src": "4 × 5 m girado 17° (descrição da 03; reproduz a caixa 5.3 × 5.96); sentido do giro [CONFERIR]"
+  },
+  "itens.g-LF4.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-LF5.rot": {
+   "st": "est",
+   "src": "4 × 5 m girado 32° (descrição da 03; reproduz a caixa 6.02 × 6.35); sentido do giro [CONFERIR]"
+  },
+  "itens.g-LF5.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-acesso-rua-g": {
+   "st": "est",
+   "src": "planilha 03 › Implantação, linha 68 e P-05 do levantamento [CONFERIR a posição exata]"
+  },
+  "itens.g-acesso-rua-h": {
+   "st": "est",
+   "src": "planilha 03 › Implantação, linha 5 [CONFERIR a posição exata]"
   }
  },
  "log": [

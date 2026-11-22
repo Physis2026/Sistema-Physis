@@ -212,6 +212,14 @@ PRANCHA_02B = [  # caminho, valor, fonte, unidade, zona, nota
 ]
 
 
+F06_IDF = "06_Estudo_Hidrologico_e_Drenagem.pdf › 1 · Chuva de projeto (CPRM 2016, estação Rio da Cidade, código 02243011)"
+TEXTOS_06 = ["Equação de chuvas intensas de Petrópolis (CPRM, 2016, estação Rio da Cidade, código 02243011)",
+             "2.655,6 · T^0,1644 / (t + 30,6)^0,8862"]
+IDF_06 = {"nome": "Petrópolis (RJ) · CPRM 2016", "K": 2655.6, "a": 0.1644, "b": 30.6, "c": 0.8862}  # = preset do Planejador
+F_LOCAL = "cabeçalho dos documentos 01 e 10 (\"Lote 168 · Parque Bom Clima · Petrópolis (RJ)\")"
+TEXTOS_01 = ["Lote 168 · Parque Bom Clima · Petrópolis (RJ)"]
+
+
 def tipo_planejador(chave):
     for pre, tipo in TIPO_PLANEJADOR:
         if chave.startswith(pre):
@@ -653,14 +661,18 @@ def clima(p03):
     cols = "BCDEFGHIJKLM"
     serie = lambda lv: [lv[c] for c in cols]
     temp = serie(te)
-    c = {"H": serie(hh), "chuva": serie(ch), "kt": 0.5, "pr": pr_valor,
-         "idf": {"K": None, "a": None, "b": None, "c": None, "nome": ""}, "temp": round(sum(temp) / 12, 2)}
+    n_pv, kwpk = p03.linha("Solar", "kWh por kWp")
+    c = {"H": serie(hh), "chuva": serie(ch), "kt": 0.5, "pr": pr_valor, "pvgis": serie(kwpk),
+         "idf": dict(IDF_06), "temp": round(sum(temp) / 12, 2)}
     prov = {
         "clima.chuva": {"st": "est", "src": p03.fonte(aba, nc) + " (mm, jan a dez)"},
         "clima.H": {"st": "est", "src": p03.fonte(aba, nh) + " (kWh/m²·dia, jan a dez)"},
         "clima.temp": {"st": "est", "src": "média dos 12 meses de " + p03.fonte(aba, nt)},
         "clima.pr": {"st": "est", "src": pr_fonte},
         "clima.kt": {"st": "est", "src": "padrão do Planejador (a planilha 03 não traz kt)"},
+        "clima.pvgis": {"st": "est", "src": p03.fonte("Solar", n_pv) + " (kWh/kWp por mês, jan a dez; não é o PVGIS: é a "
+                                                                      "estimativa da 03)"},
+        "clima.idf": {"st": "conf", "src": F06_IDF + "; coeficientes iguais ao preset do Planejador"},
     }
     return c, prov
 
@@ -701,6 +713,32 @@ def importar(caminho_20, caminho_03, caminho_18=None, data=None):
         elementos[ch] = {**e, "item_id": it["id"], "tipo_planejador": it["tipo"], "sem_area": not (e["area_m2"] or 0) > 0,
                          **({"ocupacao_fonte": f_oc} if f_oc else {})}
 
+    # forma e altura de cada item como o IFC (decisões pg:58d2e859f36a e pg:74fabc0568d2); giro [CONFERIR]
+    from . import gemeo_ifc as GI
+    proj_min = {"gemeo": {"fonte_por_valor": fv, "elementos": elementos}, "itens": itens}
+    h_pav, f_pav = GI.altura_pavimento(elementos)
+    prov_itens = {}
+    for it in itens:
+        ch = it["id"][2:]
+        e = elementos[ch]
+        fm = GI.forma(e, it)
+        if fm["tipo"] == "ret" and fm["giro"]:
+            it.update(w=fm["a"], d=fm["b"], rot=round(fm["giro"], 2))
+            prov_itens[f"itens.{it['id']}.rot"] = {"st": "est", "src": fm["origem"]}
+        if GI.eh_edificacao(ch) and not e["sem_area"]:
+            cp = GI.corpo_edificacao(ch, fm, proj_min, h_pav, f_pav)
+            it["alt"] = round(cp["total"], 2)
+            prov_itens[f"itens.{it['id']}.alt"] = {"st": "est", "src": cp["origem"]}
+    # acessos pela rua (03): "entrada e saída pela Rua G junto ao P-05" e as 4 vagas da Rua H em nível
+    p05 = ter["poly"][len(ter["poly"]) - 1]
+    vh = next(i for i in itens if i["id"] == "g-vagas_h")
+    for ida, nome, x, y, fonte in (
+            ("g-acesso-rua-g", "Acesso pela Rua G (existente)", p05[0], p05[1], elementos["garagem"]["fonte"] + " e P-05 do levantamento"),
+            ("g-acesso-rua-h", "Acesso pela Rua H (4 vagas)", vh["x"], 0.0, elementos["vagas_h"]["fonte"])):
+        itens.append({"id": ida, "tipo": "acesso", "nome": nome, "x": round(x, 3), "y": round(y, 3), "w": 1.0, "d": 1.0,
+                      "rot": 0, "pav": 1, "ocup": 0, "cota": None})
+        prov_itens[f"itens.{ida}"] = {"st": "est", "src": fonte + " [CONFERIR a posição exata]"}
+
     _, to = p03.linha("Implantação", "Taxa de ocupação")
     n_to = p03.linha("Implantação", "Taxa de ocupação")[0]
     to_lim = numeros_br(to["A"])[0]  # '(limite 40%)'
@@ -711,21 +749,28 @@ def importar(caminho_20, caminho_03, caminho_18=None, data=None):
             "sistemas.biogas": {"st": "est", "src": "planilha 20 › Tratamento (biodigestor com gasômetro)"},
             "sistemas.chuva": {"st": "est", "src": "planilha 20 › Cisternas e Balanço hídrico"},
             "sistemas.baterias": {"st": "est", "src": fv["energia.baterias_kwh"]["fonte"]},
-            "sistemas.reuso": {"st": "est", "src": "[CONFERIR] reúso não aparece na planilha 20; mantido desligado"}}
+            "sistemas.reuso": {"st": "est", "src": "[CONFERIR] reúso não aparece na planilha 20; mantido desligado"},
+            "meta.municipio": {"st": "conf", "src": F_LOCAL}, "meta.uf": {"st": "conf", "src": F_LOCAL},
+            "solo.classe": {"st": "est", "src": "hipótese da 20 › Geotecnia (solo residual de gnaisse, 1,5 a 5 m) até a sondagem SPT"},
+            "solo.sadm": {"st": "est", "src": "valor típico do Planejador para solo residual (hipótese; sondagem SPT [MARCADOR])"},
+            "solo.ci": {"st": "est", "src": "valor típico do Planejador para solo residual (hipótese; ensaio de infiltração [MARCADOR])"},
+            **prov_itens}
 
     fontes = {}
     for sig, pl in (("20", p20), ("03", p03), ("18", p18)):
         if pl is not None:
             fontes[sig] = {"arquivo": pl.caminho.name, "sha256": sha256(pl.caminho)}
 
+    n_g, lg = p20.linha("Geotecnia (hipóteses)", "Solo residual")
+    geo_spt = f"NSPT {lg.get('C', '')} entre {lg.get('B', '')} de profundidade (hipótese, {p20.fonte('Geotecnia (hipóteses)', n_g)})"
     hoje = data or date.today().isoformat()
     return {
         "schema": G.SCHEMA_PLANEJADOR,
-        "meta": {"nome": "Casa Physis · Lote 168 · gêmeo digital (semente rev0, TESTE)", "municipio": "", "uf": "",
+        "meta": {"nome": "Casa Physis · Lote 168 · gêmeo digital (semente rev0, TESTE)", "municipio": "Petrópolis", "uf": "RJ",
                  "responsavel": "", "criado": hoje},
         "terreno": ter,
         "clima": cli,
-        "solo": {"classe": "", "sadm": None, "ci": None, "spt": ""},
+        "solo": {"classe": "residual", "sadm": 200, "ci": 40, "spt": geo_spt},
         "regras": regras,
         "itens": itens,
         "hidro": {"rios": [], "nascentes": []},

@@ -100,15 +100,16 @@ class TerrenoPlanejador:
         return (Z[j * n + i] * (1 - u) * (1 - v) + Z[j * n + i + 1] * u * (1 - v) + Z[(j + 1) * n + i] * (1 - u) * v
                 + Z[(j + 1) * n + i + 1] * u * v)
 
-    def desnivel(self, cx, cy, w, d):
-        """dz sob a projeção (item sem giro), como o Planejador: amostras a cada max(0,5; menor lado/8) m."""
+    def desnivel(self, cx, cy, w, d, rot=0.0):
+        """dz sob a projeção, como o Planejador: amostras a cada max(0,5; menor lado/8) m, giradas por `rot` (graus)."""
         st = max(0.5, min(w, d) / 8)
+        c, s = math.cos(math.radians(rot or 0)), math.sin(math.radians(rot or 0))
         zs = []
         a = -w / 2 + st / 2
         while a < w / 2:
             b = -d / 2 + st / 2
             while b < d / 2:
-                zs.append(self.z(cx + a, cy + b))
+                zs.append(self.z(cx + a * c - b * s, cy + a * s + b * c))
                 b += st
             a += st
         return max(zs) - min(zs) if zs else 0.0
@@ -262,7 +263,12 @@ def avaliar(versao, lote, terreno=None, precos=None):
         if cat not in ("ed", "pav", "agua"):
             continue
         x0, y0, x1, y1 = _ret(e)
-        dz = terreno.desnivel((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0)
+        from .gemeo_ifc import forma
+        fm = forma(e, {"w": x1 - x0, "d": y1 - y0})
+        if fm["tipo"] == "ret" and fm["giro"]:   # lofts girados: medida real e giro, como o Planejador desenha
+            dz = terreno.desnivel((x0 + x1) / 2, (y0 + y1) / 2, fm["a"], fm["b"], fm["giro"])
+        else:
+            dz = terreno.desnivel((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0)
         if dz > LIMIAR_DESNIVEL_M:
             desn.append({"chave": e["chave"], "desnivel_m": round(dz, 2)})
     for d in sorted(desn, key=lambda d: -d["desnivel_m"]):

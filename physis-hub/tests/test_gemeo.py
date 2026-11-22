@@ -100,7 +100,14 @@ class Semente(unittest.TestCase):
             it = e["item"]
             self.assertAlmostEqual(it["x"], e["x_03"] + e["larg_m"] / 2, places=3)
             self.assertAlmostEqual(it["y"], e["y_03"] + e["prof_m"] / 2, places=3)
-            self.assertEqual((it["w"], it["d"], it["cota"]), (e["larg_m"], e["prof_m"], e["piso_topo_m"]))
+            if it["rot"]:   # lofts girados: medida real que reproduz a caixa larg. × prof. da 03
+                import math
+                t = math.radians(it["rot"])
+                self.assertAlmostEqual(it["w"] * math.cos(t) + it["d"] * math.sin(t), e["larg_m"], delta=0.06)
+                self.assertAlmostEqual(it["w"] * math.sin(t) + it["d"] * math.cos(t), e["prof_m"], delta=0.06)
+                self.assertEqual(it["cota"], e["piso_topo_m"])
+            else:
+                self.assertEqual((it["w"], it["d"], it["cota"]), (e["larg_m"], e["prof_m"], e["piso_topo_m"]))
             self.assertEqual(e["sem_area"], not (e["area_m2"] or 0) > 0)
 
     def test_lote_e_totais_batem_com_a_fonte(self):
@@ -424,6 +431,24 @@ class IFC3D(unittest.TestCase):
         self.assertIn("[MARCADOR] a 03 não desenha", legivel)          # C4–C10 sem posição
         self.assertIn("D9: cota 884.5 (20) × 880 (03)", legivel)        # Loft 4: cota da 20 × geometria da 03
 
+    def test_planejador_roda_completo(self):
+        """Importação para o Planejador rodar completo (pedido da dona, 22/11): município e UF, equação de chuvas do
+        doc 06 (= preset CPRM 2016), acessos da 03, solo como hipótese da 20, produção FV mensal da 03, alturas e giros."""
+        p = self.p
+        self.assertEqual((p["meta"]["municipio"], p["meta"]["uf"]), ("Petrópolis", "RJ"))
+        self.assertEqual(p["clima"]["idf"], {"nome": "Petrópolis (RJ) · CPRM 2016", "K": 2655.6, "a": 0.1644, "b": 30.6, "c": 0.8862})
+        self.assertIn("06_Estudo_Hidrologico", p["prov"]["clima.idf"]["src"])
+        self.assertEqual(len(p["clima"]["pvgis"]), 12)
+        acessos = [i for i in p["itens"] if i["tipo"] == "acesso"]
+        self.assertEqual([a["id"] for a in acessos], ["g-acesso-rua-g", "g-acesso-rua-h"])
+        self.assertEqual(p["solo"]["classe"], "residual")
+        self.assertIn("hipótese", p["prov"]["solo.classe"]["src"])
+        alt = {i["id"]: i.get("alt") for i in p["itens"]}
+        self.assertEqual((alt["g-LF1"], alt["g-bar"], alt["g-gourmet"], alt["g-casa"]), (5.0, 4.0, 3.2, 2.74))
+        self.assertIsNone(alt["g-hortaA"])
+        src = _planejador_src()
+        self.assertIn("'petropolis':{nome:'Petrópolis (RJ) · CPRM 2016',K:2655.6,a:0.1644,b:30.6,c:0.8862}", src)
+
     def test_norte_verdadeiro(self):
         """03 › Levantamento: o eixo do lote aponta ≈ 17° (NNE) → TrueNorth local = (−sen 17°, cos 17°) [CONFERIR]."""
         self.assertEqual(self.p["gemeo"]["fonte_por_valor"]["lote.norte_verdadeiro_graus"]["valor"], 17.0)
@@ -458,11 +483,12 @@ class Versoes(unittest.TestCase):
     def test_espelho_do_planejador(self):
         """Valores lidos no Planejador (run().terra e T.z) em 21/11/2026 com esta semente: regra 4."""
         its = {i["id"][2:]: i for i in self.base["itens"]}
-        esperado = {"casa": 2.1246, "vagas_h": 2.1353, "rampa_h": 2.3002, "bar": 2.8333, "LF1": 2.8444,
-                    "garagem": 6.4241, "piscina": 2.9095}
+        # lidos no Planejador em 22/11/2026, com os lofts na medida real e girados (rot) como a semente grava
+        esperado = {"casa": 2.1246, "vagas_h": 2.1353, "rampa_h": 2.3002, "bar": 2.8333, "LF1": 2.3707, "LF2": 2.676,
+                    "LF4": 1.4458, "LF5": 1.4577, "garagem": 6.4241, "piscina": 2.9095}
         for k, dz in esperado.items():
             i = its[k]
-            self.assertAlmostEqual(self.ter.desnivel(i["x"], i["y"], i["w"], i["d"]), dz, places=3, msg=k)
+            self.assertAlmostEqual(self.ter.desnivel(i["x"], i["y"], i["w"], i["d"], i["rot"]), dz, places=3, msg=k)
         self.assertAlmostEqual(self.ter.z(5, 30), 888.3558, places=3)
         self.assertAlmostEqual(self.ter.z(11, 50), 880.3377, places=3)
         src = _planejador_src()

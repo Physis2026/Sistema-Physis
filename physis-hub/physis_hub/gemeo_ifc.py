@@ -34,6 +34,11 @@ ESPESSURA_DESENHO_M = 0.20  # só de desenho (decisão pg:16228b14d400), não é
 # chaves da 03 que são edificações no 20 › Quadro de áreas (Casa 1, Gourmet, LAB, MEC, Restaurante, Lofts,
 # Apoio e lavabos, Cogumelário e canil, Loja 24 h)
 EDIFICACOES = ("casa", "gourmet", "lab", "lab_up", "mec", "mec_up", "bar", "staff", "lavabos", "cogu", "pet", "loja")
+def eh_edificacao(chave):
+    """Edificação do 20 › Quadro de áreas: as chaves de EDIFICACOES e os lofts (LF*)."""
+    return chave in EDIFICACOES or chave.startswith("LF")
+
+
 COR_ENTIDADE = {"Z1": "#1A4D2E", "Z2": "#4A8A5A", "Z3": "#BB6B4A"}  # PALETA.md (guia de identidade)
 COR_TERRENO = "#B9A97F"  # areia, PALETA.md
 SEMENTE_PADRAO = Path(__file__).resolve().parents[2] / "modulos" / "planejador" / "gemeo" / "casa-physis-rev0.json"
@@ -58,7 +63,8 @@ def forma(e, it):
     só é aceita se reproduz a caixa envolvente da 03 (larg. × prof.) com 6 cm de folga; senão fica a caixa."""
     import math
     from .gemeo_importar import numeros_br
-    desc, w, d = str(e.get("descricao") or ""), it["w"], it["d"]
+    desc = str(e.get("descricao") or "")
+    w, d = (e.get("larg_m") or it["w"]), (e.get("prof_m") or it["d"])
     caixa = {"tipo": "ret", "a": w, "b": d, "giro": 0.0, "origem": "caixa da 03 (larg. × prof.)"}
     m = re.search(r"Ø\s*(\d+(?:,\d+)?)\s*m", desc)
     if m:
@@ -943,7 +949,7 @@ def escrever(projeto, agora=0, altura=None):
         else:
             z, z_orig = round(T.z(it["x"], it["y"]), 3), "cota do terreno interpolada (a 03 não traz)"
         fm = forma(e, it)
-        if chave in EDIFICACOES and not e["sem_area"]:
+        if eh_edificacao(chave) and not e["sem_area"]:
             cp = corpo_edificacao(chave, fm, projeto, h_pav, f_pav)
         else:
             cp = {"paredes": ESPESSURA_DESENHO_M, "total": ESPESSURA_DESENHO_M, "cob": None, "pct": 0.0,
@@ -965,7 +971,7 @@ def escrever(projeto, agora=0, altura=None):
             solido = W.add(f"IFCEXTRUDEDAREASOLID({perfil},{pos},{cima},{r_(alt)})")
             W.add(f"IFCSTYLEDITEM({solido},({estilo(COR_ENTIDADE[e['zona']])}),$)")
             itens_rep = [solido]
-            if chave not in EDIFICACOES and (e.get("aterro_m3") or 0) > 0:  # plataforma de aterro até o terreno (03)
+            if not eh_edificacao(chave) and (e.get("aterro_m3") or 0) > 0:  # plataforma de aterro até o terreno (03)
                 zmin = min(T.z(*p) for p in _pontos_planta(fm, it))
                 if z - zmin > 0.05:
                     pos_a = W.add(f"IFCAXIS2PLACEMENT3D({W.ponto(0, 0, zmin - z)},$,$)")
@@ -1016,7 +1022,7 @@ def escrever(projeto, agora=0, altura=None):
                  W.propriedade("Forma", fm["origem"]), W.propriedade("Telhado", cp["cob_origem"]),
                  W.propriedade("RelacaoTerreno", rel)]
         W.pset(oh, "Physis_Gemeo", props, [ref], chave)
-        if chave in EDIFICACOES:
+        if eh_edificacao(chave):
             W.pset(oh, "Physis_Material", [
                 W.propriedade("Cobertura", cp["cob_origem"]), W.propriedade("Material", cp["material"] or "[MARCADOR]"),
                 W.propriedade("Cor", COR_NOTA + (" Andar de cima da Casa 1: contêineres laranja e azul (doc 10, 01, 09b), "
