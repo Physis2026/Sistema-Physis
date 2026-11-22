@@ -217,6 +217,7 @@ def fabricar(mv: MV):
                              "/api/mv/fila": lambda: cmd.fila(q.get("estado") or None),
                              "/api/mv/programados": lambda: cmd.programados(),
                              "/api/mv/aprovacoes": lambda: cmd.aprovacoes(),
+                             "/api/mv/desenvolvimento": lambda: __import__("physis_hub.mv_desenvolvimento", fromlist=["dados"]).dados(mv),
                              "/api/mv/perguntas": lambda: mv_comandos.perguntas(mv, None if q.get("abertas") is None else q.get("abertas") == "1",
                                                                                  q.get("sistema") or None),
                              "/api/mv/comandos/ajuda": lambda: mv_comandos.AJUDA,

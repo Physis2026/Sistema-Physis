@@ -499,8 +499,26 @@ def bot_links(mv: MV) -> dict:
     return r
 
 
+def bot_desenvolvimento(mv: MV) -> dict:
+    """Painel "Desenvolvimento" dos módulos (22/11/2026): grava sistema/desenvolvimento-dados.js a partir do M&A (fonte única)."""
+    from . import mv_desenvolvimento
+    inicio = mv.nova_rodada()
+    r = mv_desenvolvimento.gravar(mv)
+    mv.registrar_execucao("desenvolvimento", inicio, mvmod.json.dumps(r))
+    return r
+
+
+def bot_sincronizacao(mv: MV) -> dict:
+    """Atualização automática dos módulos compartilhados entre Sistema, Instituto e InovaSTEM, com teste antes (22/11/2026)."""
+    from . import mv_sincronizacao
+    inicio = mv.nova_rodada()
+    r = mv_sincronizacao.rodar(mv)
+    mv.registrar_execucao("sincronizacao", inicio, mvmod.json.dumps(r, ensure_ascii=False))
+    return r
+
+
 BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup, "paginas": bot_paginas,
-        "inovacao": bot_inovacao, "links": bot_links}
+        "inovacao": bot_inovacao, "links": bot_links, "desenvolvimento": bot_desenvolvimento, "sincronizacao": bot_sincronizacao}
 
 
 def rodar(mv: MV, quais: list[str] | None = None) -> dict:
