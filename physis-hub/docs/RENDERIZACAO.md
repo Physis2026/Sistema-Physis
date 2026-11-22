@@ -1,7 +1,7 @@
 # Renderização 3D e visual nos sistemas da Physis · VERSÃO DE TESTE (22/11/2026)
 
 Ramo `teste/renderizacao-3d` (worktree `C:\physis\physis-render`). Sem merge no main sem aprovação da dona.
-Regras seguidas: 1 (nenhum número inventado), 2 (programas: só aparência; o 3D do Planejador é função e ficou intacto),
+Regras seguidas: 1 (nenhum número inventado), 2 (programas: só aparência; o 3D do Planejador é função e só mudou por decisão da dona),
 5 (acessibilidade), 6 (paleta, claro e escuro), 11 (software aberto hospedado pela Physis, sem internet).
 
 ## 1. Onde há renderização hoje
@@ -64,12 +64,22 @@ vistas, PNG 4× (2.164 × 1.672 px), GLB de 151 kB conferido (cabeçalho, blocos
 controles com 44 px. Capturas antes/depois em `docs/renderizacao/`. Não verificado: abrir o GLB no Blender (não instalado aqui),
 leitor de tela real, celular de verdade.
 
-## 5. Para decisão da dona
+## 5. Decisões da dona (22/11/2026, caixas de perguntas, registradas no M&A, origem `renderizacao-3d`)
 
-1. Trocar a vista 3D do "Ver em 3D e áreas" do Planejador pela `physis-3d.js` (áreas e contas continuam iguais; muda a aparência e
-   ganha captura, GLB e tela cheia). É função do programa → decisão.
-2. Instalar Blender (e opcionalmente LuxCore) no servidor da Physis para imagens de apresentação a partir do GLB.
-3. Atualizar o three.js para a versão em módulos ES (para SSAO/GTAO, sombra de contato mais rica e carregador glTF); exige baixar
-   e conferir os arquivos em `vendor/` e mudar a forma de carregar.
-4. Propostas para outras sessões, sem mexer aqui: mapa do Planejador e da plataforma com fundo do tema escuro; vista STL/OBJ do M&A
-   com a `physis-3d.js` (sem laço contínuo); `rasterizar` exportar com fundo do tema e escala escolhida.
+| Pergunta | Resposta | M&A | Feito neste ramo |
+|---|---|---|---|
+| Trocar o 3D do Planejador pela `physis-3d.js`? | Trocar, em teste | pg:cf499965b745 | `ver3D` agora desenha pela vista comum (bloco `physis-3d` copiado por `sincronizar.py`); a conta das áreas é a mesma linha de antes. Conferido com um IFC de dois ambientes: 20,00 e 9,00 m², iguais à conta antiga. Plataforma (`painel.html`) e demos regeneradas. |
+| Blender no servidor para imagens de apresentação? | Sim, como opção | pg:b88441eec95b | `ferramentas/renderizar_glb.py` + `ferramentas/blender_cena.py` (GLB → Cycles, vistas iguais às do navegador, fundo da paleta). Sem Blender, avisa e sai com 2. **Não testado com o Blender** (não instalado nesta máquina). |
+| three.js em módulos ES? | Agora, em teste | pg:ea1020f44c18 | `ferramentas/baixar_three.py` baixou three.js 0.170.0 (núcleo + 14 addons) do jsDelivr e conferiu cada arquivo com o SHA-256 publicado (`vendor/three/SHA256.json`). O servidor entrega só a lista (`THREE_MODULOS`); `montar.py` leva para o pacote. A vista carrega por importmap, com oclusão de ambiente (GTAO) e leitura de GLB; sem os módulos, cai no `three.min.js` 0.160 sem esses dois recursos. |
+
+Capturas novas: `claro-iso-depois.png` (com oclusão de ambiente), `claro-iso-depois-sem-oclusao.png`, `escuro-iso-depois.png`,
+`planejador-ambientes-escuro.png` (dentro do Planejador, tema escuro).
+
+## 6. Ainda pendente
+
+- Instalar o Blender no servidor da Physis e rodar `renderizar_glb.py` de verdade (o compositor mudou no Blender 5: se o fundo da
+  paleta falhar, a imagem sai com fundo transparente).
+- Merge no main: só com a aprovação da dona depois de ver o Planejador no ramo `teste/renderizacao-3d`.
+- Propostas para outras sessões, sem mexer aqui: mapas com fundo do tema escuro; vista STL/OBJ do M&A pela `physis-3d.js` (hoje
+  com laço de quadros contínuo); `rasterizar` exportar com fundo do tema; acabamentos dos PDFs 09/09b no IFC do gêmeo (pedido
+  enviado à sessão do gêmeo em 22/11/2026).

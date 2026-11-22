@@ -31,7 +31,13 @@ MODULOS = ("monitoramento", "agua", "zonas", "animais", "coleiras", "comedouros"
            "validacao")     # Validação · planejado × gerado, M&V (em desenvolvimento, 18/11/2026)
 LICENCA_PADRAO = "Licença Physis de Uso e Adaptação (minuta em revisão jurídica)"
 VENDOR_ARQUIVOS = ("maplibre-gl.js", "maplibre-gl.css", "pmtiles.js", "web-ifc-api-iife.js", "web-ifc.wasm", "three.min.js",
-                   "LEIA-ME.md", "LICENSE-maplibre-gl.txt", "LICENSE-three.txt")
+                   "LEIA-ME.md", "LICENSE-maplibre-gl.txt", "LICENSE-three.txt",
+                   # three.js 0.170 em módulos (vista 3D; mesma lista de servidor.THREE_MODULOS)
+                   "three/LICENSE", "three/SHA256.json", "three/three.module.min.js") + tuple("three/addons/" + a for a in (
+    "postprocessing/EffectComposer.js", "postprocessing/Pass.js", "postprocessing/RenderPass.js", "postprocessing/ShaderPass.js",
+    "postprocessing/MaskPass.js", "postprocessing/OutputPass.js", "postprocessing/GTAOPass.js", "shaders/CopyShader.js",
+    "shaders/OutputShader.js", "shaders/GTAOShader.js", "shaders/PoissonDenoiseShader.js", "math/SimplexNoise.js",
+    "loaders/GLTFLoader.js", "utils/BufferGeometryUtils.js"))
 # demonstrações públicas (demos/, servidas em /demo/<nome>/): só no pacote do servidor da Physis (o site)
 DEMOS_ARQUIVOS = ("physis-demo-sustainkit.html", "physis-demo-scada.html", "physis-demo-monitoramento.html",
                   "physis-demo-planejador.html", "physis-demo-cliente.html")
@@ -170,6 +176,7 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
         for nome in VENDOR_ARQUIVOS:
             origem = next((p for p in (AQUI.parent / "vendor" / nome, AQUI / "web" / "vendor" / nome) if p.is_file()), None)
             if origem:
+                (pasta / "web" / "vendor" / nome).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(origem, pasta / "web" / "vendor" / nome)
     if gestao is not None and gestao.is_file():      # só o pacote interno da Physis leva o programa de gestão interna
         shutil.copy2(gestao, pasta / "web" / "gestao.html")

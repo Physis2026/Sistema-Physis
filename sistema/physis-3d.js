@@ -1,4 +1,4 @@
-/* physis-3d.js v1 · vista 3D de modelos (IFC lido pelo web-ifc) com three.js · VERSÃO DE TESTE (22/11/2026)
+/* physis-3d.js v2 · vista 3D de modelos (IFC lido pelo web-ifc) com three.js · VERSÃO DE TESTE (22/11/2026)
    SPDX-License-Identifier: AGPL-3.0-only · Copyright (C) 2026 Physis Engineering
 
    O que faz: monta uma vista 3D num elemento, com luz de céu e sol, sombras suaves, materiais PBR, mapeamento de tons
@@ -66,8 +66,8 @@
     cv.style.height = altura + "px";
     var aviso = elem("p", { "class": "hint", role: "status", "aria-live": "polite" });
 
-    var ren;
-    try { ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true, preserveDrawingBuffer: false }); }
+    var ren, A = alta && ADD ? ADD : null;
+    try { ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: !!A, preserveDrawingBuffer: false }); }
     catch (e) { area.replaceChildren(elem("p", { "class": "hint", texto: "Este navegador não abriu o 3D (WebGL desligado ou sem placa de vídeo)." })); throw e; }
     var cena = new THREE.Scene(), malhas = [], caixa = new THREE.Box3(), arestas = new THREE.Group(), chao = null, sol = null;
     var dpr = Math.min(g.devicePixelRatio || 1, 2);
@@ -81,21 +81,39 @@
       sol.shadow.mapSize.set(2048, 2048);
       cena.add(sol, sol.target, arestas);
     } else {
-      /* igual à vista atual do Planejador (22/11/2026), para comparar */
+      /* igual à vista antiga do Planejador (até 22/11/2026), para comparar */
       cena.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1));
       var s0 = new THREE.DirectionalLight(0xffffff, 0.8); s0.position.set(5, 10, 7); cena.add(s0);
     }
-    function fundo() { cena.background = new THREE.Color(alta ? corDaTela(area, ["--bg", "--fundo"], "#F4F1EA") : 0xF4F6F1); }
+    /* oclusão de ambiente (GTAO): só com o three.js em módulos (Physis3D.carregar); sem ele a vista funciona igual, sem o efeito */
+    var comp = null, gtao = null, ocl = !!A && op.oclusao !== false;
+    /* com o pós-processamento, o tom ACES escureceria o fundo: o 3D sai transparente e o fundo é a cor da tela (CSS) */
+    function corFundo() { return corDaTela(area, ["--bg", "--fundo"], "#F4F1EA"); }
+    function fundo() {
+      if (A) { cena.background = null; ren.setClearColor(0x000000, 0); cv.style.background = corFundo(); return; }
+      cena.background = new THREE.Color(alta ? corFundo() : 0xF4F6F1);
+    }
     fundo();
 
     var cam = new THREE.PerspectiveCamera(45, 1, 0.01, 1000), alvo = new THREE.Vector3(), az = 0.8, el = 0.6, dist = 10, raio = 1, inicial = null;
     function tamanho() {
       var W = Math.max(280, cv.clientWidth || area.clientWidth || 640), H = cv.clientHeight || altura;
       ren.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix();
+      if (comp) { comp.setPixelRatio(ren.getPixelRatio()); comp.setSize(W, H); }
+    }
+    function montarComposicao() {
+      if (!A || comp) return;
+      var rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
+      comp = new A.EffectComposer(ren, rt);
+      comp.addPass(new A.RenderPass(cena, cam));
+      gtao = new A.GTAOPass(cena, cam, 1, 1);
+      gtao.updateGtaoMaterial({ radius: Math.max(0.4, raio * 0.025), distanceExponent: 1.5, thickness: Math.max(1, raio * 0.02), scale: 1.2, samples: 16 });
+      gtao.blendIntensity = 0.9; gtao.enabled = ocl;
+      comp.addPass(gtao); comp.addPass(new A.OutputPass());
     }
     function desenhar() {
       cam.position.set(alvo.x + dist * Math.cos(el) * Math.sin(az), alvo.y + dist * Math.sin(el), alvo.z + dist * Math.cos(el) * Math.cos(az));
-      cam.lookAt(alvo); ren.render(cena, cam);
+      cam.lookAt(alvo); if (comp) comp.render(); else ren.render(cena, cam);
     }
     function mover(dx, dy) {
       var dir = new THREE.Vector3(), dirx = new THREE.Vector3(), diry = new THREE.Vector3();
@@ -204,6 +222,7 @@
           chao.rotation.x = -Math.PI / 2; chao.position.set(alvo.x, caixa.min.y - raio * 0.002, alvo.z); chao.receiveShadow = true; chao.visible = !!op.chao; cena.add(chao);
         }
         if (alta) enquadrar();
+        montarComposicao();
         inicial = { alvo: alvo.clone(), dist: dist };
         tamanho(); desenhar(); return api;
       },
@@ -213,13 +232,17 @@
         escala = Math.max(1, +escala || 2);
         var W = cv.clientWidth || 640, H = cv.clientHeight || altura, k = Math.min(escala, MAX_LADO / Math.max(W, H));
         var antes = ren.getPixelRatio();
-        ren.setPixelRatio(k); ren.setSize(W, H, false); desenhar();
-        var url = cv.toDataURL("image/png");
+        ren.setPixelRatio(k); ren.setSize(W, H, false); if (comp) { comp.setPixelRatio(k); comp.setSize(W, H); } desenhar();
+        var url;
+        if (A) { var c2 = g.document.createElement("canvas"); c2.width = cv.width; c2.height = cv.height; var x2 = c2.getContext("2d");
+          x2.fillStyle = corFundo(); x2.fillRect(0, 0, c2.width, c2.height); x2.drawImage(cv, 0, 0); url = c2.toDataURL("image/png"); }
+        else url = cv.toDataURL("image/png");
         ren.setPixelRatio(alta ? dpr : antes); tamanho(); desenhar();
         return fetch(url).then(function (r) { return r.blob(); });
       },
       glb: function () { return paraGLB(malhas, op.nome || "modelo"); },
-      destruir: function () { try { ro && ro.disconnect(); mo && mo.disconnect(); ren.dispose(); } catch (e) {} }
+      oclusao: function () { return !!(gtao && gtao.enabled); },
+      destruir: function () { try { ro && ro.disconnect(); mo && mo.disconnect(); if (comp) comp.dispose(); ren.dispose(); } catch (e) {} }
     };
 
     function corArestas() { return corDaTela(area, ["--ink", "--tinta"], "#1B1F23"); }
@@ -232,6 +255,8 @@
       botao("Frente", function () { vista("frente"); }), botao("Lateral", function () { vista("lado"); }),
       alta ? (function () { var c = elem("input", { type: "checkbox", checked: "checked" }); c.onchange = function () { arestas.visible = c.checked; desenhar(); };
         return elem("label", { "class": "p3d-rot p3d-bt" }, [c, g.document.createTextNode(" Arestas")]); })() : null,
+      A ? (function () { var c = elem("input", { type: "checkbox" }); if (ocl) c.checked = true; c.onchange = function () { ocl = c.checked; if (gtao) gtao.enabled = ocl; desenhar(); };
+        return elem("label", { "class": "p3d-rot p3d-bt" }, [c, g.document.createTextNode(" Oclusão de ambiente")]); })() : null,
       alta ? (function () { var c = elem("input", { type: "checkbox" }); if (op.chao) c.checked = true; c.onchange = function () { if (chao) chao.visible = c.checked; desenhar(); };
         return elem("label", { "class": "p3d-rot p3d-bt" }, [c, g.document.createTextNode(" Sombra no chão")]); })() : null,
       seletor("Altura", ALTURAS, String(altura), function (v) { altura = +v; cv.style.height = altura + "px"; tamanho(); desenhar(); }),
@@ -314,5 +339,57 @@
     return espacos;
   }
 
-  g.Physis3D = { versao: 1, criar: criar, malhasDoIFC: malhasDoIFC, paraGLB: paraGLB };
+  /* Carrega o three.js do servidor (pasta /vendor/). Prefere a versão em módulos ES (vendor/three/, three.js 0.170: oclusão de
+     ambiente e leitor glTF); se não houver, usa o arquivo único antigo (vendor/three.min.js, 0.160), sem esses dois recursos.
+     O importmap só é posto se a página ainda não tiver um. Devolve { THREE, modulos: true|false }. */
+  var ADD = null, CARREGANDO = null;
+  function carregar(base) {
+    base = base || "/vendor/";
+    if (CARREGANDO) return CARREGANDO;
+    var t = base + "three/three.module.min.js";
+    CARREGANDO = (function () {
+      if (!g.document.querySelector('script[type="importmap"]')) {
+        var im = g.document.createElement("script"); im.type = "importmap";
+        im.textContent = JSON.stringify({ imports: { "three": t, "three/addons/": base + "three/addons/" } });
+        g.document.head.appendChild(im);
+      }
+      var imp = function (u) { return import(u); };
+      return imp(t).then(function (T) {
+        return Promise.all(["postprocessing/EffectComposer.js", "postprocessing/RenderPass.js", "postprocessing/GTAOPass.js",
+          "postprocessing/OutputPass.js", "loaders/GLTFLoader.js"].map(function (a) { return imp("three/addons/" + a); }))
+          .then(function (m) { ADD = Object.assign({}, m[0], m[1], m[2], m[3], m[4]); g.THREE = T; return { THREE: T, modulos: true }; });
+      }).catch(function () {
+        if (g.THREE) return { THREE: g.THREE, modulos: false };
+        return new Promise(function (ok, er) { var s = g.document.createElement("script"); s.src = base + "three.min.js";
+          s.onload = function () { ok({ THREE: g.THREE, modulos: false }); }; s.onerror = function () { CARREGANDO = null; er(new Error("a biblioteca three.js não está no servidor")); };
+          g.document.head.appendChild(s); });
+      });
+    })();
+    return CARREGANDO;
+  }
+
+  /* glTF/GLB → malhas (com a transformação de cada nó). Precisa do three.js em módulos. Cores devolvidas em sRGB. */
+  function malhasDoGLTF(dados, aoMalha) {
+    var THREE = g.THREE;
+    if (!ADD || !ADD.GLTFLoader) return Promise.reject(new Error("o leitor glTF precisa do three.js em módulos no servidor"));
+    return new Promise(function (ok, er) {
+      new ADD.GLTFLoader().parse(dados, "", function (gl) {
+        var n = 0; gl.scene.updateMatrixWorld(true);
+        gl.scene.traverse(function (o) {
+          if (!o.isMesh || !o.geometry || !o.geometry.attributes.position) return;
+          var geo = o.geometry.clone(); geo.applyMatrix4(o.matrixWorld);
+          var mt = Array.isArray(o.material) ? o.material[0] : o.material, c = { r: 0.8, g: 0.8, b: 0.8 };
+          if (mt && mt.color) mt.color.getRGB(c, THREE.SRGBColorSpace);
+          var ix = geo.index ? new Uint32Array(geo.index.array) : null;
+          aoMalha({ pos: new Float32Array(geo.attributes.position.array), nor: geo.attributes.normal ? new Float32Array(geo.attributes.normal.array) : null,
+            ix: ix, cor: [c.r, c.g, c.b, mt && mt.opacity != null ? mt.opacity : 1], espaco: false, nome: o.name || "" });
+          n++;
+        });
+        ok(n);
+      }, er);
+    });
+  }
+
+  g.Physis3D = { versao: 2, carregar: carregar, criar: criar, malhasDoIFC: malhasDoIFC, malhasDoGLTF: malhasDoGLTF, paraGLB: paraGLB,
+    modulos: function () { return !!ADD; } };
 })(typeof window !== "undefined" ? window : this);

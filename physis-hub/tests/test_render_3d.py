@@ -6,7 +6,7 @@ Protege:
    mantida para comparar (modo "atual").
 3. Acessibilidade (regra 5): vista focável com nome e instruções de teclado, alvos de 44 px, barra de ferramentas com nome.
 4. A página de teste leva cópias iguais dos módulos (sincronizar.py) e caixa de envio de arquivo IFC.
-5. O Planejador não mudou: o 3D dele é função (regra 2) e adotar a vista nova é decisão da dona.
+5. O Planejador usa a vista comum (decisão da dona, 22/11/2026) e a conta das áreas é a mesma de antes (regra 2).
 6. O GLB segue o formato glTF 2.0 binário (cabeçalho, blocos JSON e BIN alinhados em 4 bytes).
 """
 import re
@@ -78,19 +78,27 @@ class Render3D(unittest.TestCase):
             i = pag.index(abre) + len(abre)
             j = pag.index("</script>", i)
             self.assertEqual(pag[i:j], ler(fonte).replace("\r\n", "\n"), ident)
-        self.assertIn('type="file" accept=".ifc"', pag)
+        self.assertIn('type="file" accept=".ifc,.glb,.gltf"', pag)
         self.assertIn("drop", pag)
         self.assertEqual(len(re.findall(r"<h1\b", pag)), 1)
 
     def test_ifc_so_do_mesmo_servidor(self):
         pag = ler(PAGINA)
-        self.assertIn(r"/^\/[\w\/.\-]+\.ifc$/i", pag)
+        self.assertIn(r"/^\/[\w\/.\-]+\.(ifc|glb)$/i", pag)
 
-    def test_planejador_sem_mudanca(self):
+    def test_planejador_usa_a_vista_comum(self):
+        """Decisão da dona (M&A pg:cf499965b745, 22/11/2026): o "Ver em 3D e áreas" desenha pela physis-3d.js.
+        A conta das áreas (piso de cada IfcSpace) continua a mesma (regra 2)."""
         plan = ler(PLANEJADOR)
-        self.assertNotIn("Physis3D", plan)
-        self.assertIn("MeshLambertMaterial", plan)
-
+        abre = '<script id="physis-3d">\n'
+        i = plan.index(abre) + len(abre)
+        self.assertEqual(plan[i:plan.index("</script>", i)], ler(MODULO).replace("\r\n", "\n"))
+        self.assertIn("Physis3D.carregar(VENDOR.base)", plan)
+        self.assertIn("Physis3D.malhasDoIFC(IFC_API,m,WebIFC", plan)
+        self.assertIn("if(ar>0&&n.y/(2*ar)<-0.9)a+=ar", plan)
+        self.assertIn("{areas:lista,areaTotal:total}", plan)
+        self.assertNotIn("new THREE.MeshLambertMaterial({color:new THREE.Color(c.x,c.y,c.z)", plan)   # a vista antiga saiu
+        self.assertNotIn("VENDOR.js('three.min.js')", plan)
 
 def glb_valido(b: bytes):
     """Confere um .glb: devolve o JSON (para testes e para conferir o arquivo baixado da vista)."""
@@ -128,6 +136,36 @@ class GLB(unittest.TestCase):
         mod = ler(MODULO)
         for marca in ("0x46546C67", "0x4E4F534A", "0x004E4942", 'version: "2.0"', "baseColorFactor", "34962", "34963"):
             self.assertIn(marca, mod)
+
+
+@unittest.skipUnless(NO_REPO, "só no repositório")
+class Offline(unittest.TestCase):
+    """Imagem de apresentação pelo Blender (opção; decisão da dona M&A pg:b88441eec95b)."""
+    def carregar(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("renderizar_glb", RAIZ / "ferramentas" / "renderizar_glb.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_sem_blender_avisa_e_nao_quebra(self):
+        import tempfile
+        mod = self.carregar()
+        mod.achar_blender = lambda: None
+        with tempfile.TemporaryDirectory() as d:
+            glb = Path(d) / "m.glb"
+            glb.write_bytes(b"glTF")
+            self.assertEqual(mod.main([str(glb), str(Path(d) / "x.png")]), 2)
+
+    def test_fundo_so_da_paleta(self):
+        mod = self.carregar()
+        paleta = cores(ler(PALETA))
+        self.assertTrue(mod.PALETA_FUNDOS <= paleta)
+        with self.assertRaises(SystemExit):
+            mod.main(["m.glb", "x.png", "--fundo", "#123456"])
+
+    def test_cena_sem_internet(self):
+        self.assertNotRegex(ler(RAIZ / "ferramentas" / "blender_cena.py"), r"https?://")
 
 
 if __name__ == "__main__":

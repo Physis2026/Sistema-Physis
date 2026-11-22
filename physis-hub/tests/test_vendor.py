@@ -11,7 +11,7 @@ import urllib.request
 from pathlib import Path
 
 from physis_hub.hub import Hub
-from physis_hub.servidor import VENDOR_TIPOS, iniciar
+from physis_hub.servidor import THREE_MODULOS, VENDOR_TIPOS, iniciar
 
 RAIZ = Path(__file__).resolve().parents[2]
 TEM = (RAIZ / "vendor" / "web-ifc.wasm").is_file() or (Path(__file__).resolve().parents[1] / "web" / "vendor" / "web-ifc.wasm").is_file()
@@ -56,7 +56,18 @@ class Vendor(unittest.TestCase):
                      "/vendor/", "/vendor/jszip.min.js"):
             self.assertEqual(self.get(rota)[0], 404, rota)
         self.assertEqual(set(VENDOR_TIPOS), {"maplibre-gl.js", "maplibre-gl.css", "pmtiles.js", "web-ifc-api-iife.js",
-                                             "web-ifc.wasm", "three.min.js"})
+                                             "web-ifc.wasm", "three.min.js"} | set(THREE_MODULOS))
+        for rota in ("/vendor/three/LICENSE", "/vendor/three/SHA256.json", "/vendor/three/addons/../three.module.min.js",
+                     "/vendor/three/addons/exporters/GLTFExporter.js"):
+            self.assertEqual(self.get(rota)[0], 404, rota)
+
+    def test_three_em_modulos(self):
+        """Vista 3D (sistema/physis-3d.js): three.js em módulos com tipo de script, para o import() do navegador."""
+        if not (RAIZ / "vendor" / "three" / "three.module.min.js").is_file():
+            self.skipTest("three.js em módulos ausente")
+        for n in THREE_MODULOS:
+            st, hd, _ = self.get("/vendor/" + n)
+            self.assertEqual((st, hd.get("Content-Type")), (200, "text/javascript; charset=utf-8"), n)
 
 
 if __name__ == "__main__":
