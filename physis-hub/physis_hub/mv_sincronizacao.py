@@ -42,9 +42,7 @@ def _historico(repo: Path, caminho: str, n: int = 80) -> set:
     for h in hs:
         c = _git(repo, "show", f"{h}:{caminho}")
         if c.returncode == 0:
-            out.add(c.stdout.replace(b"
-", b"
-"))
+            out.add(c.stdout.replace(b"\r\n", b"\n"))
     return out
 
 
@@ -74,14 +72,8 @@ def rodar(mv: MV, aplicar: bool = True) -> dict:
         novos[cam] = vs[dono][1]
         hist = _historico(REPOS[dono], cam)
         # cópia que NÃO está no histórico da fonte tem melhorias próprias: não sobrescreve (evita apagar correções), pede para juntar
-        divergentes = [n for n, v in vs.items() if n != dono and v[1].replace(b"
-", b"
-") != novos[cam].replace(b"
-", b"
-")
-                       and v[1].replace(b"
-", b"
-") not in hist]
+        divergentes = [n for n, v in vs.items() if n != dono and v[1].replace(b"\r\n", b"\n") != novos[cam].replace(b"\r\n", b"\n")
+                       and v[1].replace(b"\r\n", b"\n") not in hist]
         if divergentes:
             res.setdefault("divergentes", {})[cam] = divergentes
             mv.alertar("sincronizacao", "juntar_versoes", cam, "atencao", f"{cam}: versões com melhorias diferentes em {', '.join(divergentes)} e {dono}",
