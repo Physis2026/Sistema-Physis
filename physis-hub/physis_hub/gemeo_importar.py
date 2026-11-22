@@ -212,6 +212,13 @@ PRANCHA_02B = [  # caminho, valor, fonte, unidade, zona, nota
 ]
 
 
+# Coordenada (decisão pg:63cd2ce2f829): grade UTM da imagem do levantamento (02_Desenhos_Imagens_PNG/levantamento.png,
+# 25/06/2025): Norte 7.518.875–925 m e Este 691.150–175 m, 25 m = 380 px. Lidos: P-01 em E 691.161,7 / N 7.518.862,0
+# (UTM 23S, SAD-69) → lat −22,4257 / lon −43,1427. Conferência: P-01→P-05 60,5 m a 16,9° e P-01→P-02 22,19 m a 286,7°.
+F_COORD = ("levantamento.png (25/06/2025), grade UTM 23S SAD-69 lida na imagem: P-01 ≈ E 691.161,7 / N 7.518.862,0; "
+           "±1 m na leitura, datum SAD-69 [CONFERIR com o topógrafo] (M&A pg:63cd2ce2f829)")
+LAT_P01, LON_P01 = -22.4257, -43.14268
+UTM_P01 = (691161.7, 7518862.0)
 F06_IDF = "06_Estudo_Hidrologico_e_Drenagem.pdf › 1 · Chuva de projeto (CPRM 2016, estação Rio da Cidade, código 02243011)"
 TEXTOS_06 = ["Equação de chuvas intensas de Petrópolis (CPRM, 2016, estação Rio da Cidade, código 02243011)",
              "2.655,6 · T^0,1644 / (t + 30,6)^0,8862"]
@@ -262,8 +269,9 @@ def elementos_implantacao(p03):
 def item_planejador(e, ocupacao):
     """Item do Planejador (x/y no CENTRO, como o Planejador desenha); a 03 dá o canto (ver convenções)."""
     w, d = e["larg_m"] or 0.0, e["prof_m"] or 0.0
+    x0, x1 = G.canto_gemeo(e["x_03"] or 0, w)
     return {"id": "g-" + e["chave"], "tipo": tipo_planejador(e["chave"]), "nome": nome_curto(e["chave"], e["descricao"]),
-            "x": round((e["x_03"] or 0) + w / 2, 3), "y": round((e["y_03"] or 0) + d / 2, 3),
+            "x": round((x0 + x1) / 2, 3), "y": round((e["y_03"] or 0) + d / 2, 3),
             "w": w, "d": d, "rot": 0, "pav": 1, "ocup": ocupacao, "cota": e["piso_topo_m"]}
 
 
@@ -319,9 +327,11 @@ def sistemas_e_divergencias(p20, p03, p18, els):
     az12, az23 = numeros_br(v12["C"])[0], numeros_br(v23["C"])[0]
     esperado = (az23 + 90) % 360
     put("lote.azimute_eixo_x_graus", az12, p20.fonte("Perímetro", n_v12, "C"), unidade="°",
-        conferir=_conferir("D10", (esperado, f"cálculo: +y a {az23:g}° ({p20.fonte('Perímetro', n_v23, 'C')}) num sistema "
-                                             "destro; 287° indica planta espelhada ou rumo lido ao contrário")) if abs(az12 - esperado) > 1 else None,
-        nota="conferir com o topógrafo junto com a seta do norte (M&A pg:afe44bbf677a)")
+        nota=(f"D10 resolvida: +x da 03 a {az12:g}° com +y a {az23:g}° = planta espelhada, confirmada pela grade UTM do "
+              f"levantamento (P-01→P-02 a 286,7°); o gêmeo vira o x (pg:0fc4161d708b); destro seria {esperado:g}°"))
+    put("lote.latitude", LAT_P01, F_COORD, unidade="°", nota="P-01")
+    put("lote.longitude", LON_P01, F_COORD, unidade="°", nota="P-01")
+    put("lote.utm_p01", f"E {UTM_P01[0]:.1f} / N {UTM_P01[1]:.1f} (UTM 23S, SAD-69)", F_COORD)
     per, f = p03.celula("Levantamento", "Perímetro", "B")
     put("lote.perimetro_m", num_br(per), f, unidade="m")
 
@@ -642,12 +652,16 @@ def terreno(p03, p20):
             pontos.append([x_b, lv["B"], lv["A"]])
             pontos.append([x_c, lv["C"], lv["A"]])
     fontes.append(f"planilha 03 › {aba}, curvas de nível (linha {nc} em diante)")
-    t = {"fonte": f"planilha 03 › {aba} (vértices P-01 a P-0{len(poly)}) + cotas da 20", "crs": "local (metros)",
-         "lat0": None, "lon0": None, "poly": poly, "pontos": pontos, "grade": None, "matricula": None}
+    poly = [[G.x_gemeo(x), y] for x, y in poly]                 # espelho leste–oeste (pg:0fc4161d708b)
+    pontos = [[G.x_gemeo(x), y, z] for x, y, z in pontos]
+    t = {"fonte": f"planilha 03 › {aba} (vértices P-01 a P-0{len(poly)}) + cotas da 20; x espelhado (pg:0fc4161d708b)",
+         "crs": "local (metros)", "lat0": LAT_P01, "lon0": LON_P01, "poly": poly, "pontos": pontos, "grade": None,
+         "matricula": None}
     prov = {
         "terreno.poly": {"st": "est", "src": f"planilha 03 › {aba}, linhas {nv[0]} a {nv[-1]} (x/y local, P-01 = 0,0); "
                          f"{nota_arco}; sem lat/long oficial [MARCADOR L-01]"},
         "terreno.pontos": {"st": "est", "src": "; ".join(fontes)},
+        "terreno.lat0": {"st": "est", "src": F_COORD}, "terreno.lon0": {"st": "est", "src": F_COORD},
     }
     return t, prov
 

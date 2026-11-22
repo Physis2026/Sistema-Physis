@@ -79,9 +79,10 @@ def forma(e, it):
         for a, b in ((A, B), (B, A)):
             bw, bd = a * math.cos(t) + b * math.sin(t), a * math.sin(t) + b * math.cos(t)
             if abs(bw - w) < 0.06 and abs(bd - d) < 0.06:
-                return {"tipo": "ret", "a": a, "b": b, "giro": math.degrees(t),
+                sinal = -1 if G.ESPELHO_X else 1
+                return {"tipo": "ret", "a": a, "b": b, "giro": sinal * math.degrees(t),
                         "origem": f"{md.group(0)} m girado {g.group(1)}° (descrição da 03; reproduz a caixa "
-                                  f"{w} × {d}); sentido do giro [CONFERIR]"}
+                                  f"{w} × {d}); no gêmeo espelhado o giro troca de sinal; sentido [CONFERIR]"}
     return caixa
 
 
@@ -936,8 +937,17 @@ def escrever(projeto, agora=0, altura=None):
     W.add(f"IFCSTYLEDITEM({fs},({estilo(COR_TERRENO)}),$)")
     sr = W.add(f"IFCSHAPEREPRESENTATION({corpo},'Body','Tessellation',({fs}))")
     rep_site = W.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({sr}))")
-    sitio = W.add(f"IFCSITE({W.guid('site')},{oh},'Lote 168',{s_('terreno aproximado pelas curvas de nível da 03 e cotas da 20')},"
-                  f"$,{pl_site},{rep_site},$,.ELEMENT.,$,$,$,$,$)")
+    def _dms(v):
+        if v is None:
+            return "$"
+        sg, a_ = (-1 if v < 0 else 1), abs(v)
+        gr = int(a_); mi = int((a_ - gr) * 60); se = int((a_ - gr - mi / 60) * 3600)
+        mic = int(round(((a_ - gr - mi / 60) * 3600 - se) * 1e6))
+        return f"({sg * gr},{sg * mi},{sg * se},{sg * mic})"
+    lat_s = (g["fonte_por_valor"].get("lote.latitude") or {}).get("valor")
+    lon_s = (g["fonte_por_valor"].get("lote.longitude") or {}).get("valor")
+    sitio = W.add(f"IFCSITE({W.guid('site')},{oh},'Lote 168',{s_('terreno pela grade do Planejador; lat/long do levantamento (grade UTM SAD-69 lida na imagem) [CONFERIR]')},"
+                  f"$,{pl_site},{rep_site},$,.ELEMENT.,{_dms(lat_s)},{_dms(lon_s)},$,$,$)")
     W.add(f"IFCRELAGGREGATES({W.guid('agg-proj')},{oh},$,$,{projeto_ifc},({sitio}))")
 
     refs, por_zona, ref_por_chave = [], {z: [] for z in G.ZONAS}, {}

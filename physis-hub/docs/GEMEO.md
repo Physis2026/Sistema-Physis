@@ -46,6 +46,15 @@ Critério da dona (M&A pg:97b6e5a48dcf): normas e segurança eliminam; entre as 
 - Não confere: recuos (a 03 não tem os parâmetros municipais), estrutura, incêndio, acessibilidade detalhada.
   O Planejador confere mais coisas ao abrir o projeto de cada versão; é triagem, não substitui o responsável técnico.
 
+## Espelho, norte e coordenada (22/11/2026)
+
+- A planta local da 03 é um espelho leste–oeste da realidade: a grade UTM da imagem do levantamento dá +y (P-01→P-05)
+  a 16,9° e +x (P-01→P-02) a 286,7°, como a 20 › Perímetro (17° e 287°). O gêmeo vira o x (x = −x_03; giros com sinal
+  trocado); a 03 fica como está (pg:0fc4161d708b). D10 resolvida.
+- Norte verdadeiro: +y a 17° (TrueNorth = (−sen 17°, cos 17°)) [CONFERIR com o topógrafo, pg:afe44bbf677a].
+- Coordenada do P-01 lida na grade UTM 23S SAD-69: E 691.161,7 / N 7.518.862,0 → lat −22,4257, lon −43,1427,
+  estimada (pg:63cd2ce2f829). No Planejador: terreno.lat0/lon0; no IFC: IfcSite RefLatitude/RefLongitude.
+
 ## Regras da semente
 
 - Fontes (R1-1): números de sistemas da planilha 20; geometria da 03 (Implantação + Levantamento). Cada valor de

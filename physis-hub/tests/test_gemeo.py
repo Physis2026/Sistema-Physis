@@ -98,11 +98,11 @@ class Semente(unittest.TestCase):
     def test_centro_do_item_e_canto_da_03(self):
         for e in G.elementos(self.p):
             it = e["item"]
-            self.assertAlmostEqual(it["x"], e["x_03"] + e["larg_m"] / 2, places=3)
+            self.assertAlmostEqual(it["x"], -(e["x_03"] + e["larg_m"] / 2), places=3)   # x espelhado
             self.assertAlmostEqual(it["y"], e["y_03"] + e["prof_m"] / 2, places=3)
             if it["rot"]:   # lofts girados: medida real que reproduz a caixa larg. × prof. da 03
                 import math
-                t = math.radians(it["rot"])
+                t = math.radians(abs(it["rot"]))   # o espelho troca o sinal; a caixa é a mesma
                 self.assertAlmostEqual(it["w"] * math.cos(t) + it["d"] * math.sin(t), e["larg_m"], delta=0.06)
                 self.assertAlmostEqual(it["w"] * math.sin(t) + it["d"] * math.cos(t), e["prof_m"], delta=0.06)
                 self.assertEqual(it["cota"], e["piso_topo_m"])
@@ -136,7 +136,10 @@ class Semente(unittest.TestCase):
 
     def test_divergencias_conferir(self):
         ab = G.conferir_abertos(self.p)
-        self.assertEqual(set(ab.values()), {f"D{i}" for i in range(1, 11)})
+        self.assertEqual(set(ab.values()), {f"D{i}" for i in range(1, 10)})   # D10 resolvida pelo levantamento
+        self.assertIn("D10 resolvida", self.fv["lote.azimute_eixo_x_graus"]["nota"])
+        self.assertEqual((self.fv["lote.latitude"]["valor"], self.fv["lote.longitude"]["valor"]), (-22.4257, -43.14268))
+        self.assertEqual((self.p["terreno"]["lat0"], self.p["terreno"]["lon0"]), (-22.4257, -43.14268))
         esperado = {"lote.area_m2": ("D6", 1216.0), "areas.projecao_m2": ("D4", 244.4),
                     "energia.fv.placas": ("D1", 70.0), "energia.fv.kwp": ("D1", 38.5),
                     "programa.lofts": ("D3", 5)}
@@ -169,12 +172,13 @@ class Semente(unittest.TestCase):
         t = self.p["terreno"]
         self.assertEqual(t["poly"][0], [0.0, 0.0])
         self.assertEqual(len(t["poly"]), 5 + 11)  # 5 vértices + 11 pontos do arco P-04→P-05
-        self.assertEqual(t["poly"][3], [16.45, 72.1])  # P-04
-        self.assertEqual(t["poly"][-1], [0.09, 60.46])  # P-05
+        self.assertEqual(t["poly"][3], [-16.45, 72.1])  # P-04 (x espelhado, pg:0fc4161d708b)
+        self.assertEqual(t["poly"][-1], [-0.09, 60.46])  # P-05
+        self.assertEqual(t["poly"][1], [-22.12, -0.13])  # P-02 a oeste do P-01, como no levantamento
         # a geometria reproduz a área do levantamento (com o arco; pela corda dariam ≈ 1.494 m²)
         self.assertAlmostEqual(I.area_poligono(t["poly"]), self.p["gemeo"]["fonte_por_valor"]["lote.area_m2"]["valor"],
                                delta=1.0)
-        self.assertIsNone(t["lat0"])
+        self.assertEqual(t["lat0"], -22.4257)   # estimada pela grade UTM do levantamento [CONFERIR]
         self.assertIn("[MARCADOR L-01]", self.p["prov"]["terreno.poly"]["src"])
         self.assertTrue(all(len(p) == 3 for p in t["pontos"]))
         self.assertEqual(len(self.p["clima"]["chuva"]), 12)
@@ -299,8 +303,10 @@ class IFC3D(unittest.TestCase):
 
     def test_marcado_estudo_preliminar_sem_georreferencia(self):
         self.assertIn("ESTUDO PRELIMINAR (revis", self.txt)
-        self.assertEqual(self.r["terrenos"][0]["lat"], None)
-        self.assertEqual(self.r["terrenos"][0]["lon"], None)
+        # lat/long estimadas pela grade UTM do levantamento (pg:63cd2ce2f829), marcadas [CONFERIR]
+        self.assertAlmostEqual(self.r["terrenos"][0]["lat"], -22.4257, places=3)
+        self.assertAlmostEqual(self.r["terrenos"][0]["lon"], -43.1427, places=3)
+        self.assertIn("[CONFERIR]", self.txt)
 
     def test_alturas_vem_da_03_ou_sao_de_desenho(self):
         h, fonte = self.GI.altura_pavimento(self.p["gemeo"]["elementos"])
@@ -349,7 +355,8 @@ class IFC3D(unittest.TestCase):
         its = {i["id"][2:]: i for i in self.p["itens"]}
         els = self.p["gemeo"]["elementos"]
         giros = {k: round(self.GI.forma(els[k], its[k])["giro"]) for k in ("LF1", "LF2", "LF3", "LF4", "LF5")}
-        self.assertEqual(giros, {"LF1": 58, "LF2": 62, "LF3": 62, "LF4": 17, "LF5": 32})
+        # giros da descrição da 03, com o sinal trocado no gêmeo espelhado (pg:0fc4161d708b)
+        self.assertEqual(giros, {"LF1": -58, "LF2": -62, "LF3": -62, "LF4": -17, "LF5": -32})
         f4 = self.GI.forma(els["LF4"], its["LF4"])
         self.assertEqual((f4["a"], f4["b"]), (4.0, 5.0))  # a medida que reproduz a caixa 5,30 × 5,96 da 03
         self.assertEqual(self.GI.forma(els["bar"], its["bar"])["tipo"], "circ")
@@ -366,8 +373,8 @@ class IFC3D(unittest.TestCase):
         T = self.GI.terreno_planejador(self.p)
         v, tri = self.GI.malha_terreno(self.p, T)
         self.assertTrue(all(0 <= i < len(v) for t in tri for i in t))
-        self.assertAlmostEqual(T.z(5, 30), 888.3558, places=3)            # o mesmo valor lido no Planejador
-        self.assertAlmostEqual(self.GI.cota_no_terreno(v, tri, 0.5, 0.5), 902.3, delta=0.4)  # perto de V1 (902,40)
+        self.assertAlmostEqual(T.z(-5, 30), 888.3556, places=3)           # o mesmo valor lido no Planejador
+        self.assertAlmostEqual(self.GI.cota_no_terreno(v, tri, -0.5, 0.5), 902.3, delta=0.4)  # perto de V1 (902,40)
         self.assertTrue(all(870 < z < 905 for _, _, z in v))
 
     def test_estrutura_ate_o_terreno(self):
@@ -484,13 +491,13 @@ class Versoes(unittest.TestCase):
         """Valores lidos no Planejador (run().terra e T.z) em 21/11/2026 com esta semente: regra 4."""
         its = {i["id"][2:]: i for i in self.base["itens"]}
         # lidos no Planejador em 22/11/2026, com os lofts na medida real e girados (rot) como a semente grava
-        esperado = {"casa": 2.1246, "vagas_h": 2.1353, "rampa_h": 2.3002, "bar": 2.8333, "LF1": 2.3707, "LF2": 2.676,
-                    "LF4": 1.4458, "LF5": 1.4577, "garagem": 6.4241, "piscina": 2.9095}
+        esperado = {"casa": 2.1253, "vagas_h": 2.1346, "rampa_h": 2.2993, "bar": 2.8335, "LF1": 2.3704, "LF2": 2.676,
+                    "LF4": 1.4453, "LF5": 1.4579, "garagem": 6.4241, "piscina": 2.9095}
         for k, dz in esperado.items():
             i = its[k]
             self.assertAlmostEqual(self.ter.desnivel(i["x"], i["y"], i["w"], i["d"], i["rot"]), dz, places=3, msg=k)
-        self.assertAlmostEqual(self.ter.z(5, 30), 888.3558, places=3)
-        self.assertAlmostEqual(self.ter.z(11, 50), 880.3377, places=3)
+        self.assertAlmostEqual(self.ter.z(-5, 30), 888.3556, places=3)   # sistema espelhado (pg:0fc4161d708b)
+        self.assertAlmostEqual(self.ter.z(-11, 50), 880.3378, places=3)
         src = _planejador_src()
         self.assertIn("if(dz>1.5&&TIPOS[i.tipo].cat!=='perm')", src)  # mesmo limiar
         self.assertIn("const n=110;", src)

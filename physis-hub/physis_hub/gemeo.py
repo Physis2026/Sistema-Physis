@@ -33,6 +33,22 @@ ZONAS = {
     "Z2": {"nome": "Zona 2", "entidade": "Instituto Physis", "faixa_y_m": [19.6, 38.9]},
     "Z3": {"nome": "Zona 3", "entidade": "Casa Physis", "faixa_y_m": [38.9, None]},
 }
+# Espelho leste–oeste (decisão da dona, 22/11/2026, M&A pg:0fc4161d708b): a planta local da 03 é um espelho da
+# realidade (o levantamento de 25/06/2025 confirma: +y a 17°, +x a 287°). O gêmeo vira o x (x_real = −x_03); a 03 fica
+# como está. Com isso o sistema local fica destro: +y a 17° (norte de projeto, Rua G), +x a 107°.
+ESPELHO_X = True
+
+
+def x_gemeo(x):
+    """x da 03 → x do gêmeo (espelhado)."""
+    return -x if ESPELHO_X else x
+
+
+def canto_gemeo(x03, larg):
+    """Canto x0..x1 do gêmeo para um retângulo da 03 (canto x, largura)."""
+    return (-(x03 + larg), -x03) if ESPELHO_X else (x03, x03 + larg)
+
+
 # Valores do lote inteiro (totais, sistemas que servem a mais de uma zona).
 LOTE = "lote"
 ENTIDADE_LOTE = "lote (as três entidades)"

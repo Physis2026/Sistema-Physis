@@ -227,8 +227,10 @@ def lote_da_semente(projeto):
 
 
 def _ret(e):
+    """Retângulo da 03 no sistema do gêmeo (x espelhado, pg:0fc4161d708b)."""
     x, y, w, d = e["x_03"] or 0, e["y_03"] or 0, e["larg_m"] or 0, e["prof_m"] or 0
-    return x, y, x + w, y + d
+    x0, x1 = G.canto_gemeo(x, w)
+    return x0, y, x1, y + d
 
 
 def avaliar(versao, lote, terreno=None, precos=None):
