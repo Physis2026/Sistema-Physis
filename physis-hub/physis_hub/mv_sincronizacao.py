@@ -19,7 +19,7 @@ from .mv import MV
 BASE = Path("C:/physis")
 REPOS = {"Sistema Physis (oficial)": BASE / "physis-sistema", "Sistema Physis (teste)": BASE / "physis-teste",
          "Instituto Physis": BASE / "instituto-physis", "InovaSTEM (ramo inovastem)": BASE / "instituto-physis-inovastem"}
-ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js"]
+ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js", "sistema/physis-modelador.js"]
 TESTES = ["tests.test_preferencias", "tests.test_mv_traducao"]
 PLATAFORMAS = Path.home() / "OneDrive - Physis Engineering" / "Documents" / "Sistema Physis" / "_versoes_teste" / "2026-11-20_plataformas_iniciais"
 
