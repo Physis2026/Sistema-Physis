@@ -319,6 +319,115 @@ class IFC3D(unittest.TestCase):
         self.assertEqual(gravado, self.txt, "IFC desatualizado: rodar python -m physis_hub.gemeo_ifc")
 
 
+class Versoes(unittest.TestCase):
+    """Comparador de versões de planta (critério da dona, M&A pg:97b6e5a48dcf)."""
+
+    @classmethod
+    def setUpClass(cls):
+        from physis_hub import gemeo_versoes as V
+        cls.V = V
+        cls.base = G.carregar(SEMENTE)
+        cls.lote = V.lote_da_semente(cls.base)
+        cls.ter = V.TerrenoPlanejador(cls.lote["poly"], cls.lote["pontos"])
+        cls.rev0 = V.versao_da_semente(cls.base)
+
+    def _versao(self, mudar):
+        v = copy.deepcopy(self.rev0)
+        mudar({e["chave"]: e for e in v["elementos"]}, v)
+        return v
+
+    def test_espelho_do_planejador(self):
+        """Valores lidos no Planejador (run().terra e T.z) em 21/11/2026 com esta semente: regra 4."""
+        its = {i["id"][2:]: i for i in self.base["itens"]}
+        esperado = {"casa": 2.1246, "vagas_h": 2.1353, "rampa_h": 2.3002, "bar": 2.8333, "LF1": 2.8444,
+                    "garagem": 6.4241, "piscina": 2.9095}
+        for k, dz in esperado.items():
+            i = its[k]
+            self.assertAlmostEqual(self.ter.desnivel(i["x"], i["y"], i["w"], i["d"]), dz, places=3, msg=k)
+        self.assertAlmostEqual(self.ter.z(5, 30), 888.3558, places=3)
+        self.assertAlmostEqual(self.ter.z(11, 50), 880.3377, places=3)
+        src = _planejador_src()
+        self.assertIn("if(dz>1.5&&TIPOS[i.tipo].cat!=='perm')", src)  # mesmo limiar
+        self.assertIn("const n=110;", src)
+
+    def test_rev0_passa_com_alertas(self):
+        a = self.V.avaliar(self.rev0, self.lote, self.ter)
+        self.assertTrue(a["passa"], a["falhas"])
+        self.assertEqual(a["elementos"], 92)
+        self.assertEqual(a["lofts"], 5)
+        self.assertTrue(all(a["modulos"].values()))
+        self.assertTrue(any(x.startswith("casa: desnível de 2.1 m") for x in a["alertas"]))
+        self.assertIn("[MARCADOR]", a["custo_marcador"])
+
+    def test_filtro_elimina_com_motivo(self):
+        fora = self._versao(lambda e, v: e["casa"].update(x_03=18.0))
+        sobre = self._versao(lambda e, v: e["LF2"].update(x_03=e["LF1"]["x_03"], y_03=e["LF1"]["y_03"],
+                                                          piso_topo_m=e["LF1"]["piso_topo_m"]))
+        cheia = self._versao(lambda e, v: e["comum"].update(chave="casa_grande", area_m2=600.0))
+        for e in cheia["elementos"]:
+            if e["chave"] == "casa_grande":
+                e["chave"] = "casa2"
+        r = self.V.comparar([self.V.avaliar(v, self.lote, self.ter) for v in (
+            {**fora, "nome": "fora"}, {**sobre, "nome": "sobre"}, {**cheia, "nome": "cheia"}, self.rev0)])
+        self.assertEqual(r["plantas"], ["rev0"])
+        self.assertIn("casa sai do perímetro do lote", r["eliminadas"]["fora"])
+        self.assertIn("LF1 e LF2 se sobrepõem no mesmo nível", r["eliminadas"]["sobre"])
+        self.assertTrue(any("acima do limite de 40 %" in f for f in r["eliminadas"]["cheia"]))
+
+    def test_empilhado_nao_e_sobreposicao(self):
+        a = self.V.avaliar(self.rev0, self.lote, self.ter)
+        self.assertFalse(any("lab e lab_up" in f or "mec e mec_up" in f for f in a["falhas"]))
+
+    def test_csv_modelo_ida_e_volta(self):
+        import tempfile, os
+        with tempfile.TemporaryDirectory() as d:
+            arq = os.path.join(d, "versao_B.csv")
+            self.V.escrever_modelo_csv(self.rev0, arq)
+            v = self.V.ler_versao(arq)
+            self.assertEqual(v["nome"], "versao_B")
+            a, b = self.V.avaliar(v, self.lote, self.ter), self.V.avaliar(self.rev0, self.lote, self.ter)
+            for k in ("passa", "elementos", "por_zona", "area_edificacoes_m2", "lofts", "terra_movida_m3", "alertas"):
+                self.assertEqual(a[k], b[k], k)
+            Path(arq).write_text("chave;zona\ncasa;Zona 1\n", encoding="utf-8")
+            with self.assertRaises(I.FonteAusente):
+                self.V.ler_versao(arq)
+            pr = os.path.join(d, "precos.csv")
+            Path(pr).write_text("tipo;preco_m2;fonte\nresidencia;1000;\n", encoding="utf-8")
+            with self.assertRaises(I.FonteAusente):  # preço sem fonte é recusado
+                self.V.ler_precos(pr)
+        modelo = RAIZ / "modulos" / "planejador" / "gemeo" / "versoes" / "MODELO_precos.csv"
+        self.assertEqual(self.V.ler_precos(modelo), {})  # o modelo vem sem nenhum preço (nada inventado)
+        self.assertEqual(len(self.V.ler_versao(modelo.with_name("MODELO_versao.csv"))["elementos"]), 92)
+
+    def test_custo_so_com_preco_de_fonte(self):
+        tipos = {I.tipo_planejador(e["chave"]) for e in self.rev0["elementos"]}
+        precos = {t: (100.0, "tabela de teste") for t in tipos}
+        a = self.V.avaliar(self.rev0, self.lote, self.ter, precos)
+        self.assertEqual(a["custo_m2_rs"], 100.0)
+        self.assertIsNone(a["custo_marcador"])
+        del precos["hospedagem"]
+        b = self.V.avaliar(self.rev0, self.lote, self.ter, precos)
+        self.assertIsNone(b["custo_rs"])
+        self.assertIn("hospedagem", b["custo_marcador"])
+
+    def test_versao_vira_projeto_e_ifc(self):
+        from physis_hub import gemeo_ifc, ifc
+        v = self._versao(lambda e, v: e["casa"].update(x_03=3.0))
+        v["nome"] = "B"
+        pj = self.V.projeto_da_versao(v, self.base)
+        self.assertEqual(G.validar(pj), [])
+        self.assertNotIn("energia.fv.kwp", pj["gemeo"]["fonte_por_valor"])  # números da 20 são da rev0
+        r = ifc.ler(gemeo_ifc.escrever(pj, altura=(2.9, "teste")).encode("utf-8"))
+        self.assertEqual(r["elementos"], 92)
+
+    @unittest.skipUnless(TEM_ACERVO, "planilha 03 do acervo não está nesta máquina")
+    def test_masterplans_da_03(self):
+        vs = self.V.versoes_masterplan(I.Planilha("03", P03))
+        self.assertEqual([v["nome"] for v in vs], ["M1 + C1", "M1 + C2", "M2 + C1", "M2 + C2", "M3 + C1", "M3 + C2"])
+        r = self.V.comparar([self.V.avaliar(v, self.lote) for v in vs])
+        self.assertEqual(r["resumos"][0], "M2 + C2")  # menor terraplenagem (R$ 40.000), mais lofts
+
+
 @unittest.skipUnless(TEM_ACERVO, "planilhas 20 e 03 do acervo não estão nesta máquina")
 class Acervo(unittest.TestCase):
     """Só roda onde as planilhas do acervo existem (PHYSIS_CASA_EDITAVEIS ou a pasta padrão)."""

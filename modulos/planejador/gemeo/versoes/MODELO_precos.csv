@@ -1,0 +1,20 @@
+# Preço por m² de cada tipo de elemento (tipo do Planejador). A coluna fonte é obrigatória (orçamento, tabela de
+# referência com data, cotação): sem fonte o comparador recusa o preço. Sem preço de um tipo, o custo fica [MARCADOR].
+tipo;preco_m2;fonte
+biodigestor;;
+cisterna;;
+deck;;
+deposito;;
+edicula;;
+escritorio;;
+estacionamento;;
+gramado;;
+horta;;
+hospedagem;;
+infiltracao;;
+mata;;
+pavimento;;
+piscina;;
+residencia;;
+restaurante;;
+tratamento;;

@@ -11,7 +11,8 @@ Desenho aprovado pela dona em 21/11/2026: `Documents\Sistema Physis\47_Gemeo_Dig
 | Importador | `physis_hub/gemeo_importar.py` | Planilhas 20 e 03 (e 18 só para citar D5) → projeto `physis.terreno/1.0` com o campo `gemeo`. Lê .xlsx sem dependências; para com erro se faltar um rótulo |
 | Semente rev0 | `modulos/planejador/gemeo/casa-physis-rev0.json` | Abre no Planejador por "Abrir projeto" (nada no Planejador foi mudado) |
 | IFC 3D (G3) | `physis_hub/gemeo_ifc.py` → `modulos/planejador/gemeo/casa-physis-rev0.ifc` | IFC4 do lote: 92 elementos (72 com sólido), terreno pelas curvas de nível, 3 zonas, cor da entidade, marcado estudo preliminar, sem lat/long |
-| Testes | `tests/test_gemeo.py` | 24 testes; os 2 da classe `Acervo` só rodam onde as planilhas existem |
+| Comparador de versões | `physis_hub/gemeo_versoes.py`, modelos em `modulos/planejador/gemeo/versoes/` | Várias plantas do mesmo lote: filtro de normas e segurança, ranking por custo-benefício, projeto e IFC por versão |
+| Testes | `tests/test_gemeo.py` | 32 testes; os 2 da classe `Acervo` só rodam onde as planilhas existem |
 
 Refazer a semente quando a planilha 20 ou a 03 mudar (o teste `Acervo` acusa semente desatualizada):
 
@@ -27,6 +28,23 @@ clicar em "Ver em 3D e áreas" (arrastar gira, roda do mouse aproxima). Refazer 
 Alturas no 3D (decisão pg:16228b14d400): edificações do 20 › Quadro de áreas com 2,90 m (LAB/MEC de cima − de baixo
 na 03); o resto é placa de 0,20 m só de desenho; tudo [CONFERIR] até o executivo. Sem cota na 03 → cota do terreno
 interpolada. O terreno é aproximado pelas curvas (não é levantamento 3D).
+
+## Comparar versões de planta
+
+Critério da dona (M&A pg:97b6e5a48dcf): normas e segurança eliminam; entre as que passam, melhor custo-benefício.
+
+    python -m physis_hub.gemeo_versoes versao_B.csv versao_C.xlsx --masterplan --precos precos.csv         --saida comparacao.json --ifc versoes_ifc
+
+- Versão = CSV no formato de `versoes/MODELO_versao.csv` (é a rev0; copiar e alterar) ou .xlsx com a aba Implantação
+  no leiaute da 03. `--masterplan` junta as 6 combinações da 03 › Estudos de masterplan (avaliação parcial, sem planta).
+- Filtro: edificação fora do perímetro, edificações sobrepostas no mesmo nível, ocupação acima de 40 % (03).
+  Sinaliza sem eliminar o desnível > 1,5 m sob a projeção, com a mesma conta e o mesmo limiar do Planejador
+  (`TerrenoPlanejador` espelha `T.build`/`T.z`; valores conferidos no navegador e fixados no teste).
+- Ranking: custo por m² de edificação só com preço com fonte (`versoes/MODELO_precos.csv`, vem vazio); sem preço,
+  [MARCADOR] e ranking por módulos presentes, lofts e terra movida.
+- `--ifc` grava o projeto do Planejador e o IFC de cada versão (os números da planilha 20 ficam só na rev0).
+- Não confere: recuos (a 03 não tem os parâmetros municipais), estrutura, incêndio, acessibilidade detalhada.
+  O Planejador confere mais coisas ao abrir o projeto de cada versão; é triagem, não substitui o responsável técnico.
 
 ## Regras da semente
 

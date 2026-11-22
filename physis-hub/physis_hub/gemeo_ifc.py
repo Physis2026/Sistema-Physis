@@ -107,14 +107,15 @@ def _rgb(hexa):
     return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
 
 
-def escrever(projeto, agora=0):
-    """Texto STEP do IFC4. `agora` fixo por padrão para o arquivo ser reprodutível (mesma semente, mesmo IFC)."""
+def escrever(projeto, agora=0, altura=None):
+    """Texto STEP do IFC4. `agora` fixo por padrão para o arquivo ser reprodutível (mesma semente, mesmo IFC).
+    `altura` = (m, fonte) para versões sem LAB/MEC empilhados (o comparador passa a da rev0)."""
     if G.validar(projeto):
         raise SementeIncompleta("semente inválida: " + "; ".join(G.validar(projeto)[:3]))
     g = projeto["gemeo"]
     els = g["elementos"]
     itens = {i["id"]: i for i in projeto["itens"]}
-    h_pav, f_pav = altura_pavimento(els)
+    h_pav, f_pav = altura or altura_pavimento(els)
     v, tri = malha_terreno(projeto)
     W = Escritor("gemeo-" + g["semente"])
 
