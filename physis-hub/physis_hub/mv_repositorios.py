@@ -1,4 +1,4 @@
-"""Repositórios da Physis fora do Sistema Physis (bot "repositorios", 22/11/2026). Primeiro: marketing-physis.
+r"""Repositórios da Physis fora do Sistema Physis (bot "repositorios", 22/11/2026). Primeiro: marketing-physis.
 
 O M&A acompanha cada repositório Git listado (padrão: Documents\Marketing Physis no OneDrive; senão C:\physis\marketing-physis):
 - estado do Git: ramo, último commit (data e mensagem), alterações não salvas, se há cópia fora do computador (remote);

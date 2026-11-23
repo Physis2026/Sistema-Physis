@@ -49,7 +49,7 @@ def pastas_documentos() -> list[Path]:
     return out
 SAIDA = Path(os.environ.get("PHYSIS_MV_SAIDA") or (DOCS / "Sistema Physis" / "28_Physis_MV"))
 # pastas geradas, de código ou cópias: o bot não varre (o código tem os próprios testes)
-IGNORAR = re.compile(r"(\\|/)(sistema_physis_fase1|_backup[^\\/]*|_versoes_teste|node_modules|\.git|\.claude|Modulos em desenvolvimento|"
+IGNORAR = re.compile(r"(\\|/)(sistema_physis_fase1|_backup[^\\/]*|_Arquivo_substitu[^\\/]*|physis-ma-\d[^\\/]*|physis-sistema|_versoes_teste|node_modules|\.git|\.claude|Modulos em desenvolvimento|"
                      r"Projetos em desenvolvimento|sistema_physis_ep_final|06_Kits_revisao|28_Physis_MV)(\\|/)", re.I)
 EXTS = {".docx", ".pptx", ".xlsx", ".odt", ".odp", ".ods", ".md", ".txt", ".pdf"}
 # arquivos que CITAM as regras (decisões, revisões): não são conferidos por elas

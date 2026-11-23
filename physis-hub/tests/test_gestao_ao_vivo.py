@@ -58,3 +58,48 @@ class AoVivo(unittest.TestCase):
             mv = MV(":memory:")
             self.assertEqual(X.bot_gestoes(mv)["ao_vivo"]["engineering"], "sem banco")
             self.assertTrue(any(a["tipo"] == "sem_gestao" for a in mv.alertas()))
+
+
+class SemRepetir(unittest.TestCase):
+    def test_titulo_que_ja_existe_nao_duplica(self):
+        d = Path(tempfile.mkdtemp())
+        b = d / "physis-hub.db"
+        banco(b, ESTADO)
+        with mock.patch.dict(os.environ, {"PHYSIS_GESTAO_BANCOS": f"engineering={b}", "PHYSIS_MV_GESTOES": str(d / "g")}):
+            mv = MV(":memory:")
+            mv.salvar_tarefa({"id": "f0-cnpj", "frente": "instituto", "titulo": "Abrir CNPJ do instituto", "responsavel": "Rafaella", "estado": "a_fazer"})
+            r = X.bot_gestoes(mv)["ao_vivo"]["engineering"]
+            self.assertIn("1 já existiam", r)
+            self.assertIsNone(mv.tarefa("gestao:t1"))
+            self.assertEqual(mv.tarefa("f0-cnpj")["estado"], "feita")
+            self.assertEqual(mv.tarefa("gestao:t2")["depende_de"], [])
+
+    def test_repetida_dentro_da_gestao(self):
+        d = Path(tempfile.mkdtemp())
+        b = d / "physis-hub.db"
+        est = {"equipe": [], "tarefas": [{"id": f"imp-{i}", "texto": "Revisar Physis 3D", "projeto": "3D", "pessoa": "ana"} for i in range(5)],
+               "feitas": {"imp-3": "2026-11-20"}}
+        banco(b, est)
+        with mock.patch.dict(os.environ, {"PHYSIS_GESTAO_BANCOS": f"engineering={b}", "PHYSIS_MV_GESTOES": str(d / "g")}):
+            mv = MV(":memory:")
+            X.bot_gestoes(mv)
+            ts = [t for t in mv.db.execute("SELECT id, estado FROM mv_tarefa WHERE titulo='Revisar Physis 3D'")]
+            self.assertEqual(len(ts), 1)
+            self.assertEqual(ts[0][1], "feita")
+
+    def test_mesma_tarefa_de_pessoas_diferentes_fica_separada(self):
+        d = Path(tempfile.mkdtemp())
+        b = d / "physis-hub.db"
+        est = {"equipe": [{"id": "ana", "nome": "Ana"}, {"id": "bia", "nome": "Bia"}],
+               "tarefas": [{"id": "a", "texto": "Ler o edital", "pessoa": "ana"}, {"id": "b", "texto": "Ler o edital", "pessoa": "bia"}],
+               "feitas": {"b": "2026-11-23"}}
+        banco(b, est)
+        with mock.patch.dict(os.environ, {"PHYSIS_GESTAO_BANCOS": f"engineering={b}", "PHYSIS_MV_GESTOES": str(d / "g")}):
+            mv = MV(":memory:")
+            X.bot_gestoes(mv)
+            self.assertEqual(mv.tarefa("gestao:a")["estado"], "a_fazer")
+            self.assertEqual(mv.tarefa("gestao:b")["estado"], "feita")
+            # Bia desmarca na Gestão: volta a fazer no M&A
+            banco(b, dict(est, feitas={}), versao=2)
+            X.bot_gestoes(mv)
+            self.assertEqual(mv.tarefa("gestao:b")["estado"], "a_fazer")

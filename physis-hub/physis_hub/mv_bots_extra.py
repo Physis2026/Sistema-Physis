@@ -217,6 +217,47 @@ def pacote_da_gestao(estado: dict) -> dict:
     return {"formato": "physis/1", "org_id": "physis", "app": "gestao-physis", "tabelas": {"pessoa": pessoas, "projeto": projetos, "tarefa": tarefas}}
 
 
+def titulo_norm(s: str) -> str:
+    import unicodedata
+    s = "".join(c for c in unicodedata.normalize("NFD", str(s or "").lower()) if not unicodedata.combining(c))
+    return " ".join(re.sub(r"[^a-z0-9]+", " ", s).split())
+
+
+def sem_repetidas(mv: MV, pacote: dict) -> int:
+    """Mesma tarefa = mesmo título E mesma pessoa (a Gestão é individual: duas pessoas com a mesma tarefa são duas
+    tarefas). Vale contra o que já está no M&A e dentro da própria Gestão (a mesma tarefa importada várias vezes para a
+    mesma pessoa). Fica uma só; se alguma foi marcada como feita, a que fica vira feita."""
+    nomes = {p.get("pessoa_id"): p.get("nome") or p.get("pessoa_id") for p in pacote["tabelas"].get("pessoa") or []}
+    existentes = {}
+    for tid, tit, resp in mv.db.execute("SELECT id, titulo, responsavel FROM mv_tarefa ORDER BY criado"):
+        existentes.setdefault((titulo_norm(tit), titulo_norm(resp)), tid)
+    fica, tirados, vistos = [], set(), {}
+    for x in pacote["tabelas"]["tarefa"]:
+        meu = "gestao:" + str(x["tarefa_id"])
+        n = (titulo_norm(x["titulo"]), titulo_norm(nomes.get(x.get("pessoa_id"), x.get("pessoa_id") or "")))
+        no_pacote = vistos.get(n)
+        if no_pacote is not None:                 # repetida dentro da própria Gestão: a primeira fica
+            tirados.add(x["tarefa_id"])
+            if x.get("concluida") and not no_pacote.get("concluida"):
+                no_pacote["concluida"], no_pacote["concluida_em"] = True, x.get("concluida_em")
+            continue
+        alvo = existentes.get(n)
+        if alvo and alvo != meu:
+            tirados.add(x["tarefa_id"])
+            if x.get("concluida"):
+                mv.db.execute("UPDATE mv_tarefa SET estado='feita', concluida_em=COALESCE(concluida_em, ?), atualizado=? "
+                              "WHERE id=? AND estado<>'feita'", (x.get("concluida_em"), time.time(), alvo))
+            continue
+        vistos[n] = x
+        fica.append(x)
+    for x in fica:
+        if x.get("depende_de") in tirados:
+            x["depende_de"] = None
+    pacote["tabelas"]["tarefa"] = fica
+    mv.db.commit()
+    return len(tirados)
+
+
 def gestao_ao_vivo(mv: MV, saida: Path) -> dict:
     """Importa cada Gestão ao vivo que mudou desde a última vez. Nunca escreve no banco da Gestão."""
     mv.db.execute("CREATE TABLE IF NOT EXISTS mv_assinatura (bot TEXT PRIMARY KEY, valor TEXT NOT NULL, quando REAL NOT NULL)")
@@ -244,13 +285,14 @@ def gestao_ao_vivo(mv: MV, saida: Path) -> dict:
             r[frente] = "sem mudança"
             continue
         pacote = pacote_da_gestao(json.loads(lin[0]))
+        repetidas = sem_repetidas(mv, pacote)
         saida.mkdir(parents=True, exist_ok=True)
         arq = saida / f"{frente}-ao-vivo.json"
         arq.write_text(json.dumps(pacote, ensure_ascii=False, indent=1), encoding="utf-8")
         n = mv.importar_gestao(arq, frente=frente)
         mv.db.execute("INSERT OR REPLACE INTO mv_assinatura VALUES (?,?,?)", (f"gestao:{frente}", ass, time.time()))
         mv.db.commit()
-        r[frente] = f"{n} tarefa(s) importadas (versão {lin[1]})"
+        r[frente] = f"{n} tarefa(s) importadas (versão {lin[1]})" + (f"; {repetidas} já existiam no M&A e não foram duplicadas" if repetidas else "")
     return r
 
 

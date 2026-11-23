@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Padroniza as telas pelo checklist base (doc 43) sem mudar função nem conta (regras 1, 2 e 6 do CLAUDE.md).
+r"""Padroniza as telas pelo checklist base (doc 43) sem mudar função nem conta (regras 1, 2 e 6 do CLAUDE.md).
 
     python ferramentas/padronizar_paginas.py              # aplica (idempotente)
     python ferramentas/padronizar_paginas.py --conferir   # só mostra o que mudaria

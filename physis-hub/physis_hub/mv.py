@@ -83,7 +83,7 @@ _DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def pasta_padrao() -> Path:
-    """Banco fora do OneDrive (sincronização corrompe SQLite): PHYSIS_MV_DADOS ou a pasta "dados" ao lado do sistema
+    r"""Banco fora do OneDrive (sincronização corrompe SQLite): PHYSIS_MV_DADOS ou a pasta "dados" ao lado do sistema
     (C:\physis\dados quando o sistema está em C:\physis\<pasta da versão>): todas as versões usam o mesmo banco."""
     p = Path(os.environ.get("PHYSIS_MV_DADOS") or (Path(__file__).resolve().parents[3] / "dados"))
     p.mkdir(parents=True, exist_ok=True)
@@ -482,7 +482,8 @@ class MV:
             pr = (t.get("extras") or {}).get("prioridade")
             tid = "gestao:" + str(t["tarefa_id"])
             ant = self.tarefa(tid)
-            estado = "feita" if t.get("concluida") else (ant["estado"] if ant else "a_fazer")
+            # desmarcada na Gestão volta a "a fazer" no M&A (cada pessoa atualiza as suas; 23/11/2026)
+            estado = "feita" if t.get("concluida") else ("a_fazer" if not ant or ant["estado"] == "feita" else ant["estado"])
             dep = ["gestao:" + str(t["depende_de"])] if t.get("depende_de") else []
             self.salvar_tarefa({
                 "id": tid, "frente": frente, "projeto": proj.get(t.get("projeto_id"), ""),
