@@ -132,7 +132,7 @@ ARESTAS = [
     ("inovastem_plat", "inst", "atende", "InovaSTEM"), ("inovastem_plat", "eng", "atende", "InovaSTEM"), ("inovastem_plat", "casa", "atende", "InovaSTEM"),
     # M&A e frentes
     ("casa", "mv", "exportação physis/1", "mv_cli importar"), ("eng", "mv", "exportação physis/1", "mv_cli importar"),
-    ("inst", "mv", "exportação physis/1", "mv_cli importar"), ("inovastem", "mv", "tarefas e metas", "mv_semente"), ("gestao", "mv", "checklist da gestão", "mv_cli importar"),
+    ("inst", "mv", "exportação physis/1", "mv_cli importar"), ("inovastem", "mv", "tarefas e metas", "mv_semente"), ("gestao", "mv", "tarefas da Gestão ao vivo (de hora em hora)", "mv_bots_extra.gestao_ao_vivo"),
     # bots do M&A
     ("mv", "b_atrasos", "tarefas e marcos", "mv_bots.bot_atrasos"), ("b_atrasos", "mv", "alertas de prazo", "mv_alerta"),
     ("pastas", "b_documentos", "arquivos", "mv_bots.bot_documentos"), ("b_documentos", "mv", "alertas e tarefas", "mv_alerta"),

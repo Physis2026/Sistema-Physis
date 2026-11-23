@@ -55,7 +55,7 @@ def comandos_agenda() -> list[list[str]]:
     base = f'cmd /c cd /d "{RAIZ_HUB}" && "{py}" -m physis_hub.mv_cli'
     return [
         # versão enxuta (22/11/2026): sinal de vida, documentos (só se algo mudou), sensores, vigia e sentinela de hora em hora
-        ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots documentos dados_iot vigia sentinela"],
+        ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots documentos gestoes dados_iot vigia sentinela"],
         ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/MO", "8", "/TN", "PhysisMV\\atrasos_8h", "/TR", f"{base} bots atrasos sala"],
         ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots diario"],
         # revisão semanal completa (inclui o mapeamento do ecossistema/mercado): segunda às 6h (dia na caixa de perguntas)

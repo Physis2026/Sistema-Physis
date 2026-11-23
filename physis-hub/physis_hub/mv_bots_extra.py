@@ -173,22 +173,104 @@ def bot_simulacao(mv: MV) -> dict:
 
 
 # ---- gestões internas -----------------------------------------------------------------------------------------------
+# Gestão ao vivo (23/11/2026): a Gestão interna servida pelo site da Physis (porta 8703) guarda o estado no banco do
+# próprio servidor (gestao_estado, chave gestao-physis:gestao-physis-v3 = {equipe, tarefas, feitas}). O M&A lê esse
+# banco SÓ PARA LEITURA, monta o mesmo pacote physis/1 do "Fazer cópia" (physis-anexo-gestao.js, paraPacote) e importa
+# quando mudou. PHYSIS_GESTAO_BANCOS: caminhos separados por ; no formato frente=caminho (padrão: engineering = site).
+CHAVE_GESTAO = "gestao-physis:gestao-physis-v3"
+PESO_GESTAO = {"micro": 1, "media": 3, "longa": 8}
+
+
+def bancos_gestao() -> list[tuple[str, Path]]:
+    cfg = os.environ.get("PHYSIS_GESTAO_BANCOS", "")
+    if cfg.strip():
+        out = []
+        for item in re.split(r"[;\n]", cfg):
+            if "=" in item:
+                fr, cam = item.split("=", 1)
+                out.append((fr.strip(), Path(cam.strip())))
+        return out
+    return [("engineering", RAIZ_REPO.parent / "clientes" / "physis-physis-site" / "physis-hub.db")]
+
+
+def _id_projeto(nome: str) -> str:
+    import unicodedata
+    s = "".join(c for c in unicodedata.normalize("NFD", str(nome or "sem-projeto").lower()) if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", s).strip("-")[:48] or "sem-projeto"
+
+
+def pacote_da_gestao(estado: dict) -> dict:
+    """O mesmo physis/1 que o botão "Fazer cópia" gera (tabelas pessoa, projeto, tarefa)."""
+    pessoas = [{"org_id": "physis", "pessoa_id": p.get("id"), "nome": p.get("nome") or p.get("id"), "papel": p.get("papel") or ""}
+               for p in estado.get("equipe") or []]
+    projetos, vistos = [], set()
+    for x in estado.get("tarefas") or []:
+        pid = _id_projeto(x.get("projeto"))
+        if pid not in vistos:
+            vistos.add(pid)
+            projetos.append({"org_id": "physis", "projeto_id": pid, "nome": x.get("projeto") or "Sem projeto"})
+    feitas = estado.get("feitas") or {}
+    tarefas = [{"org_id": "physis", "tarefa_id": x.get("id"), "titulo": x.get("texto") or "", "pessoa_id": x.get("pessoa") or "",
+                "projeto_id": _id_projeto(x.get("projeto")), "horizonte": x.get("h") or "", "peso": PESO_GESTAO.get(x.get("h")),
+                "concluida": bool(feitas.get(x.get("id"))), "concluida_em": feitas.get(x.get("id")) or None,
+                "depende_de": x.get("depende") or None} for x in estado.get("tarefas") or [] if x.get("id") is not None]
+    return {"formato": "physis/1", "org_id": "physis", "app": "gestao-physis", "tabelas": {"pessoa": pessoas, "projeto": projetos, "tarefa": tarefas}}
+
+
+def gestao_ao_vivo(mv: MV, saida: Path) -> dict:
+    """Importa cada Gestão ao vivo que mudou desde a última vez. Nunca escreve no banco da Gestão."""
+    mv.db.execute("CREATE TABLE IF NOT EXISTS mv_assinatura (bot TEXT PRIMARY KEY, valor TEXT NOT NULL, quando REAL NOT NULL)")
+    r = {}
+    for frente, banco in bancos_gestao():
+        if not banco.is_file():
+            r[frente] = "sem banco"
+            mv.alertar("gestoes", "sem_gestao", str(banco), "info", f"Gestão ao vivo ({frente}) não encontrada: {banco}",
+                       "Montar e ligar o site da Physis (porta 8703) ou ajustar PHYSIS_GESTAO_BANCOS")
+            continue
+        try:
+            con = sqlite3.connect(f"file:{banco}?mode=ro", uri=True, timeout=10)
+            lin = con.execute("SELECT valor, versao, atualizado FROM gestao_estado WHERE chave=?", (CHAVE_GESTAO,)).fetchone()
+            con.close()
+        except sqlite3.Error as e:
+            r[frente] = f"erro: {e}"
+            mv.alertar("gestoes", "gestao_erro", str(banco), "atencao", f"Não consegui ler a Gestão ({frente}): {e}", "Conferir o banco do site")
+            continue
+        if not lin:
+            r[frente] = "Gestão ainda vazia"
+            continue
+        ass = f"{lin[1]}:{lin[2]}"
+        ant = mv.db.execute("SELECT valor FROM mv_assinatura WHERE bot=?", (f"gestao:{frente}",)).fetchone()
+        if ant and ant[0] == ass:
+            r[frente] = "sem mudança"
+            continue
+        pacote = pacote_da_gestao(json.loads(lin[0]))
+        saida.mkdir(parents=True, exist_ok=True)
+        arq = saida / f"{frente}-ao-vivo.json"
+        arq.write_text(json.dumps(pacote, ensure_ascii=False, indent=1), encoding="utf-8")
+        n = mv.importar_gestao(arq, frente=frente)
+        mv.db.execute("INSERT OR REPLACE INTO mv_assinatura VALUES (?,?,?)", (f"gestao:{frente}", ass, time.time()))
+        mv.db.commit()
+        r[frente] = f"{n} tarefa(s) importadas (versão {lin[1]})"
+    return r
+
+
 def bot_gestoes(mv: MV, pasta: Path | None = None, agora: float | None = None) -> dict:
-    """Exportações physis/1 das Gestões internas: idade de cada arquivo e se já entrou no M&A."""
+    """Gestão ao vivo (importa sozinho) + exportações physis/1 deixadas na pasta: idade e se já entraram no M&A."""
     from . import mv_bots
     inicio = mv.nova_rodada()
     agora = agora or time.time()
     p = Path(pasta or os.environ.get("PHYSIS_MV_GESTOES") or (mv_bots.DOCS / "Sistema Physis" / "28_Physis_MV" / "gestoes"))
+    ao_vivo = gestao_ao_vivo(mv, p)
     if not p.is_dir():
         mv.alertar("gestoes", "sem_pasta", str(p), "info", f"Pasta das exportações das Gestões não encontrada: {p}",
                    "Definir PHYSIS_MV_GESTOES (uma exportação physis/1 por Gestão)")
-        return _fim(mv, "gestoes", inicio, {"arquivos": 0})
+        return _fim(mv, "gestoes", inicio, {"ao_vivo": ao_vivo, "arquivos": 0})
     lim = _limite("PHYSIS_GESTOES_MAX_H")
     if lim is None:
         _pede_limite(mv, "gestoes", "PHYSIS_GESTOES_MAX_H", "idade máxima da exportação de uma Gestão (h)")
     ult_imp = mv.db.execute("SELECT MAX(atualizado) FROM mv_tarefa WHERE origem='gestao'").fetchone()[0] or 0
     out = {}
-    for f in sorted(p.glob("*.json")):
+    for f in sorted(x for x in p.glob("*.json") if not x.name.endswith("-ao-vivo.json")):   # as ao vivo já entraram
         h = round((agora - f.stat().st_mtime) / 3600, 1)
         out[f.name] = h
         if lim is not None and h > lim:
@@ -197,7 +279,7 @@ def bot_gestoes(mv: MV, pasta: Path | None = None, agora: float | None = None) -
         if f.stat().st_mtime > ult_imp + 60:
             mv.alertar("gestoes", "nao_importada", f.name, "atencao", f"Exportação {f.name} é mais nova que a última importação",
                        f'Rodar: python -m physis_hub.mv_cli importar "{f}"')
-    return _fim(mv, "gestoes", inicio, {"arquivos": len(out), "idade_h": out})
+    return _fim(mv, "gestoes", inicio, {"ao_vivo": ao_vivo, "arquivos": len(out), "idade_h": out})
 
 
 # ---- bancos, certificados e segredos --------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | Variável | Onde é lida | Trecho do código |
 |---|---|---|
 | `PHYSIS_ACEITAR_SEM_CHAVE` | servidor.py:828 | `sem_chave = os.environ.get("PHYSIS_ACEITAR_SEM_CHAVE", "").strip()   # "1" aceita, "0" recusa, vazio: só rede local` |
-| `PHYSIS_ACERVO` | mv_bots_extra.py:273 | `p = Path(pasta or os.environ.get("PHYSIS_ACERVO") or (base / "acervo"))` |
+| `PHYSIS_ACERVO` | mv_bots_extra.py:356 | `p = Path(pasta or os.environ.get("PHYSIS_ACERVO") or (base / "acervo"))` |
 | `PHYSIS_APP_DOWNLOAD` | servidor.py:601 | `env = (os.environ.get("PHYSIS_APP_DOWNLOAD") or "").strip()` |
 | `PHYSIS_BANCO` | mv_bots_extra.py:119 (+2) | `arq = Path(banco or os.environ.get("PHYSIS_BANCO") or "physis-hub.db")` |
 | `PHYSIS_BIBLIOTECA_PASTA` | documentos_auto.py:482 | `self.pasta_bib = Path(pasta_biblioteca or os.environ.get("PHYSIS_BIBLIOTECA_PASTA") or (RAIZ / "dados" / "biblioteca"))` |
@@ -16,7 +16,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_CALC_URL` | calc_cliente.py:50 | `url = (os.environ.get("PHYSIS_CALC_URL") or "").strip().rstrip("/")` |
 | `PHYSIS_CAMADAS` | mapeamento.py:125 | `p = pasta if pasta is not None else os.environ.get("PHYSIS_CAMADAS", "")` |
 | `PHYSIS_CEP_PROVEDOR` | cep.py:57 | `v = os.environ.get("PHYSIS_CEP_PROVEDOR", "brasilapi,viacep") if valor is None else valor` |
-| `PHYSIS_CERT_AVISO_DIAS` | mv_bots_extra.py:243 (+1) | `aviso = _limite("PHYSIS_CERT_AVISO_DIAS")` |
+| `PHYSIS_CERT_AVISO_DIAS` | mv_bots_extra.py:325 (+1) | `aviso = _limite("PHYSIS_CERT_AVISO_DIAS")` |
 | `PHYSIS_CHAMADAS` | servidor.py:776 (+1) | `csp = politica(os.environ.get("PHYSIS_CHAMADAS") or instancia.get("chamadas"))` |
 | `PHYSIS_CLAUDE_AVISOS` | ia_claude.py:140 | `v = tuple(sorted({float(x) for x in (os.environ.get("PHYSIS_CLAUDE_AVISOS") or "0.8,1").split(",") if x.strip()}))` |
 | `PHYSIS_CLAUDE_AVISO_EMAIL` | robos.py:1005 | `para = os.environ.get("PHYSIS_CLAUDE_AVISO_EMAIL") or ctx.get("suporte_email") or ""` |
@@ -35,7 +35,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_DOC_RETENCAO_DIAS` | documentos.py:1205 | `dias = float(os.environ.get("PHYSIS_DOC_RETENCAO_DIAS") or 180)` |
 | `PHYSIS_DOC_TEMPO` | documentos_cliente.py:70 | `return float(os.environ.get("PHYSIS_DOC_TEMPO") or 120)` |
 | `PHYSIS_DOC_URL` | documentos_cliente.py:39 | `url = (os.environ.get("PHYSIS_DOC_URL") or "").strip().rstrip("/")` |
-| `PHYSIS_DOMINIO` | mv_bots_extra.py:238 | `dom = os.environ.get("PHYSIS_DOMINIO")` |
+| `PHYSIS_DOMINIO` | mv_bots_extra.py:320 | `dom = os.environ.get("PHYSIS_DOMINIO")` |
 | `PHYSIS_DOMINIO_EMAIL` | hub.py:479 (+1) | `dominio = (os.environ.get("PHYSIS_DOMINIO_EMAIL") or "").strip().lower().lstrip("@")` |
 | `PHYSIS_DWG2DXF` | servidor.py:111 | `exe = programa or os.environ.get("PHYSIS_DWG2DXF") or shutil.which("dwg2dxf")` |
 | `PHYSIS_EDITAIS_ACESSO` | editais.py:435 | `v = os.environ.get("PHYSIS_EDITAIS_ACESSO")` |
@@ -47,7 +47,8 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_EXPOSTO` | seguranca.py:124 | `if os.environ.get("PHYSIS_EXPOSTO") == "1":` |
 | `PHYSIS_FORNECEDORES_PASTA` | fornecedores.py:191 (+1) | `return Path(os.environ.get("PHYSIS_FORNECEDORES_PASTA") or (Path(banco).resolve().parent / "fornecedores-arquivos"))` |
 | `PHYSIS_FROTA_PASTA` | frota.py:689 (+1) | `self.pasta = Path(pasta or os.environ.get("PHYSIS_FROTA_PASTA") or (RAIZ / "dados" / "frota-comprovantes"))` |
-| `PHYSIS_GESTOES_MAX_H` | mv_bots_extra.py:186 (+1) | `lim = _limite("PHYSIS_GESTOES_MAX_H")` |
+| `PHYSIS_GESTAO_BANCOS` | mv_bots_extra.py:185 | `cfg = os.environ.get("PHYSIS_GESTAO_BANCOS", "")` |
+| `PHYSIS_GESTOES_MAX_H` | mv_bots_extra.py:268 (+1) | `lim = _limite("PHYSIS_GESTOES_MAX_H")` |
 | `PHYSIS_GIS_PONTO_URL` | gis.py:93 | `ponto = ler_ponto(self.buscar(os.environ.get("PHYSIS_GIS_PONTO_URL", URL_PONTO).format(par=par, lat=la, lon=lo)), par)` |
 | `PHYSIS_GIS_REGIAO_URL` | gis.py:100 | `regiao = ler_regiao(self.buscar(os.environ.get("PHYSIS_GIS_REGIAO_URL", URL_REGIAO).format(` |
 | `PHYSIS_HIDROGRAFIA` | gis.py:447 (+2) | `caminho = caminho or os.environ.get("PHYSIS_HIDROGRAFIA", "")` |
@@ -55,7 +56,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_IA_CHAVE` | calc_cliente.py:140 (+1) | `chave = os.environ.get("PHYSIS_IA_CHAVE")` |
 | `PHYSIS_IA_EXTERNO` | calc_cliente.py:135 (+1) | `if not url or (not destino_local(url) and os.environ.get("PHYSIS_IA_EXTERNO") != "1"):` |
 | `PHYSIS_IA_MODELO` | mv_bots_extra.py:63 (+1) | `corpo = json.dumps({"model": os.environ.get("PHYSIS_IA_MODELO", "local"), "temperature": 0,` |
-| `PHYSIS_IA_PASTAS` | ia_physis.py:94 | `extra = os.environ.get("PHYSIS_IA_PASTAS", "")` |
+| `PHYSIS_IA_PASTAS` | ia_physis.py:96 | `extra = os.environ.get("PHYSIS_IA_PASTAS", "")` |
 | `PHYSIS_IA_TEMPO` | robos.py:171 | `self.tempo = float(tempo or os.environ.get("PHYSIS_IA_TEMPO") or 30)` |
 | `PHYSIS_IA_TIPO` | calc_cliente.py:138 (+1) | `caminho = "/api/tags" if os.environ.get("PHYSIS_IA_TIPO") == "ollama" or "/api/" in url else "/v1/models"` |
 | `PHYSIS_IA_URL` | calc_cliente.py:134 (+2) | `url = (os.environ.get("PHYSIS_IA_URL") or "").strip().rstrip("/")` |
@@ -73,10 +74,10 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_MAPEAMENTO_PASTA` | mapeamento.py:955 | `self.pasta = Path(pasta or os.environ.get("PHYSIS_MAPEAMENTO_PASTA") or "mapeamento-arquivos")` |
 | `PHYSIS_MERCADO_ONLINE` | mv_ecossistema.py:250 | `online = (os.environ.get("PHYSIS_MERCADO_ONLINE", "1") != "0") if online is None else online` |
 | `PHYSIS_MODELOS_PASTA` | documentos_auto.py:67 | `p = (os.environ.get("PHYSIS_MODELOS_PASTA") or "").strip()` |
-| `PHYSIS_MV_BACKUP` | mv_bots.py:404 | `BACKUP_DIR = Path(os.environ.get("PHYSIS_MV_BACKUP") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "backup"))` |
-| `PHYSIS_MV_DADOS` | mv.py:87 | `p = Path(os.environ.get("PHYSIS_MV_DADOS") or (Path(__file__).resolve().parents[3] / "dados"))` |
-| `PHYSIS_MV_GESTOES` | mv_bots_extra.py:181 | `p = Path(pasta or os.environ.get("PHYSIS_MV_GESTOES") or (mv_bots.DOCS / "Sistema Physis" / "28_Physis_MV" / "gestoes"))` |
-| `PHYSIS_MV_NOS` | mv_bots.py:451 | `NOS_DIR = Path(os.environ.get("PHYSIS_MV_NOS") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "nos"))` |
+| `PHYSIS_MV_BACKUP` | mv_bots.py:410 | `BACKUP_DIR = Path(os.environ.get("PHYSIS_MV_BACKUP") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "backup"))` |
+| `PHYSIS_MV_DADOS` | mv.py:88 | `p = Path(os.environ.get("PHYSIS_MV_DADOS") or (Path(__file__).resolve().parents[3] / "dados"))` |
+| `PHYSIS_MV_GESTOES` | mv_bots_extra.py:262 | `p = Path(pasta or os.environ.get("PHYSIS_MV_GESTOES") or (mv_bots.DOCS / "Sistema Physis" / "28_Physis_MV" / "gestoes"))` |
+| `PHYSIS_MV_NOS` | mv_bots.py:457 | `NOS_DIR = Path(os.environ.get("PHYSIS_MV_NOS") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "nos"))` |
 | `PHYSIS_MV_PORTA` | mv_servidor.py:45 | `PORTA = int(os.environ.get("PHYSIS_MV_PORTA") or 8710)` |
 | `PHYSIS_MV_SAIDA` | mv_bots.py:50 | `SAIDA = Path(os.environ.get("PHYSIS_MV_SAIDA") or (DOCS / "Sistema Physis" / "28_Physis_MV"))` |
 | `PHYSIS_NF_PROVEDOR` | documentos_auto.py:336 | `return EmissorAsaas() if os.environ.get("PHYSIS_NF_PROVEDOR") == "asaas" else EmissorNF()` |
@@ -86,7 +87,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_ORIGENS` | seguranca.py:1146 | `for extra in [url_publica] + (os.environ.get("PHYSIS_ORIGENS") or "").split(","):` |
 | `PHYSIS_OVERPASS_URL` | residuos_gis.py:83 | `url = os.environ.get("PHYSIS_OVERPASS_URL", URL_OVERPASS)` |
 | `PHYSIS_PEGADA` | pegada_servidor.py:173 | `env = os.environ.get("PHYSIS_PEGADA", "").strip()` |
-| `PHYSIS_PG_HOST` | mv_bots_extra.py:232 (+2) | `if shutil.which("pg_isready") and os.environ.get("PHYSIS_PG_HOST"):` |
+| `PHYSIS_PG_HOST` | mv_bots_extra.py:314 (+2) | `if shutil.which("pg_isready") and os.environ.get("PHYSIS_PG_HOST"):` |
 | `PHYSIS_PORTA` | servidor.py:2779 | `porta = int(os.environ.get("PHYSIS_PORTA", "8700"))` |
 | `PHYSIS_PRIMEIRA_CONTA_EXTERNA` | servidor.py:2659 | `if not hub.tem_conta() and not self._local() and os.environ.get("PHYSIS_PRIMEIRA_CONTA_EXTERNA") != "1":` |
 | `PHYSIS_PROXY_CONFIAVEL` | seguranca.py:72 | `bruto = os.environ.get("PHYSIS_PROXY_CONFIAVEL", "") if valor is None else valor` |
@@ -111,7 +112,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_SUPORTE_WHATSAPP` | servidor.py:2090 | `contatos = {"whatsapp": re.sub(r"\D", "", os.environ.get("PHYSIS_SUPORTE_WHATSAPP") or instancia.get("suporte_whatsapp") or ""),` |
 | `PHYSIS_TERMOS_VERSAO` | seguranca.py:843 (+1) | `if os.environ.get("PHYSIS_TERMOS_VERSAO"):` |
 | `PHYSIS_TOKEN` | servidor.py:2820 | `srv = iniciar(hub, porta, os.environ.get("PHYSIS_TOKEN"), endereco=endereco, clima=clima)` |
-| `PHYSIS_TRILHAS` | mv_bots_extra.py:274 | `t = Path(trilhas or os.environ.get("PHYSIS_TRILHAS") or (base / "trilhas.json"))` |
+| `PHYSIS_TRILHAS` | mv_bots_extra.py:357 | `t = Path(trilhas or os.environ.get("PHYSIS_TRILHAS") or (base / "trilhas.json"))` |
 | `PHYSIS_URL_PUBLICA` | servidor.py:779 | `url_publica = (os.environ.get("PHYSIS_URL_PUBLICA") or instancia.get("url_publica") or "").rstrip("/")` |
 | `PHYSIS_VENTO_URL` | vento.py:94 | `d = ler_vento(self.b.buscar(os.environ.get("PHYSIS_VENTO_URL", URL_VENTO).format(lat=la, lon=lo)))` |
 | `PHYSIS_WHATSAPP_PROVEDOR` | alertas_clima.py:188 | `p = (os.environ.get("PHYSIS_WHATSAPP_PROVEDOR") or "").strip().lower()` |
