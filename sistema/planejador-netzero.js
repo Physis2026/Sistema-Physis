@@ -209,6 +209,150 @@
     blocos: function (r, ad) { if (r.variantes.length) ad.TB(["Variante", "Energia (%)"], r.variantes.map(function (v) { return [v.nome, nfmt(v.saldo, 1)]; })); }
   });
 
+  /* ---------------------------------------------------------------- planta e alternativas (todos os planos)
+     Pendência = bloco de edificação fora do lote, a menos do recuo das regras ou (com a Aptidão, plano Especialista) com nota
+     baixa. Blocos empilhados (mesma projeção, cotas diferentes) mudam juntos. Para cada pendência, a busca varre o lote e guarda
+     posições válidas (dentro do lote, com recuo, sem encostar nos outros blocos com a folga). Três soluções:
+     "equilibrada" (recomendada: nota acima do mínimo com pouco deslocamento), "maior aptidão" (as duas só com a Aptidão), "menor mudança"
+     (a posição válida mais perto da atual) e "atual". Escolhida a solução,
+     a planta mostra o antes (tracejado) e o depois (preenchido); "Aplicar" move os blocos (dá para desfazer). */
+  var ALT = { calc: null, chave: null, res: null }, SOL = null, PESO_DESLOC = 50;   // SOL: só a escolha feita pela pessoa
+  function caixaDe(its) { var xs = [], ys = []; its.forEach(function (i) { corners(i).forEach(function (c) { xs.push(c[0]); ys.push(c[1]); }); });
+    return [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)]; }
+  function dSeg(P, A, B) { var vx = B[0] - A[0], vy = B[1] - A[1], t = Math.max(0, Math.min(1, ((P[0] - A[0]) * vx + (P[1] - A[1]) * vy) / (vx * vx + vy * vy || 1))); return Math.hypot(P[0] - A[0] - t * vx, P[1] - A[1] - t * vy); }
+  function distLimite(c, poly) { var m = Infinity; for (var q = 0; q < poly.length; q++) m = Math.min(m, dSeg(c, poly[q], poly[(q + 1) % poly.length])); return m; }
+  function blocos() {
+    var eds = ED().filter(function (i) { return areaItem(i) >= 0.05; }), cx = eds.map(function (i) { return caixaDe([i]); }), pai = eds.map(function (_, k) { return k; });
+    var raiz = function (k) { while (pai[k] !== k) k = pai[k] = pai[pai[k]]; return k; };
+    for (var a = 0; a < eds.length; a++) for (var b = a + 1; b < eds.length; b++) {
+      var A = cx[a], B = cx[b], sob = Math.min(A[2], B[2]) - Math.max(A[0], B[0]) > 0.3 && Math.min(A[3], B[3]) - Math.max(A[1], B[1]) > 0.3;
+      if (sob && Math.abs(cota(eds[a]) - cota(eds[b])) > 1) pai[raiz(a)] = raiz(b);   // empilhados: o mesmo bloco
+    }
+    var g = {}; eds.forEach(function (i, k) { (g[raiz(k)] = g[raiz(k)] || []).push(i); });
+    return Object.keys(g).map(function (k) { var its = g[k]; return { its: its, ids: its.map(function (i) { return i.id; }),
+      nome: its.map(function (i) { return i.nome.split(" · ")[0]; }).filter(function (v, n, l) { return l.indexOf(v) === n; }).join(" + "), box: caixaDe(its) }; });
+  }
+  function alternativas() {
+    var pE = (S.mod && S.mod.nz_esp) || {}, rec = S.regras && S.regras.recLat != null ? +S.regras.recLat : 0, folga = pE.folga != null ? pE.folga : 1.5, minNota = pE.notaMinima != null ? pE.notaMinima : 0.4;
+    var chave = JSON.stringify([rec, folga, minNota, LIC.liberado("apt")]);
+    if (ALT.calc === CALC && ALT.chave === chave && ALT.res) return ALT.res;
+    var poly = S.terreno.poly, g = T.build(), apt = MOD.porId.apt && LIC.liberado("apt") ? MOD.res("apt") : null;
+    if (apt && apt.erro) apt = null;
+    var media = function () { return null; };
+    if (apt && g) {
+      var W1 = g.nx + 1, SA = new Float64Array(W1 * (g.ny + 1)), SC = new Float64Array(W1 * (g.ny + 1));
+      for (var jj = 0; jj < g.ny; jj++) for (var ii = 0; ii < g.nx; ii++) { var kk = jj * g.nx + ii, o = (jj + 1) * W1 + ii + 1, dd = g.ins[kk] ? 1 : 0;
+        SA[o] = (dd ? apt.A[kk] : 0) + SA[o - 1] + SA[o - W1] - SA[o - W1 - 1]; SC[o] = dd + SC[o - 1] + SC[o - W1] - SC[o - W1 - 1]; }
+      var soma = function (T_, i0, j0, i1, j1) { return T_[(j1 + 1) * W1 + i1 + 1] - T_[j0 * W1 + i1 + 1] - T_[(j1 + 1) * W1 + i0] + T_[j0 * W1 + i0]; };
+      media = function (b) { var i0 = Math.max(0, Math.ceil((b[0] - g.x0) / g.cs)), i1 = Math.min(g.nx - 1, Math.floor((b[2] - g.x0) / g.cs)), j0 = Math.max(0, Math.ceil((b[1] - g.y0) / g.cs)), j1 = Math.min(g.ny - 1, Math.floor((b[3] - g.y0) / g.cs));
+        if (i1 < i0 || j1 < j0) return null; var c = soma(SC, i0, j0, i1, j1); return c ? soma(SA, i0, j0, i1, j1) / c : null; };
+    }
+    var bl = blocos(), cantos = function (b) { return [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]]; };
+    var valida = function (b) { return cantos(b).every(function (c) { return GEO.inside(c, poly) && (!rec || distLimite(c, poly) >= rec - 1e-6); }); };
+    bl.forEach(function (B) {
+      var mot = [], cs = B.its.reduce(function (acc, i) { return acc.concat(corners(i)); }, []);
+      if (!cs.every(function (c) { return GEO.inside(c, poly); })) mot.push("fora do lote");
+      else if (rec && cs.some(function (c) { return distLimite(c, poly) < rec - 0.05; })) mot.push("a menos de " + NF(rec, 1) + " m da divisa");
+      B.nota = media(B.box); if (B.nota != null && B.nota <= minNota) mot.push("aptidão " + NF(B.nota, 2));
+      B.motivos = mot;
+    });
+    var pend = bl.filter(function (B) { return B.motivos.length; }).sort(function (a, b) { return (a.nota == null ? 1 : a.nota) - (b.nota == null ? 1 : b.nota); });
+    var xs = poly.map(function (q) { return q[0]; }), ys = poly.map(function (q) { return q[1]; }), X0 = Math.min.apply(null, xs), X1 = Math.max.apply(null, xs), Y0 = Math.min.apply(null, ys), Y1 = Math.max.apply(null, ys), passo = 0.5;
+    var colide = function (b, ocup) { return ocup.some(function (o) { return b[0] < o[2] + folga && b[2] > o[0] - folga && b[1] < o[3] + folga && b[3] > o[1] - folga; }); };
+    function resolver(modo) {
+      var ocup = bl.filter(function (B) { return pend.indexOf(B) < 0; }).map(function (B) { return B.box; }), moves = [];
+      pend.forEach(function (B) {
+        var w = B.box[2] - B.box[0], d = B.box[3] - B.box[1], cx0 = (B.box[0] + B.box[2]) / 2, cy0 = (B.box[1] + B.box[3]) / 2, melhor = null;
+        for (var x = X0; x + w <= X1; x += passo) for (var y = Y0; y + d <= Y1; y += passo) {
+          var b = [x, y, x + w, y + d]; if (!valida(b) || colide(b, ocup)) continue;
+          var v = media(b), dist = Math.hypot(x + w / 2 - cx0, y + d / 2 - cy0);
+          var pont = modo === "equilibrada" ? (v != null && v > minNota ? v - dist / PESO_DESLOC : null) : null;
+          var melhora = modo === "aptidao" ? (v != null && (!melhor || v > melhor.v + 1e-9 || (Math.abs(v - melhor.v) < 1e-9 && dist < melhor.dist)))
+                      : modo === "equilibrada" ? (pont != null && (!melhor || pont > melhor.p))
+                      : ((v == null || v > minNota) && (!melhor || dist < melhor.dist));
+          if (melhora) melhor = { b: b, v: v, dist: dist, p: pont };
+        }
+        if (melhor) { ocup.push(melhor.b); moves.push({ bloco: B, dx: melhor.b[0] - B.box[0], dy: melhor.b[1] - B.box[1], nova: melhor.v, dist: melhor.dist }); }
+        else { ocup.push(B.box); moves.push({ bloco: B, dx: 0, dy: 0, nova: null, dist: 0, semLugar: true }); }
+      });
+      var ok = moves.filter(function (m) { return !m.semLugar; });
+      return { modo: modo, moves: moves, resolvidas: ok.length, desloc: ok.reduce(function (acc, m) { return acc + m.dist; }, 0),
+        notaMedia: ok.length && ok.every(function (m) { return m.nova != null; }) ? ok.reduce(function (acc, m) { return acc + m.nova; }, 0) / ok.length : null };
+    }
+    var sols = [];
+    if (apt) sols.push(Object.assign(resolver("equilibrada"), { nome: "Equilibrada", desc: "nota acima do mínimo com pouco deslocamento (cada " + PESO_DESLOC + " m pesam como 1 ponto de nota)" }));
+    if (apt) sols.push(Object.assign(resolver("aptidao"), { nome: "Maior aptidão", desc: "cada pendência vai para a posição de maior nota que respeita lote, recuo e folga" }));
+    sols.push(Object.assign(resolver("menor"), { nome: "Menor mudança", desc: "cada pendência vai para a posição válida mais perto da atual" + (apt ? ", com nota acima do mínimo" : "") }));
+    sols.push({ modo: "atual", nome: "Atual", desc: "sem mudança", moves: [], resolvidas: 0, desloc: 0, notaMedia: null });
+    sols.forEach(function (s) { s.id = s.modo; });
+    ALT = { calc: CALC, chave: chave, res: { pend: pend, sols: sols, apt: apt, g: g, rec: rec, folga: folga, minNota: minNota } };
+    return ALT.res;
+  }
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function svgEl(t, at) { var e = document.createElementNS(SVGNS, t); for (var k in at) e.setAttribute(k, at[k]); return e; }
+  function desenharPlanta(A, sol) {
+    var poly = S.terreno.poly, xs = poly.map(function (q) { return q[0]; }), ys = poly.map(function (q) { return q[1]; }), m = 3;
+    var x0 = Math.min.apply(null, xs) - m, x1 = Math.max.apply(null, xs) + m, y0 = Math.min.apply(null, ys) - m, y1 = Math.max.apply(null, ys) + m;
+    var k = Math.min(12, 640 / (x1 - x0)), W = (x1 - x0) * k + 150, H = (y1 - y0) * k;
+    var X = function (x) { return (x - x0) * k; }, Y = function (y) { return (y1 - y) * k; }, pts = function (cs) { return cs.map(function (c) { return X(c[0]).toFixed(1) + "," + Y(c[1]).toFixed(1); }).join(" "); };
+    var nMov = sol ? sol.moves.filter(function (q) { return !q.semLugar; }).length : 0;
+    var svg = svgEl("svg", { viewBox: "0 0 " + W.toFixed(0) + " " + H.toFixed(0), width: W.toFixed(0), height: H.toFixed(0), class: "nzp", role: "img",
+      "aria-label": "Planta do lote com " + A.pend.length + " pendências" + (sol ? "; solução " + sol.nome + " move " + nMov + " blocos" : "") + ". A tabela abaixo traz os mesmos dados." });
+    svg.appendChild(svgEl("polygon", { points: pts(poly), class: "nzp-lote" }));
+    if (A.apt && A.g) {
+      var g = A.g, s = g.cs * k, grp = svgEl("g", { class: "nzp-apt" });
+      for (var j = 0; j < g.ny; j++) for (var i = 0; i < g.nx; i++) { var kk = j * g.nx + i; if (!g.ins[kk]) continue; var v = A.apt.A[kk];
+        grp.appendChild(svgEl("rect", { x: X(g.x0 + i * g.cs - g.cs / 2).toFixed(1), y: Y(g.y0 + j * g.cs + g.cs / 2).toFixed(1), width: s.toFixed(1), height: s.toFixed(1), class: v > 0.6 ? "a1" : v > 0.4 ? "a2" : "a3" })); }
+      svg.appendChild(grp);
+    }
+    var movidos = {}; if (sol) sol.moves.forEach(function (q) { if (!q.semLugar) q.bloco.ids.forEach(function (id) { movidos[id] = 1; }); });
+    var pendIds = {}; A.pend.forEach(function (B) { B.ids.forEach(function (id) { pendIds[id] = 1; }); });
+    S.itens.forEach(function (it) { var t = TIPOS[it.tipo]; if (!t || t.cat === "ponto" || areaItem(it) < 0.05) return;
+      var p = svgEl("polygon", { points: pts(corners(it)), class: "nzp-" + t.cat + (pendIds[it.id] ? " nzp-pend" : "") + (movidos[it.id] ? " nzp-antes" : "") });
+      var ti = svgEl("title", {}); ti.textContent = it.nome; p.appendChild(ti); svg.appendChild(p); });
+    if (sol) sol.moves.forEach(function (q, n) { if (q.semLugar) return; var B = q.bloco, b = [B.box[0] + q.dx, B.box[1] + q.dy, B.box[2] + q.dx, B.box[3] + q.dy];
+      svg.appendChild(svgEl("polygon", { points: pts([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]]), class: "nzp-depois" }));
+      var c0 = [(B.box[0] + B.box[2]) / 2, (B.box[1] + B.box[3]) / 2], c1 = [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2];
+      svg.appendChild(svgEl("line", { x1: X(c0[0]).toFixed(1), y1: Y(c0[1]).toFixed(1), x2: X(c1[0]).toFixed(1), y2: Y(c1[1]).toFixed(1), class: "nzp-seta", "marker-end": "url(#nzp-ponta)" }));
+      var tg = svgEl("g", { transform: "translate(" + X(c1[0]).toFixed(1) + "," + Y(c1[1]).toFixed(1) + ")" }); tg.appendChild(svgEl("circle", { r: 8, class: "nzp-num" }));
+      var tx = svgEl("text", { y: 4, "text-anchor": "middle", class: "nzp-numt" }); tx.textContent = String(n + 1); tg.appendChild(tx); svg.appendChild(tg); });
+    var defs = svgEl("defs", {}), mk = svgEl("marker", { id: "nzp-ponta", viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto" });
+    mk.appendChild(svgEl("path", { d: "M0,0 L10,5 L0,10 Z", class: "nzp-pontap" })); defs.appendChild(mk); svg.insertBefore(defs, svg.firstChild);
+    /* rosa: norte de projeto para cima; norte verdadeiro pelo giro informado na parte Livre */
+    var giro = S.mod && S.mod.nz_livre ? S.mod.nz_livre.norteVerdadeiro : null, rx = W - 110, ry = 40;
+    [["NP", 0, "nzp-np"], [giro == null ? "NV?" : "NV", giro || 0, "nzp-nv"]].forEach(function (a, n) {
+      var gg = svgEl("g", { transform: "translate(" + (rx + n * 50) + "," + ry + ")" }), rot = svgEl("g", { transform: "rotate(" + a[1] + ")" });
+      rot.appendChild(svgEl("path", { d: "M0,-22 L6,6 L0,2 L-6,6 Z", class: a[2] })); gg.appendChild(rot);
+      var t = svgEl("text", { y: 22, "text-anchor": "middle", class: "nzp-rot" }); t.textContent = a[0]; gg.appendChild(t); svg.appendChild(gg); });
+    var leg = [["nzp-ed", "edificação"], ["nzp-ed nzp-pend", "pendência"], ["nzp-depois", "posição nova"]];
+    if (A.apt) leg = leg.concat([["a1", "aptidão alta"], ["a2", "média"], ["a3", "baixa"]]);
+    leg.forEach(function (l, n) { svg.appendChild(svgEl("rect", { x: rx - 10, y: 90 + n * 22, width: 16, height: 12, class: l[0] }));
+      var t = svgEl("text", { x: rx + 12, y: 100 + n * 22, class: "nzp-leg" }); t.textContent = l[1]; svg.appendChild(t); });
+    svg.appendChild(svgEl("line", { x1: X(x0 + 1), y1: H - 8, x2: X(x0 + 11), y2: H - 8, class: "nzp-esc" }));
+    var et = svgEl("text", { x: X(x0 + 12), y: H - 4, class: "nzp-leg" }); et.textContent = "10 m"; svg.appendChild(et);
+    return svg;
+  }
+  function cartaoPlanta() {
+    var A = alternativas();
+    var sol = A.sols.find(function (s) { return s.id === SOL; }) || A.sols[0];
+    var quadro = h("div", { class: "nzp-quadro" }, desenharPlanta(A, sol.modo === "atual" ? null : sol));
+    var opcoes = h("div", { class: "nzp-opcoes", role: "radiogroup", "aria-label": "Solução" }, ...A.sols.map(function (s, n) {
+      var inp = h("input", { type: "radio", name: "nz-sol", value: s.id, onchange: function () { SOL = s.id; refresh(); } }); if (s.id === sol.id) inp.checked = true;
+      return h("label", { class: "nzp-op" }, inp, h("span", {}, h("b", {}, s.nome + (n === 0 && s.modo !== "atual" ? " (recomendada)" : "")), h("small", {},
+        s.desc + (s.modo === "atual" ? "" : " · resolve " + s.resolvidas + " de " + A.pend.length + " · move " + NF(s.desloc, 1) + " m no total" + (s.notaMedia != null ? " · nota média " + NF(s.notaMedia, 2) : "")))));
+    }));
+    var linhas = sol.modo === "atual" ? A.pend.map(function (B) { return [B.nome, B.motivos.join("; "), "—", "—"]; }) :
+      sol.moves.map(function (q, n) { return [(n + 1) + ". " + q.bloco.nome, q.bloco.motivos.join("; "), q.semLugar ? "sem lugar livre" : "x " + NF(q.dx, 1) + " m · y " + NF(q.dy, 1) + " m", q.nova != null ? NF(q.nova, 2) : "—"]; });
+    var aplicar = sol.modo === "atual" || !sol.moves.some(function (q) { return !q.semLugar; }) ? null : h("button", { class: "primary", type: "button", onclick: function () {
+      mutate(function () { sol.moves.forEach(function (q) { if (q.semLugar) return; q.bloco.ids.forEach(function (id) { var it = S.itens.find(function (i) { return i.id === id; }); if (it) { it.x = +(it.x + q.dx).toFixed(2); it.y = +(it.y + q.dy).toFixed(2); } }); }); }, "solução aplicada: " + sol.nome);
+      SOL = null; toast("Solução aplicada. Use Desfazer para voltar."); } }, "Aplicar esta solução");
+    return card("Planta e alternativas", "Pendências: " + A.pend.length + " (fora do lote, recuo de " + (A.rec ? NF(A.rec, 1) + " m" : "[MARCADOR]") + ", folga de " + NF(A.folga, 1) + " m" + (A.apt ? ", aptidão até " + NF(A.minNota, 2) : "; a aptidão entra no plano Especialista") + "). Escolha a solução e veja o novo layout antes de aplicar.",
+      opcoes, quadro,
+      A.pend.length ? tbl(["Bloco", "Pendência", "Movimento", "Nota nova"], linhas) : h("p", { class: "hint" }, "Nenhuma pendência de posição: todos os blocos dentro do lote, com recuo" + (A.apt ? " e aptidão acima do mínimo." : ".")),
+      h("p", { class: "hint" }, "Tracejado: onde está hoje. Preenchido: onde fica na solução. A busca só olha lote, recuo, folga e aptidão; confira uso, acesso e vizinhança antes de aplicar."),
+      aplicar ? h("div", { class: "row" }, aplicar) : null);
+  }
+
   /* ---------------------------------------------------------------- a aba */
   var k = STEPS.findIndex(function (s) { return s[0] === "documento"; });
   if (!STEPS.some(function (s) { return s[0] === "netzero"; })) STEPS.splice(k < 0 ? STEPS.length : k, 0, ["netzero", "Net zero"]);
@@ -216,6 +360,7 @@
     el.append(h("h2", {}, "Net zero"),
       h("p", { class: "lead" }, "Energia, água e terra do lugar, com o norte sempre indicado. Cada plano acrescenta uma parte; sem dado, a aba mostra [MARCADOR]. Versão de teste."));
     if (!T.build()) { el.append(card(null, "Importe o terreno no passo 1 para usar a aba Net zero.")); return; }
+    if (S.terreno.poly.length >= 3) el.append(cartaoPlanta());
     MOD.lista.filter(function (m) { return m.aba === "netzero"; }).forEach(function (m) {
       var cab = PLANOS[m.plano].nome + " · " + m.resumo;
       if (!LIC.liberado(m.id)) { el.append(card(m.nome, cab, h("p", { class: "hint" }, "Parte do plano " + PLANOS[m.plano].nome + ". Ative uma licença que a inclua ou use a avaliação na aba Módulos."))); return; }
@@ -224,6 +369,6 @@
       el.append(card(m.nome, cab, r && r.erro ? h("p", { class: "hint" }, "Não foi possível calcular: " + r.erro) : m.tela(r, MOD.p(m.id))));
     });
   };
-  if (!document.getElementById("nz-css")) { var st = document.createElement("style"); st.id = "nz-css"; st.textContent = ".nz-rosa{color:var(--ink)}"; document.head.appendChild(st); }
+  if (!document.getElementById("nz-css")) { var st = document.createElement("style"); st.id = "nz-css"; st.textContent = ".nz-rosa{color:var(--ink)}.nzp-quadro{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:.6rem 0;background:var(--panel)}.nzp{display:block;max-width:100%;height:auto;margin:0 auto}.nzp-lote{fill:var(--soft);stroke:var(--ink);stroke-width:1.5}.a1{fill:var(--ok);opacity:.16}.a2{fill:var(--warn);opacity:.16}.a3{fill:var(--bad);opacity:.16}.nzp-ed{fill:var(--brand);fill-opacity:.55;stroke:var(--panel);stroke-width:.6}.nzp-agua{fill:var(--sky);fill-opacity:.35;stroke:var(--sky)}.nzp-pav{fill:var(--muted);fill-opacity:.18}.nzp-perm{fill:var(--ok);fill-opacity:.15}.nzp-inf{fill:var(--ochre);fill-opacity:.2}.nzp-pend{stroke:var(--bad);stroke-width:2.2}.nzp-antes{fill-opacity:.12;stroke-dasharray:4 3}.nzp-depois{fill:var(--ochre);fill-opacity:.45;stroke:var(--ochre);stroke-width:2.2}.nzp-seta{stroke:var(--ink);stroke-width:1.5}.nzp-pontap{fill:var(--ink)}.nzp-num{fill:var(--ochre);stroke:var(--panel);stroke-width:1.5}.nzp-numt{fill:var(--panel);font:700 10px sans-serif}.nzp-np{fill:var(--ink)}.nzp-nv{fill:#BB6B4A}html[data-tema=escuro] .nzp-nv{fill:#D9A58C}.nzp-rot,.nzp-leg{fill:var(--ink);font:600 11px sans-serif}.nzp-esc{stroke:var(--ink);stroke-width:2}.nzp-opcoes{display:grid;gap:.4rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}.nzp-op{display:flex;gap:.5rem;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:.5rem .6rem;min-height:44px;cursor:pointer}.nzp-op small{display:block;color:var(--muted);font-size:.8rem}.nzp-op:has(input:checked){border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}"; document.head.appendChild(st); }
   if (typeof S !== "undefined" && S && typeof route === "function") route();
 })();
