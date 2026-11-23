@@ -11,7 +11,9 @@
      rascunhoNota(estado, iSub, iFase) -> { para, assunto, corpo, eml }   (só RASCUNHO; nunca envia)
      equipamentosDoCalculo(sub, AVAC) -> itens com TAG; sugerirDaBase(base, item) -> { itens, fabricantes }
      ifcDados(estado, iSub) -> objeto para PhysisIFC.escrever; geojson(estado)
-     memorial(estado, iSub, AVAC, CT), relatorio(...), ep(...), tabelaEquipamentos(estado, iSub)   -> blocos/tabelas
+     memorial(estado, iSub, AVAC, CT), relatorio(...), estudoPreliminar(estado, iSub, AVAC, CT) ("EP" = Estudo Preliminar,
+     resposta da dona de 21/11), tabelaEquipamentos(estado, iSub)   -> blocos/tabelas
+     FASES_PADRAO (Estudo Preliminar, Projeto Básico, Projeto Executivo), PECAS_PADRAO (peças de reposição por sistema)
      odt(blocos, marca, meta) / ods(tabelas, marca, meta) -> Uint8Array (ODF 1.3, template do CLIENTE) }
    Só funções puras; sem internet; sem dependência de terceiros. */
 (function (global) {
@@ -25,13 +27,28 @@ const soma = (l, k) => l.reduce((s, x) => s + (num(x[k]) || 0), 0);
 const copia = o => JSON.parse(JSON.stringify(o));
 
 /* ════════ Estado inicial ════════ */
+/* Decisão da dona (21/11/2026): fases de pagamento padrão por etapa do projeto, pré-preenchidas e editáveis; valores e prazos [MARCADOR] */
+const FASES_PADRAO = ["Estudo Preliminar", "Projeto Básico", "Projeto Executivo"];
+const faseVazia = nome => ({ nome:nome || "", descricao:"", valor:null, prazo:"", faturado:null, nf:"", vencimento:"", recebido:null });
+/* Decisão da dona (21/11/2026): part number em TODAS as peças de reposição. Lista de peças típicas por sistema (rótulos genéricos,
+   sem número; a lista em si é [CONFERIR] com o Ryan); o código de cada peça fica [MARCADOR] até haver dado real. */
+const PECAS_PADRAO = {
+  "Ar condicionado":["Filtro de ar da evaporadora", "Sensor de temperatura", "Placa eletrônica", "Motor do ventilador", "Capacitor do compressor"],
+  "Ventilação":["Correia", "Rolamentos", "Filtro de ar", "Sensor de pressão diferencial", "Motor"],
+  "Aquecimento solar":["Sensor de temperatura", "Válvula de segurança", "Resistência de apoio", "Bomba de circulação"],
+  "Piscina":["Filtro", "Sensor de temperatura", "Bomba de circulação"],
+  "_outro":["Filtro", "Sensor", "Correia ou acoplamento"] };
+const pecasPadrao = sistema => (PECAS_PADRAO[sistema] || PECAS_PADRAO._outro).map(d => ({ descricao:d, codigo:"", qtd:null, padrao:true }));
 function subprojeto(i) {
   return { id:"sp" + i, nome:"", escopo:"",
     contrato:{ numero:"", valor:null, assinatura:"", prazoFinal:"", condicoes:"", iss:"" },
-    fases:[], local:{ endereco:"", municipio:"", uf:"", lat:null, lon:null, altitude:null },
+    fases:FASES_PADRAO.map(faseVazia), local:{ endereco:"", municipio:"", uf:"", lat:null, lon:null, altitude:null },
     dados:{},                  /* estado das contas do módulo base: dados.avac = { e }, dados.cargatermica = { e } */
     dadosConfirmados:false,    /* enquanto falso, os documentos saem com a marca EXEMPLO (dados da planilha-exemplo) */
-    equipamentos:[] };
+    equipamentos:[],
+    ambientes:[],              /* [{ nome, area (m², null = sem fonte), ocupacao, fonte }] */
+    premissas:[],              /* [{ t, fonte }] dados do projeto com a fonte de cada um */
+    alternativas:[] };         /* [{ nome, descricao, fonte }] para o Estudo Preliminar */
 }
 function padrao() {
   return { versao:1, teste:true,
@@ -42,6 +59,7 @@ function padrao() {
     contador:{ nome:"Robson", email:"" },
     config:{ diasAviso:7 /* janela de aviso da tela (preferência de uso, não número técnico) */ },
     subprojetos:[1, 2, 3, 4].map(subprojeto),
+    conjunto:null,             /* conjunto de dados carregado (ex.: { id:"casa-physis", rotulo, fontes, premissas }) */
     aprendizados:[] };
 }
 function normalizar(e) {
@@ -52,9 +70,10 @@ function normalizar(e) {
     const b = subprojeto(i + 1), o = Object.assign(b, s || {});
     o.contrato = Object.assign(subprojeto(i + 1).contrato, (s || {}).contrato || {});
     o.local = Object.assign(subprojeto(i + 1).local, (s || {}).local || {});
-    o.fases = Array.isArray(o.fases) ? o.fases : []; o.equipamentos = Array.isArray(o.equipamentos) ? o.equipamentos : [];
+    ["fases", "equipamentos", "ambientes", "premissas", "alternativas"].forEach(k => { o[k] = Array.isArray(o[k]) ? o[k] : []; });
     o.dados = o.dados && typeof o.dados === "object" ? o.dados : {}; return o; });
   out.aprendizados = Array.isArray(e.aprendizados) ? e.aprendizados : [];
+  out.conjunto = e.conjunto && typeof e.conjunto === "object" ? e.conjunto : null;
   return out;
 }
 const nomeSub = (s, i) => vazio(s.nome) ? "Subprojeto " + (i + 1) + " " + MARCADOR : s.nome;
@@ -89,6 +108,7 @@ function alertas(estado, hoje) {
     if (vazio(s.contrato.numero)) add("pendente", i, n + ": número do contrato " + MARCADOR);
     if (F.valorContrato == null) add("pendente", i, n + ": valor do contrato " + MARCADOR);
     if (!s.fases.length) add("pendente", i, n + ": fases e prazos de pagamento " + MARCADOR);
+    else if (s.fases.some(f => num(f.valor) == null)) add("pendente", i, n + ": valor de fase " + MARCADOR);
     if (F.divergeFases) add("atencao", i, n + ": soma das fases diferente do valor do contrato");
     const pf = dia(s.contrato.prazoFinal);
     if (pf != null && pf < H) add("alerta", i, n + ": prazo final do contrato vencido (" + s.contrato.prazoFinal + ")");
@@ -110,12 +130,13 @@ function pendencias(estado) {
   ver(e.marcaCliente.logoPng, "Marca do cliente: logo"); ver(e.marcaCliente.fonteTitulo, "Marca do cliente: fonte de título");
   ver(e.marcaCliente.fonteTexto, "Marca do cliente: fonte de texto"); ver(e.marcaCliente.corPrincipal, "Marca do cliente: cor principal");
   if (e.emissor.cnpjSituacao === "provisório") p.push("Emissor: CNPJ marcado como provisório " + CONFERIR);
-  p.push("EP: significado da sigla " + CONFERIR + " (tratado aqui como Especificação de Projeto)");
+  p.push("ISS (município e alíquota): o contador define — perguntar ao Robson");
   e.subprojetos.forEach((s, i) => { const n = "Subprojeto " + (i + 1);
     ver(s.nome, n + ": nome"); ver(s.escopo, n + ": escopo"); ver(s.contrato.numero, n + ": número do contrato");
     if (num(s.contrato.valor) == null) p.push(n + ": valor do contrato"); ver(s.contrato.condicoes, n + ": condições de pagamento");
-    if (!s.fases.length) p.push(n + ": fases e prazos"); if (s.local.lat == null || s.local.lon == null) p.push(n + ": localização (latitude e longitude)");
-    if (!s.dadosConfirmados) p.push(n + ": dados de cálculo confirmados (hoje: exemplo da planilha)");
+    if (!s.fases.length) p.push(n + ": fases e prazos"); s.fases.forEach(f => { if (num(f.valor) == null || vazio(f.prazo)) p.push(n + ": valor e prazo da fase " + mk(f.nome)); }); if (s.local.lat == null || s.local.lon == null) p.push(n + ": localização (latitude e longitude)");
+    if (!s.dadosConfirmados) p.push(n + ": dados de cálculo confirmados (hoje: " + (e.conjunto ? e.conjunto.rotulo : "exemplo da planilha") + ")");
+    s.ambientes.forEach(a => { if (a.area == null) p.push(n + ": área de \"" + mk(a.nome) + "\" sem fonte"); });
     s.equipamentos.forEach((q, j) => { if (vazio(q.fabricante) || vazio(q.modelo)) p.push(n + ": " + (q.tag || "item " + (j + 1)) + " sem fabricante/modelo");
       (q.pecas || []).forEach(pc => { if (vazio(pc.codigo)) p.push(n + ": " + (q.tag || "item") + " · peça \"" + mk(pc.descricao) + "\" sem código (part number)"); }); }); });
   return p;
@@ -136,13 +157,21 @@ function rascunhoNota(estado, iSub, iFase) {
     "Fase: " + mk(f.nome, "nome da fase") + (f.prazo ? " — prazo " + f.prazo : ""),
     "Valor da fase: " + brl(num(f.valor)),
     "Descrição do serviço: " + mk(f.descricao || s.escopo, "descrição do serviço"),
-    "ISS: município e alíquota " + mk(s.contrato.iss, "conferir com o contador") + " " + CONFERIR,
+    "ISS: município e alíquota " + (vazio(s.contrato.iss) ? "a definir por você (contador)" : s.contrato.iss + " " + CONFERIR),
     "Condições de pagamento: " + mk(s.contrato.condicoes), "",
     "Obrigado.", e.emissor.nome].join("\n");
   const enc = t => "=?UTF-8?B?" + b64(utf8(t)) + "?=";
   const eml = ["X-Unsent: 1", "To: " + para, "Subject: " + enc(assunto), "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8",
     "Content-Transfer-Encoding: base64", "", b64(utf8(corpo)).replace(/(.{76})/g, "$1\r\n")].join("\r\n");
-  return { para, assunto, corpo, eml, enviado:false };
+  /* texto curto para colar no WhatsApp (só copiar; nenhum link de envio) */
+  const whatsapp = ["Olá, " + e.contador.nome + "! Pedido de *nota fiscal de serviço* (rascunho do sistema, conferir):",
+    "• Tomador: " + e.cliente.nome + " (CNPJ " + mk(e.cliente.cnpj, "CNPJ da Estermic") + ")",
+    "• Contrato " + mk(s.contrato.numero) + " — " + nomeSub(s, iSub),
+    "• Fase: " + mk(f.nome, "nome da fase") + " — *" + brl(num(f.valor)) + "*",
+    "• Serviço: " + mk(f.descricao || s.escopo, "descrição do serviço"),
+    "• ISS: " + (vazio(s.contrato.iss) ? "você define" : s.contrato.iss),
+    "Obrigado! " + e.emissor.nome].join("\n");
+  return { para, assunto, corpo, eml, whatsapp, enviado:false };
 }
 
 /* ════════ Equipamentos: do cálculo, com TAG e peças ════════ */
@@ -154,7 +183,7 @@ function equipamentosDoCalculo(sub, AVAC) {
   const R = AVAC.calcular(entradasAvac(sub)), cont = {};
   return (R.lista || []).map(x => { const pre = PREFIXO[x.sistema] || "EQ"; cont[pre] = (cont[pre] || 0) + 1;
     return { tag:pre + "-" + String(cont[pre]).padStart(2, "0"), origem:"calculo", sistema:x.sistema, descricao:x.descricao, qtd:x.qtd, cap:x.cap, un:x.un,
-      categoria:x.categoria, fabricante:"", modelo:"", baseId:"", pecas:[] }; });
+      categoria:x.categoria, fabricante:"", modelo:"", baseId:"", pecas:pecasPadrao(x.sistema) }; });
 }
 function capKw(item) { const c = num(item.cap); if (c == null) return null;
   if (item.un === "BTU/h") return c * 0.00029307107;   /* conversão de unidade: 1 BTU/h = 0,29307107 W */
@@ -205,10 +234,20 @@ function cabecalhoDoc(e, s, i, tipo) {
     { tabela:{ cab:["Campo", "Valor"], linhas:[["Cliente", e.cliente.nome], ["Subprojeto", nomeSub(s, i)], ["Contrato", mk(s.contrato.numero)],
       ["Local", mk(s.local.endereco) + (vazio(s.local.municipio) ? "" : " — " + s.local.municipio + "/" + (s.local.uf || ""))],
       ["Elaborado por", e.emissor.nome]], legenda:"Identificação" } }];
-  if (!s.dadosConfirmados) b.splice(1, 0, { t:"EXEMPLO — os números deste documento vêm do exemplo da planilha PHYSIS_AVAC-5, não de dados da " + e.cliente.nome + ". Não entregar ao cliente.", destaque:true });
+  if (!s.dadosConfirmados) b.splice(1, 0, e.conjunto
+    ? { t:e.conjunto.rotulo + " — dados tirados dos documentos técnicos listados em \"Fontes\"; o que não tem fonte fica [MARCADOR]. Não entregar ao cliente.", destaque:true }
+    : { t:"EXEMPLO — os números deste documento vêm do exemplo da planilha PHYSIS_AVAC-5, não de dados da " + e.cliente.nome + ". Não entregar ao cliente.", destaque:true });
   if (e.teste) b.splice(1, 0, { t:"VERSÃO DE TESTE — revisão interna antes da emissão.", destaque:true });
   return b;
 }
+function dadosDoProjeto(e, s) {
+  const b = [];
+  if (s.ambientes.length) b.push({ h:2, t:"Ambientes e áreas (com fonte)" }, { tabela:{ cab:["Ambiente", "Área (m²)", "Ocupação", "Fonte"],
+    linhas:s.ambientes.map(a => [mk(a.nome), a.area == null ? "sem fonte" : a.area, mk(a.ocupacao), mk(a.fonte)]) } });
+  const pr = ((e.conjunto && e.conjunto.premissas) || []).concat(s.premissas);
+  if (pr.length) b.push({ h:2, t:"Premissas do projeto (com fonte)" }, { tabela:{ cab:["Premissa", "Fonte"], linhas:pr.map(x => [x.t, mk(x.fonte)]) } });
+  return b; }
+function fontes(e) { const f = (e.conjunto && e.conjunto.fontes) || []; return f.length ? [{ h:2, t:"Fontes" }, { lista:f.slice() }] : []; }
 function memorial(estado, iSub, AVAC, CT) {
   const e = normalizar(estado), s = e.subprojetos[iSub], R = AVAC.calcular(entradasAvac(s)), b = cabecalhoDoc(e, s, iSub, "Memorial de cálculo");
   b.push({ h:2, t:"Método e normas" }, { t:"Contas do módulo AVAC da Physis (planilha PHYSIS_AVAC-5), sem alteração. Normas citadas como estão no código do módulo: "
@@ -217,10 +256,11 @@ function memorial(estado, iSub, AVAC, CT) {
     b.push({ h:2, t:"Carga térmica por ambiente (NBR 16401-1)" }, { tabela:{ cab:["Ambiente", "Hora do pico", "Total no pico (W)", "Projeto (W)", "Projeto (BTU/h)", "Projeto (TR)"],
       linhas:r.ambientes.map(a => [a.nome || "—", a.pico.h, Math.round(a.pico.total), Math.round(a.projeto.W), Math.round(a.projeto.btuh), +a.projeto.tr.toFixed(2)]), legenda:"Carga de resfriamento com fator de segurança " + r.opcoes.fs } });
     if (r.avisos && r.avisos.length) b.push({ lista:r.avisos.slice() }); }
+  dadosDoProjeto(e, s).forEach(x => b.push(x));
   R.memoria.forEach(m => { b.push({ h:2, t:m.titulo + " — " + m.situacao });
     b.push(m.linhas.length ? { lista:m.linhas.slice() } : { t:"Sistema " + m.situacao + ": não calculado nesta emissão." }); });
   b.push({ t:"Documento de anteprojeto gerado pelo sistema; não substitui o projeto assinado pelo responsável técnico (ART " + MARCADOR + ")." });
-  return b;
+  return b.concat(fontes(e));
 }
 function relatorio(estado, iSub, AVAC) {
   const e = normalizar(estado), s = e.subprojetos[iSub], R = AVAC.calcular(entradasAvac(s)), b = cabecalhoDoc(e, s, iSub, "Relatório descritivo");
@@ -229,20 +269,33 @@ function relatorio(estado, iSub, AVAC) {
     { tabela:{ cab:["Sistema", "Grandeza", "Valor", "Base"], linhas:R.resumo.map(x => [x.sistema, x.grandeza, typeof x.valor === "number" ? +x.valor.toFixed(2) : String(x.valor), x.base || ""]), legenda:"Resumo do módulo AVAC" } },
     { h:2, t:"Equipamentos" }, { t:s.equipamentos.length + " item(ns) na lista de equipamentos (arquivo ODS anexo)." },
     { h:2, t:"Pendências desta emissão" }, { lista:pendencias(e).filter(p => p.indexOf("Subprojeto " + (iSub + 1)) === 0 || !/^Subprojeto/.test(p)) });
-  return b;
+  return b.concat(dadosDoProjeto(e, s), fontes(e));
 }
-function ep(estado, iSub, base) {
-  const e = normalizar(estado), s = e.subprojetos[iSub], b = cabecalhoDoc(e, s, iSub, "EP " + CONFERIR + " — Especificação de projeto");
-  b.push({ t:"Sigla EP tratada como Especificação de Projeto (especificação por desempenho de cada equipamento) até a dona confirmar o significado " + CONFERIR + "." });
-  s.equipamentos.forEach((q, j) => { const ref = base && Array.isArray(base.itens) ? base.itens.find(x => x.id === q.baseId) : null;
-    b.push({ h:2, t:(q.tag || "Item " + (j + 1)) + " — " + (q.descricao || "") });
-    const l = [["Sistema", q.sistema || ""], ["Quantidade", q.qtd == null ? MARCADOR : String(q.qtd)], ["Capacidade", q.cap == null ? MARCADOR : q.cap + " " + (q.un || "")],
-      ["Fabricante / modelo", mk(q.fabricante) + " / " + mk(q.modelo)]];
-    if (ref && ref.eficiencia) l.push(["Eficiência de referência (base Physis)", ref.eficiencia.indicador + " típico " + ref.eficiencia.tipico + (ref.eficiencia.minimo_classe_A != null ? " · mínimo classe A " + ref.eficiencia.minimo_classe_A : "") + " " + CONFERIR]);
-    (q.pecas || []).forEach(p => l.push(["Peça: " + mk(p.descricao), mk(p.codigo, "part number") + (p.qtd != null ? " × " + p.qtd : "")]));
-    b.push({ tabela:{ cab:["Requisito", "Especificação"], linhas:l } }); });
-  if (!s.equipamentos.length) b.push({ t:"Lista de equipamentos vazia " + MARCADOR + "." });
-  return b;
+/* "EP" = ESTUDO PRELIMINAR (resposta da dona de 21/11/2026): concepção, alternativas, pré-dimensionamento e estimativa de
+   ordem de grandeza. Custos e prazos nunca são inventados: sem fonte, ficam [MARCADOR]. */
+function estudoPreliminar(estado, iSub, AVAC, CT) {
+  const e = normalizar(estado), s = e.subprojetos[iSub], b = cabecalhoDoc(e, s, iSub, "EP — Estudo Preliminar");
+  const R = AVAC ? AVAC.calcular(entradasAvac(s)) : null;
+  b.push({ h:2, t:"1. Concepção" }, { t:"Objeto e escopo: " + mk(s.escopo, "escopo do subprojeto") });
+  dadosDoProjeto(e, s).forEach(x => b.push(x.h ? { h:3, t:x.t } : x));
+  b.push({ h:2, t:"2. Alternativas" });
+  if (s.alternativas.length) b.push({ tabela:{ cab:["Alternativa", "Descrição", "Fonte"], linhas:s.alternativas.map(a => [mk(a.nome), mk(a.descricao), mk(a.fonte)]) } });
+  const temCT = !!(CT && s.dados.cargatermica && s.dados.cargatermica.e);
+  if (temCT) { const c = s.dados.cargatermica.e, r = CT.calcular(c.ambientes, c.clima, c.opcoes);
+    if (r.sistema && r.sistema.opcoes) b.push({ tabela:{ cab:["Sistema (módulo de carga térmica)", "Viável?", "Motivo", "Energia (kWh/ano)"],
+      linhas:r.sistema.opcoes.map(o => [o.nome, o.viavel ? "sim" : "não", o.motivo || "", o.kwh_ano == null ? "—" : Math.round(o.kwh_ano)]), legenda:"Comparação de sistemas da carga térmica (NBR 16401-1)" } }); }
+  if (!s.alternativas.length && !temCT) b.push({ t:"Alternativas " + MARCADOR + " (comparar ao menos duas soluções de climatização e ventilação)." });
+  b.push({ h:2, t:"3. Pré-dimensionamento" });
+  if (R) { const lin = R.resumo.filter(x => R.status[{ "Ar condicionado":"ac", "Ventilação":"vent", "Pressurização":"press", "Aquecimento solar":"solar", "Piscina":"piscina" }[x.sistema]] === "ativo");
+    b.push(lin.length ? { tabela:{ cab:["Sistema", "Grandeza", "Valor", "Base"], linhas:lin.map(x => [x.sistema, x.grandeza, typeof x.valor === "number" ? +x.valor.toFixed(2) : String(x.valor), x.base || ""]), legenda:"Resumo do módulo AVAC (contas do módulo base)" } }
+      : { t:"Nenhum sistema calculado no módulo AVAC para este subprojeto " + MARCADOR + "." }); }
+  b.push({ tabela:{ cab:["TAG", "Equipamento", "Qtd.", "Capacidade", "Fabricante/modelo"],
+    linhas:s.equipamentos.length ? s.equipamentos.map(q => [q.tag || "", q.descricao || "", q.qtd == null ? MARCADOR : q.qtd, q.cap == null ? "sem fonte" : q.cap + " " + (q.un || ""), mk(q.fabricante) + " / " + mk(q.modelo)]) : [[MARCADOR, "", "", "", ""]],
+    legenda:"Equipamentos pré-dimensionados" } });
+  b.push({ h:2, t:"4. Estimativa de ordem de grandeza" },
+    { tabela:{ cab:["Item", "Ordem de grandeza", "Base"], linhas:[["Investimento em AVAC", MARCADOR, MARCADOR], ["Consumo de energia (kWh/ano)", MARCADOR, MARCADOR], ["Prazo de implantação", MARCADOR, MARCADOR]] } },
+    { t:"Estimativa a preencher com cotações ou base de custos com fonte; o sistema não estima preço." });
+  return b.concat(fontes(e));
 }
 
 /* ════════ ODF com a marca do CLIENTE (sem a marca Physis além do "elaborado por") ════════ */
@@ -351,7 +404,7 @@ function tabelaFinanceiro(estado) {
 }
 
 const API = { versao:"ESTERMIC-AVAC-teste-1", MARCADOR, CONFERIR, padrao, normalizar, nomeSub, financeiro, situacaoFase, alertas, pendencias, rascunhoNota,
-  equipamentosDoCalculo, sugerirDaBase, tabelaEquipamentos, tabelaFinanceiro, ifcDados, geojson, memorial, relatorio, ep, odt, ods, zip, crc32, marcaEfetiva, b64, utf8 };
+  equipamentosDoCalculo, sugerirDaBase, tabelaEquipamentos, tabelaFinanceiro, ifcDados, geojson, memorial, relatorio, estudoPreliminar, FASES_PADRAO, PECAS_PADRAO, pecasPadrao, faseVazia, odt, ods, zip, crc32, marcaEfetiva, b64, utf8 };
 global.ESTERMIC = API;
 if (typeof module !== "undefined" && module.exports) module.exports = API;
 })(typeof window !== "undefined" ? window : this);
