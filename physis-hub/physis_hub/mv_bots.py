@@ -53,7 +53,9 @@ IGNORAR = re.compile(r"(\\|/)(sistema_physis_fase1|_backup[^\\/]*|_versoes_teste
                      r"Projetos em desenvolvimento|sistema_physis_ep_final|06_Kits_revisao|28_Physis_MV)(\\|/)", re.I)
 EXTS = {".docx", ".pptx", ".xlsx", ".odt", ".odp", ".ods", ".md", ".txt", ".pdf"}
 # arquivos que CITAM as regras (decisões, revisões): não são conferidos por elas
-SEM_REGRAS = re.compile(r"^(27_Decisoes|04_Respostas|Revis[aã]o_Estrutural|Trechos_retirados)", re.I)   # Trechos_retirados: registro do texto antigo
+SEM_REGRAS = re.compile(r"^(?:27_Decisoes|04_Respostas|Revis[aã]o_Estrutural|Trechos_retirados"
+                        # registros de correção citam o texto antigo de propósito (aprovado pela Rafaella em 23/11/2026)
+                        r"|3[34]_Revis[aã]o|48[ab]?_|49_Checklist|CHECKLIST\.md$|MV\.md$|ROADMAP\.md$|.*_mudancas\.md$)", re.I)   # Trechos_retirados: registro do texto antigo
 
 # validade por tipo (dias); premissas da versão de teste, a ajustar pela dona
 VALIDADE = {"apresentacao": 90, "contrato": 365, "planilha": 180, "memo": 30, "plano": 180, "documento": 180}
