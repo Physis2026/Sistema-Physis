@@ -1,7 +1,8 @@
 ﻿import datetime, shutil, sys, zipfile
 from pathlib import Path
-RAIZ = Path(r"C:\physis\physis-sistema")
-DOCS = Path(r"C:\Users\rafae\OneDrive - Physis Engineering\Documents\Sistema Physis")
+import os  # noqa: E402
+RAIZ = Path(__file__).resolve().parents[2]          # pasta do sistema, onde quer que esteja
+DOCS = Path(os.environ.get("PHYSIS_DOCS") or (Path.home() / "OneDrive - Physis Engineering" / "Documents")) / "Sistema Physis"
 FORA = {".git", "__pycache__", "node_modules", "www", "_backup_git", "_backup_arquivos", "sistema_physis_fase1", "sistema_physis_ep_final",
         "_versoes_oficiais", "_versoes_teste"}   # versões congeladas já têm a sua própria cópia
 # Backup só da Physis Engineering (decisão de 18/11/2026): nada do Instituto Physis, que tem plataforma e backup próprios.

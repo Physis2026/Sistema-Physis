@@ -20,7 +20,7 @@ const COMBUSTIVEIS = ["diesel_b", "gasolina_c", "etanol_hidratado", "gnv", "biod
 const NOME_COMB = { diesel_b:"Diesel B (com biodiesel)", gasolina_c:"Gasolina C (com etanol)", etanol_hidratado:"Etanol hidratado", gnv:"GNV (m³)", biodiesel:"Biodiesel (B100)", diesel:"Diesel A" };
 const UNIDADES = { l_100km:"L/100 km", l_h:"L/h" };
 const FONTES_PRECO = { nota:"Nota fiscal", cartao:"Cartão-combustível", bomba:"Preço da bomba", estimado:"Estimado" };
-const COR = { caminhao:"var(--al-t,#7A2214)", carro:"var(--agua,#3D6E8F)", trator:"var(--at-t,#5C3F00)", maquina:"var(--in-t,#1C3550)", outro:"var(--tinta2,#4A4F44)" };
+const COR = { caminhao:"var(--al-t,#7A2214)", carro:"var(--agua,#546A7B)", trator:"var(--at-t,#5C3F00)", maquina:"var(--in-t,#3D2A5C)", outro:"var(--tinta2,#4A4F44)" };
 const PONTO_EXEMPLO = { lat:-22.5051, lon:-43.1784 };   /* o mesmo ponto de exemplo das demonstrações da Saúde */
 function premissa(id) { try { if (typeof PhysisCalc !== "undefined") { const v = PhysisCalc.premissa(id); if (typeof v === "number" && isFinite(v)) return v; } } catch (e) {} return PREMISSAS_RESERVA[id]; }
 const P = () => Object.fromEntries(Object.keys(PREMISSAS_RESERVA).map(k => [k, premissa(k)]));
@@ -298,7 +298,7 @@ function graficoConsumo(v) { const am = (v.analise && v.analise.amostras) || [],
   const bw = (W - m.l - m.r) / am.length, sy = y => H - m.b - y / y1 * (H - m.t - m.b);
   const barras = am.map((a, i) => `<rect x="${(m.l + i * bw + bw * 0.15).toFixed(1)}" y="${sy(a.valor).toFixed(1)}" width="${(bw * 0.7).toFixed(1)}" height="${(H - m.b - sy(a.valor)).toFixed(1)}" style="fill:${COR[v.tipo] || COR.outro}"><title>${E(dataBr(a.data) + ": " + f1(a.valor, 1) + " " + un)}</title></rect>`).join("");
   const ref = nm.mediana != null ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(nm.mediana).toFixed(1)}" y2="${sy(nm.mediana).toFixed(1)}" style="stroke:var(--tinta,#1C2B21)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${W - m.r}" y="${(sy(nm.mediana) - 4).toFixed(1)}" font-size="11" text-anchor="end" style="fill:var(--tinta,#1C2B21)">${E(tx("normal") + " " + f1(nm.mediana, 1))}</text>` : "";
-  const esp = v.consumo_esperado ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(v.consumo_esperado).toFixed(1)}" y2="${sy(v.consumo_esperado).toFixed(1)}" style="stroke:var(--agua,#3D6E8F)" stroke-dasharray="2 3" stroke-width="1.5"/>` : "";
+  const esp = v.consumo_esperado ? `<line x1="${m.l}" x2="${W - m.r}" y1="${sy(v.consumo_esperado).toFixed(1)}" y2="${sy(v.consumo_esperado).toFixed(1)}" style="stroke:var(--agua,#546A7B)" stroke-dasharray="2 3" stroke-width="1.5"/>` : "";
   return `<figure style="margin:0"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${E(tx("Consumo de") + " " + v.placa + ", " + un + ": " + am.length + " " + tx("amostras"))}">
     <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#D6DBCF)"/><text x="${m.l - 6}" y="${m.t + 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y1, 0)}</text><text x="${m.l - 6}" y="${H - m.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">0</text>
     <text x="${m.l}" y="${H - 10}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(dataBr(am[0].data))}</text><text x="${W - m.r}" y="${H - 10}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${E(dataBr(am[am.length - 1].data))}</text>${barras}${ref}${esp}</svg>

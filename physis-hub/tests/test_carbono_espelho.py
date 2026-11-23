@@ -84,7 +84,7 @@ class EspelhoCarbono(unittest.TestCase):
     @unittest.skipUnless(shutil.which("node"), "sem Node.js nesta máquina")
     def test_js_e_python_mesma_entrada_mesmo_resultado(self):
         script = (
-            "const fs=require('fs'),vm=require('vm');const a=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));"
+            "const fs=require('fs'),vm=require('vm');const a=JSON.parse(fs.readFileSync(process.argv[process.argv.length-1],'utf8'));"
             "global.window=global;global.document={addEventListener(){},getElementById(){return null;}};"
             "global.PHYSIS_FATORES_EMISSAO=a.F;vm.runInThisContext(fs.readFileSync(a.js,'utf8'));"
             "const R=window.PhysisCarbono.calcular(a.estado,a.ctx,a.F);"

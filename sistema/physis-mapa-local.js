@@ -283,7 +283,7 @@
       locale: { "NavigationControl.ZoomIn": "Aproximar o mapa", "NavigationControl.ZoomOut": "Afastar o mapa", "NavigationControl.ResetBearing": "Voltar o norte para cima", "Marker.Title": "Marcador da lavoura: arraste, ou use as setas para mover", "ScaleControl.Meters": "m", "ScaleControl.Kilometers": "km" },
       style: { version: 8, sources: { osm: { type: "vector", url: "pmtiles:///mapas/regiao.pmtiles" } }, layers: [
         { id: "fundo", type: "background", paint: { "background-color": escuro ? "#2A3829" : "#EEF2EA" } },
-        { id: "agua", type: "fill", source: "osm", "source-layer": "water", paint: { "fill-color": escuro ? "#3D6E8F" : "#B8D0E0" } },
+        { id: "agua", type: "fill", source: "osm", "source-layer": "water", paint: { "fill-color": escuro ? "#546A7B" : "#C3D0BD" } },
         { id: "vias", type: "line", source: "osm", "source-layer": "roads", paint: { "line-color": "#C9B98F", "line-width": 1 } }] } });
     mapa.addControl(new M.NavigationControl({ showCompass: true })); mapa.addControl(new M.ScaleControl({ unit: "metric" }));
     mapa.addControl(new M.AttributionControl({ customAttribution: "© colaboradores do OpenStreetMap" }));

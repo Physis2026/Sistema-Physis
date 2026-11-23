@@ -23,8 +23,30 @@ from pathlib import Path
 from . import mv as mvmod
 from .mv import MV
 
-DOCS = Path(os.environ.get("PHYSIS_DOCS") or (Path.home() / "OneDrive - Physis Engineering" / "Documents"))
+def achar_docs() -> Path:
+    """Pasta Documents do OneDrive da Physis. Ordem: PHYSIS_DOCS; a que já tem "Sistema Physis" entre OneDriveCommercial,
+    OneDrive e ~/OneDrive - Physis Engineering (variáveis que o próprio OneDrive cria no Windows); senão a padrão."""
+    if os.environ.get("PHYSIS_DOCS"):
+        return Path(os.environ["PHYSIS_DOCS"])
+    padrao = Path.home() / "OneDrive - Physis Engineering" / "Documents"
+    cands = [Path(os.environ[v]) / "Documents" for v in ("OneDriveCommercial", "OneDrive") if os.environ.get(v)] + [padrao]
+    return next((c for c in cands if (c / "Sistema Physis").is_dir()), padrao)
+
+
+DOCS = achar_docs()
 RAIZES = ("Casa Physis", "Sistema Physis", "Instituto Physis")
+# Pastas de documentos do OneDrive lidas pelo M&A (23/11/2026). Grupos de nomes aceitos: a primeira que existir vale
+# (a pasta da GSA está como "Global Sourh Alliance"; "Global South Alliance" também serve).
+PASTAS_DOCS = [("Sistema Physis",), ("Casa Physis",), ("Instituto Physis",), ("Global Sourh Alliance", "Global South Alliance"), ("Estermic",)]
+
+
+def pastas_documentos() -> list[Path]:
+    """As pastas de documentos que existem neste computador (uma por grupo); a do grupo que não existir é avisada pelo bot."""
+    out = []
+    for nomes in PASTAS_DOCS:
+        achada = next((DOCS / n for n in nomes if (DOCS / n).is_dir()), DOCS / nomes[0])
+        out.append(achada)
+    return out
 SAIDA = Path(os.environ.get("PHYSIS_MV_SAIDA") or (DOCS / "Sistema Physis" / "28_Physis_MV"))
 # pastas geradas, de código ou cópias: o bot não varre (o código tem os próprios testes)
 IGNORAR = re.compile(r"(\\|/)(sistema_physis_fase1|_backup[^\\/]*|_versoes_teste|node_modules|\.git|\.claude|Modulos em desenvolvimento|"
@@ -72,16 +94,17 @@ def tipo_de(nome: str, ext: str) -> str:
 
 
 def frente_de(caminho: str) -> str:
-    c = caminho.lower()
+    c = caminho.lower().replace("\\", "/")
     if "inovastem" in c:
         return "inovastem"
     if "instituto" in c:
         return "instituto"
-    if "1_tecnico_casa" in c or "lote" in c:
+    # a pasta Casa Physis do OneDrive é da Casa (antes só "lote"/"1_tecnico_casa" contavam e o resto ia para a Engineering)
+    if "1_tecnico_casa" in c or "lote" in c or "/casa physis/" in c or c.endswith("/casa physis"):
         return "casa"
-    if "estrat" in c:
+    if "estrat" in c or "global sourh" in c or "global south" in c or "marketing physis" in c or "marketing-physis" in c:
         return "transversal"
-    return "engineering"
+    return "engineering"            # Sistema Physis, Estermic (cliente da Physis Engineering) e o resto
 
 
 def texto_de(p: Path, limite: int = 2_000_000) -> str:
@@ -99,13 +122,17 @@ def texto_de(p: Path, limite: int = 2_000_000) -> str:
             elif ext == ".pptx":
                 alvo = sorted(n for n in nomes if re.match(r"ppt/slides/slide\d+\.xml$", n))
             elif ext == ".xlsx":
-                alvo = [n for n in nomes if n == "xl/sharedStrings.xml"]
+                # textos compartilhados e também as planilhas: arquivo gerado por programa grava o texto dentro da célula
+                # (inlineStr) e os números só na planilha; antes esses .xlsx pareciam vazios (teste de arquivos, 23/11)
+                alvo = [n for n in nomes if n == "xl/sharedStrings.xml"] + sorted(
+                    n for n in nomes if re.match(r"xl/worksheets/sheet\d+\.xml$", n))
             else:
                 alvo = ["content.xml"] if "content.xml" in nomes else []
             partes, tam = [], 0
             for n in alvo:
                 x = z.read(n).decode("utf-8", errors="replace")
-                x = re.sub(r"</(w:p|a:p|text:p|text:h|si)>", "\n", x)
+                x = re.sub(r"</(w:p|a:p|text:p|text:h|si|row)>", "\n", x)
+                x = re.sub(r"</c>", " ", x)
                 t = re.sub(r"<[^>]+>", "", x)
                 partes.append(t)
                 tam += len(t)
@@ -154,10 +181,16 @@ def conferir_texto(texto: str) -> tuple[list[dict], int]:
 
 
 # ---------------------------------------------------------------------------------------------- bot de documentos
+def _repos() -> list[Path]:
+    """Repositórios da Physis fora do sistema (marketing-physis…) também são conferidos (mv_repositorios)."""
+    from . import mv_repositorios
+    return mv_repositorios.caminhos_existentes()
+
+
 def bot_documentos(mv: MV, raizes: list[Path] | None = None, hoje: date | None = None) -> dict:
     inicio = mv.nova_rodada()
     hoje = hoje or mvmod.HOJE()
-    raizes = raizes or [DOCS / r for r in RAIZES]
+    raizes = raizes or (pastas_documentos() + _repos())
     vistos, falhas_n, vencidos, modelos = 0, 0, {}, {}
     for raiz in raizes:
         if not raiz.is_dir():
@@ -486,6 +519,11 @@ def bot_inovacao(mv: MV) -> dict:
     inicio = mv.nova_rodada()
     r = mv_inovacao.rodar(mv)
     if "pulado" not in r:
+        for e in r.get("erros", []):   # fonte fora do ar não pode passar como "tudo certo" (22/11/2026)
+            fonte = e.rsplit(":", 1)[0]
+            mv.alertar("inovacao", "fonte_falhou", fonte, "atencao", f"Fonte de inovação sem resposta: {e}",
+                       "Conferir a internet do nó ou o endereço da fonte em mv_inovacao.FONTES")
+        mv.fechar_alertas_nao_vistos("inovacao", inicio)
         mv.registrar_execucao("inovacao", inicio, mvmod.json.dumps(r))
     return r
 
@@ -519,6 +557,64 @@ def bot_sincronizacao(mv: MV) -> dict:
 
 BOTS = {"atrasos": bot_atrasos, "documentos": bot_documentos, "resumo": resumo, "backup": backup, "paginas": bot_paginas,
         "inovacao": bot_inovacao, "links": bot_links, "desenvolvimento": bot_desenvolvimento, "sincronizacao": bot_sincronizacao}
+
+from . import mv_vigia  # noqa: E402 — vigia dos bots e sentinela dos serviços (só observam; D49)
+from . import mv_sala  # noqa: E402 — sala visual (HTML) a cada rodada
+from . import mv_bots_extra  # noqa: E402 — editais, dados-iot, simulação, gestões, bancos, acervo (22/11/2026)
+BOTS.update(mv_bots_extra.BOTS_EXTRA)
+from . import ia_physis, mv_cursos  # noqa: E402 — IA Physis (índice próprio) e mapa de cursos
+BOTS.update({"ia": ia_physis.bot_ia, "cursos": mv_cursos.bot_cursos})
+from . import mv_auditoria  # noqa: E402 — auditoria cruzada, caixa de perguntas e plano de intervenção
+BOTS["auditoria"] = mv_auditoria.bot_auditoria
+from . import mv_repositorios  # noqa: E402 — repositórios fora do sistema (marketing-physis)
+BOTS["repositorios"] = mv_repositorios.bot_repositorios
+from . import mv_ecossistema, mv_financeiro, mv_fatos, mv_kit  # noqa: E402 — versão enxuta de 22/11/2026
+BOTS.update({"mercado": mv_ecossistema.bot_mercado, "financeiro": mv_financeiro.bot_financeiro, "vencimentos": mv_financeiro.bot_vencimentos,
+             "kit": mv_kit.bot_kit, "fatos": mv_fatos.bot_fatos, "melhoria": mv_kit.bot_melhoria, "semanal": mv_kit.bot_semanal})
+
+
+def assinatura_pastas(raizes) -> str:
+    """Nome, tamanho e data de cada arquivo das pastas (barato: não lê o conteúdo)."""
+    h = hashlib.sha1()
+    for raiz in raizes:
+        if not Path(raiz).is_dir():
+            h.update(f"sem:{raiz}".encode())
+            continue
+        for dirpath, dirs, arquivos in os.walk(raiz):
+            if IGNORAR.search(dirpath + os.sep):
+                dirs[:] = []
+                continue
+            dirs.sort()
+            for a in sorted(arquivos):
+                if Path(a).suffix.lower() in EXTS:
+                    try:
+                        st = os.stat(os.path.join(dirpath, a))
+                    except OSError:
+                        continue
+                    h.update(f"{dirpath}/{a}:{st.st_size}:{int(st.st_mtime)}".encode())
+    return h.hexdigest()
+
+
+def bot_documentos_se_mudou(mv: MV, raizes: list[Path] | None = None, hoje: date | None = None, agora: float | None = None) -> dict:
+    """Versão enxuta: confere de hora em hora só a assinatura das pastas; lê tudo quando algo mudou ou 1 vez por dia."""
+    agora = agora or time.time()
+    raizes = raizes or (pastas_documentos() + _repos())
+    mv.db.execute("CREATE TABLE IF NOT EXISTS mv_assinatura (bot TEXT PRIMARY KEY, valor TEXT NOT NULL, quando REAL NOT NULL)")
+    nova = assinatura_pastas(raizes)
+    ant = mv.db.execute("SELECT valor, quando FROM mv_assinatura WHERE bot='documentos'").fetchone()
+    if ant and ant[0] == nova and agora - ant[1] < 24 * 3600:
+        inicio = mv.nova_rodada()
+        r = {"pulado": "nenhum arquivo mudou", "leitura_completa_ha_h": round((agora - ant[1]) / 3600, 1)}
+        mv.registrar_execucao("documentos", inicio, mvmod.json.dumps(r))
+        return r
+    r = bot_documentos(mv, raizes, hoje)
+    mv.db.execute("INSERT OR REPLACE INTO mv_assinatura VALUES ('documentos', ?, ?)", (nova, agora))
+    mv.db.commit()
+    return r
+
+
+BOTS["documentos"] = bot_documentos_se_mudou
+BOTS.update({"vigia": mv_vigia.bot_vigia, "sentinela": mv_vigia.bot_sentinela, "sala": mv_sala.bot_sala})
 
 
 def rodar(mv: MV, quais: list[str] | None = None) -> dict:

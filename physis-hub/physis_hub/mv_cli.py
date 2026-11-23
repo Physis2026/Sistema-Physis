@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -21,20 +22,52 @@ from . import mv_bots, mv_semente
 from .mv import MV, pasta_padrao
 
 RAIZ_HUB = Path(__file__).resolve().parents[1]
+# rodada diária (7h). Na agenda vai só a palavra "diario": o schtasks aceita no máximo 261 caracteres em /TR e o caminho
+# da pasta do sistema (ex.: C:\\physis\\physis-ma-20261122-1bd599e) + o do Python + a lista inteira passavam disso (23/11/2026).
+RODADA_DIARIA = "atrasos documentos resumo backup paginas inovacao links editais dados_iot simulacao gestoes bancos acervo ia cursos financeiro vencimentos fatos kit repositorios desenvolvimento sincronizacao melhoria auditoria vigia sentinela sala".split()
+GRUPOS = {"diario": RODADA_DIARIA}
+LIMITE_TR = 261
+
+
+def expandir(quais: list[str] | None) -> list[str] | None:
+    """Troca nomes de grupo (diario) pelos bots; o resto fica como está."""
+    if not quais:
+        return quais
+    out = []
+    for q in quais:
+        out += GRUPOS.get(q, [q])
+    return out
+
+
+def texto_agenda() -> str:
+    """Texto de todas as tarefas com os grupos já trocados pelos bots (auditoria e testes)."""
+    t = " ".join(" ".join(c) for c in comandos_agenda())
+    return re.sub(r"\bbots diario\b", "bots " + " ".join(RODADA_DIARIA), t)
+
+
+def tr_longos() -> list[str]:
+    """Tarefas cujo /TR passa do limite do Windows (o schtasks recusaria)."""
+    return [c[c.index("/TN") + 1] for c in comandos_agenda() if "/TR" in c and len(c[c.index("/TR") + 1]) > LIMITE_TR]
 
 
 def comandos_agenda() -> list[list[str]]:
     py = sys.executable.replace("python.exe", "pythonw.exe") if sys.executable.endswith("python.exe") else sys.executable
     base = f'cmd /c cd /d "{RAIZ_HUB}" && "{py}" -m physis_hub.mv_cli'
     return [
-        ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots atrasos documentos"],
-        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots atrasos documentos resumo backup paginas inovacao links"],
+        # versão enxuta (22/11/2026): sinal de vida, documentos (só se algo mudou), sensores, vigia e sentinela de hora em hora
+        ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/TN", "PhysisMV\\bots_hora", "/TR", f"{base} bots documentos dados_iot vigia sentinela"],
+        ["schtasks", "/Create", "/F", "/SC", "HOURLY", "/MO", "8", "/TN", "PhysisMV\\atrasos_8h", "/TR", f"{base} bots atrasos sala"],
+        ["schtasks", "/Create", "/F", "/SC", "DAILY", "/ST", "07:00", "/TN", "PhysisMV\\resumo_7h", "/TR", f"{base} bots diario"],
+        # revisão semanal completa (inclui o mapeamento do ecossistema/mercado): segunda às 6h (dia na caixa de perguntas)
+        ["schtasks", "/Create", "/F", "/SC", "WEEKLY", "/D", "MON", "/ST", "06:00", "/TN", "PhysisMV\\revisao_semanal", "/TR", f"{base} bots semanal sala"],
         ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\painel", "/TR", f"{base} servir"],
+        # Hub (porta 8700): antes nada o ligava; agora abre junto com o Windows (23/11/2026)
+        ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\hub", "/TR", base.replace("physis_hub.mv_cli", "physis_hub.servidor")],
         # R-02 (auditoria 39): rodar depois se o computador estava desligado às 7h, e também na bateria
         ["powershell", "-NoProfile", "-Command",
          "$s=New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries "
          "-ExecutionTimeLimit (New-TimeSpan -Hours 2); "
-         "foreach($n in 'bots_hora','resumo_7h'){Set-ScheduledTask -TaskPath '\\PhysisMV\\' -TaskName $n -Settings $s | Out-Null}; 'ok'"],
+         "foreach($n in 'bots_hora','atrasos_8h','resumo_7h','revisao_semanal'){Set-ScheduledTask -TaskPath '\\PhysisMV\\' -TaskName $n -Settings $s | Out-Null}; 'ok'"],
     ]
 
 
@@ -69,6 +102,10 @@ def main(argv=None) -> int:
 
 
 def _main(argv=None) -> int:
+    try:
+        sys.stdout.reconfigure(errors="replace")      # console do Windows (cp1252) não quebra com "→" (23/11/2026)
+    except (AttributeError, ValueError):
+        pass
     ap = argparse.ArgumentParser(prog="physis-mv")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("semear")
@@ -91,15 +128,26 @@ def _main(argv=None) -> int:
     pl = sub.add_parser("perguntas", help="lista perguntas e respostas centralizadas no M&A")
     pl.add_argument("--abertas", action="store_true")
     pl.add_argument("--sistema", default="")
+    ia = sub.add_parser("ia", help="IA Physis: pergunta aos documentos da Physis (resposta com fonte) ou --indexar")
+    ia.add_argument("pergunta", nargs="*")
+    ia.add_argument("--indexar", action="store_true")
     g = sub.add_parser("agenda")
     g.add_argument("--criar", action="store_true")
     a = ap.parse_args(argv)
+    if a.cmd == "ia":
+        from .ia_physis import IAPhysis
+        motor = IAPhysis()
+        out = motor.indexar() if a.indexar or not a.pergunta else motor.perguntar(" ".join(a.pergunta))
+        print(json.dumps(out, ensure_ascii=False, indent=1))
+        return 0
     if a.cmd == "agenda":
+        for n in tr_longos():
+            print(f"  ATENÇÃO: a tarefa {n} passa de {LIMITE_TR} caracteres; o Windows vai recusar. Use uma pasta de nome mais curto.")
         for c in comandos_agenda():
             print(" ".join(f'"{x}"' if " " in x else x for x in c))
             if a.criar:
                 r = subprocess.run(c, capture_output=True, text=True)
-                print("  →", (r.stdout or r.stderr).strip())
+                print("  ->", (r.stdout or r.stderr).strip())
         return 0
     mv = MV()
     try:
@@ -120,7 +168,7 @@ def _main(argv=None) -> int:
             from . import mv_editais
             print(json.dumps(mv_editais.Editais(mv).importar_csv(a.arquivo), ensure_ascii=False))
         elif a.cmd == "bots":
-            print(json.dumps(mv_bots.rodar(mv, a.quais or None), ensure_ascii=False, indent=1))
+            print(json.dumps(mv_bots.rodar(mv, expandir(a.quais) or None), ensure_ascii=False, indent=1))
         elif a.cmd == "servir":
             from . import mv_servidor
             srv = mv_servidor.servir(mv, a.porta or mv_servidor.PORTA, rede_local=a.rede)

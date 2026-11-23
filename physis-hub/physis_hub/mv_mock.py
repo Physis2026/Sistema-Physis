@@ -16,6 +16,7 @@ from pathlib import Path
 
 from . import mv as mvmod
 from . import mv_bots
+from . import mv_integracoes
 from .mv import MV
 from .mv_editais import Editais, necessidades_de
 
@@ -101,6 +102,7 @@ def montar() -> dict:
         "/api/mv/saude": mv.saude(), "/api/mv/gantt": mv.gantt(), "/api/mv/kanban": mv.kanban(), "/api/mv/matriz": mv.matriz(),
         "/api/mv/roadmap": mv.roadmap(), "/api/mv/alertas": mv.alertas(), "/api/mv/documentos": mv.documentos(),
         "/api/mv/editais": ed.listar(),
+        "/api/mv/integracoes": dict(mv_integracoes.estado(mv), estado={}),   # demo: só as ligações, sem estado de bot
     }
 
 
@@ -116,7 +118,7 @@ def montar_real(caminho: str | Path | None = None) -> dict:
                              "etapas": [{"id": e, "nome": mv_editais.NOMES_ETAPA[e]} for e in mv_editais.ETAPAS]},
             "/api/mv/saude": mv.saude(), "/api/mv/gantt": mv.gantt(), "/api/mv/kanban": mv.kanban(), "/api/mv/matriz": mv.matriz(),
             "/api/mv/roadmap": mv.roadmap(), "/api/mv/alertas": mv.alertas(), "/api/mv/documentos": mv.documentos(),
-            "/api/mv/editais": ed.listar()}
+            "/api/mv/editais": ed.listar(), "/api/mv/integracoes": mv_integracoes.estado(mv)}
 
 
 def gerar(saida: str | Path, real: bool = False) -> Path:
@@ -127,7 +129,9 @@ def gerar(saida: str | Path, real: bool = False) -> Path:
     if icone.is_file():
         dados["logo"] = "data:image/png;base64," + base64.b64encode(icone.read_bytes()).decode()
     html = (WEB / "mv.html").read_text(encoding="utf-8")
-    bloco = "<script>window.MV_MOCK=" + json.dumps(dados, ensure_ascii=False, default=str).replace("</", "<\\/") + ";</script>\n"
+    three = Path(__file__).resolve().parents[2] / "vendor" / "three.min.js"   # aba Monitoramento sem servidor
+    bloco3 = ("<script>" + three.read_text(encoding="utf-8").replace("</script", "<\\/script") + "</script>\n") if three.is_file() else ""
+    bloco = bloco3 + "<script>window.MV_MOCK=" + json.dumps(dados, ensure_ascii=False, default=str).replace("</", "<\\/") + ";</script>\n"
     html = html.replace("<script>\n\"use strict\";", bloco + "<script>\n\"use strict\";", 1)
     html = html.replace("<title>Physis M&amp;V · versão de teste</title>",
                         "<title>Physis M&amp;V · cópia de leitura</title>" if real else "<title>Physis M&amp;V · demonstração</title>", 1)

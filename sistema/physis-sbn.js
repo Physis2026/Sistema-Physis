@@ -577,7 +577,7 @@ ${r.itens.length ? `<button type="button" data-sbn-cons-plano="${E(id)}">Levar a
   }
 
   /* ───────────── mapa de plantio (GIS/BIM do Planejador + espaçamento) ───────────── */
-  const CORES = ["#33512F", "#4B7547", "#7FA36B", "#2C5A6E", "#5B8FA8", "#9A6A3A", "#C29A4B", "#8A6410", "#6B4F8A", "#A0526E", "#3F7F6E", "#B7793B"];
+  const CORES = ["#33512F", "#4B7547", "#7FA874", "#2F5E4E", "#8A9182", "#8A6A1F", "#C9A227", "#8A6410", "#5B4A7A", "#A85432", "#2F7D5B", "#B07A12"];
   const corDe = n => CORES[Math.abs(+n || 0) % CORES.length];
   const VERDES = ["horta", "gramado", "mata", "infiltracao"];
   /* estado do mapa: áreas desenhadas no Planejador + as ajustadas pelo usuário (salvoJson tem prioridade, por id) */
@@ -648,12 +648,12 @@ ${r.itens.length ? `<button type="button" data-sbn-cons-plano="${E(id)}">Levar a
     const lw = Math.max(W, H) / 400;
     let svg = "";
     if (st.poly && st.poly.length > 2) svg += `<polygon points="${pts(st.poly)}" fill="#EEF2EA" stroke="#1C2B21" stroke-width="${(lw * 2).toFixed(2)}"/>`;
-    if (st.app && st.app.celulas) svg += st.app.celulas.map(c => `<rect x="${X(c[0] - st.app.cs / 2)}" y="${Y(c[1] + st.app.cs / 2)}" width="${st.app.cs.toFixed(2)}" height="${st.app.cs.toFixed(2)}" fill="#C0392B" fill-opacity="0.25"/>`).join("");
-    svg += st.construcoes.map(c => `<polygon points="${pts(cantosRet(c))}" fill="#9C9C93" fill-opacity="0.7"><title>${E(c.nome)} (construção)</title></polygon>`).join("");
+    if (st.app && st.app.celulas) svg += st.app.celulas.map(c => `<rect x="${X(c[0] - st.app.cs / 2)}" y="${Y(c[1] + st.app.cs / 2)}" width="${st.app.cs.toFixed(2)}" height="${st.app.cs.toFixed(2)}" fill="#C2410C" fill-opacity="0.25"/>`).join("");
+    svg += st.construcoes.map(c => `<polygon points="${pts(cantosRet(c))}" fill="#8A9284" fill-opacity="0.7"><title>${E(c.nome)} (construção)</title></polygon>`).join("");
     const legenda = new Map(); let nPontos = 0, avisos = [];
     st.areas.forEach(a => {
       const sel = st.sel === a.id, P = poligonoArea(a); if (P.length < 3) return;
-      svg += `<polygon points="${pts(P)}" fill="${a.app ? "#E8B4AE" : "#CFE3C2"}" fill-opacity="0.55" stroke="${sel ? "#C29A4B" : "#33512F"}" stroke-width="${(lw * (sel ? 4 : 2)).toFixed(2)}" tabindex="0" role="button" focusable="true" data-sbn-m-area="${E(a.id)}" aria-label="${E(a.nome)}: ${N(areaDaArea(a), 1)} m². Setas movem 0,5 m; Shift+setas mudam o tamanho; R gira 5 graus" style="cursor:move"><title>${E(a.nome)}</title></polygon>`;
+      svg += `<polygon points="${pts(P)}" fill="${a.app ? "#E3C4BD" : "#CDDCC4"}" fill-opacity="0.55" stroke="${sel ? "#C9A227" : "#33512F"}" stroke-width="${(lw * (sel ? 4 : 2)).toFixed(2)}" tabindex="0" role="button" focusable="true" data-sbn-m-area="${E(a.id)}" aria-label="${E(a.nome)}: ${N(areaDaArea(a), 1)} m². Setas movem 0,5 m; Shift+setas mudam o tamanho; R gira 5 graus" style="cursor:move"><title>${E(a.nome)}</title></polygon>`;
       const r = cons[a.id];
       if (r && st.grade !== false) {
         const g = gradePlantio(a, r); avisos = avisos.concat(g.avisos.map(t => a.nome + ": " + t)); nPontos += g.desenhadas;
@@ -751,8 +751,8 @@ ${linhas}</section>`;
       style: { version: 8, sources: { d: { type: "geojson", data: { type: "FeatureCollection", features: F } }, g: { type: "geojson", data: { type: "FeatureCollection", features: G } } },
         layers: [{ id: "fundo", type: "background", paint: { "background-color": "#F7F8F4" } },
           { id: "terreno", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "terreno"], paint: { "fill-color": "#EEF2EA", "fill-outline-color": "#1C2B21" } },
-          { id: "construcoes", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "construcao"], paint: { "fill-color": "#9C9C93" } },
-          { id: "areas", type: "fill", source: "d", filter: ["in", ["get", "tipo"], ["literal", ["area", "app"]]], paint: { "fill-color": ["match", ["get", "tipo"], "app", "#E8B4AE", "#CFE3C2"], "fill-opacity": 0.6, "fill-outline-color": "#33512F" } },
+          { id: "construcoes", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "construcao"], paint: { "fill-color": "#8A9284" } },
+          { id: "areas", type: "fill", source: "d", filter: ["in", ["get", "tipo"], ["literal", ["area", "app"]]], paint: { "fill-color": ["match", ["get", "tipo"], "app", "#E3C4BD", "#CDDCC4"], "fill-opacity": 0.6, "fill-outline-color": "#33512F" } },
           { id: "plantas", type: "circle", source: "g", paint: { "circle-color": ["get", "cor"], "circle-radius": 3 } }] } });
     return mapa;
   }

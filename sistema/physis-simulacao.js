@@ -1051,7 +1051,7 @@ function autoteste(casos) {
 var E = function (s) { return typeof esc === "function" ? esc(s) : String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 var fmt = function (v, c) { return v == null || !isFinite(v) ? "—" : Number(v).toLocaleString("pt-BR", { minimumFractionDigits: c == null ? 2 : c, maximumFractionDigits: c == null ? 2 : c }); };
 var RAMPA_CALOR = ["#EFE8D6", "#E5D5AE", "#C9A227", "#C08A1E", "#A85432", "#7A2214"];
-var RAMPA_AGUA = ["#DBE7F1", "#B8D0E0", "#7FA9C4", "#3D6E8F", "#2C5A6E", "#1C3550"];
+var RAMPA_AGUA = ["#E3E8DE", "#C3D0BD", "#8FB183", "#546A7B", "#2F5E4E", "#3D2A5C"];
 var RAMPA_AR = ["#EEF4EA", "#CDDCC4", "#A8BFA0", "#7FA874", "#4B7547", "#33512F"];
 function cor(v, a, b, rampa) { if (v == null || !isFinite(v)) return "#D6DBCF"; var t = b > a ? (v - a) / (b - a) : 0; t = Math.max(0, Math.min(0.9999, t)); return rampa[Math.floor(t * rampa.length)]; }
 function legenda(a, b, rampa, un) { var cd = Math.abs(b - a) < 0.1 ? 3 : Math.abs(b - a) < 10 ? 2 : 1;
@@ -1089,7 +1089,7 @@ function svgBarras(id, titulo, rot, vals, un) {
 function svgLinha(id, titulo, ys, un) {
   var W = 480, H = 200, m = 30, a = Math.min.apply(null, ys), b = Math.max.apply(null, ys); if (b === a) b = a + 1;
   var pts = ys.map(function (y, i) { return (m + (W - 2 * m) * i / Math.max(1, ys.length - 1)).toFixed(1) + "," + (H - m - (H - 2 * m) * (y - a) / (b - a)).toFixed(1); }).join(" ");
-  return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " — de " + fmt(a, 2) + " a " + fmt(b, 2) + " " + un) + "</title><polyline points='" + pts + "' fill='none' stroke='#3D6E8F' stroke-width='2'/></svg></figure>";
+  return "<figure style='margin:0'><svg id='" + id + "' viewBox='0 0 " + W + " " + H + "' width='100%' style='max-width:" + W + "px' role='img' aria-labelledby='" + id + "-t'><title id='" + id + "-t'>" + E(titulo + " — de " + fmt(a, 2) + " a " + fmt(b, 2) + " " + un) + "</title><polyline points='" + pts + "' fill='none' stroke='#546A7B' stroke-width='2'/></svg></figure>";
 }
 function tabelaKV(cap, linhas) { return "<div class='rolagem'><table><caption>" + E(cap) + "</caption><tbody>" + linhas.map(function (l) { return "<tr><th scope='row'>" + E(l[0]) + "</th><td>" + l[1] + "</td></tr>"; }).join("") + "</tbody></table></div>"; }
 function envelopeHtml(r) {

@@ -16,7 +16,8 @@ import json
 import re
 import shlex
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from pathlib import Path
 
 from . import mv as mvmod
 from .mv import MV, ErroMV
@@ -39,7 +40,13 @@ CREATE TABLE IF NOT EXISTS mv_pergunta (
   pedidos INTEGER NOT NULL DEFAULT 1, respondida REAL, criado REAL NOT NULL);
 """
 SISTEMAS = ("sistema-physis", "instituto", "inovastem", "casa", "m&a", "templates", "documentos")
-ESTADOS_PEDIDO = ("na_fila", "rascunho", "pronto", "aprovado", "descartado", "erro")
+ESTADOS_PEDIDO = ("na_fila", "rascunho", "pronto", "aprovado", "ajustar", "descartado", "erro")
+# Depois de decidir (23/11/2026): a lista fica limpa (só o que espera decisão); aprovado vira tarefa de execução e os bots rodam;
+# ajuste vira tarefa da Rafaella (que pode encaminhar a outra pessoa); reprovado/descartado vai para "Antigos" (e o arquivo
+# do pedido, se houver, para a pasta antigos/ ao lado). Os arquivos continuam nas pastas de documentos que já são usadas.
+DECIDIDOS = ("aprovado", "ajustar", "reprovado", "descartado")
+RESP_AJUSTE = "Rafaella"
+BOTS_APOS_APROVAR = ["atrasos", "documentos", "kit", "desenvolvimento", "sincronizacao", "resumo", "sala"]
 ESTADOS_APROV = ("pendente", "aprovado", "ajustar", "reprovado")
 FREQUENCIAS = {"hora": 3600, "dia": 86400, "semana": 7 * 86400}
 MODELOS = {
@@ -99,9 +106,14 @@ class Comandos:
         if estado not in ESTADOS_PEDIDO:
             raise ErroMV("estado inválido")
         p = self.pedido(pid)
-        self.mv.db.execute("UPDATE mv_pedido_bot SET estado=?, resultado=?, atualizado=? WHERE id=?",
-                           (estado, p["resultado"] if resultado is None else str(resultado)[:20000], time.time(), int(pid)))
+        arquivo = p["arquivo"]
+        if estado == "descartado" and arquivo and Path(arquivo).is_file():
+            arquivo = str(mover_para_antigos(Path(arquivo)))
+        self.mv.db.execute("UPDATE mv_pedido_bot SET estado=?, resultado=?, arquivo=?, atualizado=? WHERE id=?",
+                           (estado, p["resultado"] if resultado is None else str(resultado)[:20000], arquivo, time.time(), int(pid)))
         self.mv.db.commit()
+        if estado in ("aprovado", "ajustar") and p["estado"] != estado and p["tipo"] != "inovacao":
+            self._tarefa_da_decisao(f"ped{int(pid)}", p["comando"][:180], estado, resultado or "", arquivo)
         if p["tipo"] == "inovacao" and estado == "aprovado" and p["estado"] != "aprovado":
             # descoberta aprovada → entra como atividade em seguida (diretriz de 20/11/2026)
             self.mv.salvar_tarefa({"id": f"inov-{int(pid)}", "frente": "transversal", "projeto": "Inovação aberta (pesquisa diária)",
@@ -165,6 +177,17 @@ class Comandos:
                 raise ErroMV("use: /rodar atrasos|documentos|resumo|backup")
             r = mv_bots.rodar(self.mv, quais)
             return self._pedido("rodar", texto, "", "pronto", json.dumps(r, ensure_ascii=False, default=str)[:5000], origem=origem)
+        if cmd == "mercado":     # sob demanda: /mercado <cidade> [área]
+            from . import mv_ecossistema
+            if not args:
+                raise ErroMV("use: /mercado <cidade> [área: " + ", ".join(mv_ecossistema.AREAS) + "]")
+            area = args[-1] if len(args) > 1 and args[-1] in mv_ecossistema.AREAS else None
+            cidade = " ".join(args[:-1] if area else args)
+            try:
+                r = mv_ecossistema.bot_mercado(self.mv, cidade=cidade, area=area)
+            except ValueError as e:
+                raise ErroMV(str(e))
+            return self._pedido("mercado", texto, "", "pronto", json.dumps(r, ensure_ascii=False, default=str)[:5000], origem=origem)
         if cmd == "programar":
             if len(args) < 2 or args[0] not in FREQUENCIAS:
                 raise ErroMV("use: /programar hora|dia|semana <comando>")
@@ -289,10 +312,24 @@ class Comandos:
         self.mv.db.commit()
         return n
 
-    def aprovacoes(self) -> list[dict]:
+    def _tarefa_da_decisao(self, ref: str, item: str, estado: str, nota: str = "", fonte: str = "") -> None:
+        hoje = mvmod.HOJE()
+        if estado == "aprovado":
+            t = {"id": f"exec-{ref}", "titulo": f"Executar: {item}", "responsavel": "Bots do M&A", "estado": "fazendo", "prioridade": 2}
+        else:
+            t = {"id": f"ajuste-{ref}", "titulo": f"Ajustar: {item}" + (f" ({nota})" if nota else ""), "responsavel": RESP_AJUSTE,
+                 "estado": "a_fazer", "prioridade": 1}
+        if self.mv.tarefa(t["id"]):
+            return
+        t.update({"frente": "transversal", "projeto": "Decisões das aprovações", "inicio": hoje.isoformat(),
+                  "fim": (hoje + timedelta(days=7)).isoformat(), "fonte": fonte[:300], "data_estimada": True})
+        self.mv.salvar_tarefa(t, origem="aprovacao")
+
+    def aprovacoes(self, antigos: bool = False) -> list[dict]:
         hoje = mvmod.HOJE().isoformat()
         out = []
-        for r in self.mv.db.execute("SELECT * FROM mv_aprovacao ORDER BY prazo, ordem"):
+        filtro = "estado IN ('aprovado','ajustar','reprovado')" if antigos else "estado NOT IN ('aprovado','ajustar','reprovado')"
+        for r in self.mv.db.execute(f"SELECT * FROM mv_aprovacao WHERE {filtro} ORDER BY prazo, ordem"):
             d = dict(r)
             d["atrasada"] = d["estado"] in ("pendente", "ajustar") and bool(d["prazo"]) and d["prazo"] < hoje
             out.append(d)
@@ -303,10 +340,23 @@ class Comandos:
             raise ErroMV("estado inválido (pendente, aprovado, ajustar, reprovado)")
         if not self.mv.db.execute("SELECT 1 FROM mv_aprovacao WHERE id=?", (iid,)).fetchone():
             raise ErroMV("item não encontrado")
+        ant = self.mv.db.execute("SELECT item, estado, onde FROM mv_aprovacao WHERE id=?", (iid,)).fetchone()
         self.mv.db.execute("UPDATE mv_aprovacao SET estado=?, nota=?, decidido=? WHERE id=?",
                            (estado, str(nota or "")[:2000], time.time() if estado != "pendente" else None, iid))
         self.mv.db.commit()
+        if estado in ("aprovado", "ajustar") and ant["estado"] != estado:
+            self._tarefa_da_decisao(iid, ant["item"], estado, nota, ant["onde"])
         return dict(self.mv.db.execute("SELECT * FROM mv_aprovacao WHERE id=?", (iid,)).fetchone())
+
+
+def mover_para_antigos(arq: Path) -> Path:
+    """Reprovado/descartado: o arquivo vai para antigos/ na mesma pasta (nada é apagado; nome repetido ganha data)."""
+    destino = arq.parent / "antigos" / arq.name
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    if destino.exists():
+        destino = destino.with_name(f"{arq.stem}-{time.strftime('%Y%m%d-%H%M%S')}{arq.suffix}")
+    arq.replace(destino)
+    return destino
 
 
 # ------------------------------------------------------------------ perguntas e decisões centralizadas (20/11/2026)

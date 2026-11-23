@@ -1,6 +1,8 @@
 import json, sys
-JS = r"C:\physis\physis-sistema\sistema\physis-avac.js"
-CASOS = r"C:\physis\physis-sistema\sistema\physis-avac-casos.json"
+from pathlib import Path
+RAIZ = Path(__file__).resolve().parents[2]          # pasta do sistema, onde quer que esteja
+JS = str(RAIZ / "sistema" / "physis-avac.js")
+CASOS = str(RAIZ / "sistema" / "physis-avac-casos.json")
 OUT = sys.argv[1]
 casos = open(CASOS, encoding="utf-8").read()
 json.loads(casos)
@@ -17,7 +19,7 @@ const calcLer = k => MEM[k] ? JSON.parse(JSON.stringify(MEM[k])) : {};
 const calcGravar = (k, v) => { MEM[k] = JSON.parse(JSON.stringify(v)); };
 function desenhar(){ const t = el("tela"); if (t) t.innerHTML = telaAvac() + telaQuadroEletrico(); }
 </script>
-<script src="file:///C:/physis/physis-sistema/sistema/physis-avac.js"></script>
+<script src="__URL_AVAC__"></script>
 </head><body><h2>Teste de window.AVAC.calcular</h2><pre id="saida">rodando…</pre><div id="tela" hidden></div>
 <script>
 const CASOS = __CASOS__;
@@ -56,5 +58,5 @@ linhas.push("\nTOTAL: " + ok + " ok, " + falha + " falhas");
 document.getElementById("saida").textContent = linhas.join("\n");
 document.title = falha ? "FALHOU" : "PASSOU";
 </script></body></html>"""
-open(OUT, "w", encoding="utf-8").write(html.replace("__CASOS__", casos))
+open(OUT, "w", encoding="utf-8").write(html.replace("__CASOS__", casos).replace("__URL_AVAC__", Path(JS).as_uri()))
 print("ok", OUT)

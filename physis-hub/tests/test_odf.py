@@ -345,7 +345,7 @@ class TestJSEspelho(unittest.TestCase):
         for dados, mime in ((odt_b, D.MIME_ODT), (ods_b, D.MIME_ODS)):
             t = EstruturaPacote()
             t.mime = mime
-            for nome in ("assertEqual", "assertIsNone", "assertTrue"):
+            for nome in ("assertEqual", "assertIsNone", "assertTrue", "assertIn"):
                 setattr(t, nome, getattr(self, nome))
             t.conferir_pacote(dados)
         c = ET.fromstring(abrir(ods_b).read("content.xml"))

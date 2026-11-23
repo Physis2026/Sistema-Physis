@@ -7,8 +7,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from ler_xlsx import abrir, linhas  # noqa: E402
 
-B = Path(r"C:\Users\rafae\OneDrive - Physis Engineering\Documents\Sistema Physis\Modulos em desenvolvimento")
-SAIDA = Path(r"C:\physis\physis-sistema\sistema\physis-plantas.json")
+import os  # noqa: E402
+B = Path(os.environ.get("PHYSIS_DOCS") or (Path.home() / "OneDrive - Physis Engineering" / "Documents")) / "Sistema Physis" / "Modulos em desenvolvimento"
+SAIDA = Path(__file__).resolve().parents[1] / "sistema" / "physis-plantas.json"
 FUNCOES = [("ar", "I", "Filtra o ar"), ("agua", "J", "Filtra a água"), ("solo", "K", "Recupera e filtra o solo"),
            ("barranco", "L", "Segura barranco"), ("nitrogenio", "M", "Fixa nitrogênio"), ("biomassa", "N", "Biomassa para composto e biogás"),
            ("polinizadores", "O", "Atrai polinizadores e abelhas"), ("alimento", "P", "Alimento para pessoas"), ("animais", "Q", "Alimento para animais"),

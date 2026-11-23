@@ -323,7 +323,7 @@ _PX_RODAPE = r"""<footer><div class="px-in">
 <li><a href="/loja/" data-pt="">Loja</a></li><li><a href="/consultoria/" data-pt="">Consultoria</a></li><li><a href="/demo/" data-pt="">Demonstração</a></li></ul></nav>
 <nav aria-label="Documentos da Physis" data-pt-aria="Documentos da Physis"><ul>
 <li><a href="/termos" data-pt="">Termos de uso</a></li><li><a href="/privacidade" data-pt="">Política de privacidade</a></li><li><a href="/acessibilidade" data-pt="">Acessibilidade</a></li></ul></nav>
-<p>Physis Engineering · Petrópolis/RJ</p>
+<p>Physis Engineering Ltda.</p>
 </div></footer>
 """
 
@@ -2821,6 +2821,8 @@ def main() -> None:
     # indicadores da plataforma (D18): coleta a cada 5 min no próprio laço do hub (sem cron, sem Agendador do Windows)
     if getattr(hub, "indicadores", None) is not None:
         threading.Thread(target=rodar_diario, args=(hub.indicadores.tarefa_periodica, parar, 300.0, 60.0), daemon=True).start()
+    # 0.0.0.0 é "todas as placas de rede": serve para ligar, não para abrir no navegador (23/11/2026)
+    print(f"Physis Hub: abra http://127.0.0.1:{porta}/ neste computador" + (f" (escutando em {endereco})" if endereco not in ("127.0.0.1", "localhost") else ""))
     print(f"Physis Hub em http://{endereco}:{porta}  receptor={rx or 'nao configurado'}  simulador={sim or 'desligado'}")
     if not inst.get("login"):
         print("Aviso: instalação sem login. Telemetria aberta só para a rede local; de fora, tudo pede sessão (docs/SEGURANCA.md).")

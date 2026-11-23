@@ -915,7 +915,7 @@ const MATS = tipo => Object.keys(DADOS.materiais).filter(k => k[0] !== "_" && DA
 const TIPOS_SUP = [["parede", "Parede externa"], ["cobertura", "Cobertura"], ["vidro", "Vidro / janela"], ["adjacente", "Divisa com ambiente sem ar"], ["piso_exterior", "Piso sobre área aberta"], ["piso_solo", "Piso sobre o solo"]];
 const ORI = [["N", "Norte"], ["NE", "Nordeste"], ["L", "Leste"], ["SE", "Sudeste"], ["S", "Sul"], ["SO", "Sudoeste"], ["O", "Oeste"], ["NO", "Noroeste"], ["H", "Horizontal (claraboia)"]];
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-const CORES_SVG = ["#33512F", "#7FA874", "#B9CDB3", "#B07A10", "#3D6E8F", "#7FA9C4", "#A85432", "#8A8270"];
+const CORES_SVG = ["#33512F", "#7FA874", "#B9CDB3", "#B07A10", "#546A7B", "#8FB183", "#A85432", "#8A8270"];
 
 function grafico(grupos) { const tot = grupos.reduce((s, g) => s + Math.max(g.W, 0), 0); if (!(tot > 0)) return "";
   const larg = 640, alt = 28 * grupos.length + 16, maxW = Math.max.apply(null, grupos.map(g => Math.max(g.W, 0))) || 1, x0 = 250;

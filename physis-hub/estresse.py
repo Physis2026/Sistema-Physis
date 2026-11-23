@@ -54,6 +54,8 @@ def main() -> int:
     pasta = tempfile.mkdtemp(prefix="physis-estresse-")
     banco = os.path.join(pasta, "hub.db")
     hub = Hub(banco, org="org-teste", lugar="estresse")
+    # o limitador por IP (seguranca.Limites) barraria o volume do teste; aqui o alvo é o hub, não o limitador
+    os.environ.setdefault("PHYSIS_LIMITE_DISPOSITIVO", "1000000/60")
     srv = iniciar(hub, a.porta, endereco="127.0.0.1")
     rng = random.Random(11)
 

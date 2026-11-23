@@ -27,3 +27,12 @@ dados/
 # cópias temporárias da conferência do SustainKit
 sistema/_sk_*.html
 sistema/desenvolvimento-dados.js
+
+# registro do instalador de um clique
+instalar-physis.log
+# pacotes montados (montar.py): ficam fora do Git (CLAUDE.md)
+pacotes/
+
+*.db-wal
+*.db-shm
+*.db-journal

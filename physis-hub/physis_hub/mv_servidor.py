@@ -21,6 +21,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from . import mv_integracoes  # noqa: E402
 from . import documentos
 from . import mv_bots
 from . import mv_arquivos
@@ -30,6 +31,16 @@ from .mv import ESTADOS, FRENTES, MV, NOMES_ESTADO, ErroMV
 
 WEB = Path(__file__).resolve().parents[1] / "web"
 VENDOR = Path(__file__).resolve().parents[2] / "vendor"
+_IA = {}
+
+
+def _ia():
+    from .ia_physis import IAPhysis
+    if "m" not in _IA:
+        _IA["m"] = IAPhysis()
+    return _IA["m"]
+
+
 VENDOR_OK = {"three.min.js", "jszip.min.js"}       # bibliotecas abertas guardadas localmente (sem internet)
 PORTA = int(os.environ.get("PHYSIS_MV_PORTA") or 8710)
 CORPO_MAX = 256 * 1024
@@ -167,6 +178,7 @@ def fabricar(mv: MV):
             if nome:
                 self.send_header("Content-Disposition", f'attachment; filename="{nome}"')
             else:
+                self.send_header("Cache-Control", "no-cache")      # tela atualizada aparece sem Ctrl+F5 (23/11/2026)
                 self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; "
                                  "script-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
             self.end_headers()
@@ -212,11 +224,13 @@ def fabricar(mv: MV):
                                                       "estados": [{"id": e, "nome": NOMES_ESTADO[e]} for e in ESTADOS],
                                                       "etapas": [{"id": e, "nome": mv_editais.NOMES_ETAPA[e]} for e in mv_editais.ETAPAS]},
                              "/api/mv/editais": lambda: ed.listar(),
+                             "/api/mv/ia": lambda: _ia().perguntar(q.get("q", "")),            # IA Physis (só documentos da Physis)
+                             "/api/mv/integracoes": lambda: mv_integracoes.estado(mv),         # mapa da aba Monitoramento
                              "/api/mv/arquivos": lambda: arq.listar(q.get("destino") or None, q.get("ref") or None),
                              "/api/mv/arquivo/previa": lambda: arq.previa(q.get("id", "")),
                              "/api/mv/fila": lambda: cmd.fila(q.get("estado") or None),
                              "/api/mv/programados": lambda: cmd.programados(),
-                             "/api/mv/aprovacoes": lambda: cmd.aprovacoes(),
+                             "/api/mv/aprovacoes": lambda: cmd.aprovacoes(antigos=q.get("antigos") == "1"),
                              "/api/mv/desenvolvimento": lambda: __import__("physis_hub.mv_desenvolvimento", fromlist=["dados"]).dados(mv),
                              "/api/mv/perguntas": lambda: mv_comandos.perguntas(mv, None if q.get("abertas") is None else q.get("abertas") == "1",
                                                                                  q.get("sistema") or None),
@@ -281,9 +295,7 @@ def fabricar(mv: MV):
                     if p == "/api/mv/nota":
                         return self._json(200, cli.pedir_nota(int(corpo.get("id"))))
                     if p == "/api/mv/alerta/resolver":
-                        mv.db.execute("UPDATE mv_alerta SET resolvido=strftime('%s','now') WHERE id=?", (str(corpo.get("id")),))
-                        mv.db.commit()
-                        return self._json(200, {"ok": True})
+                        return self._json(200, mv.resolver_alerta(str(corpo.get("id"))))
                     if p == "/api/mv/arquivo/enviar":
                         return self._json(200, arq.enviar(str(corpo.get("destino")), str(corpo.get("nome") or ""),
                                                           str(corpo.get("conteudo") or ""), str(corpo.get("ref") or "")))
@@ -308,6 +320,16 @@ def fabricar(mv: MV):
                     if p == "/api/mv/pergunta/responder":
                         return self._json(200, mv_comandos.responder(mv, str(corpo.get("id")), str(corpo.get("resposta") or ""),
                                                                      str(corpo.get("nota") or "")))
+                    if p == "/api/mv/tarefa/encaminhar":
+                        t = mv.tarefa(str(corpo.get("id")))
+                        if not t:
+                            raise ErroMV("tarefa não encontrada")
+                        nome = str(corpo.get("responsavel") or "").strip()[:120]
+                        if not nome:
+                            raise ErroMV("diga para quem encaminhar")
+                        mv.db.execute("UPDATE mv_tarefa SET responsavel=? WHERE id=?", (nome, t["id"]))
+                        mv.db.commit()
+                        return self._json(200, mv.tarefa(t["id"]))
                     if p == "/api/mv/aprovacao":
                         return self._json(200, cmd.decidir(str(corpo.get("id")), str(corpo.get("estado")), str(corpo.get("nota") or "")))
                 if p == "/api/mv/bots/rodar":

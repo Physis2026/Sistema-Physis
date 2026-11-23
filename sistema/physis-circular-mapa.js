@@ -20,8 +20,8 @@ const CAT = {
   aterro:["Aterro (sanitário ou não informado)", "#7A2214", "quad"], aterro_controlado:["Aterro controlado", "#A85432", "quad"],
   lixao:["Lixão (vazadouro a céu aberto)", "#2A1215", "cruz"], transbordo:["Estação de transbordo", "#8A6410", "quad"],
   cooperativa:["Cooperativa ou associação de catadores", "#1F4A1C", "circ"], reciclagem:["Centro de reciclagem ou triagem", "#4B7547", "circ"],
-  ecoponto:["Ecoponto", "#3D6E8F", "diam"], pev:["Ponto de entrega voluntária (PEV)", "#2C5A6E", "circ"], sucata:["Ferro-velho ou sucata", "#546A7B", "diam"],
-  compostagem:["Compostagem", "#8A6A1F", "tri"], rcc:["Resíduos da construção (RCC, ATT)", "#5F6659", "diam"], ete:["Estação de tratamento de esgoto", "#1C3550", "tri"] };
+  ecoponto:["Ecoponto", "#546A7B", "diam"], pev:["Ponto de entrega voluntária (PEV)", "#2F5E4E", "circ"], sucata:["Ferro-velho ou sucata", "#546A7B", "diam"],
+  compostagem:["Compostagem", "#8A6A1F", "tri"], rcc:["Resíduos da construção (RCC, ATT)", "#5F6659", "diam"], ete:["Estação de tratamento de esgoto", "#3D2A5C", "tri"] };
 /* destino do plano -> categorias que recebem (espelho de residuos_gis.CATEGORIAS_POR_DESTINO) */
 const POR_DESTINO = { reciclagem:["cooperativa", "reciclagem", "ecoponto", "sucata", "pev"], reversa:["ecoponto", "pev", "reciclagem"],
   compostagem:["compostagem"], aterro2:["aterro", "aterro_controlado", "transbordo"] };
@@ -210,7 +210,7 @@ async function montarFundo(d, pontos) { const div = el("rcm-ml"), aviso = el("rc
     const gj = { type:"FeatureCollection", features:pontos.map(p => ({ type:"Feature", properties:{ nome:p.nome || "", cor:(CAT[p.categoria] || [0, "#4A4F44"])[1] }, geometry:{ type:"Point", coordinates:[p.lon, p.lat] } })) };
     const fontes = { pts:{ type:"geojson", data:gj }, lugar:{ type:"geojson", data:{ type:"Feature", properties:{}, geometry:{ type:"Point", coordinates:[d.lon, d.lat] } } } };
     const camadas = [{ id:"fundo", type:"background", paint:{ "background-color":"#EEF2EA" } }];
-    if (fundo) { fontes.osm = { type:"vector", url:"pmtiles:///mapas/regiao.pmtiles" }; camadas.push({ id:"agua", type:"fill", source:"osm", "source-layer":"water", paint:{ "fill-color":"#B8D0E0" } }, { id:"vias", type:"line", source:"osm", "source-layer":"roads", paint:{ "line-color":"#C9B98F", "line-width":1 } }); }
+    if (fundo) { fontes.osm = { type:"vector", url:"pmtiles:///mapas/regiao.pmtiles" }; camadas.push({ id:"agua", type:"fill", source:"osm", "source-layer":"water", paint:{ "fill-color":"#C3D0BD" } }, { id:"vias", type:"line", source:"osm", "source-layer":"roads", paint:{ "line-color":"#C9B98F", "line-width":1 } }); }
     camadas.push({ id:"pts", type:"circle", source:"pts", paint:{ "circle-radius":6, "circle-color":["get", "cor"], "circle-stroke-color":"#FFFFFF", "circle-stroke-width":1.5 } },
       { id:"lugar", type:"circle", source:"lugar", paint:{ "circle-radius":8, "circle-color":"#FFFFFF", "circle-stroke-color":"#33512F", "circle-stroke-width":3 } });
     const kx = (d.raio_km || 20) / (111.32 * Math.cos(d.lat * Math.PI / 180)), ky = (d.raio_km || 20) / 110.574;

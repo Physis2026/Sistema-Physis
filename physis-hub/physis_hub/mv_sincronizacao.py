@@ -16,9 +16,17 @@ from pathlib import Path
 
 from .mv import MV
 
-BASE = Path("C:/physis")
-REPOS = {"Sistema Physis (oficial)": BASE / "physis-sistema", "Sistema Physis (teste)": BASE / "physis-teste",
-         "Instituto Physis": BASE / "instituto-physis", "InovaSTEM (ramo inovastem)": BASE / "instituto-physis-inovastem"}
+import json
+import os
+
+# O "oficial" é o repositório onde este código está rodando (ex.: C:\physis\physis-ma-20261122-1bd599e); os outros ficam
+# ao lado dele (C:\physis\...). PHYSIS_SINCRO_REPOS (JSON {"nome": "pasta"}) substitui a lista toda (23/11/2026).
+OFICIAL = Path(__file__).resolve().parents[2]
+BASE = OFICIAL.parent
+REPOS = json.loads(os.environ["PHYSIS_SINCRO_REPOS"]) if os.environ.get("PHYSIS_SINCRO_REPOS") else {
+    "Sistema Physis (oficial)": OFICIAL, "Sistema Physis (teste)": BASE / "physis-teste",
+    "Instituto Physis": BASE / "instituto-physis", "InovaSTEM (ramo inovastem)": BASE / "instituto-physis-inovastem"}
+REPOS = {k: Path(v) for k, v in REPOS.items()}
 ORIGINAIS = ["sistema/physis-preferencias.js", "sistema/physis-desenvolvimento.js", "sistema/physis-modelador.js",
              "sistema/physis-explica.js", "sistema/explica-inovastem.js"]
 TESTES = ["tests.test_preferencias", "tests.test_preferencias_paginas", "tests.test_mv_traducao", "tests.test_bases", "tests.test_inovastem"]
@@ -118,9 +126,19 @@ def rodar(mv: MV, aplicar: bool = True) -> dict:
         ok, txt = _testes(repo)
         if ok:
             _git(repo, "add", "-A")
-            _git(repo, "commit", "-q", "-m", "Sincronização automática (M&A): originais compartilhados e cópias nas páginas\n\n"
-                 + "\n".join(f"- {c} (fonte: {res['originais'][c]['fonte']})" for c in trocados) + f"\n\nTestes: {txt}")
-            res["repos"][nome] = f"atualizado e testado ({len(mudou.splitlines())} arquivo(s)); {txt}"
+            msg = ("Sincronização automática (M&A): originais compartilhados e cópias nas páginas\n\n"
+                   + "\n".join(f"- {c} (fonte: {res['originais'][c]['fonte']})" for c in trocados) + f"\n\nTestes: {txt}")
+            # Sem nome/e-mail no Git (ex.: tarefa agendada em outra conta), o commit falhava em silêncio e o repositório ficava
+            # "pulado" para sempre. Usa uma identidade do bot SÓ neste commit e confere o resultado (23/11/2026).
+            ident = [] if _git(repo, "config", "user.email").stdout.strip() else ["-c", "user.name=Physis M&A (sincronização)", "-c", "user.email=ma@physis.local"]
+            c = subprocess.run(["git", *ident, "-C", str(repo), "commit", "-q", "-m", msg], capture_output=True, timeout=120)
+            if c.returncode != 0:
+                res["repos"][nome] = f"ATENÇÃO: testado, mas o commit falhou ({c.stderr.decode(errors='replace').strip()[:160]})"
+                mv.alertar("sincronizacao", "commit_falhou", nome, "alerta", f"{nome}: sincronização testada, mas o commit falhou",
+                           f"Abrir {repo} e rodar git status; configurar git config user.name/user.email")
+                res["alertas"] += 1
+                continue
+            res["repos"][nome] = f"atualizado, testado e com commit ({len(mudou.splitlines())} arquivo(s)); {txt}"
         else:
             _git(repo, "checkout", "--", ".")
             _git(repo, "clean", "-fdq", "--", *trocados) if trocados else None

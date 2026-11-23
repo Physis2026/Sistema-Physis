@@ -69,9 +69,12 @@ function invest(custo, ganhoMes, vida, taxa, infl) {
 /* Espelho de vento.eolica. Parâmetros numéricos; veja vento.py para a lista. */
 function eolica(p) { p = p || {}; const g = (k, d) => (p[k] == null || p[k] === "" || (typeof p[k] === "number" && !isFinite(p[k]))) ? d : p[k], avisos = [];
   const rho = densidadeAr(g("altitude", 0), g("temperatura", 25));
-  let alfa = g("alfa", null); if (alfa == null) alfa = (ALFA_TERRENO[g("terreno", "aberto")] || ALFA_TERRENO.aberto)[0];
+  let alfa = g("alfa", null); if (alfa == null) { if (!ALFA_TERRENO[g("terreno", "aberto")]) avisos.push('Terreno não reconhecido: usado "aberto" (α 0,15)'); alfa = (ALFA_TERRENO[g("terreno", "aberto")] || ALFA_TERRENO.aberto)[0]; }
+  if (alfa >= 0.30 && (g("v_ref", 0) || 0) > 0) avisos.push("Terreno rugoso (α ≥ 0,30): o vento de referência precisa ser medido no próprio local; dado de estação em campo aberto superestima a energia");
   const hRef = g("h_ref", 10), h = g("altura_cubo", 12), cpIn = g("cp", 0.30);
   if (cpIn > BETZ) avisos.push("Cp acima do limite de Betz (0,593): usado 0,593");
+  if (cpIn <= 0 && !p.curva) avisos.push("Cp zero ou negativo: a turbina não gera energia");
+  if ((g("diametro", 0) || 0) <= 0 && !p.curva) avisos.push("Diâmetro do rotor não informado ou zero: energia zero");
   const t = turbinaEolica(g("diametro", 0), cpIn, g("v_in", 0), g("v_nom", null), g("v_out", null), g("p_nom", null), rho), cf = curvaFabricante(p.curva);
   if (cf) { t.curva = cf; t.p_nom = Math.max(...cf.map(x => x[1])); }
   const k = g("k", 2) || 2, vRef = g("v_ref", 0) || 0, vCubo = vRef > 0 ? cisalhamento(vRef, hRef, h, alfa) : 0, perdas = Math.max(0, Math.min(g("perdas", 0), 100)) / 100;
@@ -86,10 +89,12 @@ function eolica(p) { p = p || {}; const g = (k, d) => (p[k] == null || p[k] === 
     : vCubo < 5 ? ["marginal", "Marginal: entre 4 e 5 m/s; só com medição no local e custo baixo"]
     : ["viavel", "Viável a confirmar: 5 m/s ou mais na altura do cubo; confirmar com medição no local"];
   if (fc != null && fc < 0.10 && viab[0] === "viavel") viab = ["marginal", "Marginal: fator de capacidade abaixo de 10%"];
+  const inv = (g("custo", 0) && g("tarifa", 0) && aep > 0) ? invest(g("custo", 0), aep / 12 * g("tarifa", 0), g("vida", 20), g("taxa", 10), g("infl", 4)) : null;
+  if (inv && inv.vpl != null && inv.vpl < 0 && viab[0] === "viavel") viab = ["marginal", "Marginal: há vento, mas o investimento não se paga (VPL negativo) nas premissas informadas"];
   const vmax = Math.max(26, Math.ceil((t.v_out || 25) + 1)), curva = [];
   for (let v = 0; v <= vmax; v++) curva.push({ v, kw:potenciaVento(v, t), horas:c > 0 ? (weibullCdf(v + 0.5, k, c) - weibullCdf(Math.max(0, v - 0.5), k, c)) * 8760 : 0 });
   return { rho, alfa, v_cubo:vCubo, k, c, area:t.area, cp:t.cp, p_nom:t.p_nom, aep_kwh:aep, fc, meses, curva, curva_fabricante:!!cf, viabilidade:viab[0], mensagem:viab[1],
-    invest:(g("custo", 0) && g("tarifa", 0) && aep > 0) ? invest(g("custo", 0), aep / 12 * g("tarifa", 0), g("vida", 20), g("taxa", 10), g("infl", 4)) : null, avisos }; }
+    invest:inv, avisos }; }
 
 /* ════════ Contas da água ════════ */
 const potenciaHidraulica = (q, h, eta) => 1000 * G * (q / 3600) * h * eta / 1000;   /* kW, Q em m³/h */

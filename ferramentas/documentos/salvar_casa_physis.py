@@ -28,8 +28,8 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[2]
-DOCS_PHYSIS = Path(os.environ.get("PHYSIS_DOCS", r"C:\Users\rafae\OneDrive - Physis Engineering\Documents\Sistema Physis"))
-CASA = Path(os.environ.get("PHYSIS_CASA", r"C:\Users\rafae\OneDrive - Physis Engineering\Documents\Casa Physis"))
+DOCS_PHYSIS = Path(os.environ.get("PHYSIS_DOCS", str(Path.home() / "OneDrive - Physis Engineering" / "Documents" / 'Sistema Physis')))
+CASA = Path(os.environ.get("PHYSIS_CASA", str(Path.home() / "OneDrive - Physis Engineering" / "Documents" / 'Casa Physis')))
 DESTINO = Path(os.environ.get("PHYSIS_CASA_VERSOES", str(CASA / "2_Desenvolvimento_Physis_Engineering" / "Sistema_Physis_versoes")))
 TAREFAS_PHYSIS = DOCS_PHYSIS / "18_Checklist_para_importar_na_Gestao.json"
 TAREFAS_INSTITUTO = CASA / "3_Instituto_Physis" / "Separado_do_Sistema_Physis_2026-11-18" / "codigo_extraido" / "gestao-tarefas-do-instituto.json"

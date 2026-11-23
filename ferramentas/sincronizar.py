@@ -40,6 +40,7 @@ ALVOS = [
     RAIZ / "physis-hub" / "web" / "municipio.html",
     RAIZ / "app-nativo" / "site" / "baixar.html",
     RAIZ / "modulos" / "modelagem3d" / "modelagem-3d.html",  # módulo de modelagem 3D (22/11/2026): ferramentas que saíram do M&A
+    RAIZ / "physis-hub" / "web" / "mv.html",   # Physis M&A: a barra também tem de ser idêntica (bot páginas, 22/11/2026)
 ]
 # A "Tela do cliente" (sistema/physis-tela-cliente.html) saiu em 15/11/2026: tudo o que ela fazia está nas abas da plataforma.
 PLATAFORMA = RAIZ / "physis-hub" / "web" / "painel.html"

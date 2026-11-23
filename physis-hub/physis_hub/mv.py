@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS mv_alerta (
   id TEXT PRIMARY KEY, bot TEXT NOT NULL, tipo TEXT NOT NULL, ref TEXT NOT NULL DEFAULT '', frente TEXT NOT NULL DEFAULT '',
   gravidade TEXT NOT NULL, texto TEXT NOT NULL, acao TEXT NOT NULL DEFAULT '', criado REAL NOT NULL, visto REAL NOT NULL,
   resolvido REAL);
+CREATE TABLE IF NOT EXISTS mv_alerta_dispensa (id TEXT PRIMARY KEY, ate REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS mv_lanc (
   id INTEGER PRIMARY KEY AUTOINCREMENT, entidade TEXT NOT NULL, data TEXT NOT NULL, tipo TEXT NOT NULL,
   valor REAL NOT NULL, descricao TEXT NOT NULL DEFAULT '', projeto TEXT NOT NULL DEFAULT '', fonte TEXT NOT NULL DEFAULT '',
@@ -82,7 +83,8 @@ _DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def pasta_padrao() -> Path:
-    """Banco fora do OneDrive (sincronização corrompe SQLite): PHYSIS_MV_DADOS ou C:/physis/dados."""
+    """Banco fora do OneDrive (sincronização corrompe SQLite): PHYSIS_MV_DADOS ou a pasta "dados" ao lado do sistema
+    (C:\physis\dados quando o sistema está em C:\physis\<pasta da versão>): todas as versões usam o mesmo banco."""
     p = Path(os.environ.get("PHYSIS_MV_DADOS") or (Path(__file__).resolve().parents[3] / "dados"))
     p.mkdir(parents=True, exist_ok=True)
     return p
@@ -99,7 +101,14 @@ class ErroMV(ValueError):
 class MV:
     def __init__(self, caminho: str | Path | None = None):
         self.caminho = str(caminho or (pasta_padrao() / "physis-mv.db"))
-        self.db = sqlite3.connect(self.caminho, check_same_thread=False)
+        # 30 s de espera e WAL: com os bots gravando, um clique na tela (resolver, aprovar) esperava 5 s e falhava com
+        # "database is locked" sem aviso (23/11/2026). WAL deixa a tela ler enquanto um bot grava.
+        self.db = sqlite3.connect(self.caminho, check_same_thread=False, timeout=30)
+        if self.caminho != ":memory:":
+            try:
+                self.db.execute("PRAGMA journal_mode=WAL")
+            except sqlite3.DatabaseError:
+                pass
         self.db.row_factory = sqlite3.Row
         self.db.executescript(ESQUEMA)
         for fid, nome, desc in FRENTES:
@@ -402,13 +411,26 @@ class MV:
         agora = max(time.time(), self._marca)
         ant = self.db.execute("SELECT id FROM mv_alerta WHERE id=?", (aid,)).fetchone()
         if ant:
-            self.db.execute("UPDATE mv_alerta SET texto=?, acao=?, gravidade=?, visto=?, resolvido=NULL WHERE id=?",
+            # resolvido à mão na tela fica resolvido durante a dispensa (antes o bot reabria na rodada seguinte; 23/11/2026)
+            dispensado = self.db.execute("SELECT 1 FROM mv_alerta_dispensa WHERE id=? AND ate>?", (aid, agora)).fetchone()
+            self.db.execute("UPDATE mv_alerta SET texto=?, acao=?, gravidade=?, visto=?" + ("" if dispensado else ", resolvido=NULL") + " WHERE id=?",
                             (texto, acao, gravidade, agora, aid))
         else:
-            self.db.execute("INSERT INTO mv_alerta VALUES (?,?,?,?,?,?,?,?,?,?,NULL)",
+            self.db.execute("INSERT INTO mv_alerta (id, bot, tipo, ref, frente, gravidade, texto, acao, criado, visto, resolvido) "
+                            "VALUES (?,?,?,?,?,?,?,?,?,?,NULL)",   # colunas nomeadas: banco com colunas a mais (outra versão) não quebra
                             (aid, bot, tipo, ref, frente, gravidade, texto, acao, agora, agora))
         self.db.commit()
         return aid
+
+    DISPENSA_DIAS = 7
+
+    def resolver_alerta(self, aid: str, dias: int | None = None) -> dict:
+        """Resolvido por uma pessoa: some da lista e o bot não reabre por DISPENSA_DIAS (depois, se o problema continuar, volta)."""
+        agora = time.time()
+        self.db.execute("UPDATE mv_alerta SET resolvido=? WHERE id=?", (agora, aid))
+        self.db.execute("INSERT OR REPLACE INTO mv_alerta_dispensa (id, ate) VALUES (?, ?)", (aid, agora + 86400 * (dias or self.DISPENSA_DIAS)))
+        self.db.commit()
+        return {"ok": True, "dispensado_dias": dias or self.DISPENSA_DIAS}
 
     def fechar_alertas_nao_vistos(self, bot: str, desde: float) -> int:
         """Alertas do bot que não reapareceram nesta rodada foram resolvidos."""

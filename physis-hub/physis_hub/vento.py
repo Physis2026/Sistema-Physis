@@ -197,11 +197,19 @@ def eolica(p: dict) -> dict:
     rho = densidade_ar(g("altitude", 0.0), g("temperatura", 25.0))
     alfa = g("alfa")
     if alfa is None:
+        if g("terreno", "aberto") not in ALFA_TERRENO:
+            avisos.append('Terreno não reconhecido: usado "aberto" (α 0,15)')
         alfa = ALFA_TERRENO.get(g("terreno", "aberto"), ALFA_TERRENO["aberto"])[0]
+    if alfa >= 0.30 and (g("v_ref", 0.0) or 0.0) > 0:
+        avisos.append("Terreno rugoso (α ≥ 0,30): o vento de referência precisa ser medido no próprio local; dado de estação em campo aberto superestima a energia")
     h_ref, h = g("h_ref", 10.0), g("altura_cubo", 12.0)
     cp_in = g("cp", 0.30)
     if cp_in > BETZ:
         avisos.append("Cp acima do limite de Betz (0,593): usado 0,593")
+    if cp_in <= 0 and not p.get("curva"):
+        avisos.append("Cp zero ou negativo: a turbina não gera energia")
+    if (g("diametro", 0.0) or 0.0) <= 0 and not p.get("curva"):
+        avisos.append("Diâmetro do rotor não informado ou zero: energia zero")
     t = turbina_eolica(g("diametro", 0.0), cp_in, g("v_in", 0.0), g("v_nom"), g("v_out"), g("p_nom"), rho)
     cf = curva_fabricante(p.get("curva"))
     if cf:
@@ -232,6 +240,8 @@ def eolica(p: dict) -> dict:
     inv = None
     if g("custo") and g("tarifa") and aep > 0:
         inv = analise(g("custo"), aep / 12 * g("tarifa"), g("vida", 20), g("taxa", 10), g("infl", 4))
+    if inv and inv.get("vpl") is not None and inv["vpl"] < 0 and viab[0] == "viavel":
+        viab = ("marginal", "Marginal: há vento, mas o investimento não se paga (VPL negativo) nas premissas informadas")
     return {"rho": rho, "alfa": alfa, "v_cubo": v_cubo, "k": k, "c": c, "area": t["area"], "cp": t["cp"],
             "p_nom": t["p_nom"], "aep_kwh": aep, "fc": fc, "meses": meses, "viabilidade": viab[0], "mensagem": viab[1],
             "invest": inv, "avisos": avisos, "curva_fabricante": bool(cf)}

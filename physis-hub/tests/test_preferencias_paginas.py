@@ -165,7 +165,7 @@ class TemaEscuro(unittest.TestCase):
                  ("--det-t", "--det-f"), ("--sup", "--acao"), ("--al-t", "--sup"), ("--tinta", "--tinte")]
         for a, b in pares:
             self.assertGreaterEqual(contraste(v[a], v[b]), 4.5, f"painel {a} sobre {b}")
-        comum = {"--px-tinta": "#EEF2EA", "--px-fraca": "#D9D3C2", "--px-acao": "#B9CDB3", "--px-alerta": "#FF8A80", "--px-atencao": "#C9A227", "--px-info": "#7FA9C4"}
+        comum = {"--px-tinta": "#EEF2EA", "--px-fraca": "#D9D3C2", "--px-acao": "#B9CDB3", "--px-alerta": "#FF8A80", "--px-atencao": "#C9A227", "--px-info": "#8FB183"}  # guia de 19/11/2026: sem azul (era #7FA9C4)
         for arq in SISTEMA.values():
             vs = variaveis(estilo_tema("x", ler(arq)))
             for k, cor in comum.items():

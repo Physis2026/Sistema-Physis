@@ -55,7 +55,7 @@ def _tarefas_do(mv: MV, cfg: dict) -> list[dict]:
 
 
 def _regressao(mv: MV) -> dict:
-    r = mv.db.execute("SELECT inicio, resumo, erro FROM mv_execucao WHERE bot='regressao' ORDER BY inicio DESC LIMIT 1").fetchone()
+    r = mv.db.execute("SELECT inicio, resumo, erro FROM mv_execucao WHERE bot='regressao' ORDER BY inicio DESC, id DESC LIMIT 1").fetchone()
     if not r:
         return {"quando": "", "resultado": "sem registro"}
     txt = str(r["erro"] or r["resumo"] or "")
@@ -64,6 +64,8 @@ def _regressao(mv: MV) -> dict:
 
 def dados(mv: MV) -> dict:
     hoje = date.today().isoformat()
+    from . import mv_comandos
+    mv_comandos._garantir(mv)          # banco novo: cria as tabelas de aprovação antes de ler (22/11/2026)
     aprov = {a["id"]: a for a in mv.db.execute("SELECT id, item, estado, prazo FROM mv_aprovacao").fetchall()}
     reg = _regressao(mv)
     mods = {}

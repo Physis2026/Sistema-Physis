@@ -1,6 +1,7 @@
 """Sincroniza a semente embutida da Gestão ($y e as pessoas Fy) com sistema/gestao-fase2-tarefas.json."""
 import json, re, io
-R = "C:/physis/physis-sistema/sistema/"
+from pathlib import Path
+R = str(Path(__file__).resolve().parents[2] / "sistema") + "/"     # pasta do sistema, onde quer que esteja
 G = R + "gestao-interna-physis.html"
 g = io.open(G, encoding="utf-8", newline="").read()
 pk = json.load(io.open(R + "gestao-fase2-tarefas.json", encoding="utf-8"))

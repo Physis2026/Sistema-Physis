@@ -36,7 +36,7 @@ PAGINAS = [  # (caminho relativo, tipo)
 ]
 INOVASTEM = re.compile(r"inovastem", re.I)
 # sistema do Instituto (outro repositório): as mesmas regras, e a barra tem de ser IDÊNTICA à original da Physis (dona, 20/11/2026)
-INSTITUTO = Path(os.environ.get("PHYSIS_RAIZ_INSTITUTO") or r"C:\physis\instituto-physis")
+INSTITUTO = Path(os.environ.get("PHYSIS_RAIZ_INSTITUTO") or (Path(__file__).resolve().parents[3] / "instituto-physis"))   # ao lado do sistema
 PAGINAS_INSTITUTO = [
     ("physis-hub/web/site.html", "Instituto · site"), ("physis-hub/web/painel.html", "Instituto · plataforma"),
     ("physis-hub/web/documento.html", "Instituto · documento"), ("physis-hub/web/municipio.html", "Instituto · municípios"),
@@ -125,11 +125,12 @@ def conferir(html: str, nome: str, pal: set[str], original: str = "", pasta: Pat
     item("escuro", "Tema escuro (tipo A)", re.search(r'data-tema="?escuro|data-tema=escuro|prefers-color-scheme:\s*dark', html, re.I))
     item("fontes", "Fontes do guia (Josefin Sans nos títulos, Lora no corpo)", re.search(r"Josefin", html) and re.search(r"Lora", html))
     rod = " ".join(re.findall(r"(?is)<footer\b.*?</footer>", proprio)) or ""
-    # decisão da dona (22/11/2026): as páginas NÃO mostram CNPJ nem cidade no rodapé
+    # Decisões da dona (22/11/2026): o rodapé leva só a razão social; NÃO mostra CNPJ nem cidade.
     item("cnpj", "Rodapé sem CNPJ e sem cidade", not re.search(r"CNPJ|Petr[oó]polis|Belo Horizonte", rod, re.I))
-    item("privacidade", "Privacidade/LGPD indicada", re.search(r"privacidade|LGPD", proprio, re.I))
-    item("termos", "Termos de uso indicados", re.search(r"termos de uso", proprio, re.I))
-    item("contato", "Contato indicado", re.search(r"contato|e-mail|fale com", proprio, re.I))
+    item("razao", "Rodapé com a razão social (Physis Engineering Ltda. ou a do Instituto)",
+         re.search(r"Physis Engineering Ltda\.|Instituto Physis", rod))
+    # privacidade, termos e contato saem do checklist base (decisão: rodapé só com a razão social); ficam nas telas que já
+    # os têm (loja, consultoria, /termos, /privacidade).
     externos = re.findall(r'<(?:script|link|img|iframe)\b[^>]*(?:src|href)="(https?://[^"]+)"', html, re.I)
     item("offline", "Funciona sem internet (sem scripts, fontes ou imagens de fora)", not externos, ", ".join(externos[:3]))
     imgs = re.findall(r"<img\b[^>]*>", sem_scripts, re.I)

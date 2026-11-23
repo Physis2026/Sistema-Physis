@@ -160,7 +160,7 @@ function pesosDoLote(l, F) { const ini = l.inicio / 1000;
   return { pts: [], origem: "" }; }
 
 /* ════════ Desenho: gráficos em SVG (com tabela ao lado) ════════ */
-const CORES = { ti:"#A63A28", te:"#4A4F44", tc:"#C08A1E", ui:"#3D6E8F", ue:"#7FA9C4", peso:"#33512F", modelo:"#8A6410" };
+const CORES = { ti:"#A63A28", te:"#4A4F44", tc:"#C08A1E", ui:"#546A7B", ue:"#8FB183", peso:"#33512F", modelo:"#8A6410" };
 function grafico(id, titulo, linhas, un, opc) { opc = opc || {}; const W = 640, H = 220, m = { l: 44, r: 12, t: 12, b: 28 };
   const todos = linhas.flatMap(l => l.pts.filter(p => p[1] != null && isFinite(p[1])));
   if (!todos.length) return `<p class="t2">Sem dados para ${E(titulo.toLowerCase())} ainda.</p>`;

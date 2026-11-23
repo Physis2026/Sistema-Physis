@@ -40,9 +40,16 @@ class Arquivos(unittest.TestCase):
         cls.j, cls.js, cls.bloco = casos.textos()
 
     def test_casos_em_dia(self):
-        self.assertEqual((casos.PASTA / "casos.json").read_text(encoding="utf-8"), self.j,
-                         "rode: python -m physis_hub.simulacao.casos --gravar")
-        self.assertEqual((casos.PASTA / "casos.js").read_text(encoding="utf-8"), self.js)
+        # Compara por valor, não por texto: o último dígito de um float muda entre Windows e Linux (CI, D22)
+        # e resíduos numéricos perto de zero (~1e-10) variam com a ordem das operações. Tolerância bem abaixo
+        # da usada pela página do navegador; estrutura, textos, booleanos e tamanhos continuam exatos.
+        msg = "rode: python -m physis_hub.simulacao.casos --gravar"
+        def conferir(gravado, atual):
+            self.assertTrue(_igual(atual, gravado, 1e-9, 1e-8) and _igual(gravado, atual, 1e-9, 1e-8), msg)
+        conferir(json.loads((casos.PASTA / "casos.json").read_text(encoding="utf-8")), json.loads(self.j))
+        def do_js(t):
+            return json.loads(t[t.index("{"):t.rindex("}") + 1].replace("<\\/", "</"))
+        conferir(do_js((casos.PASTA / "casos.js").read_text(encoding="utf-8")), do_js(self.js))
 
     def test_premissas_copiadas_no_js(self):
         t = JS.read_text(encoding="utf-8")

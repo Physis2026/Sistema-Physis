@@ -4,8 +4,9 @@ import re
 import sys
 from pathlib import Path
 
-DOCS = Path(r"C:\Users\rafae\OneDrive - Physis Engineering\Documents\Sistema Physis")
-REPO = Path(r"C:\physis\physis-sistema")
+import os  # noqa: E402
+DOCS = Path(os.environ.get("PHYSIS_DOCS") or (Path.home() / "OneDrive - Physis Engineering" / "Documents")) / "Sistema Physis"
+REPO = Path(__file__).resolve().parents[2]          # pasta do sistema, onde quer que esteja
 SAIDA = DOCS / "19_Memos_Fase2"
 SAIDA.mkdir(exist_ok=True)
 doc = (DOCS / "18_Checklist_Implantacao_e_Responsaveis.md").read_text(encoding="utf-8")

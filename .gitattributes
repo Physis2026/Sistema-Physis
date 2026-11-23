@@ -4,3 +4,8 @@
 *.zip binary
 *.ino text eol=lf
 clientes/marcas/*.svg text eol=lf
+
+# INSTALAR-PHYSIS.bat precisa de CRLF no Windows
+*.bat text eol=crlf
+# leia primeiro em CRLF para o Bloco de Notas
+LEIA-PRIMEIRO.txt text eol=crlf

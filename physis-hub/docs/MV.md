@@ -70,7 +70,62 @@ continuam passando por aprovação humana (D49).
 Ouve só em `127.0.0.1` e confere o cabeçalho Host. Todo POST exige o cabeçalho `X-Physis-MV: 1`, que uma página de outro site não consegue enviar.
 Na migração para o servidor físico (dezembro, Eric), entram as contas e os papéis da Gestão e o HTTPS pelo proxy.
 
+## Versão enxuta (22/11/2026)
+Três regras: (1) só roda se alguém usa o resultado (o bot melhoria mede as ações em 4 semanas e sugere reduzir ou desligar);
+(2) a frequência acompanha a velocidade da mudança; (3) aprendizado de máquina só onde há dados (começa por regras e guarda cada decisão).
+
+| Frequência | Bots |
+|---|---|
+| De hora em hora | sinal de vida, documentos (só lê se algum arquivo mudou; leitura completa 1×/dia), dados-iot, vigia, sentinela |
+| De 8 em 8 h | atrasos |
+| Diário (7h) | resumo, backup, páginas, links, inovação (1 mês, depois decide), editais, simulação, gestões, bancos, acervo, índice da IA, cursos (só com documento novo), financeiro, vencimentos, base de fatos, kit (diário até 26/11, depois às segundas), melhoria, auditoria |
+| Semanal (segunda 6h) | revisão semanal: junta o que os outros produziram, não recalcula |
+| Sob demanda | mercado/radar por cidade e área (`/mercado`), análise de marketing mensal |
+| Adiado até haver dado | visão (câmeras e drones), mapa internacional, trends, verba de impulsionamento, classificador de extrato |
+
+## Bots compartilhados (22/11/2026)
+Todos entram na agenda (`mv_cli agenda`): de hora em hora `atrasos documentos dados_iot vigia sentinela sala`; às 7h, todos.
+Nenhum limite técnico vem de fábrica (regra 1): sem a variável, o bot mostra a medida e abre um único aviso "info".
+
+| Bot | O que faz | Arquivo | Variáveis |
+|---|---|---|---|
+| paginas | Checklist base das telas (doc 43): rodapé com a razão social, fontes, paleta, sem azul, barra igual | `mv_paginas.py` | `PHYSIS_RAIZ_INSTITUTO` |
+| links | Links externos das telas, 1x por dia | `mv_paginas.py` | — |
+| auditoria | Cruza bots, robôs e módulos; caixa de perguntas das pendências; plano de intervenção | `mv_auditoria.py` | — |
+| mercado | **Sob demanda** (`/mercado <cidade> [área]`; consulta guardada 6 meses). Ecossistema de parcerias por cidade e área (fabricantes, fornecedores, teste, compra e venda, estágio, laboratórios, hubs, investidores, supermercados, collabs, resíduos); mapa GIS (parcerias.geojson); catálogo de dados abertos. Semanal | `mv_ecossistema.py` | `PHYSIS_MERCADO_ONLINE` |
+| financeiro | Assessor contábil: comprovante, projeto, duplicidade, conferência, saldo, fluxo por projeto e porta, NF-e; rascunho ao contador | `mv_financeiro.py` | `PHYSIS_NOTAS` |
+| vencimentos | Calendário único (substitui o jurídico e o calendário fiscal): tarefas jurídicas, `vencimentos.csv` (fiscal, contratos, ACTs, certidões, licenças), editais e documentos; `.ics`; rascunhos ao advogado e ao contador | `mv_financeiro.py` | — |
+| repositorios | Repositórios fora do sistema (padrão: `Documents\Marketing Physis` no OneDrive, pela mesma raiz `PHYSIS_DOCS`; senão `C:\physis\marketing-physis`): último commit, alterações sem commit, cópia fora do computador, inventário (planos, planilhas, logos); os documentos entram no bot documentos e na IA Physis | `mv_repositorios.py` | `PHYSIS_REPOSITORIOS` |
+| fatos | Base de fatos: fonte única (`fatos.json`), checagem de consistência nos documentos, valores nas versões zero; fato vazio vira pergunta | `mv_fatos.py` | — |
+| kit | Documentos exigidos por pilar para 26/11; versão zero (ODT) com dados do M&A | `mv_kit.py` | — |
+| melhoria | Melhoria contínua: taxa de aprovação de cada bot (Beta-Binomial), filas paradas, tempo de resolução | `mv_kit.py` | — |
+| semanal | Revisão semanal completa (todos os bots + relatório), segunda às 6h | `mv_kit.py` | — |
+| desenvolvimento | Painel "Desenvolvimento" de cada módulo, gerado das tarefas e aprovações do M&A (`sistema/desenvolvimento-dados.js`) | `mv_desenvolvimento.py` | — |
+| sincronizacao | Leva as melhorias dos módulos compartilhados entre Sistema, Instituto e InovaSTEM, com teste antes; commit só local, nunca push; clientes só com dupla aprovação | `mv_sincronizacao.py` | — |
+| vigia | Cada bot rodou dentro do prazo e sem erro | `mv_vigia.py` | (prazos da agenda em `LIMITE_H`) |
+| sentinela | `verificar.sh/ps1` + `docker compose ps` → alertas | `mv_vigia.py` | — |
+| sala | Gera `sala-dos-bots.html` em `PHYSIS_MV_SAIDA` | `mv_sala.py` | — |
+| editais | Importa `banco_editais.csv`; prazo perto, vencido, sem responsável | `mv_bots_extra.py` | `PHYSIS_EDITAIS_CSV`, `PHYSIS_EDITAIS_AVISO_DIAS` |
+| dados_iot | Idade da última leitura por nó (tabela `leitura` do Hub) | `mv_bots_extra.py` | `PHYSIS_BANCO`, `PHYSIS_IOT_MUDO_H` |
+| simulacao | Casos do Gêmeo Virtual em dia; premissas iguais no JS (regra 4) | `mv_bots_extra.py` | — |
+| gestoes | Exportações physis/1 das Gestões: idade e se já foram importadas | `mv_bots_extra.py` | `PHYSIS_MV_GESTOES`, `PHYSIS_GESTOES_MAX_H` |
+| bancos | integrity_check, pg_isready, validade do HTTPS, segredos no Git (regra 12) | `mv_bots_extra.py` | `PHYSIS_PG_HOST`, `PHYSIS_DOMINIO`, `PHYSIS_CERT_AVISO_DIAS` |
+| acervo | Acervo → trilhas do InovaSTEM pelas palavras de `trilhas.json`; vira pedido para aprovação | `mv_bots_extra.py` | `PHYSIS_ACERVO`, `PHYSIS_TRILHAS` |
+
+| ia | Atualiza o índice da IA Physis (só o que mudou) | `ia_physis.py` | `PHYSIS_IA_PASTAS` |
+| cursos | Mapa de potenciais cursos por plataforma (Instituto, Physis Engineering, InovaSTEM); rechecagem automática; trilhas a partir de 30/11/2026 | `mv_cursos.py` | `PHYSIS_CURSOS_PASTAS` |
+
+**IA Physis** (`ia_physis.py`, 22/11/2026): IA própria, feita do zero, só para o servidor, o sistema, as plataformas e os apps. Índice
+SQLite FTS5 (BM25) dos textos da Physis; resposta **extrativa com fonte**; sem evidência, "Não encontrei isso nos documentos da Physis".
+Uso: `mv_cli ia "pergunta"`, `mv_cli ia --indexar` e `GET /api/mv/ia?q=`.
+
+**Aba Monitoramento** (`mv.html`): mapa 3D das integrações (`mv_integracoes.py`, rota `/api/mv/integracoes`), com o anel de estado de cada
+bot. O mapa avulso sai do mesmo desenho: `python ferramentas/gerar_mapa_integracoes.py saida.html --banco physis-mv.db`.
+
+IA local opcional (regra 11): `PHYSIS_IA_URL` (vLLM, API compatível com OpenAI) e `PHYSIS_IA_MODELO`. Sem elas, os bots seguem só
+por regras. O bot `inovacao` agora também alerta quando uma fonte não responde.
+
 ## Ainda não feito (próximas entregas)
-- Editais (26/11), bots por frente, bot do acervo → trilhas (30/11), parceiros e fornecedores com a fila de e-mails.
+- Bots por frente, parceiros e fornecedores com a fila de e-mails. (Editais e acervo → trilhas: feitos em 22/11, ver acima.)
 - Leitura direta das Gestões internas em vez da exportação JSON.
-- IA (Claude, teto de US$ 50/mês) nos bots de editais e acervo. Os bots desta versão funcionam só por regras.
+- Decidir a IA dos bots de editais e acervo: o código usa só o modelo local opcional (regra 11). A decisão antiga (Claude, teto de US$ 50/mês, D71) não foi implementada, porque contraria a regra 11.
