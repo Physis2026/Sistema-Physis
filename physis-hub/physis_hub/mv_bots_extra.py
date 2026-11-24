@@ -183,6 +183,8 @@ PESO_GESTAO = {"micro": 1, "media": 3, "longa": 8}
 
 def bancos_gestao() -> list[tuple[str, Path]]:
     cfg = os.environ.get("PHYSIS_GESTAO_BANCOS", "")
+    if cfg.strip().lower() == "nenhum":           # testes e instalações sem Gestão ao vivo
+        return []
     if cfg.strip():
         out = []
         for item in re.split(r"[;\n]", cfg):
@@ -258,6 +260,97 @@ def sem_repetidas(mv: MV, pacote: dict) -> int:
     return len(tirados)
 
 
+# ---- Marketing da Gestão no M&A (23/11/2026) -------------------------------------------------------------------------
+# Os conteúdos nascem e são aprovados na Gestão › Marketing (chave gestao-physis:mkt-conteudos; aprovam Rafaella E Marzia,
+# cada uma com a sua conta). O M&A mostra o que espera aprovação e a Rafaella pode aprovar daqui (grava na Gestão com a
+# mesma regra da tela: as duas aprovaram → "aprovado"). Os aprovados vão para Marketing Physis/dados/conteudos_aprovados.csv,
+# que o robô do Marketing lê (modo APROVACAO=ma), sem depender do Slack (regra 11).
+CHAVE_MKT = "gestao-physis:mkt-conteudos"
+APROVA_MKT = ("rafaella", "marzia")
+
+
+def _banco_mkt() -> Path | None:
+    b = bancos_gestao()
+    return b[0][1] if b and b[0][1].is_file() else None
+
+
+def marketing_conteudos() -> list[dict]:
+    b = _banco_mkt()
+    if not b:
+        return []
+    con = sqlite3.connect(f"file:{b}?mode=ro", uri=True, timeout=10)
+    try:
+        lin = con.execute("SELECT valor FROM gestao_estado WHERE chave=?", (CHAVE_MKT,)).fetchone()
+    except sqlite3.Error:
+        lin = None
+    finally:
+        con.close()
+    itens = json.loads(lin[0]) if lin else []
+    out = []
+    for c in itens if isinstance(itens, list) else []:
+        ap = c.get("aprovacoes") or {}
+        out.append({"id": c.get("id"), "titulo": c.get("titulo") or "", "texto": c.get("texto") or "", "redes": c.get("redes") or [],
+                    "tipo": c.get("tipo") or "", "estado": c.get("estado") or "rascunho", "data": c.get("data") or c.get("dataSugerida") or "",
+                    "hora": c.get("hora") or "", "aprovacoes": ap, "falta": [p for p in APROVA_MKT if not ap.get(p)], "nota": c.get("nota") or ""})
+    return out
+
+
+def marketing_decidir(cid: str, acao: str, nota: str = "", quem: str = "rafaella") -> dict:
+    """Aprovar ou pedir ajuste de um conteúdo da Gestão pelo M&A (mesma regra da tela da Gestão; conferência de versão)."""
+    if acao not in ("aprovar", "ajuste"):
+        raise ValueError("ação deve ser aprovar ou ajuste")
+    b = _banco_mkt()
+    if not b:
+        raise ValueError("Gestão não encontrada (site da Physis, porta 8703)")
+    con = sqlite3.connect(b, timeout=30)
+    try:
+        for _ in range(3):
+            lin = con.execute("SELECT valor, versao, atualizado FROM gestao_estado WHERE chave=?", (CHAVE_MKT,)).fetchone()
+            if not lin:
+                raise ValueError("a Gestão ainda não tem conteúdos de marketing")
+            itens = json.loads(lin[0])
+            achou = None
+            for c in itens:
+                if c.get("id") == cid:
+                    achou = c
+                    if acao == "aprovar":
+                        if c.get("estado") != "aguardando":
+                            raise ValueError(f"o conteúdo está '{c.get('estado')}', não aguardando aprovação")
+                        c.setdefault("aprovacoes", {})[quem] = time.strftime("%Y-%m-%dT%H:%M:%S")
+                        if all(c["aprovacoes"].get(p) for p in APROVA_MKT):
+                            c["estado"] = "aprovado"
+                    else:
+                        c["estado"], c["nota"], c["aprovacoes"] = "ajuste", f"Rafaella (M&A): {nota}".strip(), {}
+            if not achou:
+                raise ValueError("conteúdo não encontrado")
+            agora = max(time.time(), lin[2] + 1e-6)
+            cur = con.execute("UPDATE gestao_estado SET valor=?, versao=?, atualizado=?, por=? WHERE chave=? AND versao=?",
+                              (json.dumps(itens, ensure_ascii=False), lin[1] + 1, agora, f"{quem} (M&A)", CHAVE_MKT, lin[1]))
+            con.commit()
+            if cur.rowcount == 1:
+                return {"ok": True, "id": cid, "estado": achou["estado"], "falta": [p for p in APROVA_MKT if not (achou.get("aprovacoes") or {}).get(p)]}
+        raise ValueError("a Gestão estava sendo alterada ao mesmo tempo; tente de novo")
+    finally:
+        con.close()
+
+
+def marketing_exportar(pasta: Path | None = None) -> int:
+    """Conteúdos aprovados pelas duas → Marketing Physis/dados/conteudos_aprovados.csv (o robô do Marketing lê)."""
+    import csv
+    from . import mv_bots
+    pasta = Path(pasta or os.environ.get("PHYSIS_MARKETING_DADOS") or (mv_bots.DOCS / "Marketing Physis" / "dados"))
+    if not pasta.is_dir() or not _banco_mkt():        # sem Gestão não reescreve a lista (não apaga o que o robô já tem)
+        return 0
+    ok = [c for c in marketing_conteudos() if c["estado"] in ("aprovado", "agendado", "publicado") and not c["falta"]]
+    with open(pasta / "conteudos_aprovados.csv", "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.writer(f, delimiter=";")
+        w.writerow(["id", "data", "hora", "redes", "tipo", "titulo", "texto", "estado", "aprovado_rafaella", "aprovado_marzia"])
+        for c in ok:
+            w.writerow([c["id"], c["data"], c["hora"], ",".join(c["redes"]), c["tipo"], c["titulo"], c["texto"].replace("\n", " / "),
+                        c["estado"], c["aprovacoes"].get("rafaella", ""), c["aprovacoes"].get("marzia", "")])
+    return len(ok)
+
+
 def gestao_ao_vivo(mv: MV, saida: Path) -> dict:
     """Importa cada Gestão ao vivo que mudou desde a última vez. Nunca escreve no banco da Gestão."""
     mv.db.execute("CREATE TABLE IF NOT EXISTS mv_assinatura (bot TEXT PRIMARY KEY, valor TEXT NOT NULL, quando REAL NOT NULL)")
@@ -303,6 +396,18 @@ def bot_gestoes(mv: MV, pasta: Path | None = None, agora: float | None = None) -
     agora = agora or time.time()
     p = Path(pasta or os.environ.get("PHYSIS_MV_GESTOES") or (mv_bots.DOCS / "Sistema Physis" / "28_Physis_MV" / "gestoes"))
     ao_vivo = gestao_ao_vivo(mv, p)
+    try:
+        mk = marketing_conteudos()
+        real = getattr(mv, "caminho", "") != ":memory:" or os.environ.get("PHYSIS_MARKETING_DADOS")   # banco de teste não escreve na pasta real
+        ao_vivo["marketing"] = {"aguardando": sum(1 for c in mk if c["estado"] == "aguardando"),
+                                "aprovados_exportados": marketing_exportar() if real else 0}
+        for c in mk:
+            if c["estado"] == "aguardando" and c["falta"]:
+                mv.alertar("gestoes", "mkt_aprovar", str(c["id"]), "info",
+                           f"Marketing aguardando aprovação de {', '.join(x.capitalize() for x in c['falta'])}: {c['titulo'][:100]}",
+                           "Aprovar na aba Aprovações do M&A (Rafaella) ou na Gestão › Marketing (Marzia)")
+    except Exception as e:  # noqa: BLE001 — marketing nunca derruba a importação das tarefas
+        ao_vivo["marketing"] = f"erro: {e}"
     if not p.is_dir():
         mv.alertar("gestoes", "sem_pasta", str(p), "info", f"Pasta das exportações das Gestões não encontrada: {p}",
                    "Definir PHYSIS_MV_GESTOES (uma exportação physis/1 por Gestão)")

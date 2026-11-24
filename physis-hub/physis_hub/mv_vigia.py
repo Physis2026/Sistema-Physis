@@ -25,6 +25,42 @@ LIMITE_H = {"atrasos": 9, "documentos": 2, "dados_iot": 2, "resumo": 26, "backup
 SOB_DEMANDA = {"mercado"}
 
 
+def exportar_fila(mv: MV, saida: Path | None = None, agora: float | None = None) -> dict:
+    """Fila do Claude em arquivo (decisão de 23/11/2026: nenhum pedido fica parado). 28_Physis_MV/fila-claude.md lista
+    os pedidos de texto livre ainda não feitos; numa sessão do Claude Code basta pedir "faça a fila". Pedido com mais
+    de 24 h vira alerta. Também resume os rascunhos que esperam aprovação."""
+    from . import mv_bots
+    agora = agora or time.time()
+    try:
+        fila = mv.db.execute("SELECT id, tipo, comando, tarefa, origem, criado FROM mv_pedido_bot WHERE estado='na_fila' ORDER BY criado").fetchall()
+        rasc = mv.db.execute("SELECT COUNT(*) FROM mv_pedido_bot WHERE estado IN ('rascunho','pronto')").fetchone()[0]
+    except Exception:  # noqa: BLE001 — banco sem a tabela da fila (instalação nova)
+        return {"fila": 0, "rascunhos": 0}
+    pasta = Path(saida or mv_bots.SAIDA)
+    linhas = ["# Fila do Claude Code · pedidos ainda não feitos", "",
+              f"Atualizado em {time.strftime('%d/%m/%Y %H:%M', time.localtime(agora))} pelo bot vigia (de hora em hora).", "",
+              "Numa sessão do Claude Code: \"faça a fila do M&A\". Cada pedido feito volta como **rascunho** para a Rafaella aprovar",
+              "(aba Bots e comandos); aprovado, vira tarefa \"Executar\".", "",
+              f"Rascunhos esperando aprovação: **{rasc}**.", ""]
+    if not fila:
+        linhas.append("Nenhum pedido parado. ✅")
+    for r in fila:
+        h = (agora - r[5]) / 3600
+        linhas += [f"## #{r[0]} · {time.strftime('%d/%m/%Y %H:%M', time.localtime(r[5]))} · há {h:.0f} h",
+                   f"- Origem: {r[4] or '—'}" + (f" · tarefa #{r[3]}" if r[3] else ""), "", r[2], ""]
+        if h > 24:
+            mv.alertar("vigia", "fila_parada", str(r[0]), "atencao", f"Pedido #{r[0]} parado na fila do Claude há {h:.0f} h: {r[2][:120]}",
+                       f"Abrir {pasta / 'fila-claude.md'} numa sessão do Claude Code (\"faça a fila\")")
+    if saida is None and getattr(mv, "caminho", "") == ":memory:":
+        return {"fila": len(fila), "rascunhos": rasc}        # banco de teste: não escreve na pasta real
+    try:
+        pasta.mkdir(parents=True, exist_ok=True)
+        (pasta / "fila-claude.md").write_text("\n".join(linhas) + "\n", encoding="utf-8")
+    except OSError:
+        pass
+    return {"fila": len(fila), "rascunhos": rasc}
+
+
 def bot_vigia(mv: MV, agora: float | None = None, limites: dict | None = None) -> dict:
     agora = agora or time.time()
     limites = limites or LIMITE_H
@@ -49,6 +85,7 @@ def bot_vigia(mv: MV, agora: float | None = None, limites: dict | None = None) -
             mv.alertar("vigia", "bot_parado", bot, "alerta", f"Bot {bot} sem execução boa {quando} (limite {lim} h)",
                        "Conferir as tarefas PhysisMV\\bots_hora e resumo_7h (mv_cli agenda) e o computador do nó")
         out[bot] = {"estado": estado, "idade_h": idade, "limite_h": lim}
+    out["_fila_claude"] = exportar_fila(mv, agora=agora)
     mv.fechar_alertas_nao_vistos("vigia", inicio)
     mv.registrar_execucao("vigia", inicio, json.dumps(out))
     return out

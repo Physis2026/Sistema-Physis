@@ -131,6 +131,8 @@ def _main(argv=None) -> int:
     ia = sub.add_parser("ia", help="IA Physis: pergunta aos documentos da Physis (resposta com fonte) ou --indexar")
     ia.add_argument("pergunta", nargs="*")
     ia.add_argument("--indexar", action="store_true")
+    ce = sub.add_parser("conta-para-edital", help="move uma conta que é captação/edital para a aba Editais (não apaga)")
+    ce.add_argument("conta")
     g = sub.add_parser("agenda")
     g.add_argument("--criar", action="store_true")
     a = ap.parse_args(argv)
@@ -167,6 +169,9 @@ def _main(argv=None) -> int:
         elif a.cmd == "importar-editais":
             from . import mv_editais
             print(json.dumps(mv_editais.Editais(mv).importar_csv(a.arquivo), ensure_ascii=False))
+        elif a.cmd == "conta-para-edital":
+            from . import mv_clientes
+            print(json.dumps(mv_clientes.Clientes(mv).para_edital(a.conta), ensure_ascii=False, indent=1))
         elif a.cmd == "bots":
             print(json.dumps(mv_bots.rodar(mv, expandir(a.quais) or None), ensure_ascii=False, indent=1))
         elif a.cmd == "servir":

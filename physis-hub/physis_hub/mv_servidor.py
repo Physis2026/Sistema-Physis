@@ -231,6 +231,7 @@ def fabricar(mv: MV):
                              "/api/mv/fila": lambda: cmd.fila(q.get("estado") or None),
                              "/api/mv/programados": lambda: cmd.programados(),
                              "/api/mv/aprovacoes": lambda: cmd.aprovacoes(antigos=q.get("antigos") == "1"),
+                             "/api/mv/marketing": lambda: __import__("physis_hub.mv_bots_extra", fromlist=["x"]).marketing_conteudos(),
                              "/api/mv/desenvolvimento": lambda: __import__("physis_hub.mv_desenvolvimento", fromlist=["dados"]).dados(mv),
                              "/api/mv/perguntas": lambda: mv_comandos.perguntas(mv, None if q.get("abertas") is None else q.get("abertas") == "1",
                                                                                  q.get("sistema") or None),
@@ -320,6 +321,12 @@ def fabricar(mv: MV):
                     if p == "/api/mv/pergunta/responder":
                         return self._json(200, mv_comandos.responder(mv, str(corpo.get("id")), str(corpo.get("resposta") or ""),
                                                                      str(corpo.get("nota") or "")))
+                    if p == "/api/mv/marketing/decidir":
+                        from . import mv_bots_extra
+                        try:
+                            return self._json(200, mv_bots_extra.marketing_decidir(str(corpo.get("id")), str(corpo.get("acao")), str(corpo.get("nota") or "")))
+                        except ValueError as e:
+                            return self._json(400, {"erro": str(e)})
                     if p == "/api/mv/tarefa/encaminhar":
                         t = mv.tarefa(str(corpo.get("id")))
                         if not t:

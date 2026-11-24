@@ -163,6 +163,9 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
     <p class="rotulo">Até 23/11 · versão de teste</p>
     <p class="muted" id="apResumo"></p>
     <div class="tabwrap" id="aprovacoes"></div>
+    <h2>Marketing · aprovação de Rafaella e Marzia</h2>
+    <p class="muted">Os conteúdos nascem na Gestão › Marketing. As duas aprovam (a Marzia pela Gestão, com a conta dela; a Rafaella aqui ou na Gestão). Aprovado pelas duas, vai para a lista do robô do Marketing (Marketing Physis › dados › conteudos_aprovados.csv).</p>
+    <div class="tabwrap" id="mktAprov"></div>
     <h2>Perguntas e decisões (centralizadas)</h2>
     <p class="muted">Toda pergunta de qualquer sistema (Sistema Physis, Instituto, InovaSTEM, Casa, templates) fica aqui uma vez só. Respondida aqui, vale para todos os sistemas indicados.</p>
     <div id="perguntas"></div>
@@ -292,7 +295,7 @@ if(MOCK){document.body.insertAdjacentHTML("afterbegin",MOCK.modo==="real"
     :'<p class="demo" role="note">DEMONSTRAÇÃO · dados fictícios · nada é gravado</p>');
   const lg=document.getElementById("logo");if(lg&&MOCK.logo&&!MOCK.logo_vazadas){lg.src=MOCK.logo;lg.hidden=false;}}
 // Idioma PT/EN: traduz textos fixos e frases da interface (os dados — títulos de tarefas, editais — ficam no idioma original)
-const EN={"Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Automatic","Claro":"Light","Escuro":"Dark","Rodar bots agora":"Run bots now",
+const EN={"Marketing · aprovação de Rafaella e Marzia":"Marketing · approval by Rafaella and Marzia","Os conteúdos nascem na Gestão › Marketing. As duas aprovam (a Marzia pela Gestão, com a conta dela; a Rafaella aqui ou na Gestão). Aprovado pelas duas, vai para a lista do robô do Marketing (Marketing Physis › dados › conteudos_aprovados.csv).":"Content is created in Gestão › Marketing. Both approve (Marzia in Gestão with her account; Rafaella here or in Gestão). Once both approve, it goes to the Marketing bot list (Marketing Physis › dados › conteudos_aprovados.csv).","Idioma":"Language","Frente":"Front","Tema":"Theme","Automático":"Automatic","Claro":"Light","Escuro":"Dark","Rodar bots agora":"Run bots now",
 "Todas as frentes":"All fronts","versão de teste":"test version","Physis Engineering · gestão e monitoramento integrados":"Physis Engineering · integrated management and monitoring",
 "Saúde":"Health","Gantt e caminho crítico":"Gantt and critical path","Kanban":"Kanban","Matriz de pendências":"Pending matrix","Roadmap 2027–2031":"Roadmap 2027–2031",
 "Alertas e intervenções":"Alerts and interventions","Documentos":"Documents","Financeiro":"Finance","Editais e propostas":"Calls and proposals","Carregando…":"Loading…",
@@ -651,7 +654,7 @@ let BOTS_RODANDO=false;
 async function botsTrabalhar(){if(MOCK||BOTS_RODANDO)return;BOTS_RODANDO=true;status("Aprovado. Os bots estão trabalhando (pode levar alguns minutos)…");
   try{const r=await post("/api/mv/bots/rodar",{quais:BOTS_APOS});status(r&&r.erro?"Bots: "+r.erro:"Bots terminaram. A tarefa aprovada está em Tarefas › Fazendo.");}
   catch(e){status("Bots: não responderam ("+e+")");}finally{BOTS_RODANDO=false;CACHE.todas=null;render(atual);}}
-async function aprovacoes(){if(MOCK){$("#aprovacoes").innerHTML=semServidor("Lista de aprovações");return;}
+async function aprovacoes(){mktAprov();if(MOCK){$("#aprovacoes").innerHTML=semServidor("Lista de aprovações");return;}
   const [ls,ant]=await Promise.all([get("/api/mv/aprovacoes"),get("/api/mv/aprovacoes?antigos=1")]);
   $("#apResumo").textContent=ls.length?`${ls.length} item(ns) esperando decisão. Aprovar: vira tarefa de execução e os bots começam. Pedir ajuste: tarefa da Rafaella. Reprovar: vai para Antigos.`:"Nada esperando decisão.";
   $("#aprovacoes").innerHTML=(ls.length?`<table><thead><tr><th>Prazo</th><th>Item</th><th>Grupo</th><th>Onde ver</th><th>Decidir</th></tr></thead><tbody>`+ls.map(a=>`<tr>
@@ -664,6 +667,17 @@ async function aprovacoes(){if(MOCK){$("#aprovacoes").innerHTML=semServidor("Lis
     if(e==="reprovado"&&window.confirm&&!confirm("Reprovar? O item vai para Antigos."))return;
     const r=await post("/api/mv/aprovacao",{id:b.dataset.ap,estado:e,nota});if(r.erro){status("Erro: "+r.erro);return;}
     CACHE.todas=null;aprovacoes();if(e==="aprovado")botsTrabalhar();});}
+async function mktAprov(){const box=$("#mktAprov");if(!box)return;if(MOCK){box.innerHTML=semServidor("Marketing");return;}
+  let ls=[];try{ls=await get("/api/mv/marketing");}catch(e){box.innerHTML='<p class="aviso">Gestão (porta 8703) não respondeu.</p>';return;}
+  const esp=ls.filter(c=>c.estado==="aguardando"),ok=ls.filter(c=>["aprovado","agendado"].includes(c.estado)&&!c.falta.length);
+  const nome=p=>({rafaella:"Rafaella",marzia:"Marzia"}[p]||p);
+  box.innerHTML=(esp.length?`<table><thead><tr><th>Data</th><th>Conteúdo</th><th>Redes</th><th>Falta</th><th>Decidir</th></tr></thead><tbody>`+esp.map(c=>`<tr>
+    <td>${esc((c.data||"").split("-").reverse().join("/"))} ${esc(c.hora||"")}</td><td><strong>${esc(c.titulo)}</strong><details><summary>texto</summary><pre class="saida">${esc(c.texto)}</pre></details></td>
+    <td>${esc(c.redes.join(", "))}</td><td>${esc(c.falta.map(nome).join(", "))}</td>
+    <td>${c.falta.includes("rafaella")?`<div class="ferr" style="margin:0"><button class="btn prim" data-mk="${esc(c.id)}" data-a="aprovar">Aprovar (Rafaella)</button><button class="btn" data-mk="${esc(c.id)}" data-a="ajuste">Pedir ajuste</button></div>`:'<span class="muted">aguardando a Marzia na Gestão</span>'}</td></tr>`).join("")+`</tbody></table>`:'<p class="muted" style="padding:.5rem">Nenhum conteúdo esperando aprovação.</p>')+
+    (ok.length?`<details><summary>Aprovados pelas duas (${ok.length}): vão para o robô do Marketing</summary><ul>${ok.map(c=>`<li>${esc((c.data||"").split("-").reverse().join("/"))} ${esc(c.hora||"")} · ${esc(c.redes.join(", "))} · ${esc(c.titulo)}</li>`).join("")}</ul></details>`:"");
+  box.querySelectorAll("[data-mk]").forEach(b=>b.onclick=async()=>{const a=b.dataset.a;let nota="";if(a==="ajuste"){nota=(prompt("O que ajustar?")||"").trim();if(!nota)return;}
+    b.disabled=true;const r=await post("/api/mv/marketing/decidir",{id:b.dataset.mk,acao:a,nota});status(r.erro?"Marketing: "+r.erro:(r.estado==="aprovado"?"Aprovado pelas duas: vai para o robô do Marketing.":"Registrado na Gestão."));mktAprov();});}
 async function perguntasCentrais(){if(MOCK){$("#perguntas").innerHTML=semServidor("Perguntas centralizadas");return;}
   const ls=await get("/api/mv/perguntas");
   $("#perguntas").innerHTML=ls.length?ls.map(p=>`<div class="card" style="margin:.5rem 0"><p><span class="pill g-${p.aberta?"atencao":"ok"}">${p.aberta?"aberta":"respondida"}</span>

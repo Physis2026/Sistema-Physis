@@ -345,6 +345,35 @@ class Clientes:
                  + (", ".join(f"{a['nome']} ({a['id']})" for a in anexos) or "nenhum ainda") + ". Não inventar: [MARCADOR].")
         return cmd._pedido("claude", texto, "", "na_fila", "Na fila do Claude; a proposta volta para confirmação campo a campo.", origem=f"conta:{cid}")
 
+    def para_edital(self, cid: str) -> dict:
+        """Conta que na verdade é captação/edital (decisão de 23/11/2026: "Captação municipal 2027" é edital, não projeto).
+        Cria o edital (etapa triagem), leva os anexos e o pedido da fila junto e arquiva a conta (não apaga)."""
+        c = self.conta(cid)
+        from . import mv_editais
+        mv_editais.Editais(self.mv)                       # garante a tabela
+        eid = f"ed-{cid}"[:80]
+        agora = time.time()
+        if not self.mv.db.execute("SELECT 1 FROM mv_edital WHERE id=?", (eid,)).fetchone():
+            cols = {r[1] for r in self.mv.db.execute("PRAGMA table_info(mv_edital)")}
+            d = {"id": eid, "titulo": c["nome"], "frente": c.get("frente") or "", "etapa": "triagem", "responsavel": c.get("responsavel") or "",
+                 "origem": f"conta:{cid}", "motivo": "Movido de Clientes e projetos para Editais (decisão de 23/11/2026)",
+                 "proxima_acao": "Ler os anexos e preencher o edital: financiador, prazo, valor, quem pode, critérios ([MARCADOR] no que faltar)",
+                 "criado": agora, "atualizado": agora}
+            d = {k: v for k, v in d.items() if k in cols}
+            self.mv.db.execute(f"INSERT INTO mv_edital ({','.join(d)}) VALUES ({','.join('?' * len(d))})", list(d.values()))
+        anexos = 0
+        if self.mv.db.execute("SELECT name FROM sqlite_master WHERE name='mv_arquivo'").fetchone():
+            anexos = self.mv.db.execute("UPDATE mv_arquivo SET ref=? WHERE ref=?", (eid, cid)).rowcount
+        for pid, cmdtxt in self.mv.db.execute("SELECT id, comando FROM mv_pedido_bot WHERE origem=? AND estado IN ('na_fila','rascunho')",
+                                               (f"conta:{cid}",)).fetchall():
+            self.mv.db.execute("UPDATE mv_pedido_bot SET origem=?, comando=?, atualizado=? WHERE id=?",
+                               (f"edital:{eid}", f"Ler os anexos do edital '{c['nome']}' ({eid}) e PROPOR a ficha do edital (financiador, prazo, "
+                                f"valor, quem pode, critérios, documentos exigidos) para confirmação da dona. Não inventar: [MARCADOR].", agora, pid))
+        self.mv.db.execute("UPDATE mv_conta SET estado='arquivada', proximos=?, atualizado=? WHERE id=?",
+                           (f"Virou edital {eid} em 23/11/2026 (aba Editais e captação)", agora, cid))
+        self.mv.db.commit()
+        return {"edital": eid, "anexos_movidos": anexos, "conta": cid, "conta_estado": "arquivada"}
+
     def pedir_nota(self, lid: int) -> dict:
         """Rascunho de e-mail ao contador (Robson) pedindo a NF de um lançamento de receita. Nunca envia."""
         r = self.mv.db.execute("SELECT * FROM mv_lanc WHERE id=?", (int(lid),)).fetchone()

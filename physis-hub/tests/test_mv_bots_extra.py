@@ -68,7 +68,7 @@ class Gestoes(unittest.TestCase):
         d = Path(tempfile.mkdtemp())
         (d / "casa.json").write_text("{}")
         mv = MV(":memory:")
-        with mock.patch.dict(os.environ, {"PHYSIS_GESTOES_MAX_H": "48"}):
+        with mock.patch.dict(os.environ, {"PHYSIS_GESTOES_MAX_H": "48", "PHYSIS_GESTAO_BANCOS": "nenhum"}):   # não lê a Gestão real
             r = X.bot_gestoes(mv, d)
         self.assertEqual(r["arquivos"], 1)
         self.assertIn("nao_importada:casa.json", abertos(mv, "gestoes"))
