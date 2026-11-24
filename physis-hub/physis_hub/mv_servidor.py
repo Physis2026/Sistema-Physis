@@ -28,6 +28,7 @@ from . import mv_arquivos
 from . import mv_comandos
 from . import mv_editais
 from .mv import ESTADOS, FRENTES, MV, NOMES_ESTADO, ErroMV
+from .rede_http import ServidorHTTP   # porta exclusiva no Windows (dois "mv_cli servir" na mesma porta)
 
 WEB = Path(__file__).resolve().parents[1] / "web"
 VENDOR = Path(__file__).resolve().parents[2] / "vendor"
@@ -395,8 +396,8 @@ def servir(mv: MV | None = None, porta: int = PORTA, rede_local: bool = False) -
         if not ips:
             raise ErroMV("nenhum IP de rede local encontrado (Wi-Fi/cabo desligado?)")
         mv._rede = {"senha": senha_teste(Path(mv.caminho).parent), "hosts": ips | {socket.gethostname().lower()}}
-        srv = ThreadingHTTPServer(("0.0.0.0", porta), fabricar(mv))
+        srv = ServidorHTTP(("0.0.0.0", porta), fabricar(mv))
         srv.ips = sorted(ips)
         return srv
-    srv = ThreadingHTTPServer(("127.0.0.1", porta), fabricar(mv))
+    srv = ServidorHTTP(("127.0.0.1", porta), fabricar(mv))
     return srv

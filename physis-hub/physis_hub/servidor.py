@@ -2785,11 +2785,7 @@ def semear_loja(hub: Hub, caminho: Path | str | None = None) -> dict | None:
     return hub.loja_semear_inicial(cat)
 
 
-class _ServidorHTTP(ThreadingHTTPServer):
-    # Fila de conexões à espera de aceite. O padrão da biblioteca (5) fazia o sistema operacional descartar
-    # conexões acima de ~10 simultâneas, e o cliente só tentava de novo após 1 s (p99 ≈ 1 s no teste de carga
-    # de 22/11/2026). PHYSIS_FILA_CONEXOES ajusta; o sistema limita pelo net.core.somaxconn.
-    request_queue_size = max(5, int(os.environ.get("PHYSIS_FILA_CONEXOES") or 128))
+from .rede_http import ServidorHTTP as _ServidorHTTP   # porta exclusiva no Windows + fila de 128 (rede_http.py)
 
 
 def iniciar(hub: Hub, porta: int = 8700, token: str | None = None, endereco: str = "0.0.0.0", instancia: dict | None = None,
