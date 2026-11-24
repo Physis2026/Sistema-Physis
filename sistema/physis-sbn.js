@@ -647,7 +647,7 @@ ${r.itens.length ? `<button type="button" data-sbn-cons-plano="${E(id)}">Levar a
     const pts = P => P.map(p => X(p[0]) + "," + Y(p[1])).join(" ");
     const lw = Math.max(W, H) / 400;
     let svg = "";
-    if (st.poly && st.poly.length > 2) svg += `<polygon points="${pts(st.poly)}" fill="#EEF2EA" stroke="#1C2B21" stroke-width="${(lw * 2).toFixed(2)}"/>`;
+    if (st.poly && st.poly.length > 2) svg += `<polygon points="${pts(st.poly)}" fill="#F4F1EA" stroke="#1B1F23" stroke-width="${(lw * 2).toFixed(2)}"/>`;
     if (st.app && st.app.celulas) svg += st.app.celulas.map(c => `<rect x="${X(c[0] - st.app.cs / 2)}" y="${Y(c[1] + st.app.cs / 2)}" width="${st.app.cs.toFixed(2)}" height="${st.app.cs.toFixed(2)}" fill="#C2410C" fill-opacity="0.25"/>`).join("");
     svg += st.construcoes.map(c => `<polygon points="${pts(cantosRet(c))}" fill="#8A9284" fill-opacity="0.7"><title>${E(c.nome)} (construção)</title></polygon>`).join("");
     const legenda = new Map(); let nPontos = 0, avisos = [];
@@ -672,7 +672,7 @@ ${a.forma === "poli" ? `<label>Pontos (x y; x y; …, em metros)<br><textarea ro
     const leg = [...legenda.values()].map(i => `<li><span aria-hidden="true" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${corDe(i.n)}"></span> ${E(i.nome)} (${E(NOME_ESTRATO[i.estrato] || i.estrato)}, ${N(i.mudas, 0)})</li>`).join("");
     return `<section class="cartao" aria-labelledby="${id}-h" data-sbn-mapa="${E(id)}"><h2 id="${id}-h">Mapa de plantio e espaçamento</h2>
 <p class="t2 pq">Desenho do terreno e das áreas do Planejador (norte para cima, em metros). Arraste uma área para mover ou use o teclado: Tab até a área, setas movem 0,5 m, Shift+setas mudam o tamanho, R gira 5°. Os pontos são as plantas no espaçamento real de cada estrato; em vermelho, a APP de declividade; em cinza, as construções.</p>
-<svg viewBox="0 0 ${W.toFixed(2)} ${H.toFixed(2)}" width="100%" style="max-width:${ctx.largura || 720}px;background:#F7F8F4;border-radius:8px;touch-action:none" role="group" aria-label="Planta do terreno com ${st.areas.length} áreas de plantio e ${nPontos} plantas desenhadas" data-sbn-m-svg="1">${svg}</svg>
+<svg viewBox="0 0 ${W.toFixed(2)} ${H.toFixed(2)}" width="100%" style="max-width:${ctx.largura || 720}px;background:#FAF9F5;border-radius:8px;touch-action:none" role="group" aria-label="Planta do terreno com ${st.areas.length} áreas de plantio e ${nPontos} plantas desenhadas" data-sbn-m-svg="1">${svg}</svg>
 ${semDesenho ? `<p class="t2">Sem desenho do Planejador neste navegador. Crie uma área abaixo (retângulo ou pontos).</p>` : ""}
 ${leg ? `<ul style="list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px">${leg}</ul>` : ""}
 ${avisos.length ? `<ul class="t2 pq">${avisos.map(t => `<li>${E(t)}</li>`).join("")}</ul>` : ""}
@@ -749,8 +749,8 @@ ${linhas}</section>`;
     const lons = todos.map(c => c[0]), lats = todos.map(c => c[1]);
     const mapa = new ml.Map({ container, attributionControl: false, bounds: [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], fitBoundsOptions: { padding: 20 },
       style: { version: 8, sources: { d: { type: "geojson", data: { type: "FeatureCollection", features: F } }, g: { type: "geojson", data: { type: "FeatureCollection", features: G } } },
-        layers: [{ id: "fundo", type: "background", paint: { "background-color": "#F7F8F4" } },
-          { id: "terreno", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "terreno"], paint: { "fill-color": "#EEF2EA", "fill-outline-color": "#1C2B21" } },
+        layers: [{ id: "fundo", type: "background", paint: { "background-color": "#FAF9F5" } },
+          { id: "terreno", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "terreno"], paint: { "fill-color": "#F4F1EA", "fill-outline-color": "#1B1F23" } },
           { id: "construcoes", type: "fill", source: "d", filter: ["==", ["get", "tipo"], "construcao"], paint: { "fill-color": "#8A9284" } },
           { id: "areas", type: "fill", source: "d", filter: ["in", ["get", "tipo"], ["literal", ["area", "app"]]], paint: { "fill-color": ["match", ["get", "tipo"], "app", "#E3C4BD", "#CDDCC4"], "fill-opacity": 0.6, "fill-outline-color": "#33512F" } },
           { id: "plantas", type: "circle", source: "g", paint: { "circle-color": ["get", "cor"], "circle-radius": 3 } }] } });

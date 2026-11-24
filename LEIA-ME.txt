@@ -1,0 +1,46 @@
+PACOTE PHYSIS · 23/11/2026 · o que copiar e para onde
+====================================================
+
+Depois de baixar, clique com o botao direito em pacote-physis-2026-11-23.zip > Extrair tudo... > Extrair
+(fica em Downloads\pacote-physis-2026-11-23). Dentro ha 3 pastas numeradas. O NOME de cada pasta diz o destino.
+
+PASTA DO PACOTE                                   COPIAR TUDO QUE ESTA DENTRO PARA
+1-copiar-para-C_physis_physis-ma-20261122-1bd599e  C:\physis\physis-ma-20261122-1bd599e
+   atualizacao-physis-2026-11-22.patch
+   instalar_tudo.py
+   INSTALAR-PHYSIS.bat
+2-copiar-para-C_physis_instituto-physis            C:\physis\instituto-physis
+   atualizacao-instituto-2026-11-23.patch
+3-copiar-para-C_physis                             C:\physis
+   diagnostico_ma.py
+guias                                             (nao copiar; so ler)
+   PASSO-A-PASSO-ATUALIZADO.md, CONEXOES-CASA-MARKETING-INSTITUTO.md
+
+COPIAR COM COMANDOS (PowerShell; cole uma linha por vez):
+  $P = "$HOME\Downloads\pacote-physis-2026-11-23\pacote-physis-2026-11-23"
+  Copy-Item "$P\1-copiar-para-C_physis_physis-ma-20261122-1bd599e\*" "C:\physis\physis-ma-20261122-1bd599e\" -Force
+  Copy-Item "$P\2-copiar-para-C_physis_instituto-physis\*" "C:\physis\instituto-physis\" -Force
+  Copy-Item "$P\3-copiar-para-C_physis\*" "C:\physis\" -Force
+
+  (Se o Copy-Item disser que o caminho nao existe, o Windows extraiu sem a pasta repetida:
+   use $P = "$HOME\Downloads\pacote-physis-2026-11-23")
+
+CONFERIR QUE SAO OS ARQUIVOS NOVOS:
+  cd C:\physis\physis-ma-20261122-1bd599e
+  Select-String -Path instalar_tudo.py -Pattern "1bd599e" -Quiet          -> deve mostrar True
+
+DEPOIS:
+  1. PowerShell como administrador:
+       cd C:\physis\physis-ma-20261122-1bd599e
+       py instalar_tudo.py
+     Esperado: [3/10] aplicada agora · [6/10] Banco ... ja existe · PRONTO!
+  2. Instituto: guias\PASSO-A-PASSO-ATUALIZADO.md, secao 3.
+  3. Conferir tudo:
+       cd C:\physis
+       py diagnostico_ma.py "C:\physis\physis-ma-20261122-1bd599e"
+
+ANTES DE COPIAR, estas pastas tem que existir (o clone cria):
+  C:\physis\physis-ma-20261122-1bd599e\physis-hub       (git clone https://github.com/Physis2026/Sistema-Physis physis-ma-20261122-1bd599e)
+  C:\physis\instituto-physis\physis-hub                 (git clone https://github.com/Physis2026/instituto-physis)
+
+Versoes: Sistema sobre a main 6643e5b; Instituto sobre a branch ciclo/2026-11-22 (89b0ddb). Conferido em 23/11/2026.

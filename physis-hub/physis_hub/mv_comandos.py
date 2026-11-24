@@ -4,8 +4,8 @@ decisões D101 e pedido da dona de 20/11: "incluir bots programáveis", "caixa d
 
 Regras:
 - nada sai para fora: e-mail vira RASCUNHO na fila; documento vira ODT marcado VERSÃO DE TESTE e [CONFERIR], anexado à tarefa;
-- texto livre (sem comando) vai para a FILA DO CLAUDE com o contexto da tarefa; quem processa é uma sessão do Claude (ou a IA
-  Physis no servidor, em dezembro), com teto de custo; o resultado volta como rascunho e só vale depois de aprovado;
+- texto livre (sem comando) é respondido na hora pelo bot autônomo (mv_autonomo: comandos locais + IA Physis, sem Claude nem
+  serviço externo); o resultado volta como rascunho e só vale depois de aprovado;
 - bots programáveis repetem um comando por hora, dia ou semana; rodam junto com os bots agendados (mv_bots.rodar);
 - a lista de aprovações registra a decisão da dona; aprovar NÃO grava nada no sistema oficial sozinho: a gravação (merge do
   ramo de teste, cópia dos documentos) é um passo separado, feito depois da aprovação.
@@ -67,7 +67,7 @@ AJUDA = [
     "/rodar atrasos|documentos|resumo|backup|paginas|inovacao: roda um bot agora (paginas = checklist base, doc 43; inovacao = pesquisa diária aberta)",
     "/programar hora|dia|semana <comando>: repete um comando (bot programável)",
     "/aprovar <id> · /ajustar <id> [nota]: decide um item da lista de aprovações",
-    "Texto sem barra: vai para a fila do Claude com o contexto (tarefa: escreva #id da tarefa no texto)",
+    "Texto sem barra: o bot autônomo responde na hora com os documentos da Physis (tarefa: escreva #id da tarefa no texto)",
 ]
 
 
@@ -137,8 +137,8 @@ class Comandos:
         if not texto.startswith("/"):
             m = re.search(r"#([A-Za-z0-9_.:-]{1,80})", texto)
             tid = m.group(1) if m and self.mv.tarefa(m.group(1)) else ""
-            return self._pedido("claude", texto, tid, "na_fila",
-                                "Na fila do Claude. Volta como rascunho para você aprovar.", origem=origem)
+            from . import mv_autonomo
+            return mv_autonomo.responder(self, texto, tid, origem=origem)
         try:
             partes = shlex.split(texto[1:])
         except ValueError:
@@ -447,6 +447,27 @@ APROVACOES_23_11 = [
     {"id": "ap-p0-estermic-teste", "grupo": "P0 · Estermic", "prazo": "2026-11-24", "item": "Emissão de teste do AVAC/Estermic (IFC, lista de equipamentos, relatório, memorial de cálculo, financeiro por fases)", "onde": "doc 44"},
     {"id": "ap-p0-independencia", "grupo": "P0 · Infra", "prazo": "2026-11-23", "item": "Sistemas e bots rodando sem o Claude (este PC + Acer), apps disponíveis para teste", "onde": "doc 45"},
     {"id": "ap-logos-vetor", "grupo": "Identidade", "prazo": "2026-11-23", "item": "Logos vetorizadas do ecossistema para compartilhar com parceiros (fiéis ao guia)", "onde": "Casa Physis/Identidade_Visual_v0_proposta"},
+    {"id": "ap-p0-estermic-sistema", "grupo": "P0 · Estermic", "prazo": "2026-11-25", "item": "Sistema Estermic à parte no servidor Windows (porta 8704, estado no servidor com histórico) com o AVAC completo (água gelada; piscina com filtragem e borda infinita; sauna; churrasqueira; dutos; aquecimento solar) e BIM de instalações (IFC4: chiller, bombas, ventiladores, difusores, quadros)", "onde": "http://127.0.0.1:8704 · physis_hub/estermic_servidor.py"},
+    {"id": "ap-final-f1-visual", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Novo visual (guia de identidade nas telas atuais)", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f2-bots", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Bots autônomos sem Claude na caixa de comandos", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f3-ia", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "IA Physis generativa própria (modelo local, trava de números, rascunho)", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f4-planejador-casa", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Planejador completo na Casa, sem licença", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f5-analises", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Bot de modelagem com análises por objeto e perguntas", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f6-inovastem", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "InovaSTEM: uma aba de Impressão 3D e Simulação por área", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f7-programas", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Catálogo de programas abertos e guia de instalação/camadas do Acer", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f8-avac", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "AVAC: água gelada, piscina (filtragem e borda infinita), sauna e churrasqueira", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f9-sprinkler", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Planejador: sprinklers (NBR 10897, parâmetros digitados)", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f11-atualizacao", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Módulo de atualização final (conferir, testar, salvar e backup)", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f12-quadros", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Quadros elétricos: todas as normas registradas", "onde": "LISTA-DE-MODIFICACOES.md (rodada de 24/11)"},
+    {"id": "ap-final-f13-ifc-areas", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "IFC/PDF da arquitetura preenchem áreas e cálculo (Estermic)", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f14-croqui", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Rascunho à mão/foto vira planta reta, DXF e IFC, com nomes por OCR", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f15-pressao", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Pressão e NPSH dos circuitos de água gelada e solar", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f16-avac-compl", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "AVAC: dutos por exaustão/ar exterior, sauna separada, tubulações, fiação, piscina por tipo, garagem, apoio a gás, termoacumulação e torre", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f17-rede", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Rede de água urbana com dados abertos do Brasil → EPANET", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f18-modelagens", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "AVAC: aba Modelagens e simulações (pacotes para EnergyPlus, SAM, OpenFOAM, EPANET, CalculiX)", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f19-edicao", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Edição manual de textos e blocos das páginas", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f20-gemeo", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Gêmeo digital da Casa no Planejador", "onde": "docs/REGRESSAO-PEDIDOS.md"},
+    {"id": "ap-final-f21-camadas", "grupo": "Final 24/11", "prazo": "2026-11-25", "item": "Download das camadas IBGE e OpenStreetMap", "onde": "docs/REGRESSAO-PEDIDOS.md"},
     {"id": "ap-gsa-25-11", "grupo": "Global South Alliance", "prazo": "2026-11-25", "item": "Alimentar a aba GSA após a reunião de alinhamento", "onde": "M&A → Clientes e projetos → GSA"},
     {"id": "ap-gravar-sistemas", "grupo": "Gravação", "prazo": "2026-11-23", "item": "Gravar o aprovado no Sistema Physis e no sistema do Instituto (merge do ramo de teste + cópias oficiais)", "onde": "depois das aprovações acima"},
 ]

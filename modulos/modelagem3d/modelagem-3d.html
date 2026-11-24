@@ -750,12 +750,78 @@ global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info
       if (!j || !j.daily) return null; var s = 0, n = 0; j.daily.precipitation_sum.forEach(function (v) { if (v != null) { s += v; n++; } }); return n > 3000 ? { mm: s / (n / 365.25), fonte: "Open-Meteo/ERA5 2015–2024" } : null;
     }).catch(function () { return null; });
   }
+
+  // ---------------------------------------------------------------- análises físicas e perguntas (24/11/2026)
+  // Decisão da dona: cada pedido leva as análises que o objeto exige (calha → escoamento/CFD; peça longa impressa →
+  // flambagem; …). Quando falta dado essencial, o bot PERGUNTA em vez de supor. Nenhuma propriedade de material vem de
+  // fábrica: sem o valor no pedido, fica [MARCADOR].
+  var FERR = { cfd: "OpenFOAM", fea: "CalculiX", multi: "Elmer FEM", cad: "FreeCAD", aster: "Code_Aster (Salome-Meca)", ele: "QElectroTech" };
+  function analisesDe(qual, L) {
+    var en = L === "en", A = function (pt, e, f) { return [en ? e : pt, FERR[f]]; };
+    return ({
+      agua: [A("Escoamento na calha e no condutor (CFD, superfície livre)", "Gutter and downpipe flow (CFD, free surface)", "cfd"),
+             A("Transbordamento na chuva de projeto", "Overflow at design rainfall", "cfd")],
+      turbina: [A("Aerodinâmica do rotor (CFD)", "Rotor aerodynamics (CFD)", "cfd"), A("Tensão nas pás e no eixo (elementos finitos)", "Blade and shaft stress (finite elements)", "fea"),
+                A("Flambagem do eixo impresso", "Printed shaft buckling", "fea")],
+      estufa: [A("Ventilação e temperatura interna (CFD com empuxo)", "Ventilation and indoor temperature (buoyant CFD)", "cfd"), A("Estrutura sob vento (elementos finitos)", "Structure under wind (finite elements)", "fea")],
+      caixa: [A("Aquecimento dos componentes (térmica)", "Component heating (thermal)", "multi"), A("Vedação e queda (elementos finitos)", "Sealing and drop (finite elements)", "fea")],
+      dutos: [A("Perda de carga e distribuição de ar (CFD)", "Pressure drop and air distribution (CFD)", "cfd")],
+      avac: [A("Distribuição de ar e conforto (CFD)", "Air distribution and comfort (CFD)", "cfd")],
+      peca: [A("Flambagem (Euler; modo de flambagem por elementos finitos)", "Buckling (Euler; finite-element buckling mode)", "fea"), A("Flexão e deformação", "Bending and deflection", "fea")]
+    })[qual] || [];
+  }
+  function perguntasDe(qual, txt, L) {
+    var en = L === "en", q = [];
+    if (!qual) return en ? ["What object is it (e.g., gutter, bracket, rod, case, turbine)?", "Main dimensions in mm (length, width/diameter, thickness)?",
+      "Material and how it will be made (3D printing, machining, sheet metal)?", "What load or use (weight, water, wind, heat, outdoors)?"]
+      : ["Que objeto é (ex.: calha, suporte, haste, caixa, turbina)?", "Medidas principais em mm (comprimento, largura/diâmetro, espessura)?",
+         "Material e como será feito (impressão 3D, usinagem, chapa)?", "Que carga ou uso (peso, água, vento, calor, ao ar livre)?"];
+    if (qual === "peca") {
+      if (!/(\d[\d.,]*)\s*(mm|cm|m)\b/i.test(txt)) q.push(en ? "Length of the part (mm)?" : "Comprimento da peça (mm)?");
+      if (!/(di[aâ]metro|[øØ]|se[cç][aã]o|\d\s*[x×]\s*\d)/i.test(txt)) q.push(en ? "Cross-section: diameter or width × thickness (mm)?" : "Seção: diâmetro ou largura × espessura (mm)?");
+      if (!/E\s*(=|de)?\s*\d|GPa|MPa/.test(txt)) q.push(en ? "Material elastic modulus E (GPa), from the filament/material datasheet?" : "Módulo de elasticidade E do material (GPa), da ficha do filamento/material?");
+      if (!/engast|apoiad|livre|fixed|pinned|free/i.test(txt)) q.push(en ? "How is it held: fixed at one end and free, pinned at both ends, or fixed at both?" : "Como fica presa: engastada numa ponta e livre, apoiada nas duas pontas ou engastada nas duas?");
+      if (!/carga|peso|kg|\bN\b|load/i.test(txt)) q.push(en ? "Axial load (N or kg)?" : "Carga axial (N ou kg)?");
+    }
+    if (qual === "agua" && !/m(?:²|2)/i.test(txt)) q.push(en ? "Roof area draining to the gutter (m²)?" : "Área de telhado que escoa para a calha (m²)?");
+    return q;
+  }
+  function gPeca(txt, L) {  // haste/barra longa: λ, carga crítica de Euler (E do pedido) e arquivo CalculiX de flambagem
+    var en = L === "en", mm = function (rx, d) { var m = txt.match(rx); if (!m) return d; var v = num(m[1]); return /cm/i.test(m[2] || "") ? v * 10 : /^m$/i.test(m[2] || "") ? v * 1000 : v; };
+    var Lc = mm(/(?:comprimento|length|longa|longo|haste|barra|rod|bar)\D{0,20}?(\d[\d.,]*)\s*(mm|cm|m)\b/i, NaN);
+    if (!isFinite(Lc)) Lc = mm(/(\d[\d.,]*)\s*(mm|cm|m)\b/i, NaN);
+    var dm = txt.match(/(?:di[aâ]metro|[øØ])\s*(?:de\s*)?(\d[\d.,]*)\s*(mm|cm)?/i), rt = txt.match(/(\d[\d.,]*)\s*[x×]\s*(\d[\d.,]*)\s*(mm|cm)?/i);
+    var I, Aa, sec;
+    if (dm) { var D = num(dm[1]) * (/cm/i.test(dm[2] || "") ? 10 : 1); I = Math.PI * Math.pow(D, 4) / 64; Aa = Math.PI * D * D / 4; sec = "Ø " + fmt(D, 1) + " mm"; }
+    else if (rt) { var b = num(rt[1]) * (/cm/i.test(rt[3] || "") ? 10 : 1), h = num(rt[2]) * (/cm/i.test(rt[3] || "") ? 10 : 1); I = Math.min(b * h * h * h, h * b * b * b) / 12; Aa = b * h; sec = fmt(b, 1) + " × " + fmt(h, 1) + " mm"; }
+    var Em = txt.match(/E\s*(?:=|de)?\s*(\d[\d.,]*)\s*GPa/i), E = Em ? num(Em[1]) * 1000 : NaN;   // MPa = N/mm²
+    var K = /engastad[ao] nas duas|fixed at both/i.test(txt) ? 0.5 : /engast|fixed/i.test(txt) && /livre|free/i.test(txt) ? 2 : /apoiad|pinned/i.test(txt) ? 1 : NaN;
+    var r = Math.sqrt(I / Aa), lam = K * Lc / r, Pcr = Math.PI * Math.PI * E * I / Math.pow(K * Lc, 2);
+    var cg = txt.match(/(\d[\d.,]*)\s*(kg|N)\b/i), P = cg ? num(cg[1]) * (/kg/i.test(cg[2]) ? 9.81 : 1) : NaN;
+    var M = new Malha(); if (dm) M.cilindro(0, 0, D / 2, 0, Lc, 32); else M.caixa(0, 0, 0, b, h, Lc);
+    var MK = "[MARCADOR]", calc = [[en ? "Part" : "Peça", fmt(Lc, 0) + " mm · " + sec],
+      [en ? "Slenderness λ = K·L/r" : "Esbeltez λ = K·L/r", isFinite(lam) ? fmt(lam, 0) + " (K " + K + ")" : MK + (en ? " (end conditions)" : " (fixação)")],
+      [en ? "Euler critical load" : "Carga crítica de Euler", isFinite(Pcr) ? fmt(Pcr, 1) + " N" : MK + (en ? " (E of the material)" : " (E do material)")],
+      [en ? "Applied load / safety factor" : "Carga aplicada / fator de segurança", isFinite(P) && isFinite(Pcr) ? fmt(P, 1) + " N · " + fmt(Pcr / P, 2) : MK]];
+    var n = 20, inp = "** CalculiX: flambagem de haste (Physis, estudo preliminar)\n*NODE\n";
+    for (var i = 0; i <= 2 * n; i++) inp += (i + 1) + ", 0, 0, " + (Lc * i / (2 * n)).toFixed(3) + "\n";
+    inp += "*ELEMENT, TYPE=B32, ELSET=HASTE\n"; for (i = 0; i < n; i++) inp += (i + 1) + ", " + (2 * i + 1) + ", " + (2 * i + 2) + ", " + (2 * i + 3) + "\n";
+    inp += "*MATERIAL, NAME=MAT\n*ELASTIC\n" + (isFinite(E) ? E : "[MARCADOR_E_MPa]") + ", [MARCADOR_POISSON]\n" +
+      (dm ? "*BEAM SECTION, ELSET=HASTE, MATERIAL=MAT, SECTION=CIRC\n" + D.toFixed(3) + "\n" : "*BEAM SECTION, ELSET=HASTE, MATERIAL=MAT, SECTION=RECT\n" + b + ", " + h + "\n") + "1, 0, 0\n" +
+      "*BOUNDARY\n" + (K === 1 ? "1, 1, 3\n" + (n + 1) + ", 6, 6\n" : "1, 1, 6\n") + (K === 1 ? (2 * n + 1) + ", 1, 2\n" : K === 0.5 ? (2 * n + 1) + ", 1, 2\n" + (2 * n + 1) + ", 4, 6\n" : "") +
+      "*STEP\n*BUCKLE\n3\n*CLOAD\n" + (2 * n + 1) + ", 3, -1.\n*END STEP\n";
+    return { nome: "haste_" + Math.round(Lc) + "mm", malha: M, calc: calc, formatos: ["stl", "csv", "inp"], inp: inp,
+      sugestoes: en ? ["Run the .inp in CalculiX (ccx): the first buckling factor × 1 N is the critical load; compare with Euler.", "For 3D printing, the layers weaken across the print direction: print the rod lying down when possible."]
+        : ["Rodar o .inp no CalculiX (ccx): o 1º fator de flambagem × 1 N é a carga crítica; comparar com Euler.", "Na impressão 3D as camadas enfraquecem na direção de impressão: imprimir a haste deitada quando possível."] };
+  }
+  var CONSTRUCAO = { netzero: 1, avac: 1, dutos: 1 };   // base de construção: só nas telas internas, não no site público
   function entender(txt, temImg) {
     if (/net ?zero|carbono zero|zerar (a )?(energia|conta|emiss)|balan[cç]o energ|energia solar|fotovolt|solar panel/i.test(txt)) return "netzero";
     if (/calha|cisterna|[aá]gua de chuva|capta[cç][aã]o de chuva|gutter|cistern/i.test(txt)) return "agua";
     if (/estufa|greenhouse/i.test(txt)) return "estufa";
     if (/caixa|case|gabinete/i.test(txt) && /sensor|eletr[oô]nic|placa|esp32|arduino/i.test(txt)) return "caixa";
     if (/carga t[eé]rmica|NBR ?16401|cooling load/i.test(txt)) return "avac";
+    if (/haste|barra|vareta|pilar|coluna|suporte longo|objeto longo|pe[cç]a longa|\brod\b|\bbar\b|long part/i.test(txt)) return "peca";
     if (/turbina|aerogerador|rotor e[oó]lic|wind turbine|turbine/i.test(txt)) return "turbina";
     if (/ar[- ]condicionado|\bduto|\bAVAC\b|\bHVAC\b|climatiza|air[- ]condition|\bduct/i.test(txt)) return "dutos";
     if (/chuva|pluvi|precipita|rain/i.test(txt)) return "chuva";
@@ -813,6 +879,12 @@ global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info
     var sug = function (lista) { return publico ? sugPub(lista, t) : lista; };
     el.querySelector(".pmd-g").onclick = function () {
       var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
+      if (publico && CONSTRUCAO[qual]) qual = "";
+      var pq = perguntasDe(qual, txt, L);
+      if (pq.length && (!qual || qual === "peca" || qual === "agua")) {
+        out.innerHTML = "<p><strong>" + (L === "en" ? "To model without guessing, answer in the box and press Generate again:" : "Para modelar sem supor, responda na caixa e clique em Gerar de novo:") +
+          "</strong></p><ol class='pmd-q'>" + pq.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol>"; vbox.innerHTML = ""; return;
+      }
       if (!qual) {
         out.innerHTML = "<p>" + t.naoEntendi + "</p>" + (publico ? "" : "<button class='pmd-c'>" + t.copiar + "</button>"); vbox.innerHTML = ""; if (publico) return;
         out.querySelector(".pmd-c").onclick = function () { var b = this; (navigator.clipboard ? navigator.clipboard.writeText("Modelagem (" + ctx + "): " + txt) : Promise.reject()).then(function () { b.textContent = t.copiado; }, function () { ta.select(); }); };
@@ -826,17 +898,19 @@ global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info
     function gerarAgora() {
       var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
       r = qual === "turbina" ? gTurbina(txt, L) : qual === "dutos" ? gDutos(txt, L) : qual === "avac" ? gAvac(txt, L) : qual === "chuva" ? gChuva(txt, L, geo) : qual === "netzero" ? gNetZero(txt, L, geo)
-        : qual === "agua" ? gAgua(txt, L) : qual === "estufa" ? gEstufa(txt, L) : qual === "caixa" ? gCaixa(txt, L) : qual === "terreno" ? gTerreno(txt, L, grade) : img ? gRelevo(txt, L, img) : { erro: L === "en" ? "Upload an image for the relief." : "Envie uma imagem para o relevo." };
+        : qual === "agua" ? gAgua(txt, L) : qual === "estufa" ? gEstufa(txt, L) : qual === "caixa" ? gCaixa(txt, L) : qual === "peca" ? gPeca(txt, L) : qual === "terreno" ? gTerreno(txt, L, grade) : img ? gRelevo(txt, L, img) : { erro: L === "en" ? "Upload an image for the relief." : "Envie uma imagem para o relevo." };
       if (fonteChuva && r.calc) { r.calc.push([L === "en" ? "Rainfall source" : "Fonte da chuva", fonteChuva]); fonteChuva = ""; }
       if (r.erro) { out.innerHTML = "<p>" + esc(r.erro) + "</p>"; vbox.innerHTML = ""; return; }
       var bt = r.formatos.map(function (f) { return '<button data-f="' + f + '">' + t.baixar + " ." + f + "</button>"; }).join(" ");
       out.innerHTML = "<p><strong>" + esc(r.nome) + "</strong></p><h3 style='margin:.4rem 0;font-size:1rem'>" + t.calc + "</h3><table>" + r.calc.map(function (c) { return "<tr><td>" + esc(c[0]) + "</td><td>" + esc(c[1]) + "</td></tr>"; }).join("") +
-        "</table><p><small>" + t.aviso + "</small></p><div class='pmd-l'>" + bt + "</div><p><strong>" + t.sugestoes + ":</strong></p><ul>" + sug(r.sugestoes).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
+        "</table>" + (analisesDe(qual, L).length ? "<h3 style='margin:.4rem 0;font-size:1rem'>" + (L === "en" ? "Analyses this object needs" : "Análises que este objeto pede") + "</h3><ul>" +
+          analisesDe(qual, L).map(function (a) { return "<li>" + esc(a[0]) + " · <small>" + esc(a[1]) + "</small></li>"; }).join("") + "</ul>" : "") + "<p><small>" + t.aviso + "</small></p><div class='pmd-l'>" + bt + "</div><p><strong>" + t.sugestoes + ":</strong></p><ul>" + sug(r.sugestoes).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
       Array.prototype.forEach.call(out.querySelectorAll("[data-f]"), function (b) {
         b.onclick = function () {
           var f = b.getAttribute("data-f");
           if (f === "stl" && r.partes) r.partes.forEach(function (q, i) { setTimeout(function () { baixar(stl(q.malha), r.nome + "_" + q.nome + ".stl"); }, 400 * i); });
           else if (f === "stl") baixar(stl(r.malha), r.nome + ".stl"); else if (f === "obj") baixar(obj(r.malha), r.nome + ".obj");
+          else if (f === "inp") baixar(new Blob([r.inp], { type: "text/plain" }), r.nome + ".inp");
           else if (f === "ifc") baixar(ifc(r.nome, r.ifc || []), r.nome + ".ifc");
           else if (f === "geojson") baixar(new Blob([JSON.stringify(r.geojson, null, 1)], { type: "application/geo+json" }), r.nome + ".geojson");
           else if (f === "csv") baixar(new Blob(["﻿item;valor\n" + r.calc.map(function (c) { return '"' + c[0] + '";"' + String(c[1]).replace(/"/g, "'") + '"'; }).join("\n")], { type: "text/csv" }), r.nome + ".csv");
@@ -845,7 +919,7 @@ global.PhysisCalc = { PREMISSAS: PREMISSAS, DIAS: DIAS, premissa: premissa, info
       w.PhysisModelador.ultimo = r; ver(vbox, r.malha);
     };
   }
-  w.PhysisModelador = { checar: checar, montar: montar, entender: entender, gerar: { turbina: gTurbina, dutos: gDutos, chuva: gChuva, netzero: gNetZero, agua: gAgua, estufa: gEstufa, caixa: gCaixa, avac: gAvac, terreno: gTerreno }, lerGrade: lerGrade, chuvaOnline: chuvaOnline, exportar: { stl: stl, obj: obj, ifc: ifc }, lerKML: lerKML, areaM2: areaM2, ultimo: null };
+  w.PhysisModelador = { analises: analisesDe, perguntas: perguntasDe, checar: checar, montar: montar, entender: entender, gerar: { peca: gPeca,  turbina: gTurbina, dutos: gDutos, chuva: gChuva, netzero: gNetZero, agua: gAgua, estufa: gEstufa, caixa: gCaixa, avac: gAvac, terreno: gTerreno }, lerGrade: lerGrade, chuvaOnline: chuvaOnline, exportar: { stl: stl, obj: obj, ifc: ifc }, lerKML: lerKML, areaM2: areaM2, ultimo: null };
   function tudo() { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]"), montar); }
   if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", tudo); else tudo();
   if (w.MutationObserver) new MutationObserver(function () { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]:not([data-pmd-ok])"), montar); }).observe(d.documentElement, { childList: true, subtree: true });

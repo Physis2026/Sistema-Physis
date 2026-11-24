@@ -282,7 +282,7 @@
     var mapa = new M.Map({ container: div, attributionControl: false, center: [s.lon != null ? s.lon : s.cy, s.lat != null ? s.lat : s.cx], zoom: s.lat != null ? 12 : 4,
       locale: { "NavigationControl.ZoomIn": "Aproximar o mapa", "NavigationControl.ZoomOut": "Afastar o mapa", "NavigationControl.ResetBearing": "Voltar o norte para cima", "Marker.Title": "Marcador da lavoura: arraste, ou use as setas para mover", "ScaleControl.Meters": "m", "ScaleControl.Kilometers": "km" },
       style: { version: 8, sources: { osm: { type: "vector", url: "pmtiles:///mapas/regiao.pmtiles" } }, layers: [
-        { id: "fundo", type: "background", paint: { "background-color": escuro ? "#2A3829" : "#EEF2EA" } },
+        { id: "fundo", type: "background", paint: { "background-color": escuro ? "#0B3D2E" : "#F4F1EA" } },
         { id: "agua", type: "fill", source: "osm", "source-layer": "water", paint: { "fill-color": escuro ? "#546A7B" : "#C3D0BD" } },
         { id: "vias", type: "line", source: "osm", "source-layer": "roads", paint: { "line-color": "#C9B98F", "line-width": 1 } }] } });
     mapa.addControl(new M.NavigationControl({ showCompass: true })); mapa.addControl(new M.ScaleControl({ unit: "metric" }));
@@ -320,18 +320,18 @@
   }
 
   var CSS = ".pml{display:flex;flex-direction:column;gap:10px;min-width:0}"
-    + ".pml-sv{min-width:0}.pml-svg{display:block;width:100%;height:auto;max-height:360px;border:1px solid var(--linha,#C9D2C4);border-radius:10px;background:var(--tinte,#EEF4EA);touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}"
-    + ".pml-svg:focus-visible{outline:3px solid var(--acao,#33512F);outline-offset:2px}"
-    + ".pml-svg .pml-f{fill:var(--tinte,#EEF4EA)}.pml-svg .pml-g{stroke:var(--linha,#C9D2C4);stroke-width:1}"
-    + ".pml-svg .pml-r{fill:var(--tinta2,#4A4F44);font-size:13px;font-family:var(--fonte,system-ui,sans-serif)}.pml-svg .pml-nt{font-weight:700;fill:var(--tinta,#1C2B21)}"
-    + ".pml-svg .pml-cx{fill:var(--sup,#FFFFFF);opacity:.85}.pml-svg .pml-n{fill:var(--tinta,#1C2B21)}.pml-svg .pml-esc{stroke:var(--tinta,#1C2B21);stroke-width:3}"
-    + ".pml-svg .pml-m line{stroke:var(--acao,#33512F);stroke-width:2.5}.pml-svg .pml-m circle{fill:none;stroke:var(--acao,#33512F);stroke-width:3}.pml-svg .pml-m .pml-mc{fill:var(--acao,#33512F);stroke:none}"
+    + ".pml-sv{min-width:0}.pml-svg{display:block;width:100%;height:auto;max-height:360px;border:1px solid var(--linha,#D9D3C2);border-radius:10px;background:var(--tinte,#EEF4EA);touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}"
+    + ".pml-svg:focus-visible{outline:3px solid var(--acao,#1A4D2E);outline-offset:2px}"
+    + ".pml-svg .pml-f{fill:var(--tinte,#EEF4EA)}.pml-svg .pml-g{stroke:var(--linha,#D9D3C2);stroke-width:1}"
+    + ".pml-svg .pml-r{fill:var(--tinta2,#4A4F44);font-size:13px;font-family:var(--fonte,system-ui,sans-serif)}.pml-svg .pml-nt{font-weight:700;fill:var(--tinta,#1B1F23)}"
+    + ".pml-svg .pml-cx{fill:var(--sup,#FFFFFF);opacity:.85}.pml-svg .pml-n{fill:var(--tinta,#1B1F23)}.pml-svg .pml-esc{stroke:var(--tinta,#1B1F23);stroke-width:3}"
+    + ".pml-svg .pml-m line{stroke:var(--acao,#1A4D2E);stroke-width:2.5}.pml-svg .pml-m circle{fill:none;stroke:var(--acao,#1A4D2E);stroke-width:3}.pml-svg .pml-m .pml-mc{fill:var(--acao,#1A4D2E);stroke:none}"
     + ".pml-bt{display:flex;flex-wrap:wrap;gap:6px}.pml-bt button[data-pml-zoom]{min-width:44px;padding:0;font-size:1.2em}"
-    + ".pml-ml{height:320px;border:1px solid var(--linha,#C9D2C4);border-radius:10px;overflow:hidden}.pml-ml-in{width:100%;height:100%}"
+    + ".pml-ml{height:320px;border:1px solid var(--linha,#D9D3C2);border-radius:10px;overflow:hidden}.pml-ml-in{width:100%;height:100%}"
     + ".pml-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:10px}.pml-campos input{width:100%}"
     + ".pml-erro{color:var(--al-t,#7A2214);font-weight:600}.pml-aviso{color:var(--at-t,#5C3F00);font-weight:600}"
-    + ".pml-pino{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#33512F;border:3px solid #FFFFFF;box-shadow:0 0 0 1px #1C2B21;cursor:grab}"
-    + ".pml-pino:focus-visible{outline:3px solid var(--acao,#33512F);outline-offset:3px;box-shadow:0 0 0 2px #FFFFFF}";
+    + ".pml-pino{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#1A4D2E;border:3px solid #FFFFFF;box-shadow:0 0 0 1px #1B1F23;cursor:grab}"
+    + ".pml-pino:focus-visible{outline:3px solid var(--acao,#1A4D2E);outline-offset:3px;box-shadow:0 0 0 2px #FFFFFF}";
   function estilo() { if (!doc || !doc.head || doc.getElementById("pml-estilo")) return; var e = doc.createElement("style"); e.id = "pml-estilo"; e.textContent = CSS; doc.head.appendChild(e); }
 
   var I18N = {

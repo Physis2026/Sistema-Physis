@@ -1,6 +1,6 @@
 /* physis-avac.js — AVAC e térmico: porta das contas da planilha PHYSIS_AVAC-5_quadro_eletrico
    (abas 0 Controle, 1 Tipologias, 2 Ar condicionado, 3 Ventilação, 4 Pressurização, 5 Aq. solar,
-   6 Piscina, 7 Dutos e ventiladores, 8 Quadro elétrico, 9 Resumo, 10 Lista de equipamentos,
+   6 Piscina, 7 Dutos e ventiladores, + Água gelada (24/11/2026), 8 Quadro elétrico, 9 Resumo, 10 Lista de equipamentos,
    11 Memória de cálculo). Mesmas fórmulas e tabelas de referência da planilha; normas citadas só
    pelo código e pelos parâmetros numéricos que a planilha usa.
    Contrato com a plataforma: define telaAvac() (HTML da aba inteira, sem o quadro elétrico),
@@ -139,6 +139,12 @@ function calcular(entradas) {
   vent.outrosLista = (V.outros || []).map(o => ({ n:o.n || "", vazao:N(o.area) * N(o.pe) * N(o.trocas) }));
   vent.outros = vent.outrosLista.reduce((s, o) => s + o.vazao, 0);
   vent.total = vent.banheiros + vent.lixo + vent.garagem + vent.outros; vent.totalLs = vent.total / 3.6; r.vent = vent;
+  /* 24/11/2026: churrasqueiras (exaustão por coifa) e ar exterior; cada item ganha o próprio duto na aba Dutos e ventiladores */
+  vent.churrLista = (V.churr || []).map(o => ({ id:o.id, n:o.n || "", vazao:N(o.coifaM) * N(o.vazM) }));
+  vent.churr = vent.churrLista.reduce((s, o) => s + o.vazao, 0);
+  vent.arExtLista = (V.arExt || []).map(o => ({ id:o.id, n:o.n || "", vazao:N(o.vazao) }));
+  vent.arExt = vent.arExtLista.reduce((s, o) => s + o.vazao, 0);
+  vent.total += vent.churr; vent.totalLs = vent.total / 3.6;
   status.vent = st("vent", tip.unidades > 0);
 
   /* 4. Pressurização de escada (NBR 14880) */
@@ -192,6 +198,10 @@ function calcular(entradas) {
   dut.nu = 0.000001458 * Math.pow(Tk, 1.5) / (Tk + 110.4) / dut.rho;
   const rug = N(D.rug), rendC = N(D.rend), fonte = { banheiros:status.vent === "ativo" ? vent.banheiros : 0, lixo:status.vent === "ativo" ? vent.lixo : 0,
     garagem:status.vent === "ativo" ? vent.garagem : 0, press:status.press === "ativo" ? press.qh : 0 };
+
+  (V.outros || []).forEach((o, i) => { if (o.id) fonte["outro:" + o.id] = status.vent === "ativo" ? vent.outrosLista[i].vazao : 0; });
+  vent.churrLista.forEach(o => { if (o.id) fonte["churr:" + o.id] = o.vazao; });
+  vent.arExtLista.forEach(o => { if (o.id) fonte["arext:" + o.id] = o.vazao; });
   dut.sis = (D.sistemas || []).map((s, i) => { const B = s.fonte ? N(fonte[s.fonte]) : N(s.vazao), C = N(s.vel), o = { i, nome:s.nome || "", fonte:s.fonte || "", vazao:B, vel:C };
     o.area = (B === 0 || C === 0) ? 0 : B / 3600 / C; o.diam = o.area === 0 ? 0 : Math.sqrt(4 * o.area / Math.PI) * 1000;
     o.reynolds = o.diam === 0 ? 0 : C * o.diam / 1000 / dut.nu;
@@ -228,10 +238,20 @@ function calcular(entradas) {
   let kac = 0; amb.forEach(a => { if (!a.matriz || a.comum <= 0) return;
     cq.push({ id:"ac" + encodeURIComponent(a.nome).replace(/\./g, "%2E"), nome:"Ar condicionado — " + a.nome, kwUnit:status.ac !== "ativo" ? 0 : (cop ? a.btu / 3412 / cop : 0), qtd:a.comum, ehAC:true,
       pad:{ fases:FASES_AC[kac++ % FASES_AC.length], fp:0.95, rend:1, fd:1, fs:1, ipin:0, curva:"C", dr:"não", comp:35, iplaca:null } }); });
-  cq.push({ id:"solar", nome:"Apoio elétrico do aquecimento solar", kwUnit:status.solar !== "ativo" ? 0 : solar.apoio, qtd:1,
+  const apT = (e.solar || {}).apoioTipo || "eletrico", apKw = apT === "eletrico" ? solar.apoio : apT === "bomba" ? (N(e.solar.copBC) > 0 ? solar.apoio / N(e.solar.copBC) : 0) : 0;   /* gás: sem carga elétrica */
+  cq.push({ id:"solar", nome:"Apoio elétrico do aquecimento solar", kwUnit:status.solar !== "ativo" ? 0 : apKw, qtd:1,
     pad:{ fases:"RST", fp:1, rend:1, fd:1, fs:1, ipin:0, curva:"C", dr:"não", comp:40, iplaca:null } });
   cq.push({ id:"piscina", nome:"Aquecedor de piscina", kwUnit:status.piscina !== "ativo" ? 0 : (N(Q.copPisc) <= 1 ? pis.total : pis.total / N(Q.copPisc)), qtd:1,
     pad:{ fases:"RST", fp:0.9, rend:1, fd:1, fs:1, ipin:0, curva:"C", dr:"não", comp:40, iplaca:null } });
+
+  /* 24/11/2026: água gelada, piscina (filtragem/borda) e sauna entram no quadro (fiação e proteção selecionadas pela NBR 5410) */
+  r.agua = calcAgua(e, r); r.ext = calcExtras(e, r);
+  if (isFinite(r.agua.porBomba) && r.agua.porBomba > 0) cq.push({ id:"bag", nome:"Bombas de água gelada", kwUnit:r.agua.porBomba, qtd:r.agua.nb,
+    pad:{ fases:"RST", fp:0.85, rend:N(D.rendMotor), fd:1, fs:1.15, ipin:7, curva:"D", dr:"não", comp:30, iplaca:null } });
+  if (N((e.ext || {}).bombaKw) > 0) cq.push({ id:"bpisc", nome:"Bombas da piscina (filtragem e borda)", kwUnit:N(e.ext.bombaKw), qtd:N(e.ext.nBombasPisc) || 1,
+    pad:{ fases:"RST", fp:0.85, rend:N(D.rendMotor), fd:1, fs:1.15, ipin:7, curva:"D", dr:"sim", comp:30, iplaca:null } });
+  if (isFinite(r.ext.sauna) && r.ext.sauna > 0) cq.push({ id:"sauna", nome:"Gerador da sauna", kwUnit:r.ext.sauna, qtd:1,
+    pad:{ fases:"RST", fp:1, rend:1, fd:1, fs:1, ipin:0, curva:"C", dr:"sim", comp:20, iplaca:null } });
   (Q.extras || []).forEach((x, i) => cq.push({ id:"x" + i, extra:i, nome:x.nome || "", kwUnit:N(x.kw), qtd:x.qtd == null ? 1 : N(x.qtd),
     pad:{ fases:"RST", fp:0.92, rend:1, fd:1, fs:1, ipin:0, curva:"C", dr:"não", comp:30, iplaca:null } }));
   const circ = cq.map(c => { const p = Object.assign({}, c.pad, c.extra != null ? pick((Q.extras || [])[c.extra]) : (ov[c.id] || {}));
@@ -397,7 +417,7 @@ function setPath(obj, path, v) { const ps = String(path).split("."); let c = obj
 
 /* ════════ Desenho (usa os globais da plataforma) ════════ */
 const SUBS = [["visao", "Visão geral e controle"], ["tip", "Tipologias e ambientes"], ["carga", "Carga térmica"], ["ac", "Ar-condicionado"], ["vent", "Ventilação"], ["press", "Pressurização"],
-  ["solar", "Aquecimento solar"], ["piscina", "Piscina"], ["dutos", "Dutos e ventiladores"], ["resumo", "Resumo e lista de equipamentos"], ["memoria", "Memória de cálculo"]];
+  ["solar", "Aquecimento solar"], ["piscina", "Piscina"], ["dutos", "Dutos e ventiladores"], ["sauna", "Sauna"], ["agua", "Água gelada"], ["tubos", "Tubulações (água fria, quente e gelada)"], ["modelagens", "Modelagens e simulações"], ["resumo", "Resumo e lista de equipamentos"], ["memoria", "Memória de cálculo"]];
 const f = (v, c) => (v == null || v === "" || (typeof v === "number" && !isFinite(v))) ? "—" : typeof v === "number" ? n2(v, c == null ? 2 : c) : esc(v);
 const fmtIn = v => v == null || v === "" ? "" : typeof v === "number" ? String(+v.toPrecision(12)).replace(".", ",") : String(v);
 const idDe = p => "avac-" + String(p).replace(/[^A-Za-z0-9_-]/g, "_");
@@ -481,16 +501,19 @@ function telaVent(e, R) { const v = e.vent, x = R.vent;
     ${campo("vent.vazBanh", v.vazBanh, "Vazão fixa por banheiro (m³/h)")}${campo("vent.areaBanh", v.areaBanh, "Área média do banheiro (m²)")}${campo("vent.peBanh", v.peBanh, "Pé-direito do banheiro (m)")}${campo("vent.trocasBanh", v.trocasBanh, "Trocas por hora do banheiro")}</div>
     <h3 class="t3">Depósito de lixo</h3><div class="precos">${campo("vent.lixoArea", v.lixoArea, "Área do depósito (m²)")}${campo("vent.lixoPe", v.lixoPe, "Pé-direito do depósito (m)")}${campo("vent.lixoTrocas", v.lixoTrocas, "Trocas por hora do depósito")}</div>
     <h3 class="t3">Garagem</h3><div class="precos">${campo("vent.garArea", v.garArea, "Área da garagem (m²)")}${campo("vent.garPe", v.garPe, "Pé-direito da garagem (m)")}${campo("vent.garVagas", v.garVagas, "Vagas (0 = usar cadastro)")}
-    ${campo("vent.garTrocas", v.garTrocas, "Trocas por hora da garagem")}${campo("vent.garLsm2", v.garLsm2, "Vazão por área (L/s·m²)")}${campo("vent.garVaga", v.garVaga, "Vazão por vaga (m³/h)")}</div>`);
+    ${campo("vent.garTrocas", v.garTrocas, "Trocas por hora da garagem")}${campo("vent.garLsm2", v.garLsm2, "Vazão por área (L/s·m²)")}${campo("vent.garVaga", v.garVaga, "Vazão por vaga (m³/h)")}    ${campo("vent.garLsm2Min", v.garLsm2Min, "Vazão mínima por área (L/s·m²)", "n", "Do código de obras/IT do Corpo de Bombeiros [CONFERIR].")}${campo("vent.garLsm2Max", v.garLsm2Max, "Vazão máxima por área (L/s·m²)", "n", "Do projeto [CONFERIR].")}</div>`);
   const out = sec("vo", "Outros ambientes", tabela("Ambientes ventilados por trocas por hora", ["Ambiente", "Área (m²)", "Pé-direito (m)", "Trocas/h", "Vazão (m³/h)", "<span class=\"so-leitor\">Ações</span>"],
     (v.outros || []).map((o, i) => `<tr>${cel("vent.outros." + i + ".n", o.n, "Nome do ambiente " + (i + 1), "s", { w:"12em" })}${cel("vent.outros." + i + ".area", o.area, "Área de " + o.n)}${cel("vent.outros." + i + ".pe", o.pe, "Pé-direito de " + o.n)}
       ${cel("vent.outros." + i + ".trocas", o.trocas, "Trocas por hora de " + o.n)}<td>${f(x.outrosLista[i].vazao, 1)}</td><td>${btn("del=outro:" + i, "Remover", "Remover " + o.n)}</td></tr>`)) + `<p>${btn("add=outro", "Acrescentar ambiente")}</p>`);
-  const L = (n, q, cr) => `<tr><th scope="row">${esc(n)}</th><td>${f(q, 1)}</td><td>${f(q / 3.6, 1)}</td><td>${esc(cr)}</td></tr>`;
-  const res = sec("vr", "Vazões de projeto", tabela("Vazões por ambiente e total do edifício", ["Ambiente", "Vazão (m³/h)", "Vazão (L/s)", "Critério"], [L("Banheiros das unidades", x.banheiros, "nº de banheiros do cadastro × vazão adotada por peça (" + n2(x.porBanh, 1) + " m³/h)"),
+  const L = (n, q, cr) => `<tr><th scope="row">${esc(n)}</th><td>${f(q, 1)}</td><td>${f(q / 3.6, 1)}</td><td>${f(q / 1.699, 0)}</td><td>${esc(cr)}</td></tr>`;
+  const res = sec("vr", "Vazões de projeto", tabela("Vazões por ambiente e total do edifício", ["Ambiente", "Vazão (m³/h)", "Vazão (L/s)", "Vazão (CFM)", "Critério"], [L("Banheiros das unidades", x.banheiros, "nº de banheiros do cadastro × vazão adotada por peça (" + n2(x.porBanh, 1) + " m³/h)"),
     L("Depósito de lixo", x.lixo, "volume × trocas por hora"), L("Garagem — por trocas/hora", x.garTrocas, "critério a"), L("Garagem — por área", x.garArea, "critério b — L/s·m² convertido"),
     L("Garagem — por vaga", x.garVaga, "critério c (" + n2(x.vagas, 0) + " vagas)"), L("Garagem — adotado", x.garagem, "maior entre a, b e c"), L("Outros ambientes", x.outros, "conforme tabela"), L("TOTAL DO EDIFÍCIO", x.total, "")])
-    + `<p class="t2 pq">O total do edifício não é o ponto de operação de um único ventilador: some por prumada e calcule o trecho crítico (Dutos e ventiladores). Garagem tem interface com o controle de fumaça. Confirme os critérios na NBR 16401-3, no código de obras e na IT do Corpo de Bombeiros.</p>`);
-  return avisoStatus(R, "vent") + res + ent + out; }
+    + `<p class="t2 pq">O total do edifício não é o ponto de operação de um único ventilador: some por prumada e calcule o trecho crítico (Dutos e ventiladores). Garagem tem interface com o controle de fumaça. Confirme os critérios na NBR 16401-3, no código de obras e na IT do Corpo de Bombeiros.</p>`
+    + (N(v.garLsm2Min) > 0 || N(v.garLsm2Max) > 0 ? (() => { const a = N(v.garArea), q = a > 0 ? x.garagem / 3.6 / a : NaN, mi = N(v.garLsm2Min), ma = N(v.garLsm2Max);
+      const sit = !(q > 0) ? "informe a área da garagem" : mi > 0 && q < mi ? "abaixo do mínimo: aumentar a vazão" : ma > 0 && q > ma ? "acima do máximo: rever" : "dentro da faixa";
+      return `<p class="faixa ${sit === "dentro da faixa" ? "ok" : "at"}" role="note">Garagem: ${f(q, 2)} L/s·m² adotados · faixa ${f(mi || null, 2)} a ${f(ma || null, 2)} L/s·m² → ${esc(sit)}.</p>`; })() : ""));
+  return avisoStatus(R, "vent") + res + ent + out + telaVentExtras(e, R); }
 
 function telaPress(e, R) { const p = e.press, x = R.press;
   const ent = sec("pe", "Dados de entrada", `<div class="precos">${campo("press.dp", p.dp, "Pressão diferencial com portas fechadas (Pa)", "n", "Confirme o valor da classe na NBR 14880 e na IT do CBM.")}
@@ -521,7 +544,7 @@ function telaSolar(e, R) { const s = e.solar, x = R.solar;
   const mes = x.modo === "mensal" ? sec("sm", "Produção do coletor mês a mês", `<div class="rolagem"><table><caption>Eficiência ${f(x.eta * 100, 0)}% × sol do lugar (${esc(s.solFonte || "base do servidor")}); a área sai do pior mês, ${MESES_AQ[x.piorMes]}</caption><thead><tr><th scope="col">Mês</th><th scope="col">Produção (kWh/m²·dia)</th><th scope="col">Área para a parcela solar (m²)</th></tr></thead><tbody>
     ${x.prodMes.map((p, i) => `<tr><th scope="row">${MESES_AQ[i]}${i === x.piorMes ? " (pior)" : ""}</th><td>${f(p, 2)}</td><td>${f(p ? x.parcela / p : 0, 1)}</td></tr>`).join("")}</tbody></table></div>`)
     : `<p class="t2 pq">${x.modo === "informada" ? "Produção informada à mão: informe a eficiência da etiqueta Inmetro para usar o sol do lugar mês a mês." : "Falta a eficiência do coletor (etiqueta Inmetro) ou a produção específica: sem ela o aquecimento solar não é dimensionado."}</p>`;
-  return avisoStatus(R, "solar") + res + mes + ent; }
+  return avisoStatus(R, "solar") + res + mes + ent + telaSolarApoio(e, R); }
 
 function telaPiscina(e, R) { const p = e.piscina, x = R.piscina;
   const ent = sec("ie", "Dados de entrada", `<div class="precos">${campo("piscina.area", p.area, "Área do espelho d'água (m²)")}${campo("piscina.prof", p.prof, "Profundidade média (m)")}
@@ -535,7 +558,7 @@ function telaPiscina(e, R) { const p = e.piscina, x = R.piscina;
     ["Perda por radiação (kW) — ε = 0,95", f(x.qRad, 2)], ["Perda por paredes e fundo (kW)", f(x.qParedes, 2)], ["Subtotal de perdas (kW)", f(x.subtotal, 2)], ["Redução pela capa térmica (kW)", f(x.capa, 2)],
     ["Manutenção de temperatura (kW)", f(x.manut, 2)], ["Volume da piscina (m³)", f(x.volume, 1)], ["Aquecimento inicial (kW)", f(x.inicial, 2)], ["Potência total de seleção (kW)", f(x.total, 2)], ["Potência total (BTU/h)", f(x.btu, 0)]])
     + `<p class="t2 pq">A evaporação domina e é sensível ao vento. Bomba de calor perde capacidade no frio: verifique na condição de inverno.</p>`);
-  return avisoStatus(R, "piscina") + res + ent; }
+  return avisoStatus(R, "piscina") + res + ent + telaPiscinaExtras(e, R); }
 
 function telaDutos(e, R) { const d = e.dutos, x = R.dutos;
   const ent = sec("de", "Parâmetros do ar, do duto e do motor", `<div class="precos">${campo("dutos.alt", d.alt, "Altitude do local (m)")}${campo("dutos.temp", d.temp, "Temperatura do ar no duto (°C)")}
@@ -649,9 +672,155 @@ function telaLevarCargas(e, R) { const cargas = cargasCalculadas(), plano = plan
     <p class="t2 pq">Cada ambiente com carga calculada acima passa a dimensionar o ambiente de mesmo nome no Ar-condicionado (se não existir, é criado). A capacidade aparece com a fonte "Carga térmica (NBR 16401-1)" no lugar da triagem por m²/TR. Antes de mudar, o sistema mostra o que muda; depois, dá para desfazer.</p>
     <button type="button" id="avac-push-ver" data-avac-push="ver"${plano.length ? "" : " disabled aria-describedby=\"avac-push-sem\""}>Levar para o dimensionamento do ar-condicionado</button>${plano.length ? "" : `<p id="avac-push-sem" class="t2 pq">Calcule a carga de pelo menos um ambiente acima.</p>`}
     ${conf}${desf}</section>`; }
+
+/* Água gelada (pedido da dona de 24/11/2026: "sistema de água gelada dentro do módulo AVAC"). Física de base (água: 4,186 kJ/kg·K,
+   1000 kg/m³, g 9,81) e entradas do projetista; nada de fábrica: sem ΔT, velocidade, altura ou rendimento, o resultado fica "—". */
+function calcAgua(e, R) { const a = e.ag || {}, n = v => (v == null || v === "" ? NaN : N(v));
+  const kW = isFinite(n(a.kW)) && n(a.kW) > 0 ? n(a.kW) : (R.ac && R.ac.kWt) || 0, dT = n(a.dT), vel = n(a.vel), eta = n(a.eta), nb = n(a.nBombas) > 0 ? n(a.nBombas) : 1;
+  const kgs = dT > 0 ? kW / (4.186 * dT) : NaN, m3h = kgs * 3.6, m3s = kgs / 1000, circ = calcCircuito(a.circ, m3h), H = n(a.H) > 0 ? n(a.H) : circ.H;
+  const Dmm = vel > 0 ? Math.sqrt(4 * m3s / (Math.PI * vel)) * 1000 : NaN;
+  const Ph = H > 0 ? 1000 * 9.81 * H * m3s / 1000 : NaN, Pe = eta > 0 && eta <= 1 ? Ph / eta : NaN;
+  const vAcum = n(a.hAcum) > 0 && n(a.dTacum) > 0 ? kW * n(a.hAcum) * 3600 / (4.186 * n(a.dTacum)) / 1000 : NaN;      // m³
+  const qRej = n(a.copCh) > 0 ? kW * (1 + 1 / n(a.copCh)) : NaN, m3hCond = qRej > 0 && n(a.dTcond) > 0 ? qRej / (4.186 * n(a.dTcond)) * 3.6 : NaN;
+  return { circ, vAcum, qRej, m3hCond, kW, fonteKW: isFinite(n(a.kW)) && n(a.kW) > 0 ? "digitada" : "do Ar-condicionado (TR × 3,517)", TR: kW / 3.517, kgs, m3h, Dmm, Ph, Pe, porBomba: Pe / nb, nb,
+    falta: [!(dT > 0) && "ΔT da água", !(vel > 0) && "velocidade na tubulação", !(H > 0) && "altura manométrica (digite ou preencha o trecho crítico)", !(eta > 0 && eta <= 1) && "rendimento da bomba"].filter(Boolean) }; }
+function telaAgua(e, R) { const a = e.ag || {}, x = calcAgua(e, R);
+  const ent = sec("ag-e", "Dados de entrada", `<div class="precos">${campo("ag.kW", a.kW, "Carga térmica da central (kW), vazio = soma do Ar-condicionado")}${campo("ag.dT", a.dT, "ΔT da água gelada (K)", "n", "Diferença entre retorno e alimentação, do projeto [CONFERIR].")}
+    ${campo("ag.vel", a.vel, "Velocidade na tubulação principal (m/s)", "n", "Limite do projeto/fabricante [CONFERIR].")}${campo("ag.H", a.H, "Altura manométrica da bomba (mca)", "n", "Perdas da rede + equipamento, do cálculo da rede.")}
+    ${campo("ag.eta", a.eta, "Rendimento da bomba (0 a 1)", "n", "Da curva do fabricante.")}${campo("ag.nBombas", a.nBombas, "Bombas em operação (sem a reserva)")}
+    ${campo("ag.hAcum", a.hAcum, "Termoacumulação: horas de carga acumulada (h)", "n", "Vazio = sem tanque de termoacumulação.")}${campo("ag.dTacum", a.dTacum, "Termoacumulação: ΔT útil do tanque (K)", "n", "Do projeto [CONFERIR].")}
+    ${campo("ag.copCh", a.copCh, "COP do chiller (torre de arrefecimento)", "n", "Do fabricante; vazio = chiller a ar, sem torre.")}${campo("ag.dTcond", a.dTcond, "ΔT da água de condensação (K)", "n", "Do projeto [CONFERIR].")}</div>`);
+  const res = sec("ag-r", "Central de água gelada", kv("Vazão, tubulação e bombas", [["Carga térmica (kW) · " + x.fonteKW, f(x.kW, 1)], ["Carga térmica (TR)", f(x.TR, 2)],
+    ["Vazão de água gelada (m³/h) — Q = kW / (4,186 · ΔT)", f(x.m3h, 2)], ["Diâmetro interno mínimo da principal (mm)", f(x.Dmm, 0)],
+    ["Potência hidráulica (kW) — ρ·g·H·Q", f(x.Ph, 2)], ["Potência no eixo (kW)", f(x.Pe, 2)], ["Por bomba em operação (kW)", f(x.porBomba, 2)], ["Tanque de termoacumulação (m³)", f(x.vAcum, 1)], ["Calor rejeitado na torre de arrefecimento (kW)", f(x.qRej, 1)], ["Vazão de água de condensação (m³/h)", f(x.m3hCond, 1)]])
+    + (x.falta.length ? `<p class="faixa at" role="note">Falta para calcular: ${esc(x.falta.join(", "))}.</p>` : "")
+    + `<p class="t2 pq">Escolher o diâmetro comercial e a bomba pela tabela e pela curva do fabricante. Chiller: capacidade ≥ carga, com a reserva definida no projeto. Quadro da central (partida das bombas, intertravamento de fluxo, automação BACnet/Modbus): aba Quadro elétrico e QElectroTech.</p>`);
+  return res + ent + circuitoHtml("ag.circ", a.circ, x.circ, "Pressão do circuito de água gelada (trecho crítico)"); }
+
+/* Complementos (pedido da dona de 24/11/2026): piscina com filtragem e borda infinita, sauna e exaustão de churrasqueira. Só
+   física de base; as taxas (renovação, lâmina na borda, kW/m³ da sauna, vazão por metro de coifa, velocidade) são do projeto ou
+   do fabricante [CONFERIR]. Sem elas, "—". */
+function calcExtras(e, R) { const x = e.ext || {}, n = v => (v == null || v === "" ? NaN : N(v)), pos = v => n(v) > 0;
+  const vol = pos(x.volPisc) ? n(x.volPisc) : (R.piscina && R.piscina.volume) || NaN;
+  const filt = pos(x.renov) && vol > 0 ? vol / n(x.renov) : NaN;                       // m³/h
+  const temBorda = !x.tipoPisc || String(x.tipoPisc).indexOf("borda") >= 0;
+  const borda = !temBorda ? 0 : pos(x.bordaM) && pos(x.bordaVaz) ? n(x.bordaM) * n(x.bordaVaz) : (pos(x.bordaM) ? NaN : 0);
+  const tanque = temBorda && pos(x.bordaM) && pos(x.bordaLm) ? n(x.bordaM) * n(x.bordaLm) / 1000 : NaN;   // m³
+  const sauna = pos(x.saunaVol) && pos(x.saunaKwM3) ? n(x.saunaVol) * n(x.saunaKwM3) : NaN;
+  const saunaVent = pos(x.saunaVol) && pos(x.saunaTrocas) ? n(x.saunaVol) * n(x.saunaTrocas) : NaN;
+  const chur = pos(x.coifaM) && pos(x.coifaVaz) ? n(x.coifaM) * n(x.coifaVaz) : NaN;
+  const secao = chur > 0 && pos(x.coifaVel) ? chur / 3600 / n(x.coifaVel) : NaN;           // m²
+  return { vol, filt, borda, bombaTotal: (filt || 0) + (borda || 0), tanque, sauna, saunaVent, chur, secao, ladoQ: secao > 0 ? Math.sqrt(secao) * 1000 : NaN }; }
+function telaExtras(e, R) { const x = e.ext || {}, c = calcExtras(e, R);
+  const pisc = sec("ex-p", "Piscina: filtragem e borda infinita", `<div class="precos">${campo("ext.volPisc", x.volPisc, "Volume da piscina (m³), vazio = o da aba Piscina")}${campo("ext.renov", x.renov, "Tempo de renovação da filtragem (h)", "n", "Do projeto/fabricante [CONFERIR].")}
+    ${campo("ext.bordaM", x.bordaM, "Comprimento da borda infinita (m), vazio = sem borda")}${campo("ext.bordaVaz", x.bordaVaz, "Vazão de lâmina por metro de borda (m³/h·m)", "n", "Do projeto [CONFERIR].")}
+    ${campo("ext.bordaLm", x.bordaLm, "Volume de compensação por metro de borda (L/m)", "n", "Do projeto [CONFERIR].")}</div>`
+    + kv("Bombas e tanque", [["Vazão da filtragem (m³/h)", f(c.filt, 2)], ["Vazão da borda infinita (m³/h)", f(c.borda, 2)], ["Vazão total de bombas (m³/h)", f(c.bombaTotal, 2)], ["Tanque de compensação (m³)", f(c.tanque, 2)]])
+    + `<p class="t2 pq">Aquecimento da piscina: aba Piscina (perdas e potência). Filtro, bomba e tanque: escolher pela vazão e pela curva do fabricante.</p>`);
+  const sauna = sec("ex-s", "Sauna", `<div class="precos">${campo("ext.saunaTipo", x.saunaTipo, "Tipo (seca ou a vapor)", "s")}${campo("ext.saunaVol", x.saunaVol, "Volume da cabine (m³)")}
+    ${campo("ext.saunaKwM3", x.saunaKwM3, "Potência específica do gerador (kW/m³)", "n", "Do fabricante do gerador [CONFERIR].")}${campo("ext.saunaTrocas", x.saunaTrocas, "Renovações de ar por hora", "n", "Do projeto [CONFERIR].")}</div>`
+    + kv("Gerador e ventilação", [["Potência do gerador (kW)", f(c.sauna, 2)], ["Ventilação da cabine (m³/h)", f(c.saunaVent, 0)]]));
+  const chur = sec("ex-c", "Exaustão de churrasqueira", `<div class="precos">${campo("ext.coifaM", x.coifaM, "Comprimento da coifa (m)")}${campo("ext.coifaVaz", x.coifaVaz, "Vazão por metro de coifa (m³/h·m)", "n", "Do projeto/fabricante [CONFERIR].")}
+    ${campo("ext.coifaVel", x.coifaVel, "Velocidade no duto (m/s)", "n", "Do projeto [CONFERIR].")}</div>`
+    + kv("Exaustor e duto", [["Vazão de exaustão (m³/h)", f(c.chur, 0)], ["Seção do duto (m²)", f(c.secao, 3)], ["Lado do duto quadrado equivalente (mm)", f(c.ladoQ, 0)]])
+    + `<p class="t2 pq">Exaustor e ventiladores: aba Dutos e ventiladores; motor e circuito: Quadro elétrico. Duto de churrasqueira com material e afastamentos do projeto de incêndio.</p>`);
+  return pisc + sauna + chur; }
+
+/* Ventilação: churrasqueiras e ar exterior (24/11/2026); cada item tem o próprio duto em Dutos e ventiladores */
+function telaVentExtras(e, R) { const v = e.vent, x = R.vent;
+  const ch = sec("vch", "Exaustão de churrasqueiras", tabela("Coifas de churrasqueira", ["Churrasqueira", "Comprimento da coifa (m)", "Vazão por metro (m³/h·m) [CONFERIR]", "Vazão (m³/h)", "<span class=\"so-leitor\">Ações</span>"],
+    (v.churr || []).map((o, i) => `<tr>${cel("vent.churr." + i + ".n", o.n, "Nome da churrasqueira " + (i + 1), "s", { w:"12em" })}${cel("vent.churr." + i + ".coifaM", o.coifaM, "Comprimento da coifa de " + o.n)}${cel("vent.churr." + i + ".vazM", o.vazM, "Vazão por metro de " + o.n)}<td>${f(x.churrLista[i].vazao, 0)}</td><td>${btn("del=churr:" + i, "Remover", "Remover " + o.n)}</td></tr>`))
+    + `<p>${btn("add=churr", "Acrescentar churrasqueira")}</p><p class="t2 pq">Vazão por metro de coifa: do projeto ou do fabricante. O duto de cada churrasqueira aparece em Dutos e ventiladores (preencha velocidade, comprimentos e altura). Duto de churrasqueira com material e afastamentos do projeto de incêndio.</p>`);
+  const ar = sec("vae", "Ar exterior (renovação)", tabela("Tomadas de ar exterior", ["Sistema", "Vazão (m³/h)", "<span class=\"so-leitor\">Ações</span>"],
+    (v.arExt || []).map((o, i) => `<tr>${cel("vent.arExt." + i + ".n", o.n, "Nome do sistema de ar exterior " + (i + 1), "s", { w:"12em" })}${cel("vent.arExt." + i + ".vazao", o.vazao, "Vazão de " + o.n)}<td>${btn("del=arext:" + i, "Remover", "Remover " + o.n)}</td></tr>`))
+    + `<p>${btn("add=arext", "Acrescentar ar exterior")}</p><p class="t2 pq">Vazão de ar exterior pela NBR 16401-3 (pessoas e área) ou pela carga térmica; cada tomada ganha o próprio duto.</p>`);
+  return ch + ar; }
+/* Piscina: filtragem e borda infinita (o aquecimento continua acima) */
+function telaPiscinaExtras(e, R) { const x = e.ext || {}, c = R.ext || calcExtras(e, R);
+  return sec("ex-p", "Filtragem e borda infinita", tipoPiscinaHtml(e) + `<div class="precos">${campo("ext.volPisc", x.volPisc, "Volume da piscina (m³), vazio = o calculado acima")}${campo("ext.renov", x.renov, "Tempo de renovação da filtragem (h)", "n", "Do projeto/fabricante [CONFERIR].")}
+    ${campo("ext.bordaM", x.bordaM, "Comprimento da borda infinita (m), vazio = sem borda")}${campo("ext.bordaVaz", x.bordaVaz, "Vazão de lâmina por metro de borda (m³/h·m)", "n", "Do projeto [CONFERIR].")}
+    ${campo("ext.bordaLm", x.bordaLm, "Volume de compensação por metro de borda (L/m)", "n", "Do projeto [CONFERIR].")}${campo("ext.bombaKw", x.bombaKw, "Potência de cada bomba da piscina (kW)", "n", "Da curva do fabricante; vai para o Quadro elétrico.")}${campo("ext.nBombasPisc", x.nBombasPisc, "Bombas em operação")}</div>`
+    + kv("Bombas e tanque", [["Vazão da filtragem (m³/h)", f(c.filt, 2)], ["Vazão da borda infinita (m³/h)", f(c.borda, 2)], ["Vazão total de bombas (m³/h)", f(c.bombaTotal, 2)], ["Tanque de compensação (m³)", f(c.tanque, 2)]])); }
+/* Sauna: cálculo separado da piscina */
+function telaSauna(e, R) { const x = e.ext || {}, c = R.ext || calcExtras(e, R);
+  return sec("ex-s", "Sauna", `<div class="precos">${campo("ext.saunaTipo", x.saunaTipo, "Tipo (seca ou a vapor)", "s")}${campo("ext.saunaVol", x.saunaVol, "Volume da cabine (m³)")}
+    ${campo("ext.saunaKwM3", x.saunaKwM3, "Potência específica do gerador (kW/m³)", "n", "Do fabricante do gerador [CONFERIR].")}${campo("ext.saunaTrocas", x.saunaTrocas, "Renovações de ar por hora", "n", "Do projeto [CONFERIR].")}</div>`
+    + kv("Gerador e ventilação", [["Potência do gerador (kW) — vai para o Quadro elétrico", f(c.sauna, 2)], ["Ventilação da cabine (m³/h)", f(c.saunaVent, 0)]])); }
+/* Tubulações de água fria, quente e gelada: diâmetro mínimo pela velocidade e verificação do diâmetro escolhido */
+function calcTubos(e) { return (e.tubos || []).map(t => { const q = N(t.vazao) / 1000, v = N(t.vmax), di = N(t.di);
+  const dmin = q > 0 && v > 0 ? Math.sqrt(4 * q / (Math.PI * v)) * 1000 : NaN, vreal = q > 0 && di > 0 ? q / (Math.PI * Math.pow(di / 1000, 2) / 4) : NaN;
+  return { dmin, vreal, situacao: !(q > 0 && v > 0) ? "informe vazão e velocidade" : !(di > 0) ? "escolha o diâmetro interno" : vreal <= v ? "ok" : "acima da velocidade: aumentar" }; }); }
+function telaTubos(e) { const T = e.tubos || [], c = calcTubos(e);
+  return sec("tb", "Tubulações de água fria, quente e gelada", tabela("Trechos e diâmetros", ["Trecho", "Tipo", "Vazão (L/s)", "Velocidade máx. (m/s) [CONFERIR]", "Diâmetro interno escolhido (mm)", "Diâmetro mínimo (mm)", "Velocidade real (m/s)", "Situação", "<span class=\"so-leitor\">Ações</span>"],
+    T.map((t, i) => `<tr>${cel("tubos." + i + ".n", t.n, "Nome do trecho " + (i + 1), "s", { w:"12em" })}<td>${ctl("tubos." + i + ".tipo", t.tipo, "sel", { ops:[["fria", "água fria"], ["quente", "água quente"], ["gelada", "água gelada"]] })}</td>${cel("tubos." + i + ".vazao", t.vazao, "Vazão do trecho " + t.n)}${cel("tubos." + i + ".vmax", t.vmax, "Velocidade máxima do trecho " + t.n)}${cel("tubos." + i + ".di", t.di, "Diâmetro interno escolhido do trecho " + t.n)}<td>${f(c[i].dmin, 0)}</td><td>${f(c[i].vreal, 2)}</td><td>${esc(c[i].situacao)}</td><td>${btn("del=tubo:" + i, "Remover", "Remover " + t.n)}</td></tr>`))
+    + `<p>${btn("add=tubo", "Acrescentar trecho")}</p><p class="t2 pq">Vazão de cada trecho: do cálculo da rede (água fria e quente: NBR 5626; água gelada: aba Água gelada). Escolha o diâmetro interno pela tabela do fabricante do tubo (PPR, CPVC, cobre, aço). A fiação de bombas, aquecedores e ventiladores é selecionada no Quadro elétrico (NBR 5410).</p>`); }
+
+/* 24/11/2026: tipo de piscina; borda infinita só nos tipos com borda */
+function tipoPiscinaHtml(e) { const x = e.ext || {};
+  return `<div class="precos">${campo("ext.tipoPisc", x.tipoPisc || "", "Tipo de piscina", "sel", "Coletiva: uso público ou de condomínio (NBR 10339) [CONFERIR taxas de renovação]", { ops:[["", "— escolher —"], ["privada", "Privada"], ["coletiva", "Coletiva"], ["privada-borda", "Privada com borda infinita"], ["coletiva-borda", "Coletiva com borda infinita"]] })}</div>`; }
+
+/* 24/11/2026: apoio do aquecimento: elétrico, aquecedor de passagem a gás, aquecedor de acumulação a gás ou bomba de calor */
+function telaSolarApoio(e, R) { const s = e.solar || {}, x = R.solar || {}, tipo = s.apoioTipo || "eletrico";
+  const pci = N(s.pci), eta = N(s.etaGas), cop = N(s.copBC), gas = tipo.indexOf("gas") >= 0 && pci > 0 && eta > 0 ? x.apoio / (pci * eta) : NaN;
+  const kwe = tipo === "bomba" ? (cop > 0 ? x.apoio / cop : NaN) : tipo === "eletrico" ? x.apoio : 0;
+  const m3hSol = N(s.vazM2) > 0 && x.areaInst > 0 ? N(s.vazM2) * x.areaInst / 1000 : NaN, cs = calcCircuito(s.circ, m3hSol);
+  return sec("so-vz", "Vazão nos coletores", `<div class="precos">` + campo("solar.vazM2", s.vazM2, "Vazão por m² de coletor (L/h·m²)", "n", "Do fabricante do coletor [CONFERIR].") + `</div>`
+      + kv("Circuito solar", [["Área instalada (m²)", f(x.areaInst, 2)], ["Vazão do circuito (m³/h)", f(m3hSol, 3)]]))
+    + circuitoHtml("solar.circ", s.circ, cs, "Pressão do circuito solar (trecho crítico)") + sec("so-ap", "Apoio do aquecimento", `<div class="precos">${campo("solar.apoioTipo", tipo, "Tipo de apoio", "sel", "", { ops:[["eletrico", "Resistência elétrica"], ["gas-passagem", "Aquecedor de passagem a gás"], ["gas-acumulacao", "Aquecedor de acumulação a gás"], ["bomba", "Bomba de calor"]] })}
+    ${campo("solar.pci", s.pci, "Poder calorífico do gás (kWh/m³ ou kWh/kg)", "n", "Da distribuidora (GN) ou do fornecedor (GLP) [CONFERIR].")}${campo("solar.etaGas", s.etaGas, "Rendimento do aquecedor a gás (0 a 1)", "n", "Do fabricante.")}${campo("solar.copBC", s.copBC, "COP da bomba de calor", "n", "Do fabricante, na condição de inverno.")}</div>`
+    + kv("Apoio", [["Potência de apoio (kW)", f(x.apoio, 2)], ["Consumo de gás por hora de apoio (m³/h ou kg/h)", f(gas, 3)], ["Potência elétrica do apoio (kW) — vai para o Quadro elétrico", f(kwe, 2)]])); }
+
+/* Pressão do circuito (24/11/2026): trecho crítico por Darcy-Weisbach (Swamee-Jain), viscosidade e densidade da água pela
+   temperatura (Vogel e Thiesen), perdas localizadas por K, equipamentos em kPa, desnível só em circuito aberto, e NPSH disponível
+   contra a pressão de vapor (Antoine). Água com glicol: informe a viscosidade e a densidade da mistura (ficha do fluido). */
+function propAgua(T) { const mu = 2.414e-5 * Math.pow(10, 247.8 / (T + 273.15 - 140)), rho = 1000 * (1 - (T + 288.9414) / (508929.2 * (T + 68.12963)) * Math.pow(T - 3.9863, 2));
+  const pv = Math.pow(10, 8.07131 - 1730.63 / (233.426 + T)) * 0.133322; return { mu, rho, pv }; }        // Pa·s, kg/m³, kPa
+function calcCircuito(c, m3h) { c = c || {}; const n = v => (v == null || v === "" ? NaN : N(v));
+  const T = n(c.T), L = n(c.L), di = n(c.di) / 1000, rug = (isFinite(n(c.rug)) ? n(c.rug) : NaN) / 1000, K = isFinite(n(c.K)) ? n(c.K) : 0, dPeq = isFinite(n(c.dPeq)) ? n(c.dPeq) : 0;
+  const pa = isFinite(T) ? propAgua(T) : null, mu = n(c.mu) > 0 ? n(c.mu) / 1000 : pa && pa.mu, rho = n(c.rho) > 0 ? n(c.rho) : pa && pa.rho;
+  const Q = m3h / 3600, A = di > 0 ? Math.PI * di * di / 4 : NaN, v = Q > 0 && A > 0 ? Q / A : NaN, Re = v > 0 && mu > 0 ? rho * v * di / mu : NaN;
+  const f = Re > 4000 && rug >= 0 ? 0.25 / Math.pow(Math.log10(rug / (3.7 * di) + 5.74 / Math.pow(Re, 0.9)), 2) : Re > 0 && Re <= 2300 ? 64 / Re : NaN;
+  const din = rho * v * v / 2, dPat = f * (L / di) * din / 1000, dPloc = K * din / 1000, aberto = c.tipo === "aberto", dz = aberto && isFinite(n(c.dz)) ? n(c.dz) : 0;
+  const dPtot = dPat + dPloc + dPeq + rho * 9.81 * dz / 1000, H = dPtot * 1000 / (rho * 9.81);
+  const pv = n(c.pv) > 0 ? n(c.pv) : pa && pa.pv, npshd = n(c.Psuc) > 0 && pv > 0 ? (n(c.Psuc) - pv - (isFinite(n(c.dPsuc)) ? n(c.dPsuc) : 0)) * 1000 / (rho * 9.81) : NaN;
+  const margem = isFinite(npshd) && n(c.npshr) > 0 ? npshd - n(c.npshr) : NaN;
+  const falta = [!(m3h > 0) && "vazão", !isFinite(T) && !(n(c.mu) > 0) && "temperatura do fluido", !(L > 0) && "comprimento do trecho crítico", !(di > 0) && "diâmetro interno", !(rug >= 0) && "rugosidade"].filter(Boolean);
+  return { T, mu, rho, v, Re, f, dPat, dPloc, dPeq, dz, dPtot, H, pv, npshd, margem, aberto, falta,
+    alerta: isFinite(margem) && margem < 0 ? "NPSH disponível menor que o requerido: risco de cavitação" : isFinite(margem) && margem < 0.5 ? "margem de NPSH pequena [CONFERIR]" : "" }; }
+function circuitoHtml(pref, c, x, titulo) { c = c || {};
+  return sec(pref.replace(/\W/g, "-") + "-circ", titulo, `<div class="precos">${campo(pref + ".tipo", c.tipo || "fechado", "Circuito", "sel", "Fechado: a altura do prédio se anula; aberto: soma o desnível.", { ops:[["fechado", "Fechado"], ["aberto", "Aberto (reservatório atmosférico)"]] })}
+    ${campo(pref + ".T", c.T, "Temperatura do fluido (°C)")}${campo(pref + ".L", c.L, "Comprimento do trecho crítico, ida e volta (m)")}${campo(pref + ".di", c.di, "Diâmetro interno do trecho (mm)")}
+    ${campo(pref + ".rug", c.rug, "Rugosidade absoluta (mm)", "n", "Do fabricante do tubo [CONFERIR].")}${campo(pref + ".K", c.K, "Soma dos coeficientes K dos acessórios", "n", "Tabelas dos fabricantes de conexões [CONFERIR].")}
+    ${campo(pref + ".dPeq", c.dPeq, "Perda nos equipamentos (kPa)", "n", "Evaporador/coletor, fancoil, válvulas, filtro Y: catálogos.")}${campo(pref + ".dz", c.dz, "Desnível até o ponto mais alto (m), só aberto")}
+    ${campo(pref + ".mu", c.mu, "Viscosidade do fluido (mPa·s), vazio = água pela temperatura", "n", "Com glicol: da ficha da mistura.")}${campo(pref + ".rho", c.rho, "Densidade do fluido (kg/m³), vazio = água")}
+    ${campo(pref + ".Psuc", c.Psuc, "Pressão absoluta na sucção (kPa)", "n", "Pressão do vaso de expansão ou nível do reservatório + atmosférica.")}${campo(pref + ".dPsuc", c.dPsuc, "Perda até a sucção (kPa)")}${campo(pref + ".npshr", c.npshr, "NPSH requerido da bomba (m)", "n", "Da curva do fabricante.")}</div>`
+    + kv("Pressão e cavitação", [["Velocidade (m/s)", f(x.v, 2)], ["Reynolds", f(x.Re, 0)], ["Fator de atrito", f(x.f, 4)], ["Perda por atrito (kPa)", f(x.dPat, 1)], ["Perdas localizadas (kPa)", f(x.dPloc, 1)],
+      ["Equipamentos (kPa)", f(x.dPeq, 1)], ["Desnível (m)", f(x.dz, 1)], ["Total (kPa)", f(x.dPtot, 1)], ["Altura manométrica (mca)", f(x.H, 1)], ["Pressão de vapor (kPa)", f(x.pv, 2)], ["NPSH disponível (m)", f(x.npshd, 2)], ["Margem de NPSH (m)", f(x.margem, 2)]])
+    + (x.falta.length ? `<p class="faixa at" role="note">Falta: ${esc(x.falta.join(", "))}.</p>` : "") + (x.alerta ? `<p class="faixa al" role="alert">${esc(x.alerta)}</p>` : "")); }
+
+/* Modelagens (24/11/2026: "modelagens térmicas, solares, mecânicas e de fluidos no AVAC e na Estermic"): para cada sistema calculado,
+   a análise indicada, o programa aberto e o pacote de dados (JSON) com entradas e resultados para levar ao programa. */
+function modelagensDe(e, R) { const st = R.status || {}, ok = k => st[k] === "ativo";
+  return [
+    { id:"md-termica", area:"Térmica", sistema:"Carga térmica e envoltória", analise:"Simulação horária da edificação (8760 h)", programa:"EnergyPlus + OpenStudio", pronto:ok("ac"), dados:{ ac:R.ac && { TR:R.ac.TR, kWt:R.ac.kWt, ambientes:(R.ac.amb || []).map(a => ({ nome:a.nome, area:a.area, btu:a.btu })) } } },
+    { id:"md-solar", area:"Solar", sistema:"Aquecimento solar", analise:"Fração solar mês a mês e circuito dos coletores", programa:"SAM (NREL) / pvlib", pronto:ok("solar"), dados:{ solar:R.solar, circuito:(e.solar || {}).circ || null } },
+    { id:"md-fluidos-ar", area:"Fluidos", sistema:"Dutos e ventiladores", analise:"Escoamento e perda de carga nos dutos (CFD)", programa:"OpenFOAM (CfdOF no FreeCAD)", pronto:ok("dutos"), dados:{ dutos:R.dutos && R.dutos.sis } },
+    { id:"md-fluidos-agua", area:"Fluidos", sistema:"Água gelada e tubulações", analise:"Rede hidráulica e pressões", programa:"EPANET", pronto:!!(R.agua && R.agua.m3h > 0), dados:{ agua:R.agua, tubos:calcTubos(e) } },
+    { id:"md-mecanica", area:"Mecânica", sistema:"Suportes, skids e bases de equipamentos", analise:"Tensões, flambagem e vibração (elementos finitos)", programa:"CalculiX (FEM do FreeCAD)", pronto:false, dados:{ equipamentos:R.lista || [] } },
+    { id:"md-piscina", area:"Térmica", sistema:"Piscina", analise:"Perdas e aquecimento ao longo do ano", programa:"EnergyPlus (SwimmingPool:Indoor)", pronto:ok("piscina"), dados:{ piscina:R.piscina, complementos:R.ext } } ]; }
+function telaModelagens(e, R) { const L = modelagensDe(e, R);
+  return sec("md", "Modelagens e simulações", `<p class="t2">Cada sistema calculado aqui pode seguir para a simulação detalhada num programa aberto, no servidor. Baixe o pacote de dados (entradas e resultados) e abra no programa indicado; o resultado da simulação volta como anexo do projeto.</p>`
+    + tabela("Sistemas, análises e programas", ["Área", "Sistema", "Análise", "Programa aberto", "Dados", "<span class=\"so-leitor\">Ações</span>"],
+      L.map(m => `<tr><th scope="row">${esc(m.area)}</th><td>${esc(m.sistema)}</td><td>${esc(m.analise)}</td><td>${esc(m.programa)}</td><td>${m.pronto ? "prontos" : "faltam dados"}</td><td><button type="button" id="avac-md-${m.id}" data-avac-md="${m.id}">Baixar dados (JSON)</button></td></tr>`))
+    + `<p class="t2 pq">Para quadros e automação: QElectroTech; para o modelo BIM: Bonsai ou FreeCAD (IFC da aba BIM). Instalação dos programas: guia do Acer (implantacao/PROGRAMAS-E-CAMADAS-ACER.md).</p>`)
+    + sec("md-run", "Rodar no servidor: suporte ou skid (CalculiX)", `<div class="precos">${["vao_m|Vão entre apoios (m)", "carga_kg|Carga do equipamento (kg)", "b_mm|Base da seção (mm)", "h_mm|Altura da seção (mm)", "E_GPa|Módulo de elasticidade E (GPa) [CONFERIR material]"].map(x => { const [k, r] = x.split("|"); return `<div><label for="md-${k}">${esc(r)}</label><input id="md-${k}" type="text" inputmode="decimal" value="${esc((ui.mdSim || {})[k] || "")}"></div>`; }).join("")}</div>
+      <p><button type="button" id="avac-md-rodar" data-avac-mdrun="1">Rodar no servidor</button></p><p class="t2" role="status" id="md-res">${esc(ui.mdRes || "")}</p>`)
+    + sec("md-cfd", "Rodar no servidor: CFD de duto (OpenFOAM)", `<div class="precos">${["comprimento_m|Comprimento do trecho (m)", "largura_m|Largura do duto (m)", "altura_m|Altura do duto (m)", "vazao_m3h|Vazão (m³/h)", "temp_C|Temperatura do ar (°C)"].map(x => { const [k, r] = x.split("|"); return `<div><label for="cfd-${k}">${esc(r)}</label><input id="cfd-${k}" type="text" inputmode="decimal" value="${esc((ui.cfdSim || {})[k] || "")}"></div>`; }).join("")}</div>
+      <p><button type="button" id="avac-cfd-rodar" data-avac-cfdrun="1">Rodar CFD no servidor</button></p><p class="t2" role="status" id="cfd-res">${esc(ui.cfdRes || "")}</p>
+      <p class="t2 pq">Windows: o OpenFOAM roda pelo WSL (o Ubuntu dentro do Windows, com sudo apt install openfoam). Leva de segundos a minutos.</p>`); }
 function telaAvac() { const e = comSol(ler()), R = calcular(e), sub = SUBS.some(s => s[0] === ui.avacSub) ? ui.avacSub : "visao";
   const chips = `<div class="chips" role="group" aria-label="Partes do AVAC">${SUBS.map(([k, n]) => `<button type="button" id="avac-sub-${k}" data-avac-sub="${k}" aria-pressed="${k === sub}">${esc(n)}</button>`).join("")}</div>`;
-  const corpo = { visao:telaVisao, tip:telaTip, carga: () => (typeof telaCargaTermica === "function" ? telaCargaTermica() : "<p class=\"t2\">Módulo de carga térmica não carregado.</p>") + telaLevarCargas(e, R), ac:telaAC, vent:telaVent, press:telaPress, solar:telaSolar, piscina:telaPiscina, dutos:telaDutos, resumo:telaResumo, memoria:telaMemoria }[sub](e, R);
+  const corpo = { agua:telaAgua, sauna:telaSauna, tubos:telaTubos, modelagens:telaModelagens, visao:telaVisao, tip:telaTip, carga: () => (typeof telaCargaTermica === "function" ? telaCargaTermica() : "<p class=\"t2\">Módulo de carga térmica não carregado.</p>") + telaLevarCargas(e, R), ac:telaAC, vent:telaVent, press:telaPress, solar:telaSolar, piscina:telaPiscina, dutos:telaDutos, resumo:telaResumo, memoria:telaMemoria }[sub](e, R);
   return `<h1>AVAC e térmico</h1><p class="t2 apoio">Ar-condicionado, ventilação, pressurização de escada, aquecimento solar, piscina, dutos e quadro elétrico — as contas da planilha PHYSIS_AVAC-5. Altere os dados: tudo é recalculado.</p>${sub === "visao" ? `<div data-physis-modelador="avac"></div>` : ""}${chips}<div id="avac-corpo">${corpo}</div>`; }
 
 /* ════════ Eventos (atributos data-avac-…) ════════ */
@@ -672,14 +841,41 @@ if (typeof document !== "undefined" && !window.__avacEventos) { window.__avacEve
         gravar(aplicarCargas(e0, c)); desenhar(false); refocar("avac-push-desfazer"); return; }
       if (a === "desfazer" && ui.avacDesfazer) { const e0 = ler(); e0.ac.amb = JSON.parse(ui.avacDesfazer); ui.avacDesfazer = null; gravar(e0); desenhar(false); refocar("avac-push-ver"); return; }
       return; }
+    if (b.dataset.avacCfdrun) { const v = {}; ["comprimento_m", "largura_m", "altura_m", "vazao_m3h", "temp_C"].forEach(k => { const x = document.getElementById("cfd-" + k); v[k] = x ? (typeof numBr === "function" ? numBr(x.value) : +String(x.value).replace(",", ".")) : null; });
+      ui.cfdSim = v; ui.cfdRes = "Rodando o OpenFOAM…"; desenhar(false);
+      fetch("/api/estermic/simular", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(Object.assign({ tipo:"cfd-duto" }, v)) })
+        .then(r => r.ok ? r.json() : Promise.reject(new Error("este servidor não roda simulações (abra pelo sistema Estermic, porta 8704)")))
+        .then(j => { const rf = j.referencia || {}; ui.cfdRes = !j.ok ? j.erro : (j.programa ? j.programa + ": perda " + n2(j.dp_cfd_Pa, 2) + " Pa (" + j.iteracoes + " iterações)" : "Sem OpenFOAM: só a conta")
+          + " · Darcy-Weisbach: " + n2(rf.dp_darcy_Pa, 2) + " Pa · velocidade " + n2(rf.velocidade_m_s, 2) + " m/s" + (j.aviso ? " · " + j.aviso : "") + (j.nota ? " · " + j.nota : ""); desenhar(false); })
+        .catch(x => { ui.cfdRes = x.message; desenhar(false); }); return; }
+    if (b.dataset.avacMdrun) { const v = {}; ["vao_m", "carga_kg", "b_mm", "h_mm", "E_GPa"].forEach(k => { const x = document.getElementById("md-" + k); v[k] = x ? (typeof numBr === "function" ? numBr(x.value) : +String(x.value).replace(",", ".")) : null; });
+      ui.mdSim = v; ui.mdRes = "Rodando…"; desenhar(false);
+      fetch("/api/estermic/simular", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(Object.assign({ tipo:"suporte" }, v)) })
+        .then(r => r.ok ? r.json() : Promise.reject(new Error("este servidor não roda simulações (abra pelo sistema Estermic, porta 8704)")))
+        .then(j => { ui.mdRes = !j.ok ? j.erro : (j.programa ? "CalculiX: flecha " + n2(j.flecha_mm, 2) + " mm" : "Sem CalculiX: só a conta") + " · referência (viga biapoiada): flecha " + n2(j.referencia.flecha_mm, 2) + " mm, tensão " + n2(j.referencia.tensao_MPa, 1) + " MPa" + (j.aviso ? " · " + j.aviso : ""); desenhar(false); })
+        .catch(x => { ui.mdRes = x.message; desenhar(false); }); return; }
+    if (b.dataset.avacMd) { const e0 = comSol(ler()), m = modelagensDe(e0, calcular(e0)).find(x => x.id === b.dataset.avacMd); if (!m) return;
+      const bl = new Blob([JSON.stringify({ esquema:"physis.avac.modelagem/1", sistema:m.sistema, analise:m.analise, programa:m.programa, gerado:new Date().toISOString(), dados:m.dados }, null, 1)], { type:"application/json" });
+      const u = URL.createObjectURL(bl), l = document.createElement("a"); l.href = u; l.download = "modelagem-" + m.id + ".json"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return; }
     const add = b.dataset.avacAdd, del = b.dataset.avacDel; if (!add && !del && !b.dataset.avacReset) return;
     let e = ler(); const id = b.id;
     if (b.dataset.avacReset) { if (typeof confirm === "function" && !confirm("Substituir todos os dados do AVAC pelo exemplo da planilha?")) return; e = padrao(); }
     if (add === "tip") e.tipologias.lista.push({ n:"Nova tipologia", q:0, area:0, dorm:0, banh:0, vagas:0 });
     if (add === "amb") e.ac.amb.push({ n:"Novo ambiente", area:0, dorm:0, override:null, equip:"Split hi-wall", matriz:true, q:[], comum:0 });
-    if (add === "outro") e.vent.outros.push({ n:"Novo ambiente", area:0, pe:2.6, trocas:6 });
+    if (add === "outro") { const id = Date.now().toString(36); e.vent.outros.push({ id, n:"Novo ambiente", area:0, pe:2.6, trocas:6 }); (e.dutos.sistemas = e.dutos.sistemas || []).push({ nome:"Dutos — novo ambiente", fonte:"outro:" + id, vazao:0, vel:"", reto:"", equiv:"", local:"", altura:"", tipo:"" }); }
     if (add === "sis") e.dutos.sistemas.push({ nome:"Novo sistema", fonte:"", vazao:0, vel:8, reto:20, equiv:10, local:100, altura:300, tipo:"Duto principal — comercial" });
     if (add === "extra") (e.quadro.extras = e.quadro.extras || []).push({ nome:"Nova carga", kw:0, qtd:1 });
+
+    const novoId = () => Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
+    const dutoDe = (fonte, nome) => (e.dutos.sistemas = e.dutos.sistemas || []).push({ nome:"Dutos — " + nome, fonte, vazao:0, vel:"", reto:"", equiv:"", local:"", altura:"", tipo:"" });
+    if (add === "churr") { const id = novoId(); (e.vent.churr = e.vent.churr || []).push({ id, n:"Churrasqueira", coifaM:"", vazM:"" }); dutoDe("churr:" + id, "churrasqueira"); }
+    if (add === "arext") { const id = novoId(); (e.vent.arExt = e.vent.arExt || []).push({ id, n:"Ar exterior", vazao:"" }); dutoDe("arext:" + id, "ar exterior"); }
+    if (add === "tubo") (e.tubos = e.tubos || []).push({ n:"Novo trecho", tipo:"fria", vazao:"", vmax:"", di:"" });
+    if (del) { const [k2, i2] = del.split(":"), n2i = +i2, tira = f => { e.dutos.sistemas = (e.dutos.sistemas || []).filter(s => s.fonte !== f); };
+      if (k2 === "churr") { const o = e.vent.churr[n2i]; if (o) tira("churr:" + o.id); e.vent.churr.splice(n2i, 1); }
+      if (k2 === "arext") { const o = e.vent.arExt[n2i]; if (o) tira("arext:" + o.id); e.vent.arExt.splice(n2i, 1); }
+      if (k2 === "outro") { const o = e.vent.outros[n2i]; if (o && o.id) tira("outro:" + o.id); }
+      if (k2 === "tubo") e.tubos.splice(n2i, 1); }
     if (del) { const [k, i] = del.split(":"), n = +i;
       if (k === "tip") { e.tipologias.lista.splice(n, 1); e.ac.amb.forEach(a => { if (Array.isArray(a.q)) a.q.splice(n, 1); }); }
       if (k === "amb") e.ac.amb.splice(n, 1); if (k === "outro") e.vent.outros.splice(n, 1); if (k === "sis") e.dutos.sistemas.splice(n, 1); if (k === "extra") e.quadro.extras.splice(n, 1); }
@@ -692,7 +888,7 @@ function telaQuadroEletrico() { const e = comSol(ler()), R = calcular(e);
     <p class="t2 pq">Corrente de projeto, proteção, seção (capacidade, queda, curto-circuito, seccionamento e partida de motor), neutro, PE e alimentador — critérios da NBR 5410 em forma simplificada; não substitui o projeto elétrico. As cargas vêm da aba AVAC e térmico.</p>
     ${telaQuadro(e, R)}</section>`; }
 
-window.AVAC = { calcular, padrao, migrar, planoCargas, aplicarCargas, versao:"PHYSIS_AVAC-5" };
+window.AVAC = { modelagensDe, calcCircuito, propAgua, calcAgua, calcExtras, calcTubos, calcular, padrao, migrar, planoCargas, aplicarCargas, versao:"PHYSIS_AVAC-5" };
 window.telaAvac = telaAvac;   /* global: chamada pelo nome telaAvac() na hora de desenhar */
 window.telaQuadroEletrico = telaQuadroEletrico;
 })();

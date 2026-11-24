@@ -244,3 +244,45 @@ def bot_semanal(mv, saida: Path | None = None) -> dict:
     mv.fechar_alertas_nao_vistos("semanal", inicio)
     mv.registrar_execucao("semanal", inicio, json.dumps(r, ensure_ascii=False))
     return r
+
+
+# ── 24/11/2026: kit aprovado no M&A → documento oficial; e as tarefas "Executar" que os bots conseguem fazer sozinhos ──
+def gerar_aprovados(mv, destino: Path | None = None) -> dict:
+    """Copia cada versão do kit APROVADA no M&A para a pasta oficial do pilar (Sistema Physis/Kit_26-11_aprovado/<pilar>), onde o bot
+    de documentos lê e o kit passa a contar como feito. Não apaga nada; não sobrescreve um arquivo que já exista com o mesmo nome."""
+    import shutil
+    from . import mv_bots
+    base = Path(destino or (mv_bots.DOCS / "Sistema Physis" / "Kit_26-11_aprovado"))
+    feitos, faltam = [], []
+    for pid, cmdtxt, arq in mv.db.execute("SELECT id, comando, arquivo FROM mv_pedido_bot WHERE tipo='kit' AND estado='aprovado'").fetchall():
+        _, pil, tipo = (cmdtxt.split(":") + ["", ""])[:3]
+        if pil not in PILARES or tipo not in TIPOS_DOC:
+            continue
+        orig = Path(arq or "")
+        if not orig.is_file():
+            faltam.append({"pedido": pid, "documento": f"{pil}:{tipo}", "motivo": f"versão aprovada não encontrada: {arq}"})
+            continue
+        pasta = base / PILARES[pil][0]
+        pasta.mkdir(parents=True, exist_ok=True)
+        alvo = pasta / f"{TIPOS_DOC[tipo][0].split(' (')[0]} - {PILARES[pil][0]} (aprovado no M&A){orig.suffix}"
+        if not alvo.exists():
+            shutil.copy2(orig, alvo)
+        feitos.append({"pedido": pid, "documento": f"{pil}:{tipo}", "arquivo": str(alvo)})
+    return {"gerados": feitos, "faltam": faltam, "pasta": str(base)}
+
+
+def executar_tarefas(mv, destino: Path | None = None) -> dict:
+    """Tarefas 'Executar: …' dos bots: o que o sistema faz sozinho (kit aprovado → documento oficial) é feito e marcado como feito;
+    o resto volta numa lista para a equipe (nada é marcado como feito sem ter sido feito)."""
+    g = gerar_aprovados(mv, destino)
+    feitos_ped = {x["pedido"] for x in g["gerados"]}
+    feitas, restantes = [], []
+    for tid, titulo in mv.db.execute("SELECT id, titulo FROM mv_tarefa WHERE id LIKE 'exec-%' AND estado<>'feita'").fetchall():
+        ref = tid[5:]
+        if ref.startswith("ped") and ref[3:].isdigit() and int(ref[3:]) in feitos_ped:
+            mv.db.execute("UPDATE mv_tarefa SET estado='feita' WHERE id=?", (tid,))
+            feitas.append({"id": tid, "titulo": titulo})
+        else:
+            restantes.append({"id": tid, "titulo": titulo})
+    mv.db.commit()
+    return {"feitas": feitas, "restantes": restantes, "kit": g}

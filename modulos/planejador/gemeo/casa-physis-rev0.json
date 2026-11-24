@@ -1,0 +1,6242 @@
+{
+ "schema": "physis.terreno/1.0",
+ "meta": {
+  "nome": "Casa Physis · Lote 168 · gêmeo digital (semente rev0, TESTE)",
+  "municipio": "Petrópolis",
+  "uf": "RJ",
+  "responsavel": "",
+  "criado": "2026-11-21"
+ },
+ "terreno": {
+  "fonte": "planilha 03 › Levantamento (vértices P-01 a P-016) + cotas da 20; x espelhado (pg:0fc4161d708b)",
+  "crs": "local (metros)",
+  "lat0": -22.4257,
+  "lon0": -43.14268,
+  "poly": [
+   [
+    -0.0,
+    0.0
+   ],
+   [
+    -22.12,
+    -0.13
+   ],
+   [
+    -22.01,
+    72.27
+   ],
+   [
+    -16.45,
+    72.1
+   ],
+   [
+    -15.677,
+    70.522
+   ],
+   [
+    -14.764,
+    69.02
+   ],
+   [
+    -13.72,
+    67.606
+   ],
+   [
+    -12.552,
+    66.293
+   ],
+   [
+    -11.271,
+    65.09
+   ],
+   [
+    -9.887,
+    64.008
+   ],
+   [
+    -8.41,
+    63.055
+   ],
+   [
+    -6.854,
+    62.238
+   ],
+   [
+    -5.23,
+    61.566
+   ],
+   [
+    -3.552,
+    61.043
+   ],
+   [
+    -1.834,
+    60.673
+   ],
+   [
+    -0.09,
+    60.46
+   ]
+  ],
+  "pontos": [
+   [
+    -0.0,
+    0.0,
+    902.4
+   ],
+   [
+    -22.12,
+    0.0,
+    903.53
+   ],
+   [
+    -22.01,
+    72.27,
+    875.38
+   ],
+   [
+    -0.09,
+    60.46,
+    874.24
+   ],
+   [
+    -0.0,
+    4.3,
+    900.0
+   ],
+   [
+    -22.0,
+    9.6,
+    900.0
+   ],
+   [
+    -0.0,
+    13.3,
+    895.0
+   ],
+   [
+    -22.0,
+    23.2,
+    895.0
+   ],
+   [
+    -0.0,
+    25.5,
+    890.0
+   ],
+   [
+    -22.0,
+    33.5,
+    890.0
+   ],
+   [
+    -0.0,
+    35.1,
+    885.0
+   ],
+   [
+    -22.0,
+    41.3,
+    885.0
+   ],
+   [
+    -0.0,
+    45.2,
+    880.0
+   ],
+   [
+    -22.0,
+    52.6,
+    880.0
+   ],
+   [
+    -0.0,
+    58.4,
+    875.0
+   ],
+   [
+    -22.0,
+    74.0,
+    875.0
+   ]
+  ],
+  "grade": null,
+  "matricula": null
+ },
+ "clima": {
+  "H": [
+   5.0,
+   5.2,
+   4.6,
+   4.2,
+   3.7,
+   3.4,
+   3.6,
+   4.2,
+   4.2,
+   4.6,
+   4.6,
+   4.9
+  ],
+  "chuva": [
+   316.0,
+   234.0,
+   249.0,
+   112.0,
+   75.0,
+   45.0,
+   43.0,
+   45.0,
+   91.0,
+   146.0,
+   255.0,
+   303.0
+  ],
+  "kt": 0.5,
+  "pr": 0.8,
+  "pvgis": [
+   119.04,
+   115.3152,
+   116.3616,
+   106.848,
+   100.936,
+   91.392,
+   99.1008,
+   111.4512,
+   103.824,
+   112.9392,
+   105.984,
+   115.444
+  ],
+  "idf": {
+   "nome": "Petrópolis (RJ) · CPRM 2016",
+   "K": 2655.6,
+   "a": 0.1644,
+   "b": 30.6,
+   "c": 0.8862
+  },
+  "temp": 18.53
+ },
+ "solo": {
+  "classe": "residual",
+  "sadm": 200,
+  "ci": 40,
+  "spt": "NSPT 8 a 20 entre 1,5 a 5 m de profundidade (hipótese, planilha 20 › Geotecnia (hipóteses), linha 3)"
+ },
+ "regras": {
+  "to": 40.0,
+  "ca": null,
+  "perm": null,
+  "recFrente": null,
+  "recLat": null,
+  "recFundo": null,
+  "gabarito": null
+ },
+ "itens": [
+  {
+   "id": "g-chuva_h",
+   "tipo": "infiltracao",
+   "nome": "Jardim de chuva",
+   "x": -1.3,
+   "y": 2.0,
+   "w": 2.2,
+   "d": 3.4,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-vagas_h",
+   "tipo": "estacionamento",
+   "nome": "4 vagas na Rua H em nível",
+   "x": -7.6,
+   "y": 2.0,
+   "w": 10.0,
+   "d": 4.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 902.3
+  },
+  {
+   "id": "g-cist1",
+   "tipo": "cisterna",
+   "nome": "C1",
+   "x": -5.645,
+   "y": 2.0,
+   "w": 5.29,
+   "d": 3.4,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 900.77
+  },
+  {
+   "id": "g-rampa_h",
+   "tipo": "pavimento",
+   "nome": "Rampa 3 m",
+   "x": -19.5,
+   "y": 2.0,
+   "w": 3.0,
+   "d": 4.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-casa",
+   "tipo": "residencia",
+   "nome": "Casa 1 em contêineres",
+   "x": -8.095,
+   "y": 6.44,
+   "w": 12.19,
+   "d": 4.88,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 6,
+   "cota": 901.22,
+   "alt": 2.74
+  },
+  {
+   "id": "g-piscina",
+   "tipo": "piscina",
+   "nome": "Piscina 4 × 6",
+   "x": -16.6,
+   "y": 14.15,
+   "w": 4.0,
+   "d": 6.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 895.05
+  },
+  {
+   "id": "g-comum",
+   "tipo": "deck",
+   "nome": "Área comum integrada",
+   "x": -10.5,
+   "y": 16.0,
+   "w": 17.0,
+   "d": 8.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 893.5
+  },
+  {
+   "id": "g-deck",
+   "tipo": "deck",
+   "nome": "Deck 6 m",
+   "x": -10.15,
+   "y": 15.0,
+   "w": 7.7,
+   "d": 6.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 895.2
+  },
+  {
+   "id": "g-gourmet",
+   "tipo": "edicula",
+   "nome": "Gourmet coberta",
+   "x": -11.7,
+   "y": 14.25,
+   "w": 4.6,
+   "d": 4.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 895.2,
+   "alt": 3.2
+  },
+  {
+   "id": "g-apoio",
+   "tipo": "deposito",
+   "nome": "MEC inferior",
+   "x": -17.0,
+   "y": 8.0,
+   "w": 4.0,
+   "d": 5.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 899.79
+  },
+  {
+   "id": "g-hortaA",
+   "tipo": "horta",
+   "nome": "Horta A",
+   "x": -4.2,
+   "y": 15.02,
+   "w": 4.0,
+   "d": 5.56,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 894.32
+  },
+  {
+   "id": "g-t3",
+   "tipo": "deck",
+   "nome": "T3",
+   "x": -8.0,
+   "y": 19.0,
+   "w": 12.0,
+   "d": 2.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 893.5
+  },
+  {
+   "id": "g-patio_serv",
+   "tipo": "deck",
+   "nome": "Pátio de serviço",
+   "x": -16.5,
+   "y": 18.665,
+   "w": 5.0,
+   "d": 2.67,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 896.44
+  },
+  {
+   "id": "g-lazer_patio",
+   "tipo": "deck",
+   "nome": "Estar",
+   "x": -14.9,
+   "y": 18.7,
+   "w": 1.7,
+   "d": 2.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-jardim_patio",
+   "tipo": "gramado",
+   "nome": "jardim_patio",
+   "x": -17.375,
+   "y": 17.67,
+   "w": 3.05,
+   "d": 0.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-hortaL",
+   "tipo": "horta",
+   "nome": "Horta leste",
+   "x": -1.05,
+   "y": 12.0,
+   "w": 1.7,
+   "d": 15.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-hortaO",
+   "tipo": "horta",
+   "nome": "Horta oeste",
+   "x": -19.95,
+   "y": 15.75,
+   "w": 1.7,
+   "d": 7.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-cist2",
+   "tipo": "cisterna",
+   "nome": "C2",
+   "x": -13.1,
+   "y": 37.35,
+   "w": 3.1,
+   "d": 1.6,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 885.48
+  },
+  {
+   "id": "g-lab",
+   "tipo": "escritorio",
+   "nome": "LAB",
+   "x": -5.665,
+   "y": 23.065,
+   "w": 6.41,
+   "d": 3.55,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 891.36,
+   "alt": 2.9
+  },
+  {
+   "id": "g-lab_up",
+   "tipo": "escritorio",
+   "nome": "LAB",
+   "x": -6.685,
+   "y": 23.265,
+   "w": 3.55,
+   "d": 6.41,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 894.26,
+   "alt": 3.09
+  },
+  {
+   "id": "g-mec",
+   "tipo": "deposito",
+   "nome": "MEC",
+   "x": -14.95,
+   "y": 23.585,
+   "w": 6.48,
+   "d": 5.07,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 892.86,
+   "alt": 2.9
+  },
+  {
+   "id": "g-mec_up",
+   "tipo": "deposito",
+   "nome": "MEC",
+   "x": -15.105,
+   "y": 23.29,
+   "w": 5.07,
+   "d": 6.48,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 895.76,
+   "alt": 3.09
+  },
+  {
+   "id": "g-viveiro",
+   "tipo": "horta",
+   "nome": "Viveiro",
+   "x": -2.465,
+   "y": 21.295,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 894.26
+  },
+  {
+   "id": "g-viveiro_b",
+   "tipo": "horta",
+   "nome": "Viveiro",
+   "x": -7.655,
+   "y": 22.305,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 894.26
+  },
+  {
+   "id": "g-viveiro2",
+   "tipo": "horta",
+   "nome": "Viveiro",
+   "x": -15.425,
+   "y": 23.115,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 895.76
+  },
+  {
+   "id": "g-viveiro2_b",
+   "tipo": "horta",
+   "nome": "Viveiro",
+   "x": -11.715,
+   "y": 21.055,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 895.76
+  },
+  {
+   "id": "g-escada_patio",
+   "tipo": "pavimento",
+   "nome": "Escada pátio → zona 2",
+   "x": -18.7,
+   "y": 22.75,
+   "w": 0.6,
+   "d": 5.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-peixes",
+   "tipo": "piscina",
+   "nome": "Tanque de peixes 8,1 m³",
+   "x": -9.75,
+   "y": 26.775,
+   "w": 6.02,
+   "d": 3.15,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 890.26
+  },
+  {
+   "id": "g-caminho2",
+   "tipo": "pavimento",
+   "nome": "caminho2",
+   "x": -10.7,
+   "y": 22.75,
+   "w": 1.0,
+   "d": 5.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-caminho2b",
+   "tipo": "pavimento",
+   "nome": "caminho2b",
+   "x": -10.7,
+   "y": 33.07,
+   "w": 1.0,
+   "d": 10.54,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-passarela",
+   "tipo": "pavimento",
+   "nome": "passarela",
+   "x": -10.7,
+   "y": 26.65,
+   "w": 1.0,
+   "d": 2.5,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-biodig",
+   "tipo": "biodigestor",
+   "nome": "Biodigestor",
+   "x": -3.405,
+   "y": 29.6,
+   "w": 2.49,
+   "d": 3.26,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 887.57
+  },
+  {
+   "id": "g-hortaC",
+   "tipo": "horta",
+   "nome": "Horta C",
+   "x": -7.4,
+   "y": 30.105,
+   "w": 5.08,
+   "d": 3.47,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 888.2
+  },
+  {
+   "id": "g-hortaB",
+   "tipo": "horta",
+   "nome": "Horta B",
+   "x": -13.1,
+   "y": 30.2,
+   "w": 3.4,
+   "d": 2.8,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 890.19
+  },
+  {
+   "id": "g-lavabos",
+   "tipo": "edicula",
+   "nome": "2 lavabos",
+   "x": -17.75,
+   "y": 26.85,
+   "w": 2.5,
+   "d": 1.2,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 891.8,
+   "alt": 2.9
+  },
+  {
+   "id": "g-bar",
+   "tipo": "restaurante",
+   "nome": "Restaurante circular em bioconstrução, Ø 5,0 m,…",
+   "x": -17.5,
+   "y": 32.5,
+   "w": 5.0,
+   "d": 5.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 891.8,
+   "alt": 4.0
+  },
+  {
+   "id": "g-deck1",
+   "tipo": "deck",
+   "nome": "Deck 1 em arco, ao sul do restaurante",
+   "x": -17.5,
+   "y": 29.0,
+   "w": 5.2,
+   "d": 2.8,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 889.65
+  },
+  {
+   "id": "g-deck2",
+   "tipo": "deck",
+   "nome": "Deck 2 em arco, ao norte do restaurante",
+   "x": -17.5,
+   "y": 36.0,
+   "w": 5.2,
+   "d": 2.8,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 887.86
+  },
+  {
+   "id": "g-lago",
+   "tipo": "piscina",
+   "nome": "Lago + wetland 15 m²",
+   "x": -13.1,
+   "y": 34.0,
+   "w": 3.7,
+   "d": 4.8,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 890.59
+  },
+  {
+   "id": "g-hortaD",
+   "tipo": "horta",
+   "nome": "Horta D",
+   "x": -13.1,
+   "y": 37.35,
+   "w": 3.4,
+   "d": 1.9,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 886.23
+  },
+  {
+   "id": "g-cogu",
+   "tipo": "deposito",
+   "nome": "Cogumelário 15 m²",
+   "x": -7.9,
+   "y": 36.37,
+   "w": 4.6,
+   "d": 3.24,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 885.21,
+   "alt": 2.9
+  },
+  {
+   "id": "g-staff",
+   "tipo": "edicula",
+   "nome": "Apoio de funcionários",
+   "x": -3.65,
+   "y": 35.86,
+   "w": 3.3,
+   "d": 1.48,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 883.83,
+   "alt": 2.9
+  },
+  {
+   "id": "g-coelhos",
+   "tipo": "deposito",
+   "nome": "Coelhos",
+   "x": -3.335,
+   "y": 29.6,
+   "w": 2.43,
+   "d": 1.26,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 889.38
+  },
+  {
+   "id": "g-aves",
+   "tipo": "deposito",
+   "nome": "Galinhas",
+   "x": -1.05,
+   "y": 26.5,
+   "w": 1.7,
+   "d": 7.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-abelhas2",
+   "tipo": "horta",
+   "nome": "Melipo- nário 2",
+   "x": -1.0,
+   "y": 22.0,
+   "w": 1.4,
+   "d": 1.6,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-cabritos",
+   "tipo": "deposito",
+   "nome": "Cabritos",
+   "x": -1.05,
+   "y": 34.17,
+   "w": 1.7,
+   "d": 8.34,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-pomar",
+   "tipo": "horta",
+   "nome": "Frutíferas",
+   "x": -21.0,
+   "y": 29.67,
+   "w": 1.8,
+   "d": 17.34,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-abelhas",
+   "tipo": "horta",
+   "nome": "Melipo- nário",
+   "x": -21.0,
+   "y": 21.9,
+   "w": 1.6,
+   "d": 1.4,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-LF1",
+   "tipo": "hospedagem",
+   "nome": "Loft 1 4 × 4",
+   "x": -16.505,
+   "y": 40.845,
+   "w": 4.0,
+   "d": 4.0,
+   "rot": -58.0,
+   "pav": 1,
+   "ocup": 4,
+   "cota": 884.5,
+   "alt": 5.0
+  },
+  {
+   "id": "g-LF2",
+   "tipo": "hospedagem",
+   "nome": "Loft 2 4 × 4",
+   "x": -10.5,
+   "y": 42.12,
+   "w": 4.0,
+   "d": 4.0,
+   "rot": -62.0,
+   "pav": 1,
+   "ocup": 4,
+   "cota": 883.0,
+   "alt": 5.0
+  },
+  {
+   "id": "g-LF3",
+   "tipo": "hospedagem",
+   "nome": "Loft 3 4 × 4",
+   "x": -5.0,
+   "y": 43.62,
+   "w": 4.0,
+   "d": 4.0,
+   "rot": -62.0,
+   "pav": 1,
+   "ocup": 4,
+   "cota": 881.5,
+   "alt": 5.0
+  },
+  {
+   "id": "g-pet",
+   "tipo": "deposito",
+   "nome": "Canil",
+   "x": -3.55,
+   "y": 37.34,
+   "w": 3.1,
+   "d": 1.48,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 887.8,
+   "alt": 2.9
+  },
+  {
+   "id": "g-LF4",
+   "tipo": "hospedagem",
+   "nome": "Loft 4 4 × 5",
+   "x": -16.0,
+   "y": 50.75,
+   "w": 4.0,
+   "d": 5.0,
+   "rot": -17.0,
+   "pav": 1,
+   "ocup": 4,
+   "cota": 880.0,
+   "alt": 5.0
+  },
+  {
+   "id": "g-LF5",
+   "tipo": "hospedagem",
+   "nome": "Loft 5 4 × 5",
+   "x": -16.0,
+   "y": 58.885,
+   "w": 4.0,
+   "d": 5.0,
+   "rot": -32.0,
+   "pav": 1,
+   "ocup": 4,
+   "cota": 877.5,
+   "alt": 5.0
+  },
+  {
+   "id": "g-LF6",
+   "tipo": "hospedagem",
+   "nome": "Loft 6",
+   "x": -16.105,
+   "y": 57.105,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 880.97
+  },
+  {
+   "id": "g-LF7",
+   "tipo": "hospedagem",
+   "nome": "Loft 7",
+   "x": -16.105,
+   "y": 62.605,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 881.92
+  },
+  {
+   "id": "g-fogo",
+   "tipo": "pavimento",
+   "nome": "Fogo de chão",
+   "x": -17.3,
+   "y": 63.9,
+   "w": 1.4,
+   "d": 1.4,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 878.57
+  },
+  {
+   "id": "g-minilago",
+   "tipo": "piscina",
+   "nome": "Mini-lago",
+   "x": -19.45,
+   "y": 64.1,
+   "w": 1.3,
+   "d": 2.6,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 878.83
+  },
+  {
+   "id": "g-loja",
+   "tipo": "escritorio",
+   "nome": "Loja 24 h",
+   "x": -15.405,
+   "y": 52.305,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 878.28
+  },
+  {
+   "id": "g-flor_o2",
+   "tipo": "mata",
+   "nome": "Floresta oeste",
+   "x": -19.105,
+   "y": 47.17,
+   "w": 0.01,
+   "d": 17.46,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-trilha3",
+   "tipo": "pavimento",
+   "nome": "Trilha da borda leste",
+   "x": -19.005,
+   "y": 38.345,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-flor_l",
+   "tipo": "mata",
+   "nome": "Eucalipto",
+   "x": -1.05,
+   "y": 42.44,
+   "w": 1.7,
+   "d": 8.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-filtr_l",
+   "tipo": "tratamento",
+   "nome": "Floresta filtrante",
+   "x": -1.05,
+   "y": 49.02,
+   "w": 1.7,
+   "d": 4.96,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 875.93
+  },
+  {
+   "id": "g-filtr_o",
+   "tipo": "tratamento",
+   "nome": "Floresta filtrante",
+   "x": -21.0,
+   "y": 47.17,
+   "w": 1.8,
+   "d": 17.46,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 881.62
+  },
+  {
+   "id": "g-garagem",
+   "tipo": "estacionamento",
+   "nome": "Acesso existente",
+   "x": -6.65,
+   "y": 54.55,
+   "w": 12.0,
+   "d": 13.4,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 876.3
+  },
+  {
+   "id": "g-vagas_g",
+   "tipo": "estacionamento",
+   "nome": "2 vagas em nível no corredor do acesso",
+   "x": -7.1,
+   "y": 53.6,
+   "w": 9.0,
+   "d": 8.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-residuos",
+   "tipo": "deposito",
+   "nome": "Resí- duos",
+   "x": -6.1,
+   "y": 59.6,
+   "w": 1.6,
+   "d": 2.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-cist4",
+   "tipo": "cisterna",
+   "nome": "C3",
+   "x": -6.2,
+   "y": 56.2,
+   "w": 4.6,
+   "d": 2.4,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 873.46
+  },
+  {
+   "id": "g-fossa",
+   "tipo": "tratamento",
+   "nome": "Fossa natural + filtro",
+   "x": -9.55,
+   "y": 51.9,
+   "w": 4.1,
+   "d": 2.2,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 874.17
+  },
+  {
+   "id": "g-piso_fogo",
+   "tipo": "pavimento",
+   "nome": "piso_fogo",
+   "x": -17.3,
+   "y": 63.9,
+   "w": 2.2,
+   "d": 2.2,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-viveiro_s",
+   "tipo": "horta",
+   "nome": "Viveiro",
+   "x": -3.405,
+   "y": 27.1,
+   "w": 2.49,
+   "d": 3.26,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 888.72
+  },
+  {
+   "id": "g-calc_rest1",
+   "tipo": "pavimento",
+   "nome": "calc_rest1",
+   "x": -13.1,
+   "y": 28.35,
+   "w": 3.8,
+   "d": 1.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_rest2",
+   "tipo": "pavimento",
+   "nome": "calc_rest2",
+   "x": -17.195,
+   "y": 26.72,
+   "w": 3.39,
+   "d": 3.36,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_tronco1",
+   "tipo": "pavimento",
+   "nome": "calc_tronco1",
+   "x": -14.55,
+   "y": 8.0,
+   "w": 0.9,
+   "d": 8.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_tronco3",
+   "tipo": "pavimento",
+   "nome": "Passarela do bolsão de manobra à fileira A",
+   "x": -7.005,
+   "y": 44.605,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_pet",
+   "tipo": "pavimento",
+   "nome": "calc_pet",
+   "x": -0.005,
+   "y": 0.005,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_lab",
+   "tipo": "pavimento",
+   "nome": "calc_lab",
+   "x": -2.92,
+   "y": 20.655,
+   "w": 1.0,
+   "d": 1.27,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_LF6",
+   "tipo": "pavimento",
+   "nome": "Passarela de ligação dos lofts ao acesso",
+   "x": -2.005,
+   "y": 44.605,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_LF1",
+   "tipo": "pavimento",
+   "nome": "Passarela de ligação dos lofts ao acesso",
+   "x": -13.605,
+   "y": 46.105,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_LF7",
+   "tipo": "pavimento",
+   "nome": "calc_LF7",
+   "x": -0.005,
+   "y": 0.005,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_staff",
+   "tipo": "pavimento",
+   "nome": "calc_staff",
+   "x": -5.505,
+   "y": 36.345,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_biodig",
+   "tipo": "pavimento",
+   "nome": "calc_biodig",
+   "x": -2.31,
+   "y": 23.14,
+   "w": 1.0,
+   "d": 4.66,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_cabritos",
+   "tipo": "pavimento",
+   "nome": "calc_cabritos",
+   "x": -1.905,
+   "y": 35.845,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_lig0",
+   "tipo": "pavimento",
+   "nome": "calc_lig0",
+   "x": -14.255,
+   "y": 38.905,
+   "w": 2.13,
+   "d": 2.03,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-calc_lig2",
+   "tipo": "pavimento",
+   "nome": "calc_lig2",
+   "x": -0.005,
+   "y": 0.005,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-var1",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 1",
+   "x": -17.815,
+   "y": 42.97,
+   "w": 3.93,
+   "d": 2.96,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 884.5
+  },
+  {
+   "id": "g-var2",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 2",
+   "x": -11.69,
+   "y": 44.32,
+   "w": 4.0,
+   "d": 2.78,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 883.0
+  },
+  {
+   "id": "g-var3",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 3",
+   "x": -6.19,
+   "y": 45.82,
+   "w": 4.0,
+   "d": 2.78,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 881.5
+  },
+  {
+   "id": "g-var4",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 4",
+   "x": -18.385,
+   "y": 51.485,
+   "w": 2.43,
+   "d": 5.07,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 880.0
+  },
+  {
+   "id": "g-var5",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 5",
+   "x": -18.135,
+   "y": 60.19,
+   "w": 3.47,
+   "d": 4.78,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 877.5
+  },
+  {
+   "id": "g-var6",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 6",
+   "x": -15.105,
+   "y": 57.105,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 880.97
+  },
+  {
+   "id": "g-var7",
+   "tipo": "deck",
+   "nome": "Varanda embutida do loft 7",
+   "x": -12.505,
+   "y": 46.105,
+   "w": 0.01,
+   "d": 0.01,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": 881.92
+  },
+  {
+   "id": "g-acesso-rua-g",
+   "tipo": "acesso",
+   "nome": "Acesso pela Rua G (existente)",
+   "x": -0.09,
+   "y": 60.46,
+   "w": 1.0,
+   "d": 1.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  },
+  {
+   "id": "g-acesso-rua-h",
+   "tipo": "acesso",
+   "nome": "Acesso pela Rua H (4 vagas)",
+   "x": -7.6,
+   "y": 0.0,
+   "w": 1.0,
+   "d": 1.0,
+   "rot": 0,
+   "pav": 1,
+   "ocup": 0,
+   "cota": null
+  }
+ ],
+ "hidro": {
+  "rios": [],
+  "nascentes": []
+ },
+ "sistemas": {
+  "solar": true,
+  "biogas": true,
+  "chuva": true,
+  "reuso": false,
+  "baterias": true
+ },
+ "premissas": {
+  "coefC": {
+   "telhado": 0.95,
+   "pav": 0.9,
+   "grama": 0.25,
+   "mata": 0.15,
+   "solo": 0.35
+  },
+  "Tr": 25,
+  "tc": 10,
+  "negras": 20
+ },
+ "prov": {
+  "terreno.poly": {
+   "st": "est",
+   "src": "planilha 03 › Levantamento, linhas 9 a 13 (x/y local, P-01 = 0,0); lado P-04 a P-05 (arco R 19,464 m, ângulo central 62°04'57\") desenhado como arco de raio 19,464 m com a flecha para dentro do lote (12 trechos; planilha 03 › Levantamento, linha 9, col. D); sem lat/long oficial [MARCADOR L-01]"
+  },
+  "terreno.pontos": {
+   "st": "est",
+   "src": "planilha 20 › Vértices (cotas dos vértices); planilha 03 › Levantamento, curvas de nível (linha 18 em diante)"
+  },
+  "terreno.lat0": {
+   "st": "est",
+   "src": "levantamento.png (25/06/2025), grade UTM 23S SAD-69 lida na imagem: P-01 ≈ E 691.161,7 / N 7.518.862,0; ±1 m na leitura, datum SAD-69 [CONFERIR com o topógrafo] (M&A pg:63cd2ce2f829)"
+  },
+  "terreno.lon0": {
+   "st": "est",
+   "src": "levantamento.png (25/06/2025), grade UTM 23S SAD-69 lida na imagem: P-01 ≈ E 691.161,7 / N 7.518.862,0; ±1 m na leitura, datum SAD-69 [CONFERIR com o topógrafo] (M&A pg:63cd2ce2f829)"
+  },
+  "clima.chuva": {
+   "st": "est",
+   "src": "planilha 03 › Premissas, linha 4 (mm, jan a dez)"
+  },
+  "clima.H": {
+   "st": "est",
+   "src": "planilha 03 › Premissas, linha 6 (kWh/m²·dia, jan a dez)"
+  },
+  "clima.temp": {
+   "st": "est",
+   "src": "média dos 12 meses de planilha 03 › Premissas, linha 5"
+  },
+  "clima.pr": {
+   "st": "est",
+   "src": "planilha 03 › Premissas, linha 18, col. B"
+  },
+  "clima.kt": {
+   "st": "est",
+   "src": "padrão do Planejador (a planilha 03 não traz kt)"
+  },
+  "clima.pvgis": {
+   "st": "est",
+   "src": "planilha 03 › Solar, linha 24 (kWh/kWp por mês, jan a dez; não é o PVGIS: é a estimativa da 03)"
+  },
+  "clima.idf": {
+   "st": "conf",
+   "src": "06_Estudo_Hidrologico_e_Drenagem.pdf › 1 · Chuva de projeto (CPRM 2016, estação Rio da Cidade, código 02243011); coeficientes iguais ao preset do Planejador"
+  },
+  "regras.to": {
+   "st": "est",
+   "src": "planilha 03 › Implantação, linha 92, col. A (limite citado na planilha)"
+  },
+  "sistemas.solar": {
+   "st": "est",
+   "src": "planilha 20 › Strings FV"
+  },
+  "sistemas.biogas": {
+   "st": "est",
+   "src": "planilha 20 › Tratamento (biodigestor com gasômetro)"
+  },
+  "sistemas.chuva": {
+   "st": "est",
+   "src": "planilha 20 › Cisternas e Balanço hídrico"
+  },
+  "sistemas.baterias": {
+   "st": "est",
+   "src": "planilha 20 › Cronograma, linha 9, col. E"
+  },
+  "sistemas.reuso": {
+   "st": "est",
+   "src": "[CONFERIR] reúso não aparece na planilha 20; mantido desligado"
+  },
+  "meta.municipio": {
+   "st": "conf",
+   "src": "cabeçalho dos documentos 01 e 10 (\"Lote 168 · Parque Bom Clima · Petrópolis (RJ)\")"
+  },
+  "meta.uf": {
+   "st": "conf",
+   "src": "cabeçalho dos documentos 01 e 10 (\"Lote 168 · Parque Bom Clima · Petrópolis (RJ)\")"
+  },
+  "solo.classe": {
+   "st": "est",
+   "src": "hipótese da 20 › Geotecnia (solo residual de gnaisse, 1,5 a 5 m) até a sondagem SPT"
+  },
+  "solo.sadm": {
+   "st": "est",
+   "src": "valor típico do Planejador para solo residual (hipótese; sondagem SPT [MARCADOR])"
+  },
+  "solo.ci": {
+   "st": "est",
+   "src": "valor típico do Planejador para solo residual (hipótese; ensaio de infiltração [MARCADOR])"
+  },
+  "itens.g-casa.alt": {
+   "st": "est",
+   "src": "contêiner de baixo 2.59 m (02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)); andar de cima em L não modelado [MARCADOR]"
+  },
+  "itens.g-gourmet.alt": {
+   "st": "est",
+   "src": "altura 3.2 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\"))"
+  },
+  "itens.g-lab.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-lab_up.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-mec.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-mec_up.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-lavabos.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-bar.alt": {
+   "st": "est",
+   "src": "altura total 4 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\"))"
+  },
+  "itens.g-cogu.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-staff.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-LF1.rot": {
+   "st": "est",
+   "src": "4 × 4 m girado 58° (descrição da 03; reproduz a caixa 5.51 × 5.51); no gêmeo espelhado o giro troca de sinal; sentido [CONFERIR]"
+  },
+  "itens.g-LF1.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-LF2.rot": {
+   "st": "est",
+   "src": "4 × 4 m girado 62° (descrição da 03; reproduz a caixa 5.42 × 5.42); no gêmeo espelhado o giro troca de sinal; sentido [CONFERIR]"
+  },
+  "itens.g-LF2.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-LF3.rot": {
+   "st": "est",
+   "src": "4 × 4 m girado 62° (descrição da 03; reproduz a caixa 5.42 × 5.42); no gêmeo espelhado o giro troca de sinal; sentido [CONFERIR]"
+  },
+  "itens.g-LF3.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-pet.alt": {
+   "st": "est",
+   "src": "03 › Implantação: LAB 891.36 → 894.26 e MEC 892.86 → 895.76 (decisão pg:16228b14d400) [CONFERIR]"
+  },
+  "itens.g-LF4.rot": {
+   "st": "est",
+   "src": "4 × 5 m girado 17° (descrição da 03; reproduz a caixa 5.3 × 5.96); no gêmeo espelhado o giro troca de sinal; sentido [CONFERIR]"
+  },
+  "itens.g-LF4.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-LF5.rot": {
+   "st": "est",
+   "src": "4 × 5 m girado 32° (descrição da 03; reproduz a caixa 6.02 × 6.35); no gêmeo espelhado o giro troca de sinal; sentido [CONFERIR]"
+  },
+  "itens.g-LF5.alt": {
+   "st": "est",
+   "src": "altura total 5 m (02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")) [CONFERIR: a tabela de cortes cita 5,00 e 3,00]"
+  },
+  "itens.g-acesso-rua-g": {
+   "st": "est",
+   "src": "planilha 03 › Implantação, linha 68 e P-05 do levantamento [CONFERIR a posição exata]"
+  },
+  "itens.g-acesso-rua-h": {
+   "st": "est",
+   "src": "planilha 03 › Implantação, linha 5 [CONFERIR a posição exata]"
+  }
+ },
+ "log": [
+  {
+   "t": "2026-11-21",
+   "d": "semente casa-physis-rev0 importada das planilhas 20 e 03 (gemeo_importar)"
+  }
+ ],
+ "inicio": {
+  "obras": [],
+  "blocos": [
+   "implantacao"
+  ],
+  "nivel": "basico",
+  "lat": null,
+  "lon": null,
+  "area": null,
+  "docs": []
+ },
+ "gemeo": {
+  "esquema": "physis.gemeo/0.1",
+  "semente": "casa-physis-rev0",
+  "revisao": "rev0",
+  "revisao_desc": "estudo preliminar (revisão 0)",
+  "versao": "TESTE",
+  "decisoes": [
+   "R1-1 pg:178d054ba7c7",
+   "R1-2 pg:e8443161d98c",
+   "R2-1 pg:fc7006fb00a2",
+   "R2-3 pg:cfddb1061265",
+   "D5 vazio pg:310a1c0db09d",
+   "x/y da 03 = canto pg:8d264ca11dc1"
+  ],
+  "politica_dados": "R2-3: público = planta, sistemas, simulado e medido agregado (dia/mês); interno = leituras de 5–15 min, ocupação, pessoas; nunca dado pessoal. Esta semente só tem dados de projeto.",
+  "fontes": {
+   "20": {
+    "arquivo": "20_Detalhamento_Estimado.xlsx",
+    "sha256": "4b5e489a9045665dc25eb5e3da5b2d131686f76812683206716b23d58e1c5059"
+   },
+   "03": {
+    "arquivo": "03_Planilha_Tecnica.xlsx",
+    "sha256": "278e32013ef245def097407ea22273b7a1251b5077ae3613f29c4daa91b39289"
+   },
+   "18": {
+    "arquivo": "18_Equipamentos_e_Consumo.xlsx",
+    "sha256": "0a0702188363e8da59a2afacf8a24f5adb0471a6831f6c01d0ccd2cc8a774723"
+   }
+  },
+  "zonas": {
+   "Z1": {
+    "nome": "Zona 1",
+    "entidade": "Physis Engineering",
+    "faixa_y_m": [
+     0.0,
+     19.6
+    ]
+   },
+   "Z2": {
+    "nome": "Zona 2",
+    "entidade": "Instituto Physis",
+    "faixa_y_m": [
+     19.6,
+     38.9
+    ]
+   },
+   "Z3": {
+    "nome": "Zona 3",
+    "entidade": "Casa Physis",
+    "faixa_y_m": [
+     38.9,
+     null
+    ]
+   }
+  },
+  "convencoes": {
+   "origem": "x/y local em metros, P-01 = (0, 0); y cresce da Rua H para a Rua G; sem georreferência",
+   "x_y_03": "a 03 › Implantação dá o canto do retângulo (x, y), confirmado pela dona em 21/11/2026 (M&A pg:8d264ca11dc1); o item do Planejador guarda o centro (x + larg/2, y + prof/2)",
+   "giro": "nos lofts girados a 03 dá larg./prof. da caixa envolvente; o giro fica só na descrição (rot = 0)",
+   "sem_area": "linhas com 0,01 m e área 0 na 03 (desativadas ou só de cálculo) entram como elemento, marcadas sem_area",
+   "tipo_planejador": "classificação de desenho (cor e categoria no mapa), a revisar na G2"
+  },
+  "estado_de_vida": {
+   "padrao": "projetado",
+   "por_elemento": {
+    "chuva_h": "projetado",
+    "vagas_h": "projetado",
+    "cist1": "projetado",
+    "rampa_h": "projetado",
+    "casa": "projetado",
+    "piscina": "projetado",
+    "comum": "projetado",
+    "deck": "projetado",
+    "gourmet": "projetado",
+    "apoio": "projetado",
+    "hortaA": "projetado",
+    "t3": "projetado",
+    "patio_serv": "projetado",
+    "lazer_patio": "projetado",
+    "jardim_patio": "projetado",
+    "hortaL": "projetado",
+    "hortaO": "projetado",
+    "cist2": "projetado",
+    "lab": "projetado",
+    "lab_up": "projetado",
+    "mec": "projetado",
+    "mec_up": "projetado",
+    "viveiro": "projetado",
+    "viveiro_b": "projetado",
+    "viveiro2": "projetado",
+    "viveiro2_b": "projetado",
+    "escada_patio": "projetado",
+    "peixes": "projetado",
+    "caminho2": "projetado",
+    "caminho2b": "projetado",
+    "passarela": "projetado",
+    "biodig": "projetado",
+    "hortaC": "projetado",
+    "hortaB": "projetado",
+    "lavabos": "projetado",
+    "bar": "projetado",
+    "deck1": "projetado",
+    "deck2": "projetado",
+    "lago": "projetado",
+    "hortaD": "projetado",
+    "cogu": "projetado",
+    "staff": "projetado",
+    "coelhos": "projetado",
+    "aves": "projetado",
+    "abelhas2": "projetado",
+    "cabritos": "projetado",
+    "pomar": "projetado",
+    "abelhas": "projetado",
+    "LF1": "projetado",
+    "LF2": "projetado",
+    "LF3": "projetado",
+    "pet": "projetado",
+    "LF4": "projetado",
+    "LF5": "projetado",
+    "LF6": "projetado",
+    "LF7": "projetado",
+    "fogo": "projetado",
+    "minilago": "projetado",
+    "loja": "projetado",
+    "flor_o2": "projetado",
+    "trilha3": "projetado",
+    "flor_l": "projetado",
+    "filtr_l": "projetado",
+    "filtr_o": "projetado",
+    "garagem": "projetado",
+    "vagas_g": "projetado",
+    "residuos": "projetado",
+    "cist4": "projetado",
+    "fossa": "projetado",
+    "piso_fogo": "projetado",
+    "viveiro_s": "projetado",
+    "calc_rest1": "projetado",
+    "calc_rest2": "projetado",
+    "calc_tronco1": "projetado",
+    "calc_tronco3": "projetado",
+    "calc_pet": "projetado",
+    "calc_lab": "projetado",
+    "calc_LF6": "projetado",
+    "calc_LF1": "projetado",
+    "calc_LF7": "projetado",
+    "calc_staff": "projetado",
+    "calc_biodig": "projetado",
+    "calc_cabritos": "projetado",
+    "calc_lig0": "projetado",
+    "calc_lig2": "projetado",
+    "var1": "projetado",
+    "var2": "projetado",
+    "var3": "projetado",
+    "var4": "projetado",
+    "var5": "projetado",
+    "var6": "projetado",
+    "var7": "projetado"
+   }
+  },
+  "camadas": {
+   "estatico": {
+    "situacao": "semeado",
+    "revisao": "rev0"
+   },
+   "simulado": {
+    "situacao": "a fazer (G4)",
+    "cenarios": []
+   },
+   "medido": {
+    "situacao": "aguardando sensores",
+    "pontos": []
+   }
+  },
+  "elementos": {
+   "chuva_h": {
+    "linha_03": 4,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Jardim de chuva",
+    "x_03": 0.2,
+    "y_03": 0.3,
+    "larg_m": 2.2,
+    "prof_m": 3.4,
+    "area_m2": 7.5,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 4",
+    "procedencia": "estimado",
+    "item_id": "g-chuva_h",
+    "tipo_planejador": "infiltracao",
+    "sem_area": false
+   },
+   "vagas_h": {
+    "linha_03": 5,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "4 vagas na Rua H em nível (2,5 × 5,0) · rampa de ≈ 18% com patamar de 5 m a 5% · C1 embaixo",
+    "x_03": 2.6,
+    "y_03": 0.0,
+    "larg_m": 10.0,
+    "prof_m": 4.0,
+    "area_m2": 50.0,
+    "piso_topo_m": 902.3,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 5",
+    "procedencia": "estimado",
+    "item_id": "g-vagas_h",
+    "tipo_planejador": "estacionamento",
+    "sem_area": false
+   },
+   "cist1": {
+    "linha_03": 6,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "C1",
+    "x_03": 3.0,
+    "y_03": 0.3,
+    "larg_m": 5.29,
+    "prof_m": 3.4,
+    "area_m2": 18.0,
+    "piso_topo_m": 900.77,
+    "pilar_max_m": null,
+    "corte_m3": 42.2,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 6",
+    "procedencia": "estimado",
+    "item_id": "g-cist1",
+    "tipo_planejador": "cisterna",
+    "sem_area": false
+   },
+   "rampa_h": {
+    "linha_03": 7,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Rampa 3 m",
+    "x_03": 18.0,
+    "y_03": 0.0,
+    "larg_m": 3.0,
+    "prof_m": 4.0,
+    "area_m2": 12.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 7",
+    "procedencia": "estimado",
+    "item_id": "g-rampa_h",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "casa": {
+    "linha_03": 8,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Casa 1 em contêineres: 2 × 40 pés na cota 0 (901,22) + 2 × 20 pés em cima em L a partir da fachada sul: azul perpendicular a 3,5 m da fachada leste e laranja paralelo a oeste, emendados",
+    "x_03": 2.0,
+    "y_03": 4.0,
+    "larg_m": 12.19,
+    "prof_m": 4.88,
+    "area_m2": 62.4,
+    "piso_topo_m": 901.22,
+    "pilar_max_m": null,
+    "corte_m3": 0.0,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 8",
+    "procedencia": "estimado",
+    "item_id": "g-casa",
+    "tipo_planejador": "residencia",
+    "sem_area": false,
+    "ocupacao_fonte": "planilha 03 › Premissas, linha 14, col. B"
+   },
+   "piscina": {
+    "linha_03": 9,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Piscina 4 × 6 (vista norte)",
+    "x_03": 14.6,
+    "y_03": 11.15,
+    "larg_m": 4.0,
+    "prof_m": 6.0,
+    "area_m2": 24.0,
+    "piso_topo_m": 895.05,
+    "pilar_max_m": null,
+    "corte_m3": 69.1,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 9",
+    "procedencia": "estimado",
+    "item_id": "g-piscina",
+    "tipo_planejador": "piscina",
+    "sem_area": false
+   },
+   "comum": {
+    "linha_03": 10,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Área comum integrada",
+    "x_03": 2.0,
+    "y_03": 12.0,
+    "larg_m": 17.0,
+    "prof_m": 8.0,
+    "area_m2": 136.0,
+    "piso_topo_m": 893.5,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 10",
+    "procedencia": "estimado",
+    "item_id": "g-comum",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "deck": {
+    "linha_03": 11,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Deck 6 m",
+    "x_03": 6.3,
+    "y_03": 12.0,
+    "larg_m": 7.7,
+    "prof_m": 6.0,
+    "area_m2": 46.2,
+    "piso_topo_m": 895.2,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 11",
+    "procedencia": "estimado",
+    "item_id": "g-deck",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "gourmet": {
+    "linha_03": 12,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Gourmet coberta (aprumada com a cozinha)",
+    "x_03": 9.4,
+    "y_03": 12.0,
+    "larg_m": 4.6,
+    "prof_m": 4.5,
+    "area_m2": 20.7,
+    "piso_topo_m": 895.2,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 12",
+    "procedencia": "estimado",
+    "item_id": "g-gourmet",
+    "tipo_planejador": "edicula",
+    "sem_area": false
+   },
+   "apoio": {
+    "linha_03": 13,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "MEC inferior (antigo apoio técnico, removido na",
+    "x_03": 15.0,
+    "y_03": 5.5,
+    "larg_m": 4.0,
+    "prof_m": 5.0,
+    "area_m2": 0.0,
+    "piso_topo_m": 899.79,
+    "pilar_max_m": null,
+    "corte_m3": 13.1,
+    "aterro_m3": 0.5,
+    "fonte": "planilha 03 › Implantação, linha 13",
+    "procedencia": "estimado",
+    "item_id": "g-apoio",
+    "tipo_planejador": "deposito",
+    "sem_area": true
+   },
+   "hortaA": {
+    "linha_03": 14,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Horta A",
+    "x_03": 2.2,
+    "y_03": 12.24,
+    "larg_m": 4.0,
+    "prof_m": 5.56,
+    "area_m2": 22.2,
+    "piso_topo_m": 894.32,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 14",
+    "procedencia": "estimado",
+    "item_id": "g-hortaA",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "t3": {
+    "linha_03": 15,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "T3 · área externa",
+    "x_03": 2.0,
+    "y_03": 18.0,
+    "larg_m": 12.0,
+    "prof_m": 2.0,
+    "area_m2": 24.0,
+    "piso_topo_m": 893.5,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 15",
+    "procedencia": "estimado",
+    "item_id": "g-t3",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "patio_serv": {
+    "linha_03": 16,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Pátio de serviço",
+    "x_03": 14.0,
+    "y_03": 17.33,
+    "larg_m": 5.0,
+    "prof_m": 2.67,
+    "area_m2": 13.3,
+    "piso_topo_m": 896.44,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 16",
+    "procedencia": "estimado",
+    "item_id": "g-patio_serv",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "lazer_patio": {
+    "linha_03": 17,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Estar (bancos e pergolado)",
+    "x_03": 14.05,
+    "y_03": 17.45,
+    "larg_m": 1.7,
+    "prof_m": 2.5,
+    "area_m2": 4.2,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 17",
+    "procedencia": "estimado",
+    "item_id": "g-lazer_patio",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "jardim_patio": {
+    "linha_03": 18,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": null,
+    "x_03": 15.85,
+    "y_03": 17.42,
+    "larg_m": 3.05,
+    "prof_m": 0.5,
+    "area_m2": 1.5,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 18",
+    "procedencia": "estimado",
+    "item_id": "g-jardim_patio",
+    "tipo_planejador": "gramado",
+    "sem_area": false
+   },
+   "hortaL": {
+    "linha_03": 19,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Horta leste",
+    "x_03": 0.2,
+    "y_03": 4.5,
+    "larg_m": 1.7,
+    "prof_m": 15.0,
+    "area_m2": 25.5,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 19",
+    "procedencia": "estimado",
+    "item_id": "g-hortaL",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "hortaO": {
+    "linha_03": 20,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": "Horta oeste",
+    "x_03": 19.1,
+    "y_03": 12.0,
+    "larg_m": 1.7,
+    "prof_m": 7.5,
+    "area_m2": 12.8,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 20",
+    "procedencia": "estimado",
+    "item_id": "g-hortaO",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "cist2": {
+    "linha_03": 21,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "C2",
+    "x_03": 11.55,
+    "y_03": 36.55,
+    "larg_m": 3.1,
+    "prof_m": 1.6,
+    "area_m2": 5.0,
+    "piso_topo_m": 885.48,
+    "pilar_max_m": null,
+    "corte_m3": 21.1,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 21",
+    "procedencia": "estimado",
+    "item_id": "g-cist2",
+    "tipo_planejador": "cisterna",
+    "sem_area": false
+   },
+   "lab": {
+    "linha_03": 22,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "LAB (baixo) · escritório multiuso: 8 lugares de dia, 4 camas à noite (8 módulos-baú)",
+    "x_03": 2.46,
+    "y_03": 21.29,
+    "larg_m": 6.41,
+    "prof_m": 3.55,
+    "area_m2": 14.8,
+    "piso_topo_m": 891.36,
+    "pilar_max_m": null,
+    "corte_m3": 7.9,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 22",
+    "procedencia": "estimado",
+    "item_id": "g-lab",
+    "tipo_planejador": "escritorio",
+    "sem_area": false
+   },
+   "lab_up": {
+    "linha_03": 23,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "LAB (cima)",
+    "x_03": 4.91,
+    "y_03": 20.06,
+    "larg_m": 3.55,
+    "prof_m": 6.41,
+    "area_m2": 14.8,
+    "piso_topo_m": 894.26,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 23",
+    "procedencia": "estimado",
+    "item_id": "g-lab_up",
+    "tipo_planejador": "escritorio",
+    "sem_area": false
+   },
+   "mec": {
+    "linha_03": 24,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "MEC (baixo)",
+    "x_03": 11.71,
+    "y_03": 21.05,
+    "larg_m": 6.48,
+    "prof_m": 5.07,
+    "area_m2": 14.8,
+    "piso_topo_m": 892.86,
+    "pilar_max_m": null,
+    "corte_m3": 6.7,
+    "aterro_m3": 0.3,
+    "fonte": "planilha 03 › Implantação, linha 24",
+    "procedencia": "estimado",
+    "item_id": "g-mec",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "mec_up": {
+    "linha_03": 25,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "MEC (cima)",
+    "x_03": 12.57,
+    "y_03": 20.05,
+    "larg_m": 5.07,
+    "prof_m": 6.48,
+    "area_m2": 14.8,
+    "piso_topo_m": 895.76,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 25",
+    "procedencia": "estimado",
+    "item_id": "g-mec_up",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "viveiro": {
+    "linha_03": 26,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Viveiro (terraço)",
+    "x_03": 2.46,
+    "y_03": 21.29,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 894.26,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 26",
+    "procedencia": "estimado",
+    "item_id": "g-viveiro",
+    "tipo_planejador": "horta",
+    "sem_area": true
+   },
+   "viveiro_b": {
+    "linha_03": 27,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Viveiro (terraço)",
+    "x_03": 7.65,
+    "y_03": 22.3,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 894.26,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 27",
+    "procedencia": "estimado",
+    "item_id": "g-viveiro_b",
+    "tipo_planejador": "horta",
+    "sem_area": true
+   },
+   "viveiro2": {
+    "linha_03": 28,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Viveiro (terraço)",
+    "x_03": 15.42,
+    "y_03": 23.11,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 895.76,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 28",
+    "procedencia": "estimado",
+    "item_id": "g-viveiro2",
+    "tipo_planejador": "horta",
+    "sem_area": true
+   },
+   "viveiro2_b": {
+    "linha_03": 29,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Viveiro (terraço)",
+    "x_03": 11.71,
+    "y_03": 21.05,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 895.76,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 29",
+    "procedencia": "estimado",
+    "item_id": "g-viveiro2_b",
+    "tipo_planejador": "horta",
+    "sem_area": true
+   },
+   "escada_patio": {
+    "linha_03": 30,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Escada pátio → zona 2",
+    "x_03": 18.4,
+    "y_03": 20.0,
+    "larg_m": 0.6,
+    "prof_m": 5.5,
+    "area_m2": 3.3,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 30",
+    "procedencia": "estimado",
+    "item_id": "g-escada_patio",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "peixes": {
+    "linha_03": 31,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Tanque de peixes 8,1 m³ (na linha d’água)",
+    "x_03": 6.74,
+    "y_03": 25.2,
+    "larg_m": 6.02,
+    "prof_m": 3.15,
+    "area_m2": 19.0,
+    "piso_topo_m": 890.26,
+    "pilar_max_m": null,
+    "corte_m3": 12.8,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 31",
+    "procedencia": "estimado",
+    "item_id": "g-peixes",
+    "tipo_planejador": "piscina",
+    "sem_area": false
+   },
+   "caminho2": {
+    "linha_03": 32,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 10.2,
+    "y_03": 20.0,
+    "larg_m": 1.0,
+    "prof_m": 5.5,
+    "area_m2": 5.5,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 32",
+    "procedencia": "estimado",
+    "item_id": "g-caminho2",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "caminho2b": {
+    "linha_03": 33,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 10.2,
+    "y_03": 27.8,
+    "larg_m": 1.0,
+    "prof_m": 10.54,
+    "area_m2": 10.5,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 33",
+    "procedencia": "estimado",
+    "item_id": "g-caminho2b",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "passarela": {
+    "linha_03": 34,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 10.2,
+    "y_03": 25.4,
+    "larg_m": 1.0,
+    "prof_m": 2.5,
+    "area_m2": 2.5,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 34",
+    "procedencia": "estimado",
+    "item_id": "g-passarela",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "biodig": {
+    "linha_03": 35,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Biodigestor (enterrado)",
+    "x_03": 2.16,
+    "y_03": 27.97,
+    "larg_m": 2.49,
+    "prof_m": 3.26,
+    "area_m2": 8.1,
+    "piso_topo_m": 887.57,
+    "pilar_max_m": null,
+    "corte_m3": 28.7,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 35",
+    "procedencia": "estimado",
+    "item_id": "g-biodig",
+    "tipo_planejador": "biodigestor",
+    "sem_area": false
+   },
+   "hortaC": {
+    "linha_03": 36,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Horta C",
+    "x_03": 4.86,
+    "y_03": 28.37,
+    "larg_m": 5.08,
+    "prof_m": 3.47,
+    "area_m2": 17.6,
+    "piso_topo_m": 888.2,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 36",
+    "procedencia": "estimado",
+    "item_id": "g-hortaC",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "hortaB": {
+    "linha_03": 37,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Horta B",
+    "x_03": 11.4,
+    "y_03": 28.8,
+    "larg_m": 3.4,
+    "prof_m": 2.8,
+    "area_m2": 9.5,
+    "piso_topo_m": 890.19,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 37",
+    "procedencia": "estimado",
+    "item_id": "g-hortaB",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "lavabos": {
+    "linha_03": 38,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "2 lavabos",
+    "x_03": 16.5,
+    "y_03": 26.25,
+    "larg_m": 2.5,
+    "prof_m": 1.2,
+    "area_m2": 3.0,
+    "piso_topo_m": 891.8,
+    "pilar_max_m": null,
+    "corte_m3": 5.9,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 38",
+    "procedencia": "estimado",
+    "item_id": "g-lavabos",
+    "tipo_planejador": "edicula",
+    "sem_area": false
+   },
+   "bar": {
+    "linha_03": 39,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Restaurante circular em bioconstrução, Ø 5,0 m, entre os dois decks",
+    "x_03": 15.0,
+    "y_03": 30.0,
+    "larg_m": 5.0,
+    "prof_m": 5.0,
+    "area_m2": 19.6,
+    "piso_topo_m": 891.8,
+    "pilar_max_m": null,
+    "corte_m3": 159.7,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 39",
+    "procedencia": "estimado",
+    "item_id": "g-bar",
+    "tipo_planejador": "restaurante",
+    "sem_area": false
+   },
+   "deck1": {
+    "linha_03": 40,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Deck 1 em arco, ao sul do restaurante (coberto)",
+    "x_03": 14.9,
+    "y_03": 27.6,
+    "larg_m": 5.2,
+    "prof_m": 2.8,
+    "area_m2": 9.9,
+    "piso_topo_m": 889.65,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 40",
+    "procedencia": "estimado",
+    "item_id": "g-deck1",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "deck2": {
+    "linha_03": 41,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Deck 2 em arco, ao norte do restaurante",
+    "x_03": 14.9,
+    "y_03": 34.6,
+    "larg_m": 5.2,
+    "prof_m": 2.8,
+    "area_m2": 9.9,
+    "piso_topo_m": 887.86,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 41",
+    "procedencia": "estimado",
+    "item_id": "g-deck2",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "lago": {
+    "linha_03": 42,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Lago + wetland 15 m²",
+    "x_03": 11.25,
+    "y_03": 31.6,
+    "larg_m": 3.7,
+    "prof_m": 4.8,
+    "area_m2": 17.8,
+    "piso_topo_m": 890.59,
+    "pilar_max_m": null,
+    "corte_m3": 0.8,
+    "aterro_m3": 11.7,
+    "fonte": "planilha 03 › Implantação, linha 42",
+    "procedencia": "estimado",
+    "item_id": "g-lago",
+    "tipo_planejador": "piscina",
+    "sem_area": false
+   },
+   "hortaD": {
+    "linha_03": 43,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Horta D",
+    "x_03": 11.4,
+    "y_03": 36.4,
+    "larg_m": 3.4,
+    "prof_m": 1.9,
+    "area_m2": 6.5,
+    "piso_topo_m": 886.23,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 43",
+    "procedencia": "estimado",
+    "item_id": "g-hortaD",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "cogu": {
+    "linha_03": 44,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Cogumelário 15 m²",
+    "x_03": 5.6,
+    "y_03": 34.75,
+    "larg_m": 4.6,
+    "prof_m": 3.24,
+    "area_m2": 14.9,
+    "piso_topo_m": 885.21,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 44",
+    "procedencia": "estimado",
+    "item_id": "g-cogu",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "staff": {
+    "linha_03": 45,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Apoio de funcionários",
+    "x_03": 2.0,
+    "y_03": 35.12,
+    "larg_m": 3.3,
+    "prof_m": 1.48,
+    "area_m2": 4.9,
+    "piso_topo_m": 883.83,
+    "pilar_max_m": null,
+    "corte_m3": 1.3,
+    "aterro_m3": 0.1,
+    "fonte": "planilha 03 › Implantação, linha 45",
+    "procedencia": "estimado",
+    "item_id": "g-staff",
+    "tipo_planejador": "edicula",
+    "sem_area": false
+   },
+   "coelhos": {
+    "linha_03": 46,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Coelhos",
+    "x_03": 2.12,
+    "y_03": 28.97,
+    "larg_m": 2.43,
+    "prof_m": 1.26,
+    "area_m2": 3.1,
+    "piso_topo_m": 889.38,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 46",
+    "procedencia": "estimado",
+    "item_id": "g-coelhos",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "aves": {
+    "linha_03": 47,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Galinhas",
+    "x_03": 0.2,
+    "y_03": 23.0,
+    "larg_m": 1.7,
+    "prof_m": 7.0,
+    "area_m2": 11.9,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 47",
+    "procedencia": "estimado",
+    "item_id": "g-aves",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "abelhas2": {
+    "linha_03": 48,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Melipo- nário 2",
+    "x_03": 0.3,
+    "y_03": 21.2,
+    "larg_m": 1.4,
+    "prof_m": 1.6,
+    "area_m2": 2.2,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 48",
+    "procedencia": "estimado",
+    "item_id": "g-abelhas2",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "cabritos": {
+    "linha_03": 49,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Cabritos",
+    "x_03": 0.2,
+    "y_03": 30.0,
+    "larg_m": 1.7,
+    "prof_m": 8.34,
+    "area_m2": 14.2,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 49",
+    "procedencia": "estimado",
+    "item_id": "g-cabritos",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "pomar": {
+    "linha_03": 50,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Frutíferas",
+    "x_03": 20.1,
+    "y_03": 21.0,
+    "larg_m": 1.8,
+    "prof_m": 17.34,
+    "area_m2": 31.2,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 50",
+    "procedencia": "estimado",
+    "item_id": "g-pomar",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "abelhas": {
+    "linha_03": 51,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Melipo- nário",
+    "x_03": 20.2,
+    "y_03": 21.2,
+    "larg_m": 1.6,
+    "prof_m": 1.4,
+    "area_m2": 2.2,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 51",
+    "procedencia": "estimado",
+    "item_id": "g-abelhas",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "LF1": {
+    "linha_03": 52,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 1 4 × 4 (losango, giro 58°)",
+    "x_03": 13.75,
+    "y_03": 38.09,
+    "larg_m": 5.51,
+    "prof_m": 5.51,
+    "area_m2": 16.0,
+    "piso_topo_m": 884.5,
+    "pilar_max_m": 3.39,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 52",
+    "procedencia": "estimado",
+    "item_id": "g-LF1",
+    "tipo_planejador": "hospedagem",
+    "sem_area": false,
+    "ocupacao_fonte": "planilha 03 › Premissas, linha 12, col. A (× por loft)"
+   },
+   "LF2": {
+    "linha_03": 53,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 2 4 × 4 (losango, giro 62°)",
+    "x_03": 7.79,
+    "y_03": 39.41,
+    "larg_m": 5.42,
+    "prof_m": 5.42,
+    "area_m2": 16.0,
+    "piso_topo_m": 883.0,
+    "pilar_max_m": 3.41,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 53",
+    "procedencia": "estimado",
+    "item_id": "g-LF2",
+    "tipo_planejador": "hospedagem",
+    "sem_area": false,
+    "ocupacao_fonte": "planilha 03 › Premissas, linha 12, col. A (× por loft)"
+   },
+   "LF3": {
+    "linha_03": 54,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 3 4 × 4 (losango, giro 62°) (PCD)",
+    "x_03": 2.29,
+    "y_03": 40.91,
+    "larg_m": 5.42,
+    "prof_m": 5.42,
+    "area_m2": 16.0,
+    "piso_topo_m": 881.5,
+    "pilar_max_m": 3.44,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 54",
+    "procedencia": "estimado",
+    "item_id": "g-LF3",
+    "tipo_planejador": "hospedagem",
+    "sem_area": false,
+    "ocupacao_fonte": "planilha 03 › Premissas, linha 12, col. A (× por loft)"
+   },
+   "pet": {
+    "linha_03": 55,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Canil · 3 baias, de frente para os lofts e de costas para os animais (parede comum com o apoio)",
+    "x_03": 2.0,
+    "y_03": 36.6,
+    "larg_m": 3.1,
+    "prof_m": 1.48,
+    "area_m2": 4.6,
+    "piso_topo_m": 887.8,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 55",
+    "procedencia": "estimado",
+    "item_id": "g-pet",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "LF4": {
+    "linha_03": 56,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 4 4 × 5 (na curva de nível, giro 17°) (PCD)",
+    "x_03": 13.35,
+    "y_03": 47.77,
+    "larg_m": 5.3,
+    "prof_m": 5.96,
+    "area_m2": 20.0,
+    "piso_topo_m": 880.0,
+    "pilar_max_m": 2.58,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 56",
+    "procedencia": "estimado",
+    "item_id": "g-LF4",
+    "tipo_planejador": "hospedagem",
+    "sem_area": false,
+    "ocupacao_fonte": "planilha 03 › Premissas, linha 12, col. A (× por loft)"
+   },
+   "LF5": {
+    "linha_03": 57,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 5 4 × 5 (na curva de nível, giro 32°) (PCD)",
+    "x_03": 12.99,
+    "y_03": 55.71,
+    "larg_m": 6.02,
+    "prof_m": 6.35,
+    "area_m2": 20.0,
+    "piso_topo_m": 877.5,
+    "pilar_max_m": 2.18,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 57",
+    "procedencia": "estimado",
+    "item_id": "g-LF5",
+    "tipo_planejador": "hospedagem",
+    "sem_area": false,
+    "ocupacao_fonte": "planilha 03 › Premissas, linha 12, col. A (× por loft)"
+   },
+   "LF6": {
+    "linha_03": 58,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 6 · não cabe seguindo as curvas de nível com varanda e recuos",
+    "x_03": 16.1,
+    "y_03": 57.1,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 880.97,
+    "pilar_max_m": 2.56,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 58",
+    "procedencia": "estimado",
+    "item_id": "g-LF6",
+    "tipo_planejador": "hospedagem",
+    "sem_area": true
+   },
+   "LF7": {
+    "linha_03": 59,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loft 7 · não cabe seguindo as curvas de nível com varanda e recuos",
+    "x_03": 16.1,
+    "y_03": 62.6,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 881.92,
+    "pilar_max_m": 2.64,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 59",
+    "procedencia": "estimado",
+    "item_id": "g-LF7",
+    "tipo_planejador": "hospedagem",
+    "sem_area": true
+   },
+   "fogo": {
+    "linha_03": 60,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Fogo de chão",
+    "x_03": 16.6,
+    "y_03": 63.2,
+    "larg_m": 1.4,
+    "prof_m": 1.4,
+    "area_m2": 2.0,
+    "piso_topo_m": 878.57,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 60",
+    "procedencia": "estimado",
+    "item_id": "g-fogo",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "minilago": {
+    "linha_03": 61,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Mini-lago",
+    "x_03": 18.8,
+    "y_03": 62.8,
+    "larg_m": 1.3,
+    "prof_m": 2.6,
+    "area_m2": 3.0,
+    "piso_topo_m": 878.83,
+    "pilar_max_m": null,
+    "corte_m3": 0.7,
+    "aterro_m3": 0.3,
+    "fonte": "planilha 03 › Implantação, linha 61",
+    "procedencia": "estimado",
+    "item_id": "g-minilago",
+    "tipo_planejador": "piscina",
+    "sem_area": false
+   },
+   "loja": {
+    "linha_03": 62,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Loja 24 h · proposta: integrar ao restaurante (sem lugar na nova Zona 3)",
+    "x_03": 15.4,
+    "y_03": 52.3,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 878.28,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 62",
+    "procedencia": "estimado",
+    "item_id": "g-loja",
+    "tipo_planejador": "escritorio",
+    "sem_area": true
+   },
+   "flor_o2": {
+    "linha_03": 63,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Floresta oeste (incorporada à faixa x 19–21, junto à floresta filtrante)",
+    "x_03": 19.1,
+    "y_03": 38.44,
+    "larg_m": 0.01,
+    "prof_m": 17.46,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 63",
+    "procedencia": "estimado",
+    "item_id": "g-flor_o2",
+    "tipo_planejador": "mata",
+    "sem_area": true
+   },
+   "trilha3": {
+    "linha_03": 64,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Trilha da borda leste (dentro do afastamento)",
+    "x_03": 19.0,
+    "y_03": 38.34,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 64",
+    "procedencia": "estimado",
+    "item_id": "g-trilha3",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "flor_l": {
+    "linha_03": 65,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Eucalipto (toras)",
+    "x_03": 0.2,
+    "y_03": 38.44,
+    "larg_m": 1.7,
+    "prof_m": 8.0,
+    "area_m2": 13.6,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 65",
+    "procedencia": "estimado",
+    "item_id": "g-flor_l",
+    "tipo_planejador": "mata",
+    "sem_area": false
+   },
+   "filtr_l": {
+    "linha_03": 66,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Floresta filtrante",
+    "x_03": 0.2,
+    "y_03": 46.54,
+    "larg_m": 1.7,
+    "prof_m": 4.96,
+    "area_m2": 8.4,
+    "piso_topo_m": 875.93,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 66",
+    "procedencia": "estimado",
+    "item_id": "g-filtr_l",
+    "tipo_planejador": "tratamento",
+    "sem_area": false
+   },
+   "filtr_o": {
+    "linha_03": 67,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Floresta filtrante (nativa)",
+    "x_03": 20.1,
+    "y_03": 38.44,
+    "larg_m": 1.8,
+    "prof_m": 17.46,
+    "area_m2": 31.4,
+    "piso_topo_m": 881.62,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 67",
+    "procedencia": "estimado",
+    "item_id": "g-filtr_o",
+    "tipo_planejador": "tratamento",
+    "sem_area": false
+   },
+   "garagem": {
+    "linha_03": 68,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Acesso existente: entrada e saída pela Rua G junto ao P-05 (pista de 3,5 m com patamar de espera), corredor de 5,5 m em frente a 2 vagas em nível (1 PCD) a 876,30",
+    "x_03": 0.65,
+    "y_03": 47.85,
+    "larg_m": 12.0,
+    "prof_m": 13.4,
+    "area_m2": 95.0,
+    "piso_topo_m": 876.3,
+    "pilar_max_m": null,
+    "corte_m3": 57.8,
+    "aterro_m3": 11.9,
+    "fonte": "planilha 03 › Implantação, linha 68",
+    "procedencia": "estimado",
+    "item_id": "g-garagem",
+    "tipo_planejador": "estacionamento",
+    "sem_area": false
+   },
+   "vagas_g": {
+    "linha_03": 69,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "2 vagas em nível no corredor do acesso (1 PCD)",
+    "x_03": 2.6,
+    "y_03": 49.6,
+    "larg_m": 9.0,
+    "prof_m": 8.0,
+    "area_m2": 25.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 69",
+    "procedencia": "estimado",
+    "item_id": "g-vagas_g",
+    "tipo_planejador": "estacionamento",
+    "sem_area": false
+   },
+   "residuos": {
+    "linha_03": 70,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Resí- duos",
+    "x_03": 5.3,
+    "y_03": 58.6,
+    "larg_m": 1.6,
+    "prof_m": 2.0,
+    "area_m2": 4.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 70",
+    "procedencia": "estimado",
+    "item_id": "g-residuos",
+    "tipo_planejador": "deposito",
+    "sem_area": false
+   },
+   "cist4": {
+    "linha_03": 71,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "C3 (sob o estacionamento do acesso)",
+    "x_03": 3.9,
+    "y_03": 55.0,
+    "larg_m": 4.6,
+    "prof_m": 2.4,
+    "area_m2": 11.1,
+    "piso_topo_m": 873.46,
+    "pilar_max_m": null,
+    "corte_m3": 45.1,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 71",
+    "procedencia": "estimado",
+    "item_id": "g-cist4",
+    "tipo_planejador": "cisterna",
+    "sem_area": false
+   },
+   "fossa": {
+    "linha_03": 72,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Fossa natural + filtro (sob o estacionamento do acesso, tampas carroçáveis)",
+    "x_03": 7.5,
+    "y_03": 50.8,
+    "larg_m": 4.1,
+    "prof_m": 2.2,
+    "area_m2": 9.0,
+    "piso_topo_m": 874.17,
+    "pilar_max_m": null,
+    "corte_m3": 16.4,
+    "aterro_m3": 0.0,
+    "fonte": "planilha 03 › Implantação, linha 72",
+    "procedencia": "estimado",
+    "item_id": "g-fossa",
+    "tipo_planejador": "tratamento",
+    "sem_area": false
+   },
+   "piso_fogo": {
+    "linha_03": 73,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": null,
+    "x_03": 16.2,
+    "y_03": 62.8,
+    "larg_m": 2.2,
+    "prof_m": 2.2,
+    "area_m2": 4.8,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 73",
+    "procedencia": "estimado",
+    "item_id": "g-piso_fogo",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "viveiro_s": {
+    "linha_03": 74,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": "Viveiro (sombrite) sobre o biodigestor enterrado 3,2 × 2,4",
+    "x_03": 2.16,
+    "y_03": 25.47,
+    "larg_m": 2.49,
+    "prof_m": 3.26,
+    "area_m2": 8.1,
+    "piso_topo_m": 888.72,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 74",
+    "procedencia": "estimado",
+    "item_id": "g-viveiro_s",
+    "tipo_planejador": "horta",
+    "sem_area": false
+   },
+   "calc_rest1": {
+    "linha_03": 75,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 11.2,
+    "y_03": 27.85,
+    "larg_m": 3.8,
+    "prof_m": 1.0,
+    "area_m2": 3.8,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 75",
+    "procedencia": "estimado",
+    "item_id": "g-calc_rest1",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "calc_rest2": {
+    "linha_03": 76,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 15.5,
+    "y_03": 25.04,
+    "larg_m": 3.39,
+    "prof_m": 3.36,
+    "area_m2": 11.4,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 76",
+    "procedencia": "estimado",
+    "item_id": "g-calc_rest2",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "calc_tronco1": {
+    "linha_03": 77,
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "descricao": null,
+    "x_03": 14.1,
+    "y_03": 4.0,
+    "larg_m": 0.9,
+    "prof_m": 8.0,
+    "area_m2": 7.2,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 77",
+    "procedencia": "estimado",
+    "item_id": "g-calc_tronco1",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "calc_tronco3": {
+    "linha_03": 78,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Passarela do bolsão de manobra à fileira A (1,50 m)",
+    "x_03": 7.0,
+    "y_03": 44.6,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 78",
+    "procedencia": "estimado",
+    "item_id": "g-calc_tronco3",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_pet": {
+    "linha_03": 79,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": null,
+    "x_03": 0.0,
+    "y_03": 0.0,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 79",
+    "procedencia": "estimado",
+    "item_id": "g-calc_pet",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_lab": {
+    "linha_03": 80,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 2.42,
+    "y_03": 20.02,
+    "larg_m": 1.0,
+    "prof_m": 1.27,
+    "area_m2": 1.3,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 80",
+    "procedencia": "estimado",
+    "item_id": "g-calc_lab",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "calc_LF6": {
+    "linha_03": 81,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Passarela de ligação dos lofts ao acesso (1,50 m) · desativada na versão nas curvas de nível",
+    "x_03": 2.0,
+    "y_03": 44.6,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 81",
+    "procedencia": "estimado",
+    "item_id": "g-calc_LF6",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_LF1": {
+    "linha_03": 82,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Passarela de ligação dos lofts ao acesso (1,50 m) · desativada na versão nas curvas de nível",
+    "x_03": 13.6,
+    "y_03": 46.1,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 82",
+    "procedencia": "estimado",
+    "item_id": "g-calc_LF1",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_LF7": {
+    "linha_03": 83,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": null,
+    "x_03": 0.0,
+    "y_03": 0.0,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 83",
+    "procedencia": "estimado",
+    "item_id": "g-calc_LF7",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_staff": {
+    "linha_03": 84,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 5.5,
+    "y_03": 36.34,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 84",
+    "procedencia": "estimado",
+    "item_id": "g-calc_staff",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_biodig": {
+    "linha_03": 85,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 1.81,
+    "y_03": 20.81,
+    "larg_m": 1.0,
+    "prof_m": 4.66,
+    "area_m2": 4.7,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 85",
+    "procedencia": "estimado",
+    "item_id": "g-calc_biodig",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "calc_cabritos": {
+    "linha_03": 86,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 1.9,
+    "y_03": 35.84,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 86",
+    "procedencia": "estimado",
+    "item_id": "g-calc_cabritos",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "calc_lig0": {
+    "linha_03": 87,
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "descricao": null,
+    "x_03": 13.19,
+    "y_03": 37.89,
+    "larg_m": 2.13,
+    "prof_m": 2.03,
+    "area_m2": 4.3,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 87",
+    "procedencia": "estimado",
+    "item_id": "g-calc_lig0",
+    "tipo_planejador": "pavimento",
+    "sem_area": false
+   },
+   "calc_lig2": {
+    "linha_03": 88,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": null,
+    "x_03": 0.0,
+    "y_03": 0.0,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": null,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 88",
+    "procedencia": "estimado",
+    "item_id": "g-calc_lig2",
+    "tipo_planejador": "pavimento",
+    "sem_area": true
+   },
+   "var1": {
+    "linha_03": 89,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 1 (lateral, 1,0 m)",
+    "x_03": 15.85,
+    "y_03": 41.49,
+    "larg_m": 3.93,
+    "prof_m": 2.96,
+    "area_m2": 4.0,
+    "piso_topo_m": 884.5,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 89",
+    "procedencia": "estimado",
+    "item_id": "g-var1",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "var2": {
+    "linha_03": 94,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 2 (lateral, 1,0 m)",
+    "x_03": 9.69,
+    "y_03": 42.93,
+    "larg_m": 4.0,
+    "prof_m": 2.78,
+    "area_m2": 4.0,
+    "piso_topo_m": 883.0,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 94",
+    "procedencia": "estimado",
+    "item_id": "g-var2",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "var3": {
+    "linha_03": 95,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 3 (lateral, 1,0 m)",
+    "x_03": 4.19,
+    "y_03": 44.43,
+    "larg_m": 4.0,
+    "prof_m": 2.78,
+    "area_m2": 4.0,
+    "piso_topo_m": 881.5,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 95",
+    "procedencia": "estimado",
+    "item_id": "g-var3",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "var4": {
+    "linha_03": 96,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 4 (lateral, 1,0 m)",
+    "x_03": 17.17,
+    "y_03": 48.95,
+    "larg_m": 2.43,
+    "prof_m": 5.07,
+    "area_m2": 5.0,
+    "piso_topo_m": 880.0,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 96",
+    "procedencia": "estimado",
+    "item_id": "g-var4",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "var5": {
+    "linha_03": 97,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 5 (lateral, 1,0 m)",
+    "x_03": 16.4,
+    "y_03": 57.8,
+    "larg_m": 3.47,
+    "prof_m": 4.78,
+    "area_m2": 5.0,
+    "piso_topo_m": 877.5,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 97",
+    "procedencia": "estimado",
+    "item_id": "g-var5",
+    "tipo_planejador": "deck",
+    "sem_area": false
+   },
+   "var6": {
+    "linha_03": 98,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 6 (lateral, 1,0 m)",
+    "x_03": 15.1,
+    "y_03": 57.1,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 880.97,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 98",
+    "procedencia": "estimado",
+    "item_id": "g-var6",
+    "tipo_planejador": "deck",
+    "sem_area": true
+   },
+   "var7": {
+    "linha_03": 99,
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "descricao": "Varanda embutida do loft 7 (lateral, 1,0 m)",
+    "x_03": 12.5,
+    "y_03": 46.1,
+    "larg_m": 0.01,
+    "prof_m": 0.01,
+    "area_m2": 0.0,
+    "piso_topo_m": 881.92,
+    "pilar_max_m": null,
+    "corte_m3": null,
+    "aterro_m3": null,
+    "fonte": "planilha 03 › Implantação, linha 99",
+    "procedencia": "estimado",
+    "item_id": "g-var7",
+    "tipo_planejador": "deck",
+    "sem_area": true
+   }
+  },
+  "fonte_por_valor": {
+   "lote.area_m2": {
+    "valor": 1455.95,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Índices, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D6",
+     "alternativas": [
+      {
+       "valor": 1216.0,
+       "fonte": "planilha 03 › Levantamento, linha 5, col. B (área do RGI e da planta do loteamento; retificação pendente)"
+      }
+     ]
+    },
+    "nota": "coincide com o levantamento (1455.951 m², planilha 03 › Levantamento, linha 4, col. B)"
+   },
+   "lote.norte_verdadeiro_graus": {
+    "valor": 17.0,
+    "unidade": "°",
+    "fonte": "planilha 03 › Levantamento, linha 15, col. A",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "o eixo do lote (y local, Rua G = norte de projeto) aponta ≈ 17° a leste do norte verdadeiro; no IFC, TrueNorth = (−sen, cos) [CONFERIR com o topógrafo: seta e rumos da prancha girados ≈ 90°; M&A pg:afe44bbf677a]"
+   },
+   "lote.azimute_eixo_x_graus": {
+    "valor": 287.0,
+    "unidade": "°",
+    "fonte": "planilha 20 › Perímetro, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "D10 resolvida: +x da 03 a 287° com +y a 17° = planta espelhada, confirmada pela grade UTM do levantamento (P-01→P-02 a 286,7°); o gêmeo vira o x (pg:0fc4161d708b); destro seria 107°"
+   },
+   "lote.latitude": {
+    "valor": -22.4257,
+    "unidade": "°",
+    "fonte": "levantamento.png (25/06/2025), grade UTM 23S SAD-69 lida na imagem: P-01 ≈ E 691.161,7 / N 7.518.862,0; ±1 m na leitura, datum SAD-69 [CONFERIR com o topógrafo] (M&A pg:63cd2ce2f829)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "P-01"
+   },
+   "lote.longitude": {
+    "valor": -43.14268,
+    "unidade": "°",
+    "fonte": "levantamento.png (25/06/2025), grade UTM 23S SAD-69 lida na imagem: P-01 ≈ E 691.161,7 / N 7.518.862,0; ±1 m na leitura, datum SAD-69 [CONFERIR com o topógrafo] (M&A pg:63cd2ce2f829)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "P-01"
+   },
+   "lote.utm_p01": {
+    "valor": "E 691161.7 / N 7518862.0 (UTM 23S, SAD-69)",
+    "unidade": null,
+    "fonte": "levantamento.png (25/06/2025), grade UTM 23S SAD-69 lida na imagem: P-01 ≈ E 691.161,7 / N 7.518.862,0; ±1 m na leitura, datum SAD-69 [CONFERIR com o topógrafo] (M&A pg:63cd2ce2f829)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "lote.perimetro_m": {
+    "valor": 181.0,
+    "unidade": "m",
+    "fonte": "planilha 03 › Levantamento, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.construida_total_m2": {
+    "valor": 435.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Índices, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.projecao_m2": {
+    "valor": 343.2,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Índices, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D4",
+     "alternativas": [
+      {
+       "valor": 244.4,
+       "fonte": "planilha 03 › Implantação, linha 91, col. H (sem decks e varandas)"
+      }
+     ]
+    }
+   },
+   "areas.projecao_pct": {
+    "valor": 23.6,
+    "unidade": "%",
+    "fonte": "planilha 20 › Índices, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D4",
+     "alternativas": [
+      {
+       "valor": 16.8,
+       "fonte": "planilha 03 › Implantação, linha 92, col. H (taxa de ocupação × 100)"
+      }
+     ]
+    }
+   },
+   "areas.pavimentos_m2": {
+    "valor": 306.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Índices, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.impermeavel_m2": {
+    "valor": 649.7,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Índices, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.impermeavel_pct": {
+    "valor": 44.6,
+    "unidade": "%",
+    "fonte": "planilha 20 › Índices, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.permeavel_m2": {
+    "valor": 806.3,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Índices, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.permeavel_pct": {
+    "valor": 55.4,
+    "unidade": "%",
+    "fonte": "planilha 20 › Índices, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.coef_aproveitamento": {
+    "valor": 0.3,
+    "unidade": null,
+    "fonte": "planilha 20 › Índices, linha 8, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.quadro.casa_1.terreo_2_40_pes.construida_m2": {
+    "valor": 59.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.casa_1.terreo_2_40_pes.projecao_m2": {
+    "valor": 59.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.casa_1.superior_2_20_pes_em_l.construida_m2": {
+    "valor": 23.6,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.casa_1.superior_2_20_pes_em_l.projecao_m2": {
+    "valor": 7.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.casa_1.terracos_descobertos.construida_m2": {
+    "valor": 20.9,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.casa_1.terracos_descobertos.projecao_m2": {
+    "valor": 0.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.gourmet.coberta.construida_m2": {
+    "valor": 20.7,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.gourmet.coberta.projecao_m2": {
+    "valor": 20.7,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "areas.quadro.lab.inferior_superior_2_20_pes.construida_m2": {
+    "valor": 29.6,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.lab.inferior_superior_2_20_pes.projecao_m2": {
+    "valor": 22.2,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.mec.inferior_superior_2_20_pes.construida_m2": {
+    "valor": 29.6,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.mec.inferior_superior_2_20_pes.projecao_m2": {
+    "valor": 22.2,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 7, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.restaurante.cozinha_5_m.construida_m2": {
+    "valor": 19.6,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 8, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.restaurante.cozinha_5_m.projecao_m2": {
+    "valor": 19.6,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 8, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.restaurante.decks_2.construida_m2": {
+    "valor": 19.8,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 9, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.restaurante.decks_2.projecao_m2": {
+    "valor": 19.8,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 9, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.lofts_1_a_4.20_m_mezanino_10_m.construida_m2": {
+    "valor": 120.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 10, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.lofts_1_a_4.20_m_mezanino_10_m.projecao_m2": {
+    "valor": 80.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 10, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.lofts_5_e_6.16_m_acessiveis.construida_m2": {
+    "valor": 32.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 11, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.lofts_5_e_6.16_m_acessiveis.projecao_m2": {
+    "valor": 32.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 11, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.lofts.varandas_6.construida_m2": {
+    "valor": 26.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 12, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.lofts.varandas_6.projecao_m2": {
+    "valor": 26.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 12, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.apoio_e_lavabos.construida_m2": {
+    "valor": 7.9,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 13, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.apoio_e_lavabos.projecao_m2": {
+    "valor": 7.9,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 13, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.cogumelario_e_canil.construida_m2": {
+    "valor": 19.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 14, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.cogumelario_e_canil.projecao_m2": {
+    "valor": 19.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 14, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "areas.quadro.loja_24_h.construida_m2": {
+    "valor": 6.8,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 15, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.loja_24_h.projecao_m2": {
+    "valor": 6.8,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 15, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "areas.quadro.total.construida_m2": {
+    "valor": 435.5,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 16, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "areas.quadro.total.projecao_m2": {
+    "valor": 343.2,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Quadro de áreas, linha 16, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "programa.lofts": {
+    "valor": 6,
+    "unidade": "lofts",
+    "fonte": "planilha 20 › Quadro de áreas, linhas 10 e 11",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "conferir": {
+     "divergencia": "D3",
+     "alternativas": [
+      {
+       "valor": 5,
+       "fonte": "planilha 03 › Implantação, LF1, LF2, LF3, LF4, LF5 (LF6, LF7: \"não cabe\")"
+      }
+     ]
+    }
+   },
+   "casa1.cota_piso_m": {
+    "valor": 901.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "conferir": {
+     "divergencia": "D2",
+     "alternativas": [
+      {
+       "valor": "≈ 889 a 891 (platô intermediário)",
+       "fonte": "doc 10 (Casa 1), citado no doc 47 §2.4"
+      }
+     ]
+    },
+    "nota": "a 03 › Implantação traz o mesmo valor (linha da Casa 1)"
+   },
+   "energia.fv.placas_acumuladas.fase1": {
+    "valor": 22.0,
+    "unidade": "placas",
+    "fonte": "planilha 20 › Strings FV, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.fv.placas_acumuladas.fase2": {
+    "valor": 38.0,
+    "unidade": "placas",
+    "fonte": "planilha 20 › Strings FV, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.fv.placas_acumuladas.fase3": {
+    "valor": 56.0,
+    "unidade": "placas",
+    "fonte": "planilha 20 › Strings FV, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.fv.placas": {
+    "valor": 56.0,
+    "unidade": "placas",
+    "fonte": "planilha 20 › Strings FV, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D1",
+     "alternativas": [
+      {
+       "valor": 70.0,
+       "fonte": "planilha 03 › Solar, linha 19, col. F"
+      }
+     ]
+    }
+   },
+   "energia.fv.kwp": {
+    "valor": 30.8,
+    "unidade": "kWp",
+    "fonte": "planilha 03 › Placas solares, linha 8, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D1",
+     "alternativas": [
+      {
+       "valor": 38.5,
+       "fonte": "planilha 03 › Solar, linha 19, col. H"
+      }
+     ]
+    },
+    "nota": "a planilha 20 não traz o kWp; a 03 › Placas solares soma as mesmas 56 placas da 20 › Strings FV"
+   },
+   "energia.fv.local.casa_cobertura_dos_20_pes.placas": {
+    "valor": 10.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 1 · meses 0–12 · Casa (cobertura dos 20 pés)"
+   },
+   "energia.fv.local.pergolado_do_terraco_da_casa.placas": {
+    "valor": 4.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 1 · meses 0–12 · Pergolado do terraço da casa"
+   },
+   "energia.fv.local.pergolados_do_lab_e_do_mec.placas": {
+    "valor": 8.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 1 · meses 0–12 · Pergolados do LAB e do MEC"
+   },
+   "energia.fv.local.coberturas_do_lab_e_do_mec.placas": {
+    "valor": 8.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 2 · meses 12–24 · Coberturas do LAB e do MEC"
+   },
+   "energia.fv.local.gourmet.placas": {
+    "valor": 4.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 2 · meses 12–24 · Gourmet"
+   },
+   "energia.fv.local.restaurante_face_norte.placas": {
+    "valor": 4.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 2 · meses 12–24 · Restaurante (face norte)"
+   },
+   "energia.fv.local.lofts_3_por_loft_6.placas": {
+    "valor": 18.0,
+    "unidade": "placas",
+    "fonte": "planilha 03 › Placas solares, linha 8, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Fase 3 · meses 24–36 · Lofts (3 por loft × 6)"
+   },
+   "energia.fv.placa_kwp": {
+    "valor": 0.55,
+    "unidade": "kWp",
+    "fonte": "planilha 03 › Premissas, linha 19, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.fv.placa_area_m2": {
+    "valor": 2.58,
+    "unidade": "m²",
+    "fonte": "planilha 03 › Premissas, linha 20, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "telhados.inclinacao_graus": {
+    "valor": 14.0,
+    "unidade": "°",
+    "fonte": "planilha 03 › Solar, linha 30, col. A",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D7",
+     "alternativas": [
+      {
+       "valor": "plana 3% (contêineres), água única 15% (lofts), cônica 45% (restaurante), telha cerâmica (gourmet)",
+       "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)"
+      }
+     ]
+    },
+    "nota": "todos os telhados caem para o norte (Rua G, +y local); o 3D usa as coberturas da 02b (pg:74fabc0568d2)"
+   },
+   "alturas.total.casa_lab_mec_m": {
+    "valor": 5.8,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB e MEC: a 03 dá baixo + cima = 5,80 m (igual)"
+   },
+   "alturas.total.lofts_m": {
+    "valor": 5.0,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "a tabela de cortes cita também \"5,00 (20 m²) e 3,00 (16 m²)\" em leiaute ambíguo [CONFERIR]"
+   },
+   "alturas.total.restaurante_m": {
+    "valor": 4.0,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "alturas.total.gourmet_m": {
+    "valor": 3.2,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › estudo de sombras (\"Alturas: casa, LAB e MEC 5,8 m; lofts 5,0 m; restaurante 4,0 m; gourmet 3,2 m\")",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "pé-direito 3,20 na tabela de cortes"
+   },
+   "casa1.altura_conteiner_m": {
+    "valor": 2.59,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "níveis ±0,00, +2,59 e +5,18 no corte longitudinal"
+   },
+   "telhados.conteineres": {
+    "valor": "plana 3% com placas a 15–20°",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa 1, LAB e MEC"
+   },
+   "telhados.lofts_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "água única, telha com isolamento"
+   },
+   "telhados.restaurante_pct": {
+    "valor": 45.0,
+    "unidade": "%",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "cônica, rufos e calha periférica; telha sanduíche"
+   },
+   "telhados.gourmet": {
+    "valor": "telhado de madeira com telha cerâmica",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100)",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "inclinação [MARCADOR]: a prancha não dá"
+   },
+   "energia.fv.placa_inclinacao": {
+    "valor": "15–20°",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › energia (\"Placas de 550 W (≈ 1,13 × 2,28 m) a 15–20°\")",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "placas voltadas à Rua G (norte de projeto)"
+   },
+   "estrutura.pilar": {
+    "valor": "tubular 100 × 100 × 4,75",
+    "unidade": "mm",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "lofts, restaurante e pergolados"
+   },
+   "estrutura.bloco": {
+    "valor": "0,70 × 0,70 × 0,60",
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "tracejado 0,60 × 0,60 indicativo na Casa 1 e nos lofts"
+   },
+   "estrutura.bloco_aflorando_m": {
+    "valor": 0.3,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "blocos de concreto aflorando 30 cm do solo"
+   },
+   "estrutura.casa1": {
+    "valor": "A1 a A15 nos cantos e no meio dos contêineres de 40 pés",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "estrutura.lab_mec": {
+    "valor": "contêineres em T sobre 8 pilares",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "estrutura.lofts": {
+    "valor": "pilares na grade de 4 m",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "estrutura.restaurante": {
+    "valor": "C0 a C8: centro e anel a cada 45°; D1 a D10 nos decks",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "estrutura.lab_mec_pilares": {
+    "valor": "P1 a P4 nos cantos do contêiner inferior; P5 a P8 nas extremidades do de cima (balanços de 1,81 m)",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "a 03 dá balanços de 1,23 m (LAB e MEC de cima × de baixo) [CONFERIR]"
+   },
+   "estrutura.vigas.lab_mec": {
+    "valor": "W 150",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "sob o contêiner de cima"
+   },
+   "estrutura.vigas.lofts_borda": {
+    "valor": "W 150 × 13",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "vão de 4 m"
+   },
+   "estrutura.vigas.lofts_central": {
+    "valor": "W 200 × 15",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "vão de 4 m (W 150 × 13 não atende a flecha)"
+   },
+   "estrutura.vigas.restaurante": {
+    "valor": "W 150",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "vigas radiais e anel, galvanizado"
+   },
+   "estrutura.vigas.casa1_v3": {
+    "valor": "W 200",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "V3: reforço da parede aberta entre os contêineres de 40 pés"
+   },
+   "estrutura.contraventamento": {
+    "valor": "em X nos lofts e no restaurante",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "seção da barra [MARCADOR]"
+   },
+   "contencao.muro_rua_g": {
+    "valor": "muro de contenção drenado (até ≈ 4,7 m) + guarda-corpo 1,10 m",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "platô da Rua G (prancha 21); espessura [MARCADOR]"
+   },
+   "contencao.muro_altura_max_m": {
+    "valor": 4.7,
+    "unidade": "m",
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "valor aproximado na fonte (≈)"
+   },
+   "contencao.taludes": {
+    "valor": "taludes 1:1 com gabião e vetiver",
+    "unidade": null,
+    "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Estrutura geral e fundações; plantas de forma e detalhes",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "platôs sem muro"
+   },
+   "alturas.pavimento_m": {
+    "valor": 2.9,
+    "unidade": "m",
+    "fonte": "planilha 03 › Implantação: LAB e MEC de cima − de baixo (891,36 → 894,26; 892,86 → 895,76)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D8",
+     "alternativas": [
+      {
+       "valor": 2.59,
+       "fonte": "02b_Pranchas_Tecnicas_A3.pdf › Cortes arquitetônicos das edificações (1:100): níveis +2,59 e +5,18 dos contêineres da Casa 1"
+      }
+     ]
+    }
+   },
+   "energia.fv.inversor1_kw": {
+    "valor": 15.0,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Strings FV, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.fv.inversor2_kw": {
+    "valor": 15.0,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Strings FV, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.baterias_kwh": {
+    "valor": 30.0,
+    "unidade": "kWh",
+    "fonte": "planilha 20 › Cronograma, linha 9, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.hospedagem_6_lofts_escritorio_do_lab.instalada_kw": {
+    "valor": 32.1,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.hospedagem_6_lofts_escritorio_do_lab.demanda_kw": {
+    "valor": 16.1,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.restaurante.instalada_kw": {
+    "valor": 15.3,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.restaurante.demanda_kw": {
+    "valor": 10.7,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.casa_1.instalada_kw": {
+    "valor": 12.8,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.casa_1.demanda_kw": {
+    "valor": 7.7,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.mec.instalada_kw": {
+    "valor": 11.3,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.mec.demanda_kw": {
+    "valor": 5.6,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.aquecimento.instalada_kw": {
+    "valor": 9.0,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.aquecimento.demanda_kw": {
+    "valor": 4.5,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.lab.instalada_kw": {
+    "valor": 4.6,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.lab.demanda_kw": {
+    "valor": 2.8,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 7, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.apoio_de_funcionarios.instalada_kw": {
+    "valor": 3.5,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 8, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.apoio_de_funcionarios.demanda_kw": {
+    "valor": 2.1,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 8, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.cisternas.instalada_kw": {
+    "valor": 1.9,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 9, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.cisternas.demanda_kw": {
+    "valor": 1.5,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 9, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.loja_24_h.instalada_kw": {
+    "valor": 0.7,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 10, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "energia.quadro.loja_24_h.demanda_kw": {
+    "valor": 0.7,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 10, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "energia.quadro.piscina_natural.instalada_kw": {
+    "valor": 0.4,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 11, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.piscina_natural.demanda_kw": {
+    "valor": 0.4,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 11, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.cisterna_c2.instalada_kw": {
+    "valor": 0.4,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 12, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.cisterna_c2.demanda_kw": {
+    "valor": 0.4,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 12, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.gourmet.instalada_kw": {
+    "valor": 0.3,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 13, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.gourmet.demanda_kw": {
+    "valor": 0.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 13, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.automacao.instalada_kw": {
+    "valor": 0.3,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 14, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.automacao.demanda_kw": {
+    "valor": 0.3,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 14, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.peixes_criacao_e_viveiro.instalada_kw": {
+    "valor": 0.3,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 15, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.peixes_criacao_e_viveiro.demanda_kw": {
+    "valor": 0.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 15, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "energia.quadro.fossa_e_filtro.instalada_kw": {
+    "valor": 0.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 16, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "energia.quadro.fossa_e_filtro.demanda_kw": {
+    "valor": 0.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 16, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "energia.quadro.areas_externas.instalada_kw": {
+    "valor": 0.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 17, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.areas_externas.demanda_kw": {
+    "valor": 0.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 17, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.quadro.gourmet_e_deck.instalada_kw": {
+    "valor": 0.1,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 18, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.quadro.gourmet_e_deck.demanda_kw": {
+    "valor": 0.1,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 18, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering"
+   },
+   "energia.potencia_instalada_kw": {
+    "valor": 93.4,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 19, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "com simultaneidade de 0,75 entre quadros"
+   },
+   "energia.demanda_kw": {
+    "valor": 40.2,
+    "unidade": "kW",
+    "fonte": "planilha 20 › Quadro de cargas, linha 19, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.corrente_a": {
+    "valor": 66.0,
+    "unidade": "A",
+    "fonte": "planilha 20 › Quadro de cargas, linha 19, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "energia.consumo_kwh_mes": {
+    "valor": null,
+    "unidade": "kWh/mês",
+    "fonte": "planilha 20 (não traz consumo mensal)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D5",
+     "alternativas": [
+      {
+       "valor": 3341.0,
+       "fonte": "planilha 03 › Energia, linha 19, col. B (base conservadora de dimensionamento)"
+      },
+      {
+       "valor": 2939.4,
+       "fonte": "planilha 18 › Resumo por grupo, linha 17, col. B (equipamentos com ocupação plena)"
+      }
+     ]
+    },
+    "marcador": "[MARCADOR] consumo mensal fora da planilha 20, que é a fonte única",
+    "nota": "mantido vazio por decisão da dona em 21/11/2026 (M&A pg:310a1c0db09d)"
+   },
+   "agua.cisterna.c1.volume_m3": {
+    "valor": 45.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Cisternas, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "Zona 1, junto à Rua H; fase 1"
+   },
+   "agua.cisterna.c2.volume_m3": {
+    "valor": 20.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Cisternas, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "Zona 2, junto ao restaurante; fase 1"
+   },
+   "agua.cisterna.c3.volume_m3": {
+    "valor": 25.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Cisternas, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "sob o platô da Rua G; fase 1"
+   },
+   "agua.cisterna.c4_a_c7_modulares.volume_m3": {
+    "valor": 70.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Cisternas, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "sob o platô da Rua G e na Zona 2; fase 2"
+   },
+   "agua.cisterna.c8_a_c10_modulares.volume_m3": {
+    "valor": 60.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Cisternas, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "Zona 3, entre os lofts; fase 3"
+   },
+   "agua.reservacao_total_m3": {
+    "valor": 220.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Cisternas, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_mensal.captacao_m3": {
+    "valor": [
+     135.6,
+     100.4,
+     106.9,
+     48.1,
+     32.2,
+     19.3,
+     18.5,
+     19.3,
+     39.1,
+     62.7,
+     109.5,
+     130.1
+    ],
+    "unidade": "m³/mês",
+    "fonte": "planilha 20 › Balanço hídrico, linhas 2 a 13, col. B (jan a dez)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_mensal.demanda_nao_potavel_m3": {
+    "valor": [
+     57.0,
+     54.7,
+     58.5,
+     61.1,
+     64.5,
+     65.5,
+     67.5,
+     66.8,
+     63.3,
+     61.5,
+     57.5,
+     57.4
+    ],
+    "unidade": "m³/mês",
+    "fonte": "planilha 20 › Balanço hídrico, linhas 2 a 13, col. C (jan a dez)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_mensal.estoque_fim_m3": {
+    "valor": [
+     212.2,
+     220.0,
+     220.0,
+     207.0,
+     174.7,
+     128.5,
+     79.4,
+     32.0,
+     7.8,
+     8.9,
+     60.9,
+     133.6
+    ],
+    "unidade": "m³/mês",
+    "fonte": "planilha 20 › Balanço hídrico, linhas 2 a 13, col. D (jan a dez)",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_fase.reservacao_90m3.cobertura_pct": {
+    "valor": 83.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Balanço por fase, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_fase.reservacao_90m3.rede_m3_ano": {
+    "valor": 122.0,
+    "unidade": "m³/ano",
+    "fonte": "planilha 20 › Balanço por fase, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "meses com complemento da rede: jun, jul, ago, set"
+   },
+   "agua.balanco_fase.reservacao_160m3.cobertura_pct": {
+    "valor": 93.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Balanço por fase, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_fase.reservacao_160m3.rede_m3_ano": {
+    "valor": 52.0,
+    "unidade": "m³/ano",
+    "fonte": "planilha 20 › Balanço por fase, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "meses com complemento da rede: ago, set"
+   },
+   "agua.balanco_fase.reservacao_220m3.cobertura_pct": {
+    "valor": 100.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Balanço por fase, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "agua.balanco_fase.reservacao_220m3.rede_m3_ano": {
+    "valor": 0.0,
+    "unidade": "m³/ano",
+    "fonte": "planilha 20 › Balanço por fase, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "meses com complemento da rede: nenhum"
+   },
+   "esgoto.biodigestor": {
+    "valor": 11.8,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Tratamento, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "esgoto.caixa_de_gordura": {
+    "valor": 130.0,
+    "unidade": "L",
+    "fonte": "planilha 20 › Tratamento, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis"
+   },
+   "esgoto.fossa_septica": {
+    "valor": 6.5,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Tratamento, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "esgoto.filtro_anaerobio": {
+    "valor": 5.3,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Tratamento, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis"
+   },
+   "esgoto.floresta_filtrante": {
+    "valor": 41.0,
+    "unidade": "m²",
+    "fonte": "planilha 20 › Tratamento, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "valor aproximado na fonte (≈)"
+   },
+   "drenagem.jardim_de_chuva_m3": {
+    "valor": 3.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Drenagem, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "valor aproximado na fonte (≈)"
+   },
+   "drenagem.detencao_m3": {
+    "valor": 6.0,
+    "unidade": "m³",
+    "fonte": "planilha 20 › Drenagem, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "6 m³ (calculado 4,2 a 5,5 m³ + margem)"
+   },
+   "esgoto.trecho.casa_ci_1.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.comprimento_m": {
+    "valor": 1.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.declividade_pct": {
+    "valor": 2.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.terreno_inicio_m": {
+    "valor": 899.68,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.fundo_inicio_m": {
+    "valor": 899.28,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.terreno_fim_m": {
+    "valor": 899.86,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1"
+   },
+   "esgoto.trecho.casa_ci_1.fundo_fim_m": {
+    "valor": 899.25,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 2, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Casa → CI-1; 0 caixas intermediárias"
+   },
+   "esgoto.trecho.ci_1_ci_2.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.comprimento_m": {
+    "valor": 13.6,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.terreno_inicio_m": {
+    "valor": 899.86,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.fundo_inicio_m": {
+    "valor": 899.25,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.terreno_fim_m": {
+    "valor": 893.96,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2"
+   },
+   "esgoto.trecho.ci_1_ci_2.fundo_fim_m": {
+    "valor": 893.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 3, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-1 → CI-2; 1 caixas intermediárias; degraus somando 3,65 m"
+   },
+   "esgoto.trecho.ci_2_lab.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.comprimento_m": {
+    "valor": 5.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.terreno_inicio_m": {
+    "valor": 893.96,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.fundo_inicio_m": {
+    "valor": 893.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.terreno_fim_m": {
+    "valor": 892.04,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB"
+   },
+   "esgoto.trecho.ci_2_lab.fundo_fim_m": {
+    "valor": 891.64,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 4, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-2 → LAB; 0 caixas intermediárias; degraus somando 1,18 m"
+   },
+   "esgoto.trecho.lab_ci_3.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.comprimento_m": {
+    "valor": 3.9,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.declividade_pct": {
+    "valor": 2.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.terreno_inicio_m": {
+    "valor": 892.04,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.fundo_inicio_m": {
+    "valor": 891.64,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.terreno_fim_m": {
+    "valor": 892.75,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3"
+   },
+   "esgoto.trecho.lab_ci_3.fundo_fim_m": {
+    "valor": 891.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 5, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "LAB → CI-3; 0 caixas intermediárias"
+   },
+   "esgoto.trecho.ci_3_ci_4.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.comprimento_m": {
+    "valor": 6.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.terreno_inicio_m": {
+    "valor": 892.75,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.fundo_inicio_m": {
+    "valor": 891.56,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.terreno_fim_m": {
+    "valor": 889.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4"
+   },
+   "esgoto.trecho.ci_3_ci_4.fundo_fim_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 6, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-3 → CI-4; 0 caixas intermediárias; degraus somando 1,37 m"
+   },
+   "esgoto.trecho.ci_4_biodigestor.dn_mm": {
+    "valor": 100.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.comprimento_m": {
+    "valor": 6.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.terreno_inicio_m": {
+    "valor": 889.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.fundo_inicio_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.terreno_fim_m": {
+    "valor": 888.48,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor"
+   },
+   "esgoto.trecho.ci_4_biodigestor.fundo_fim_m": {
+    "valor": 888.08,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 7, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-4 → Biodigestor; 0 caixas intermediárias; degraus somando 0,21 m"
+   },
+   "esgoto.trecho.restaurante_cgord.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.comprimento_m": {
+    "valor": 2.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.declividade_pct": {
+    "valor": 1.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.terreno_inicio_m": {
+    "valor": 889.64,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.fundo_inicio_m": {
+    "valor": 889.24,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.terreno_fim_m": {
+    "valor": 890.08,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord"
+   },
+   "esgoto.trecho.restaurante_cgord.fundo_fim_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 8, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "Restaurante → CGord; 0 caixas intermediárias"
+   },
+   "esgoto.trecho.cgord_ci_5.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.comprimento_m": {
+    "valor": 7.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.terreno_inicio_m": {
+    "valor": 890.08,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.fundo_inicio_m": {
+    "valor": 889.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.terreno_fim_m": {
+    "valor": 888.02,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5"
+   },
+   "esgoto.trecho.cgord_ci_5.fundo_fim_m": {
+    "valor": 887.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 9, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CGord → CI-5; 0 caixas intermediárias; degraus somando 0,52 m"
+   },
+   "esgoto.trecho.ci_5_ci_6.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.comprimento_m": {
+    "valor": 9.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.terreno_inicio_m": {
+    "valor": 888.02,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.fundo_inicio_m": {
+    "valor": 887.62,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.terreno_fim_m": {
+    "valor": 882.83,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6"
+   },
+   "esgoto.trecho.ci_5_ci_6.fundo_fim_m": {
+    "valor": 882.43,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 10, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-5 → CI-6; 0 caixas intermediárias; degraus somando 3,76 m"
+   },
+   "esgoto.trecho.ci_6_ci_7.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.comprimento_m": {
+    "valor": 6.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.terreno_inicio_m": {
+    "valor": 882.83,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.fundo_inicio_m": {
+    "valor": 882.43,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.terreno_fim_m": {
+    "valor": 880.18,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7"
+   },
+   "esgoto.trecho.ci_6_ci_7.fundo_fim_m": {
+    "valor": 879.78,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 11, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-6 → CI-7; 0 caixas intermediárias; degraus somando 1,75 m"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.dn_mm": {
+    "valor": 150.0,
+    "unidade": "mm",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.comprimento_m": {
+    "valor": 4.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.declividade_pct": {
+    "valor": 15.0,
+    "unidade": "%",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.terreno_inicio_m": {
+    "valor": 880.18,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. E",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.fundo_inicio_m": {
+    "valor": 879.78,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. F",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.terreno_fim_m": {
+    "valor": 878.68,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. G",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro"
+   },
+   "esgoto.trecho.ci_7_fossa_e_filtro.fundo_fim_m": {
+    "valor": 878.28,
+    "unidade": "m",
+    "fonte": "planilha 20 › Esgoto trechos, linha 12, col. H",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "CI-7 → Fossa e filtro; 0 caixas intermediárias; degraus somando 0,90 m"
+   },
+   "esgoto.dimensoes.biodigestor": {
+    "valor": "cilindro Ø 2,5 × 2,4",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 2, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.caixa_de_gordura": {
+    "valor": "0,60 × 0,60 × 0,45",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 3, col. C",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.fossa_septica": {
+    "valor": "2,6 × 1,6 × 1,6",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 4, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.filtro_anaerobio": {
+    "valor": "2,2 × 1,6 × 1,5 (leito de brita 1,2 m)",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 5, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.floresta_filtrante": {
+    "valor": "8,2 × 5,0 × 0,60 (brita e areia, plantas)",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 6, col. C",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "esgoto.dimensoes.caixas_de_inspecao": {
+    "valor": "0,60 × 0,60; com degrau onde indicado",
+    "unidade": null,
+    "fonte": "planilha 20 › Tratamento, linha 7, col. C",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c1.dimensoes": {
+    "valor": "5,3 × 3,4 × 2,5",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c2.dimensoes": {
+    "valor": "2 tanques de 3,1 × 1,6 × 2,0",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c3.dimensoes": {
+    "valor": "4,6 × 2,4 × 2,3",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c4_a_c7_modulares.dimensoes": {
+    "valor": "tanques de PEAD de 5 a 10 m³",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.cisterna.c8_a_c10_modulares.dimensoes": {
+    "valor": "tanques de PEAD de 5 a 10 m³",
+    "unidade": null,
+    "fonte": "planilha 20 › Cisternas, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "dimensões úteis (m), como escritas na planilha"
+   },
+   "agua.ponto.casa_1_terreo.cota_m": {
+    "valor": 901.22,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: casa"
+   },
+   "agua.ponto.casa_1_terreo.pressao_mca": {
+    "valor": 16.2,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 2, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; pressurizador (cota acima da rua menos perda)"
+   },
+   "agua.ponto.gourmet.cota_m": {
+    "valor": 895.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: gourmet"
+   },
+   "agua.ponto.gourmet.pressao_mca": {
+    "valor": 22.2,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 3, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.lab_inferior.cota_m": {
+    "valor": 891.36,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: lab"
+   },
+   "agua.ponto.lab_inferior.pressao_mca": {
+    "valor": 26.0,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 4, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.mec_superior.cota_m": {
+    "valor": 895.76,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: mec_up"
+   },
+   "agua.ponto.mec_superior.pressao_mca": {
+    "valor": 21.6,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 5, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.restaurante.cota_m": {
+    "valor": 891.8,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "elemento da 03: bar"
+   },
+   "agua.ponto.restaurante.pressao_mca": {
+    "valor": 25.6,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 6, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.loft_4_mais_alto.cota_m": {
+    "valor": 884.5,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D9",
+     "alternativas": [
+      {
+       "valor": 880.0,
+       "fonte": "planilha 03 › Implantação, linha 56 (LF4, geometria da 03)"
+      }
+     ]
+    },
+    "nota": "elemento da 03: LF4"
+   },
+   "agua.ponto.loft_4_mais_alto.pressao_mca": {
+    "valor": 32.9,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 7, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.loft_2_mais_baixo.cota_m": {
+    "valor": 879.0,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 8, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D9",
+     "alternativas": [
+      {
+       "valor": 883.0,
+       "fonte": "planilha 03 › Implantação, linha 53 (LF2, geometria da 03)"
+      }
+     ]
+    },
+    "nota": "elemento da 03: LF2"
+   },
+   "agua.ponto.loft_2_mais_baixo.pressao_mca": {
+    "valor": 38.4,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 8, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; alimentação direta"
+   },
+   "agua.ponto.plato_da_rua_g.cota_m": {
+    "valor": 875.2,
+    "unidade": "m",
+    "fonte": "planilha 20 › Água vertical, linha 9, col. B",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "conferir": {
+     "divergencia": "D9",
+     "alternativas": [
+      {
+       "valor": 876.3,
+       "fonte": "planilha 03 › Implantação, linha 68 (garagem, geometria da 03)"
+      }
+     ]
+    },
+    "nota": "elemento da 03: garagem"
+   },
+   "agua.ponto.plato_da_rua_g.pressao_mca": {
+    "valor": 42.2,
+    "unidade": "m.c.a.",
+    "fonte": "planilha 20 › Água vertical, linha 9, col. D",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "pressão estática da rede; válvula redutora de pressão"
+   },
+   "drenagem.elemento.valetas_em_curva_de_nivel_4": {
+    "valor": "Ø 300 meia-cana em pedra, 0,30 × 0,20 · 1 a 2% para oeste · 25 a 36 L/s",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 2",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.descida_protegida": {
+    "valor": "canal em degraus de 0,30 m, largura 0,60, bacia a cada 5 m · ≈ 45% (encosta) · ≥ 45 L/s (T = 25 anos)",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 3",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.caixas_de_areia": {
+    "valor": "0,60 × 0,60 × 0,80 · — · no pé de cada valeta",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 4",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.jardim_de_chuva_rua_h": {
+    "valor": "2,2 × 3,4 × 0,40 · — · ≈ 3 m³",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 5",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.detencao_rua_g": {
+    "valor": "4,5 × 2,4 × 0,60 · saída Ø 100 · 6 m³ (calculado 4,2 a 5,5 m³ + margem)",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 6",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.valas_de_infiltracao": {
+    "valor": "0,60 × 0,60, brita e manta, em curva de nível · nível · a dimensionar após ensaio de infiltração (excedente de 26 m³ numa chuva de 2 h)",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 7",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "drenagem.elemento.lancamento": {
+    "valor": "tubo Ø 200 até a sarjeta da Rua G · ≥ 1% · confirmar galeria",
+    "unidade": null,
+    "fonte": "planilha 20 › Drenagem, linha 8",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "dimensão · declividade · capacidade, como escritas; posição [MARCADOR]"
+   },
+   "estrutura.apoios.casa_1": {
+    "valor": 15.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 2, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "bloco indicativo 0,70 × 0,70 × 0,60; carga total 330 kN"
+   },
+   "estrutura.apoios.lab_ou_mec": {
+    "valor": 8.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 3, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "bloco indicativo 0,70 × 0,70 × 0,60; carga total 190 kN"
+   },
+   "estrutura.apoios.loft_20_m": {
+    "valor": 8.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 4, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 135 kN"
+   },
+   "estrutura.apoios.loft_16_m": {
+    "valor": 8.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 5, col. B",
+    "procedencia": "estimado",
+    "zona": "Z3",
+    "entidade": "Casa Physis",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 95 kN"
+   },
+   "estrutura.apoios.restaurante": {
+    "valor": 19.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 6, col. B",
+    "procedencia": "estimado",
+    "zona": "Z2",
+    "entidade": "Instituto Physis",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 200 kN"
+   },
+   "estrutura.apoios.gourmet": {
+    "valor": 6.0,
+    "unidade": "apoios",
+    "fonte": "planilha 20 › Fundações, linha 7, col. B",
+    "procedencia": "estimado",
+    "zona": "Z1",
+    "entidade": "Physis Engineering",
+    "nota": "bloco indicativo 0,60 × 0,60 × 0,60; carga total 90 kN"
+   },
+   "implantacao.corte_total_m3": {
+    "valor": 489.3,
+    "unidade": "m³",
+    "fonte": "planilha 03 › Implantação, linha 90, col. K",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "implantacao.aterro_total_m3": {
+    "valor": 24.8,
+    "unidade": "m³",
+    "fonte": "planilha 03 › Implantação, linha 90, col. L",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)"
+   },
+   "lote.area_poligono_m2": {
+    "valor": 1456.2,
+    "unidade": "m²",
+    "fonte": "calculada do polígono do terreno: planilha 03 › Levantamento, linhas 9 a 13 (x/y local, P-01 = 0,0); lado P-04 a P-05 (arco R 19,464 m, ângulo central 62°04'57\") desenhado como arco de raio 19,464 m com a flecha para dentro do lote (12 trechos; planilha 03 › Levantamento, linha 9, col. D); sem lat/long oficial [MARCADOR L-01]",
+    "procedencia": "estimado",
+    "zona": "lote",
+    "entidade": "lote (as três entidades)",
+    "nota": "conferência da geometria com lote.area_m2"
+   }
+  }
+ }
+}

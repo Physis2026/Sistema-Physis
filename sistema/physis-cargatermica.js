@@ -920,7 +920,7 @@ const CORES_SVG = ["#33512F", "#7FA874", "#B9CDB3", "#B07A10", "#546A7B", "#8FB1
 function grafico(grupos) { const tot = grupos.reduce((s, g) => s + Math.max(g.W, 0), 0); if (!(tot > 0)) return "";
   const larg = 640, alt = 28 * grupos.length + 16, maxW = Math.max.apply(null, grupos.map(g => Math.max(g.W, 0))) || 1, x0 = 250;
   const barras = grupos.map((g, i) => { const w = Math.max(g.W, 0) / maxW * (larg - x0 - 90), y = 8 + i * 28;
-    return `<text x="${x0 - 8}" y="${y + 15}" text-anchor="end" font-size="13" fill="#1C2B21">${esc(g.nome)}</text>`
+    return `<text x="${x0 - 8}" y="${y + 15}" text-anchor="end" font-size="13" fill="#1B1F23">${esc(g.nome)}</text>`
       + `<rect x="${x0}" y="${y + 2}" width="${w.toFixed(1)}" height="18" fill="${CORES_SVG[i % CORES_SVG.length]}"></rect>`
       + `<text x="${(x0 + w + 6).toFixed(1)}" y="${y + 15}" font-size="13" fill="#4A4F44">${esc(fmt(g.W / tot * 100, 0))} %</text>`; }).join("");
   return `<figure><svg viewBox="0 0 ${larg} ${alt}" width="100%" role="img" aria-labelledby="ct-graf-t"><title id="ct-graf-t">Parcela de cada componente na carga do pico simultâneo</title>${barras}</svg>`

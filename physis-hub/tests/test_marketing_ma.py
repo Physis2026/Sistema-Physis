@@ -30,18 +30,23 @@ class Marketing(unittest.TestCase):
     def tearDown(self):
         self.env.stop()
 
-    def test_aprovacao_das_duas_e_exportacao(self):
-        c = {x["id"]: x for x in X.marketing_conteudos()}
-        self.assertEqual(c["p1"]["falta"], ["rafaella", "marzia"])
-        r = X.marketing_decidir("p1", "aprovar")
-        self.assertEqual((r["estado"], r["falta"]), ("aguardando", ["marzia"]))
+    def test_uma_aprovacao_basta_e_exporta(self):
         self.assertEqual(X.marketing_exportar(), 0)
-        X.marketing_decidir("p1", "aprovar", quem="marzia")
+        r = X.marketing_decidir("p1", "aprovar", quem="marzia")
+        self.assertEqual((r["estado"], r["aprovado_por"]), ("aprovado", "marzia"))
         self.assertEqual(X.marketing_exportar(), 1)
         linhas = list(csv.reader(open(self.d / "dados" / "conteudos_aprovados.csv", encoding="utf-8-sig"), delimiter=";"))
         self.assertEqual(linhas[1][:4], ["p1", "2026-12-01", "", "instagram,linkedin"])
+        self.assertEqual(linhas[1][-1], "marzia")
         v = sqlite3.connect(self.b).execute("SELECT versao, por FROM gestao_estado").fetchone()
-        self.assertEqual(v, (5, "marzia (M&A)"))
+        self.assertEqual(v, (4, "marzia (M&A)"))
+
+    def test_rafaella_e_avisada_quando_a_marzia_aprova(self):
+        from physis_hub.mv import MV
+        X.marketing_decidir("p1", "aprovar", quem="marzia")
+        mv = MV(":memory:")
+        X.bot_gestoes(mv, self.d / "gestoes")
+        self.assertTrue(any(a["tipo"] == "mkt_aprovado" and "Marzia" in a["texto"] for a in mv.alertas()))
 
     def test_ajuste_e_estado_errado(self):
         X.marketing_decidir("p1", "ajuste", "trocar a foto")

@@ -91,7 +91,7 @@ class TestClientes(unittest.TestCase):
 
     def test_analisar_vai_para_fila(self):
         r = self.c.analisar("estermic")
-        self.assertEqual((r["tipo"], r["estado"], r["origem"]), ("claude", "na_fila", "conta:estermic"))
+        self.assertEqual((r["tipo"], r["estado"], r["origem"]), ("autonomo", "rascunho", "conta:estermic"))
         self.assertIn("[MARCADOR]", r["comando"])
 
 

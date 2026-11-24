@@ -595,8 +595,8 @@
     if (document.getElementById("pc-estilo") || !document.head) return;
     var s = document.createElement("style"); s.id = "pc-estilo";
     s.textContent = [
-      ".pc{--pc-sup:#FFFFFF;--pc-tinta:#1C2B21;--pc-fraca:#4A4F44;--pc-marca:#33512F;--pc-linha:#C9D2C4;--pc-campo:#8A9284;--pc-ok-f:#DCEBD8;--pc-ok-t:#1F4A1C;--pc-at-f:#F6EAD0;--pc-at-t:#5C3F00;--pc-al-f:#F5E2D7;--pc-al-t:#7A2214;--pc-perigo:#A63A28;--pc-fundo:#F4F6F1;color:var(--pc-tinta)}",
-      "html[data-tema=escuro] .pc{--pc-sup:#1C2B21;--pc-tinta:#EEF2EA;--pc-fraca:#D9D3C2;--pc-marca:#B9CDB3;--pc-linha:#4A5A47;--pc-campo:#8A9182;--pc-ok-f:#1F4A1C;--pc-ok-t:#DCEBD8;--pc-at-f:#5C3F00;--pc-at-t:#E5D5AE;--pc-al-f:#5C2B2E;--pc-al-t:#FF8A80;--pc-perigo:#FF8A80;--pc-fundo:#14180F}",
+      ".pc{--pc-sup:#FFFFFF;--pc-tinta:#1B1F23;--pc-fraca:#4A4F44;--pc-marca:#1A4D2E;--pc-linha:#D9D3C2;--pc-campo:#8A8270;--pc-ok-f:#DCEBD8;--pc-ok-t:#1F4A1C;--pc-at-f:#F6EAD0;--pc-at-t:#5C3F00;--pc-al-f:#F5E2D7;--pc-al-t:#7A2214;--pc-perigo:#A63A28;--pc-fundo:#F4F1EA;color:var(--pc-tinta)}",
+      "html[data-tema=escuro] .pc{--pc-sup:#0F4535;--pc-tinta:#F4F1EA;--pc-fraca:#C3D0BD;--pc-marca:#D9A58C;--pc-linha:#2F5E4E;--pc-campo:#8A9182;--pc-ok-f:#1F4A1C;--pc-ok-t:#DCEBD8;--pc-at-f:#5C3F00;--pc-at-t:#E5D5AE;--pc-al-f:#5C2B2E;--pc-al-t:#FF8A80;--pc-perigo:#FF8A80;--pc-fundo:#0B3D2E}",
       ".pc-tela{display:grid;gap:14px;max-width:880px}",
       ".pc-cartao{background:var(--pc-sup);border:1px solid var(--pc-linha);border-radius:12px;padding:14px 16px;min-width:0}",
       ".pc-h{font:600 1.15em/1.3 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:var(--pc-marca);margin:0 0 8px}",

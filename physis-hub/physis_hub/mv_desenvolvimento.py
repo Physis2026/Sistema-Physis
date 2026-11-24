@@ -31,7 +31,7 @@ MODULOS = {
                  "arquivo": "modulos/estermic/estermic-avac.html",
                  "descricao": "Cópia personalizada do módulo AVAC para a Estermic (4 subprojetos)",
                  "projetos": ["Estermic"], "regex": r"Estermic|\bAVAC\b",
-                 "aprovacoes": ["ap-p0-estermic-ryan", "ap-p0-estermic-teste"]},
+                 "aprovacoes": ["ap-p0-estermic-ryan", "ap-p0-estermic-teste", "ap-p0-estermic-sistema"]},
     "gemeo-casa": {"nome": "Gêmeo digital da Casa Physis", "nome_en": "Casa Physis digital twin",
                    "arquivo": "physis-hub/web/painel.html",
                    "descricao": "Gêmeo digital de projeto (G0–G5) e artigos da evolução",

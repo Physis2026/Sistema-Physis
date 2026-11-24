@@ -63,6 +63,8 @@ def comandos_agenda() -> list[list[str]]:
         ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\painel", "/TR", f"{base} servir"],
         # Hub (porta 8700): antes nada o ligava; agora abre junto com o Windows (23/11/2026)
         ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisMV\\hub", "/TR", base.replace("physis_hub.mv_cli", "physis_hub.servidor")],
+        # Sistema Estermic à parte (porta 8704), 24/11/2026
+        ["schtasks", "/Create", "/F", "/SC", "ONLOGON", "/TN", "PhysisSites\\estermic_8704", "/TR", base.replace("physis_hub.mv_cli", "physis_hub.estermic_servidor")],
         # R-02 (auditoria 39): rodar depois se o computador estava desligado às 7h, e também na bateria
         ["powershell", "-NoProfile", "-Command",
          "$s=New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries "
@@ -131,16 +133,37 @@ def _main(argv=None) -> int:
     ia = sub.add_parser("ia", help="IA Physis: pergunta aos documentos da Physis (resposta com fonte) ou --indexar")
     ia.add_argument("pergunta", nargs="*")
     ia.add_argument("--indexar", action="store_true")
+    ia.add_argument("--refazer", action="store_true", help="relê todos os documentos (índice inteiro)")
+    ia.add_argument("--estado", action="store_true", help="o modelo local (Ollama) está ligado e instalado?")
+    ia.add_argument("--extrativa", action="store_true", help="só trechos dos documentos, sem o modelo")
     ce = sub.add_parser("conta-para-edital", help="move uma conta que é captação/edital para a aba Editais (não apaga)")
     ce.add_argument("conta")
+    sub.add_parser("executar", help="faz as tarefas Executar que os bots conseguem (kit aprovado → documento oficial) e lista o resto")
     g = sub.add_parser("agenda")
     g.add_argument("--criar", action="store_true")
     a = ap.parse_args(argv)
     if a.cmd == "ia":
         from .ia_physis import IAPhysis
         motor = IAPhysis()
-        out = motor.indexar() if a.indexar or not a.pergunta else motor.perguntar(" ".join(a.pergunta))
+        from . import ia_generativa
+        from .mv import MV as _MV
+        if a.estado:
+            out = ia_generativa.estado()
+        elif a.indexar or a.refazer or not a.pergunta:
+            out = motor.indexar(refazer=a.refazer)
+        elif a.extrativa:
+            out = motor.perguntar(" ".join(a.pergunta))
+        else:
+            out = ia_generativa.gerar(" ".join(a.pergunta), _MV(), ia=motor)
         print(json.dumps(out, ensure_ascii=False, indent=1))
+        return 0
+    if a.cmd == "executar":
+        from . import mv_kit
+        mv = MV()
+        try:
+            print(json.dumps(mv_kit.executar_tarefas(mv), ensure_ascii=False, indent=1))
+        finally:
+            mv.db.close()
         return 0
     if a.cmd == "agenda":
         for n in tr_longos():

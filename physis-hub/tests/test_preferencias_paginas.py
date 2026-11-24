@@ -175,7 +175,7 @@ class TemaEscuro(unittest.TestCase):
             # cores fixas da tela que viram texto no escuro
             for k, cor in vs.items():
                 if k.startswith("--tx-") and cor not in ("#14180F",):
-                    self.assertGreaterEqual(contraste(cor, "#1C2B21"), 4.5, f"{arq.name} {k}")
+                    self.assertGreaterEqual(contraste(cor, "#0F4535"), 4.5, f"{arq.name} {k}")
 
     def test_programas_embutidos_seguem_o_tema(self):
         p = ler(PAINEL)

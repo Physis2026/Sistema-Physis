@@ -80,7 +80,7 @@ Três regras: (1) só roda se alguém usa o resultado (o bot melhoria mede as a�
 | De 8 em 8 h | atrasos |
 | Diário (7h) | resumo, backup, páginas, links, inovação (1 mês, depois decide), editais, simulação, gestões, bancos, acervo, índice da IA, cursos (só com documento novo), financeiro, vencimentos, base de fatos, kit (diário até 26/11, depois às segundas), melhoria, auditoria |
 | Semanal (segunda 6h) | revisão semanal: junta o que os outros produziram, não recalcula |
-| Sob demanda | mercado/radar por cidade e área (`/mercado`), análise de marketing mensal |
+| Sob demanda | mercado/radar por cidade e área (`/mercado`), modelos dos fabricantes (`/rodar modelos`, catálogos em Sistema Physis/Fornecedores/Catalogos), análise de marketing mensal |
 | Adiado até haver dado | visão (câmeras e drones), mapa internacional, trends, verba de impulsionamento, classificador de extrato |
 
 ## Bots compartilhados (22/11/2026)

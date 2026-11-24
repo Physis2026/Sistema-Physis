@@ -98,15 +98,25 @@ def fontes_padrao() -> dict[str, list[Path]]:
     return g
 
 
+# Muda quando o jeito de ler os documentos muda: o índice inteiro é refeito na próxima indexação (senão os trechos antigos,
+# com listas de hashes, continuavam lá até o arquivo mudar; 23/11/2026).
+VERSAO_LEITURA = "2026-11-23b"
+
+
 class IAPhysis:
     def __init__(self, caminho: str | Path | None = None):
         self.caminho = str(caminho or (mvmod.pasta_padrao() / "ia-physis.db"))
         self.db = sqlite3.connect(self.caminho, check_same_thread=False)   # o servidor do M&A atende em várias threads
         self.db.executescript(ESQUEMA)
+        self.db.execute("CREATE TABLE IF NOT EXISTS ia_meta (chave TEXT PRIMARY KEY, valor TEXT NOT NULL)")
 
     # ---- índice ------------------------------------------------------------------------------------------------
-    def indexar(self, grupos: dict[str, list[Path]] | None = None) -> dict:
+    def indexar(self, grupos: dict[str, list[Path]] | None = None, refazer: bool = False) -> dict:
         grupos = grupos or fontes_padrao()
+        v = self.db.execute("SELECT valor FROM ia_meta WHERE chave='versao_leitura'").fetchone()
+        if refazer or not v or v[0] != VERSAO_LEITURA:          # leitura nova: todos os arquivos são lidos de novo
+            self.db.execute("UPDATE ia_arquivo SET assinatura=''")
+            self.db.execute("INSERT OR REPLACE INTO ia_meta VALUES ('versao_leitura', ?)", (VERSAO_LEITURA,))
         vistos, novos, removidos, faltam = set(), 0, 0, []
         for grupo, raizes in grupos.items():
             for raiz in raizes:
@@ -175,12 +185,19 @@ class IAPhysis:
         for i, a in enumerate(achados):
             da_secao = ts & set(termos(a["secao"]))
             bonus = sum(peso[t] for t in da_secao) * 0.5
+            cam = a["caminho"].lower()
+            fator = 0.7 if re.search(r"teste|mudanca|rascunho|revis", cam) else 1.0       # versão oficial na frente das de teste
             for f in re.split(r"(?<=[.!?;])\s+", a["texto"]):
                 f = re.sub(r"[*`#>]+", "", f).strip(" -")
+                if len(re.findall(r"\.(?:odt|pdf|docx|xlsx|pptx|md|ods)\b", f, re.I)) >= 2:
+                    continue                                       # lista de arquivos não é resposta
                 proprios = ts & set(termos(f))
                 cobre = proprios | da_secao
                 if proprios and len(f.split()) >= 5:
-                    frases.append((sum(peso[t] for t in cobre) + bonus, -i, f, i, len(cobre)))
+                    fn = normalizar(f)                                          # sem acento, como os termos
+                    defin = any(re.search(rf"\b{re.escape(x)}\w*\s*(?::|e\b|=|—)", fn) for x in proprios)   # "Missão: …"
+                    nota = (sum(peso[t] for t in cobre) + bonus) * fator * (2.5 if defin else 1.0)
+                    frases.append((nota, -i, f, i, len(cobre)))
         frases.sort(reverse=True)
         melhor = max((x[4] for x in frases), default=0)
         confianca = round(melhor / len(ts), 2)

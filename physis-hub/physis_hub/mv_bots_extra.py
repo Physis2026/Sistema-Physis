@@ -261,9 +261,9 @@ def sem_repetidas(mv: MV, pacote: dict) -> int:
 
 
 # ---- Marketing da Gestão no M&A (23/11/2026) -------------------------------------------------------------------------
-# Os conteúdos nascem e são aprovados na Gestão › Marketing (chave gestao-physis:mkt-conteudos; aprovam Rafaella E Marzia,
-# cada uma com a sua conta). O M&A mostra o que espera aprovação e a Rafaella pode aprovar daqui (grava na Gestão com a
-# mesma regra da tela: as duas aprovaram → "aprovado"). Os aprovados vão para Marketing Physis/dados/conteudos_aprovados.csv,
+# Os conteúdos nascem na Gestão › Marketing (chave gestao-physis:mkt-conteudos) e vão para a equipe. UMA aprovação basta
+# (Rafaella ou Marzia; decisão de 23/11/2026: não são duas etapas). A Rafaella pode aprovar daqui; se a Marzia aprovou na
+# Gestão, a Rafaella só recebe o aviso no M&A. Os aprovados vão para Marketing Physis/dados/conteudos_aprovados.csv,
 # que o robô do Marketing lê (modo APROVACAO=ma), sem depender do Slack (regra 11).
 CHAVE_MKT = "gestao-physis:mkt-conteudos"
 APROVA_MKT = ("rafaella", "marzia")
@@ -291,7 +291,8 @@ def marketing_conteudos() -> list[dict]:
         ap = c.get("aprovacoes") or {}
         out.append({"id": c.get("id"), "titulo": c.get("titulo") or "", "texto": c.get("texto") or "", "redes": c.get("redes") or [],
                     "tipo": c.get("tipo") or "", "estado": c.get("estado") or "rascunho", "data": c.get("data") or c.get("dataSugerida") or "",
-                    "hora": c.get("hora") or "", "aprovacoes": ap, "falta": [p for p in APROVA_MKT if not ap.get(p)], "nota": c.get("nota") or ""})
+                    "hora": c.get("hora") or "", "aprovacoes": ap, "aprovado_por": [p for p in APROVA_MKT if ap.get(p)] or ([c["aprovadoPor"]] if c.get("aprovadoPor") else []),
+                    "nota": c.get("nota") or ""})
     return out
 
 
@@ -317,8 +318,7 @@ def marketing_decidir(cid: str, acao: str, nota: str = "", quem: str = "rafaella
                         if c.get("estado") != "aguardando":
                             raise ValueError(f"o conteúdo está '{c.get('estado')}', não aguardando aprovação")
                         c.setdefault("aprovacoes", {})[quem] = time.strftime("%Y-%m-%dT%H:%M:%S")
-                        if all(c["aprovacoes"].get(p) for p in APROVA_MKT):
-                            c["estado"] = "aprovado"
+                        c["estado"], c["aprovadoPor"] = "aprovado", quem          # uma aprovação basta
                     else:
                         c["estado"], c["nota"], c["aprovacoes"] = "ajuste", f"Rafaella (M&A): {nota}".strip(), {}
             if not achou:
@@ -328,27 +328,53 @@ def marketing_decidir(cid: str, acao: str, nota: str = "", quem: str = "rafaella
                               (json.dumps(itens, ensure_ascii=False), lin[1] + 1, agora, f"{quem} (M&A)", CHAVE_MKT, lin[1]))
             con.commit()
             if cur.rowcount == 1:
-                return {"ok": True, "id": cid, "estado": achou["estado"], "falta": [p for p in APROVA_MKT if not (achou.get("aprovacoes") or {}).get(p)]}
+                return {"ok": True, "id": cid, "estado": achou["estado"], "aprovado_por": achou.get("aprovadoPor", "")}
         raise ValueError("a Gestão estava sendo alterada ao mesmo tempo; tente de novo")
     finally:
         con.close()
 
 
 def marketing_exportar(pasta: Path | None = None) -> int:
-    """Conteúdos aprovados pelas duas → Marketing Physis/dados/conteudos_aprovados.csv (o robô do Marketing lê)."""
+    """Conteúdos aprovados (por Rafaella ou Marzia) → Marketing Physis/dados/conteudos_aprovados.csv (o robô do Marketing lê)."""
     import csv
     from . import mv_bots
     pasta = Path(pasta or os.environ.get("PHYSIS_MARKETING_DADOS") or (mv_bots.DOCS / "Marketing Physis" / "dados"))
     if not pasta.is_dir() or not _banco_mkt():        # sem Gestão não reescreve a lista (não apaga o que o robô já tem)
         return 0
-    ok = [c for c in marketing_conteudos() if c["estado"] in ("aprovado", "agendado", "publicado") and not c["falta"]]
+    ok = [c for c in marketing_conteudos() if c["estado"] in ("aprovado", "agendado", "publicado")]
     with open(pasta / "conteudos_aprovados.csv", "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f, delimiter=";")
-        w.writerow(["id", "data", "hora", "redes", "tipo", "titulo", "texto", "estado", "aprovado_rafaella", "aprovado_marzia"])
+        w.writerow(["id", "data", "hora", "redes", "tipo", "titulo", "texto", "estado", "aprovado_por"])
         for c in ok:
             w.writerow([c["id"], c["data"], c["hora"], ",".join(c["redes"]), c["tipo"], c["titulo"], c["texto"].replace("\n", " / "),
-                        c["estado"], c["aprovacoes"].get("rafaella", ""), c["aprovacoes"].get("marzia", "")])
+                        c["estado"], ",".join(c["aprovado_por"])])
+    ms = marketing_metricas()             # Instagram/LinkedIn sem API (conta Meta recusada): números anotados na Gestão
+    if ms:
+        with open(pasta / "metricas_gestao.csv", "w", newline="", encoding="utf-8-sig") as f:
+            w = csv.writer(f, delimiter=";")
+            w.writerow(["data", "rede", "seguidores", "visualizacoes", "leads", "clientes"])
+            for m in ms:
+                w.writerow([m.get("data", ""), m.get("rede", ""), m.get("seguidores", ""), m.get("visualizacoes", ""), m.get("leads", ""), m.get("clientes", "")])
     return len(ok)
+
+
+CHAVE_MKT_METRICAS = "gestao-physis:mkt-metricas"
+
+
+def marketing_metricas() -> list[dict]:
+    """Números anotados à mão na Gestão › Marketing › Métricas (data, rede, seguidores, visualizações, leads, clientes)."""
+    b = _banco_mkt()
+    if not b:
+        return []
+    con = sqlite3.connect(f"file:{b}?mode=ro", uri=True, timeout=10)
+    try:
+        lin = con.execute("SELECT valor FROM gestao_estado WHERE chave=?", (CHAVE_MKT_METRICAS,)).fetchone()
+    except sqlite3.Error:
+        lin = None
+    finally:
+        con.close()
+    v = json.loads(lin[0]) if lin else []
+    return sorted((m for m in v if isinstance(m, dict) and m.get("data")), key=lambda m: m["data"]) if isinstance(v, list) else []
 
 
 def gestao_ao_vivo(mv: MV, saida: Path) -> dict:
@@ -402,10 +428,13 @@ def bot_gestoes(mv: MV, pasta: Path | None = None, agora: float | None = None) -
         ao_vivo["marketing"] = {"aguardando": sum(1 for c in mk if c["estado"] == "aguardando"),
                                 "aprovados_exportados": marketing_exportar() if real else 0}
         for c in mk:
-            if c["estado"] == "aguardando" and c["falta"]:
-                mv.alertar("gestoes", "mkt_aprovar", str(c["id"]), "info",
-                           f"Marketing aguardando aprovação de {', '.join(x.capitalize() for x in c['falta'])}: {c['titulo'][:100]}",
-                           "Aprovar na aba Aprovações do M&A (Rafaella) ou na Gestão › Marketing (Marzia)")
+            if c["estado"] == "aguardando":
+                mv.alertar("gestoes", "mkt_aprovar", str(c["id"]), "info", f"Marketing esperando aprovação (Rafaella ou Marzia): {c['titulo'][:100]}",
+                           "Aprovar na aba Aprovações do M&A ou deixar a Marzia aprovar na Gestão › Marketing")
+            elif c["estado"] == "aprovado" and c["aprovado_por"] and "rafaella" not in c["aprovado_por"]:
+                quem = ", ".join(x.capitalize() for x in c["aprovado_por"])
+                mv.alertar("gestoes", "mkt_aprovado", str(c["id"]), "info", f"Marketing aprovado por {quem}: {c['titulo'][:100]}",
+                           "Só para saber: já vai para a lista do robô do Marketing (resolver o aviso quando tiver visto)")
     except Exception as e:  # noqa: BLE001 — marketing nunca derruba a importação das tarefas
         ao_vivo["marketing"] = f"erro: {e}"
     if not p.is_dir():

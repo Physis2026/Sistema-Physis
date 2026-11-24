@@ -5,7 +5,7 @@ r"""Teste zero (23/11/2026): a conferência completa ANTES do backup e da emiss�
     py ferramentas\teste_zero.py
 
 1 testes do Sistema · 2 testes do Instituto · 3 links no ar (M&A, Hub, Casa, InovaSTEM, Laboratório, Gestão)
-4 diagnóstico · 5 arquivos (leitura, revisão, salvamento) · 6 auditoria dos bots · 7 tarefas repetidas · 8 fila do Claude
+4 diagnóstico · 5 arquivos (leitura, revisão, salvamento) · 6 auditoria dos bots · 7 tarefas repetidas · 8 fila dos bots
 Relatório em C:\physis\teste-zero-AAAAMMDD-HHMM.md. "TUDO OK" = pode fazer o backup completo (backup_completo.py).
 """
 from __future__ import annotations
@@ -94,7 +94,7 @@ def pronto_para_versao_final():
     linhas = [
         ("aprovações esperando decisão", q("SELECT COUNT(*) FROM mv_aprovacao WHERE estado NOT IN ('aprovado','ajustar','reprovado')")),
         ("rascunhos dos bots esperando aprovação", q("SELECT COUNT(*) FROM mv_pedido_bot WHERE estado IN ('rascunho','pronto')")),
-        ("pedidos parados na fila do Claude", q("SELECT COUNT(*) FROM mv_pedido_bot WHERE estado='na_fila'")),
+        ("pedidos parados na fila dos bots", q("SELECT COUNT(*) FROM mv_pedido_bot WHERE estado='na_fila'")),
         ("perguntas abertas", q("SELECT COUNT(*) FROM mv_pergunta WHERE resposta=''")),
         ("tarefas 'Executar' (aprovadas, ainda não feitas)", q("SELECT COUNT(*) FROM mv_tarefa WHERE id LIKE 'exec-%' AND estado<>'feita'")),
         ("ajustes da Rafaella em aberto", q("SELECT COUNT(*) FROM mv_tarefa WHERE id LIKE 'ajuste-%' AND estado<>'feita'")),
@@ -117,8 +117,11 @@ def pronto_para_versao_final():
 def main():
     diz(f"# Teste zero · {time.strftime('%d/%m/%Y %H:%M')}")
     diz("\n## 1-2. Testes")
-    unittest("do Sistema", RAIZ / "physis-hub")
-    unittest("do Instituto", BASE / "instituto-physis" / "physis-hub")
+    if "--sem-testes" in sys.argv:          # a atualização final já roda os testes (24/11/2026: no PC da Physis levam ~30 min)
+        diz("- testes pulados (--sem-testes): rodados pela atualização final")
+    else:
+        unittest("do Sistema", RAIZ / "physis-hub")
+        unittest("do Instituto", BASE / "instituto-physis" / "physis-hub")
     diz("\n## 3. Links no ar")
     for nome, u in [("M&A", "http://127.0.0.1:8710/"), ("Monitoramento", "http://127.0.0.1:8710/api/mv/integracoes"), ("Hub", "http://127.0.0.1:8700/"),
                     ("Casa", "http://127.0.0.1:8701/"), ("InovaSTEM", "http://127.0.0.1:8702/"), ("Laboratório", "http://127.0.0.1:8702/laboratorio"),
@@ -148,7 +151,7 @@ def main():
     diz("\n## 7. Tarefas repetidas")
     l = run([PY, "ferramentas/limpar_duplicadas_gestao.py"], RAIZ, 300)
     item("repetidas da Gestão", "repetidas vindas da Gestão: 0" in l.stdout, [x for x in l.stdout.splitlines() if "repetidas" in x][:1])
-    diz("\n## 8. Fila do Claude")
+    diz("\n## 8. Fila dos bots (autônomos)")
     sys.path.insert(0, str(RAIZ / "physis-hub"))
     from physis_hub import mv_bots  # noqa: E402
     fila = mv_bots.SAIDA / "fila-claude.md"

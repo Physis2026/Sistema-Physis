@@ -135,6 +135,13 @@ def PASTA_MAPAS() -> Path:
 VENDOR_TIPOS = {"maplibre-gl.js": "text/javascript; charset=utf-8", "maplibre-gl.css": "text/css; charset=utf-8",
                 "pmtiles.js": "text/javascript; charset=utf-8", "web-ifc-api-iife.js": "text/javascript; charset=utf-8",
                 "web-ifc.wasm": "application/wasm", "three.min.js": "text/javascript; charset=utf-8"}
+# three.js 0.170 em módulos ES (vista 3D com oclusão de ambiente e leitor glTF; ferramentas/baixar_three.py, TESTE de 22/11/2026)
+THREE_MODULOS = ("three/three.module.min.js",) + tuple("three/addons/" + a for a in (
+    "postprocessing/EffectComposer.js", "postprocessing/Pass.js", "postprocessing/RenderPass.js", "postprocessing/ShaderPass.js",
+    "postprocessing/MaskPass.js", "postprocessing/OutputPass.js", "postprocessing/GTAOPass.js", "shaders/CopyShader.js",
+    "shaders/OutputShader.js", "shaders/GTAOShader.js", "shaders/PoissonDenoiseShader.js", "math/SimplexNoise.js",
+    "loaders/GLTFLoader.js", "utils/BufferGeometryUtils.js"))
+VENDOR_TIPOS.update({n: "text/javascript; charset=utf-8" for n in THREE_MODULOS})
 INSTANCIA = Path(__file__).resolve().parent.parent / "instancia.json"
 # catálogo inicial da loja (pacote do site Physis; ferramentas/gerar_loja_catalogo.py): publicado ao ligar se a loja está vazia
 LOJA_CATALOGO_INICIAL = Path(__file__).resolve().parent.parent / "loja-catalogo-inicial.json"

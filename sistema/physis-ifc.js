@@ -55,6 +55,19 @@ const TIPOS = {
   condutor: ["IFCPIPESEGMENT", "RIGIDSEGMENT", "Condutor vertical", "Physis_Drenagem", false],
   avac: ["IFCUNITARYEQUIPMENT", "SPLITSYSTEM", "Equipamento de climatização", "Physis_AVAC", true],
   quadro: ["IFCELECTRICDISTRIBUTIONBOARD", "DISTRIBUTIONBOARD", "Quadro elétrico", "Physis_Quadro", true],
+  /* instalações (MEP) de AVAC, 24/11/2026: abrem no Bonsai/FreeCAD como classes nativas do IFC4 */
+  chiller: ["IFCCHILLER", "NOTDEFINED", "Chiller", "Physis_AVAC", true],
+  bomba: ["IFCPUMP", "NOTDEFINED", "Bomba", "Physis_AVAC", true],
+  ventilador: ["IFCFAN", "NOTDEFINED", "Ventilador ou exaustor", "Physis_AVAC", true],
+  difusor: ["IFCAIRTERMINAL", "DIFFUSER", "Difusor ou grelha", "Physis_AVAC", false],
+  duto: ["IFCDUCTSEGMENT", "RIGIDSEGMENT", "Duto", "Physis_AVAC", false],
+  tubo: ["IFCPIPESEGMENT", "RIGIDSEGMENT", "Tubulação", "Physis_AVAC", false],
+  torre: ["IFCCOOLINGTOWER", "NOTDEFINED", "Torre de resfriamento", "Physis_AVAC", true],
+  tanque: ["IFCTANK", "NOTDEFINED", "Tanque (termoacumulação ou expansão)", "Physis_AVAC", false],
+  skid: ["IFCUNITARYEQUIPMENT", "USERDEFINED", "Skid (conjunto montado)", "Physis_AVAC", true],
+  valvula: ["IFCVALVE", "NOTDEFINED", "Registro ou válvula", "Physis_AVAC", false],
+  filtro: ["IFCFILTER", "NOTDEFINED", "Filtro", "Physis_AVAC", false],
+  aquecedor: ["IFCBOILER", "NOTDEFINED", "Aquecedor (passagem, gás ou acumulação)", "Physis_AVAC", true],
   turbina: ["IFCELECTRICGENERATOR", "USERDEFINED", "Microturbina hidráulica", "Physis_Turbina", true],
   biodigestor: ["IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Biodigestor", "Physis_Biodigestor", false],
   canteiro: ["IFCBUILDINGELEMENTPROXY", "USERDEFINED", "Canteiro de viveiro", "Physis_Viveiro", false],
@@ -227,5 +240,46 @@ function ler(txt) { txt = String(txt || ""); if (txt.length > 50 * 1024 * 1024) 
   return { esquema: esq ? esq[1] : null, projeto, entidades: ins.size, terrenos: sites, edificacoes: edifs, pavimentos: pavs, elementos: nEl, elementos_por_tipo: ord,
     caixa: nEl ? { min: mn, max: mx, unidade, nota: "origens das peças mais IfcBoundingBox, sem rotações" } : null, tipos }; }
 
-global.PhysisIFC = { escrever, ler, guidEstavel, s_, r_, TIPOS, sha1 };
+
+/* Espaços (IfcSpace) com área e altura, para preencher os cálculos sozinho (24/11/2026). Ordem de confiança: quantidade
+   (IfcQuantityArea NetFloorArea/GrossFloorArea), propriedade (área em Pset) e geometria (perfil retangular ou poligonal extrudado).
+   Sem nenhuma das três, a área fica null (nada é inventado). */
+function espacos(txt) {
+  txt = String(txt || ""); if (!txt.trimStart().startsWith("ISO-10303-21;")) throw new Error("não é um arquivo IFC em texto STEP (ISO-10303-21)");
+  const ins = instancias(txt), cache = new Map();
+  const a = n => { if (!cache.has(n)) cache.set(n, argumentos(ins.get(n)[1])); return cache.get(n); }, ref = v => v && typeof v === "object" && "ref" in v ? v.ref : null;
+  const tipo = n => ins.has(n) ? ins.get(n)[0] : "", numv = v => typeof v === "number" ? v : (v && typeof v === "object" && typeof v.valor === "number" ? v.valor : v && typeof v === "object" && Array.isArray(v.valor) && typeof v.valor[0] === "number" ? v.valor[0] : (v && typeof v === "object" && Array.isArray(v.args) && typeof v.args[0] === "number" ? v.args[0] : null));
+  let fL = 1, fA = 1; ins.forEach(([t], n) => { if (t !== "IFCSIUNIT") return; const x = a(n), pre = x[2] && x[2].enum, k = { MILLI: 1e-3, CENTI: 1e-2, DECI: 1e-1 }[pre] || 1;
+    if (x[1] && x[1].enum === "LENGTHUNIT") fL = k; if (x[1] && x[1].enum === "AREAUNIT") fA = k * k; });
+  const rels = []; ins.forEach(([t], n) => { if (t === "IFCRELDEFINESBYPROPERTIES") rels.push(n); });
+  const props = {}; rels.forEach(n => { const x = a(n), def = ref(x[5]); (x[4] || []).forEach(o => { const id = ref(o); (props[id] = props[id] || []).push(def); }); });
+  function areaQtd(id) { let net = null, gross = null;
+    (props[id] || []).forEach(d => { if (tipo(d) !== "IFCELEMENTQUANTITY") return; (a(d)[5] || []).forEach(q0 => { const q = ref(q0); if (tipo(q) !== "IFCQUANTITYAREA") return; const x = a(q), nm = String(x[0] || "").toLowerCase(), v = numv(x[3]);
+      if (v == null) return; if (/net/.test(nm)) net = v * fA; else if (/gross|area/.test(nm) && gross == null) gross = v * fA; }); });
+    return net != null ? net : gross; }
+  function areaProp(id) { let v = null;
+    (props[id] || []).forEach(d => { if (tipo(d) !== "IFCPROPERTYSET") return; (a(d)[4] || []).forEach(p0 => { const p = ref(p0); if (tipo(p) !== "IFCPROPERTYSINGLEVALUE") return; const x = a(p), nm = String(x[0] || "").toLowerCase();
+      if (v == null && /area|área/.test(nm) && !/perim/.test(nm)) { const val = x[2]; if (val && typeof val === "object" && /AREAMEASURE/.test(val.tipo || "")) v = numv(val) * fA; else if (typeof numv(val) === "number" && /area/.test(nm)) v = numv(val) * fA; } }); });
+    return v; }
+  function poligono(pts) { let s = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; s += p[0] * q[1] - q[0] * p[1]; } return Math.abs(s) / 2; }
+  function geom(id) { const x = a(id), rp = x.length > 6 ? ref(x[6]) : null; let area = null, alt = null;
+    if (tipo(rp) !== "IFCPRODUCTDEFINITIONSHAPE") return { area, alt };
+    (a(rp)[2] || []).forEach(sr0 => { const sr = ref(sr0); if (tipo(sr) !== "IFCSHAPEREPRESENTATION") return;
+      (a(sr)[3] || []).forEach(it0 => { const it = ref(it0); if (tipo(it) !== "IFCEXTRUDEDAREASOLID" || area != null) return; const ex = a(it), pf = ref(ex[0]); alt = numv(ex[3]) != null ? numv(ex[3]) * fL : null;
+        if (tipo(pf) === "IFCRECTANGLEPROFILEDEF") { const p = a(pf); area = numv(p[3]) * numv(p[4]) * fL * fL; }
+        else if (tipo(pf) === "IFCARBITRARYCLOSEDPROFILEDEF") { const c = ref(a(pf)[2]); if (tipo(c) === "IFCPOLYLINE") { const pts = (a(c)[0] || []).map(r => a(ref(r))[0]).filter(Array.isArray); if (pts.length >= 3) area = poligono(pts) * fL * fL; } } }); });
+    return { area, alt }; }
+  const out = []; ins.forEach(([t], n) => { if (t !== "IFCSPACE") return; const x = a(n), q = areaQtd(n), pr = q == null ? areaProp(n) : null, g = geom(n);
+    const area = q != null ? q : pr != null ? pr : g.area;
+    out.push({ nome: String(x[2] || ""), nome_longo: String(x[7] || ""), area_m2: area == null ? null : Math.round(area * 100) / 100, altura_m: g.alt == null ? null : Math.round(g.alt * 100) / 100,
+      fonte: q != null ? "quantidade do IFC" : pr != null ? "propriedade do IFC" : g.area != null ? "geometria do IFC" : "sem área no IFC" }); });
+  /* sem IfcSpace (ex.: IFC do gêmeo da Casa Physis, que modela as edificações como elementos): usa os elementos de edificação
+     pelo ObjectType, com a área da propriedade (AreaPlanilha) ou da geometria */
+  if (!out.length) { const EDIF = { deposito:"técnico", edicula:"edícula", escritorio:"escritório", hospedagem:"hospedagem", residencia:"residência", restaurante:"restaurante", piscina:"piscina", estacionamento:"garagem" };
+    ins.forEach(([t], n) => { if (t !== "IFCBUILDINGELEMENTPROXY") return; const x = a(n), ot = String(x[4] || "").toLowerCase(); if (!(ot in EDIF)) return;
+      const pr = areaProp(n), g = geom(n), area = pr != null ? pr : g.area;
+      out.push({ nome: String(x[2] || ""), nome_longo: String(x[2] || ""), tipo: EDIF[ot], area_m2: area == null ? null : Math.round(area * 100) / 100, altura_m: g.alt == null ? null : Math.round(g.alt * 100) / 100,
+        fonte: pr != null ? "propriedade do IFC (elemento " + ot + ")" : g.area != null ? "geometria do IFC (elemento " + ot + ")" : "sem área no IFC" }); }); }
+  return out; }
+global.PhysisIFC = { escrever, ler, espacos, guidEstavel, s_, r_, TIPOS, sha1 };
 })(typeof window !== "undefined" ? window : this);

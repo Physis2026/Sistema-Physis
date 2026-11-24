@@ -1,0 +1,91 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Teste Estermic AVAC</title>
+<!-- Arnês do módulo Estermic AVAC (versão de teste). Abra no navegador ou rode physis-hub/tests/test_estermic_avac.py
+     (navegador sem tela, --dump-dom). Resultado em #saida ("RESULTADO n/n"); ODT, ODS e IFC gerados em base64/texto para o teste Python conferir. -->
+<script src="../../modulos/estermic/avac-estermic-copia.js"></script>
+<script src="../../sistema/physis-cargatermica.js"></script>
+<script src="../../sistema/physis-ifc.js"></script>
+<script src="../../modulos/estermic/estermic-avac.js"></script>
+</head><body><h1>Teste Estermic AVAC</h1><pre id="saida">rodando…</pre><pre id="odt"></pre><pre id="ods"></pre><pre id="ifc"></pre><pre id="eml"></pre>
+<script>
+"use strict";
+const out = [], E = window.ESTERMIC;
+const ok = (c, t) => out.push((c ? "ok   " : "FALHA ") + t);
+const perto = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
+try {
+  /* 1. a cópia personalizada calcula igual ao módulo base (valores da planilha, caso 1 de avac-estermic-casos.json) */
+  const R = AVAC.calcular({ solar:{ prod:1.8 } });
+  ok(R.tip.unidades === 308 && R.tip.pop === 820, "cópia AVAC: 308 unidades e 820 pessoas do exemplo da planilha");
+  ok(perto(R.ac.amb[0].tr, 0.86133333333333328) && R.ac.amb[4].btu === 7000 && R.ac.amb[3].qtd === 102, "cópia AVAC: ar-condicionado igual à planilha");
+  ok(Array.isArray(R.memoria) && R.memoria.length === 7, "cópia AVAC: memória de cálculo com 7 sistemas");
+
+  /* 2. estado inicial: 4 subprojetos sem nada inventado */
+  const P = E.padrao();
+  ok(P.subprojetos.length === 4 && P.subprojetos.every(s => s.nome === "" && s.contrato.valor === null && s.fases.length === E.FASES_PADRAO.length && s.fases.every(f => f.valor === null && f.prazo === "")), "padrão: 4 subprojetos vazios, com as fases padrão sem valor ([MARCADOR])");
+  ok(E.nomeSub(P.subprojetos[2], 2) === "Subprojeto 3 [MARCADOR]", "padrão: nome com [MARCADOR]");
+  ok(P.emissor.cnpj === "44.982.448/0001-23" && P.emissor.cnpjSituacao === "provisório" && P.contador.nome === "Robson" && P.contador.email === "", "padrão: emissor, CNPJ provisório e contador sem e-mail");
+
+  /* 3. financeiro por fase */
+  const e = E.padrao(), s = e.subprojetos[0];
+  s.contrato.valor = 1000; s.fases = [{ nome:"F1", valor:400, prazo:"2026-11-10", faturado:400, recebido:0, vencimento:"2026-11-15" }, { nome:"F2", valor:600, prazo:"2026-11-01", faturado:null, recebido:null }];
+  const F = E.financeiro(s);
+  ok(F.contratado === 1000 && F.faturado === 400 && F.aFaturar === 600 && F.recebido === 0 && F.aReceber === 400 && !F.divergeFases, "financeiro: contratado, faturado, a faturar, recebido, a receber");
+  ok(F.porFase[0].situacao === "faturada" && F.porFase[1].situacao === "a faturar", "financeiro: situação por fase");
+  s.fases[1].valor = 500; ok(E.financeiro(s).divergeFases === true, "financeiro: soma das fases diferente do contrato é apontada"); s.fases[1].valor = 600;
+  const A = E.alertas(e, new Date(2026, 10, 20));
+  ok(A.some(a => a.nivel === "alerta" && /F2.*prazo de faturamento vencido/.test(a.texto)), "alertas: prazo de faturar vencido");
+  ok(A.some(a => a.nivel === "alerta" && /F1.*pagamento vencido/.test(a.texto)), "alertas: pagamento vencido e não recebido");
+  ok(A.some(a => a.nivel === "pendente" && /Subprojeto 2.*número do contrato/.test(a.texto)), "alertas: pendências por subprojeto");
+  s.fases.push({ nome:"F3", valor:0, prazo:"2026-11-24" });
+  ok(E.alertas(e, new Date(2026, 10, 20)).some(a => a.nivel === "atencao" && /F3: faturar em 4 dia/.test(a.texto)), "alertas: prazo próximo dentro da janela");
+  s.fases.pop();
+
+  /* 4. rascunho ao contador: só rascunho */
+  const N = E.rascunhoNota(e, 0, 1);
+  ok(N.enviado === false && N.para === "[MARCADOR: e-mail do Robson]", "nota: rascunho, sem envio, e-mail do Robson [MARCADOR]");
+  ok(/44\.982\.448\/0001-23/.test(N.corpo) && /R\$ 600,00/.test(N.corpo) && /\[MARCADOR: CNPJ da Estermic\]/.test(N.corpo) && /ISS/.test(N.corpo), "nota: CNPJ do emissor, valor da fase, CNPJ do tomador [MARCADOR], ISS");
+  ok(/^X-Unsent: 1\r\n/.test(N.eml), "nota: .eml marcado como não enviado (abre como rascunho)");
+  document.getElementById("eml").textContent = N.eml;
+  let erro = ""; try { E.rascunhoNota(e, 0, 9); } catch (x) { erro = x.message; } ok(/fase inexistente/.test(erro), "nota: fase inexistente recusada");
+
+  /* 5. equipamentos do cálculo com TAG; peças com código [MARCADOR] */
+  s.equipamentos = E.equipamentosDoCalculo(s, AVAC);
+  ok(s.equipamentos.length === AVAC.calcular({}).lista.length && s.equipamentos.length > 0 && s.equipamentos[0].tag === "AC-01" && s.equipamentos.some(q => /^VE-01$/.test(q.tag)), "equipamentos: lista do cálculo com TAG AC-01, VE-01");
+  s.equipamentos[0].pecas = [{ descricao:"Placa eletrônica da condensadora", codigo:"", qtd:1 }];
+  const T = E.tabelaEquipamentos(e, 0);
+  ok(T.linhas.some(l => l[0] === "1.1" && l[11] === "[MARCADOR: part number]"), "equipamentos: peça individual com código [MARCADOR]");
+  ok(E.pendencias(e).some(p => /AC-01.*sem código/.test(p)), "pendências: peça sem código listada");
+  const base = { itens:[{ id:"x9", categoria:"ar-condicionado", descricao:"Split 9k", faixa_capacidade:{ min:2.64, max:2.64 } }, { id:"x60", categoria:"ar-condicionado", descricao:"Split 60k", faixa_capacidade:{ min:17.6, max:17.6 } }],
+    fabricantes_por_segmento:{ "Split e multi-split":{ fabricantes:["A", "B"] } } };
+  const sg = E.sugerirDaBase(base, { sistema:"Ar condicionado", cap:9000, un:"BTU/h" });
+  ok(sg.itens.length === 1 && sg.itens[0].id === "x9" && sg.fabricantes.join() === "A,B", "equipamentos: sugestão da base pela capacidade e fabricantes do segmento");
+
+  /* 6. BIM e GIS */
+  erro = ""; try { E.ifcDados(e, 0); } catch (x) { erro = x.message; } ok(/latitude e longitude/.test(erro), "IFC: sem local, recusa (nada inventado)");
+  s.local.lat = -22.5; s.local.lon = -43.18; s.local.endereco = "Endereço de teste";
+  const ifc = PhysisIFC.escrever(E.ifcDados(e, 0), { agora:1794600000 }), lido = PhysisIFC.ler(ifc);
+  ok(ifc.indexOf("ISO-10303-21;") === 0 && (ifc.match(/IFC(UNITARYEQUIPMENT|CHILLER|COOLINGTOWER|PUMP|FAN|AIRTERMINAL|ELECTRICDISTRIBUTIONBOARD)\(/g) || []).length === s.equipamentos.length, "IFC: um elemento por equipamento");
+  ok(!!lido, "IFC: o leitor próprio lê de volta");
+  document.getElementById("ifc").textContent = ifc;
+  const G = E.geojson(e); ok(G.features.length === 1 && G.features[0].geometry.coordinates[0] === -43.18, "GeoJSON: ponto do subprojeto com local (lon, lat)");
+
+  /* 7. documentos no template do cliente */
+  const mem = E.memorial(e, 0, AVAC, CARGA_TERMICA);
+  ok(mem.some(b => /^EXEMPLO/.test(b.t || "")) && mem.some(b => /NBR 16401-1/.test(b.t || "")) && mem.filter(b => b.h === 2).length >= 8, "memorial: marca EXEMPLO, normas do código e um capítulo por sistema");
+  e.subprojetos[0].dados.cargatermica = { e:CARGA_TERMICA.padrao() };
+  const mem2 = E.memorial(e, 0, AVAC, CARGA_TERMICA);
+  ok(mem2.some(b => /Carga térmica por ambiente/.test(b.t || "")), "memorial: carga térmica quando o subprojeto tem dados");
+  e.subprojetos[0].dadosConfirmados = true; ok(!E.memorial(e, 0, AVAC, CARGA_TERMICA).some(b => /^EXEMPLO/.test(b.t || "")), "memorial: sem EXEMPLO depois de confirmar os dados");
+  const rel = E.relatorio(e, 0, AVAC), epb = E.estudoPreliminar(e, 0, AVAC, CARGA_TERMICA);   /* EP = Estudo Preliminar (dona, 21/11) */
+  ok(rel.some(b => b.tabela) && epb.some(b => /Estudo Preliminar/.test(b.t || "")), "relatório e Estudo Preliminar gerados");
+  const odt = E.odt(mem, e.marcaCliente, { titulo:"Memorial de cálculo", teste:true, elaboradoPor:"Physis Engineering" });
+  const ods = E.ods([T, E.tabelaFinanceiro(e)], e.marcaCliente, { titulo:"Lista de equipamentos", teste:true });
+  ok(odt[0] === 0x50 && odt[1] === 0x4B && ods[0] === 0x50, "ODT e ODS: arquivos zip");
+  document.getElementById("odt").textContent = E.b64(odt);
+  document.getElementById("ods").textContent = E.b64(ods);
+  const M = E.marcaEfetiva({});
+  ok(M.neutra && M.corPrincipal === "#1B1F23" && M.fonteTitulo === "serif", "marca do cliente: neutra até receber logo, fontes e paleta");
+  ok(E.marcaEfetiva({ corPrincipal:"#123456" }).corPrincipal === "#123456" && E.marcaEfetiva({ corPrincipal:"vermelho" }).corPrincipal === "#1B1F23", "marca do cliente: só cor #RRGGBB válida");
+} catch (x) { out.push("FALHA exceção: " + x.message + "\n" + (x.stack || "")); }
+const nOk = out.filter(l => l.indexOf("ok") === 0).length;
+document.getElementById("saida").textContent = out.join("\n") + "\nRESULTADO " + nOk + "/" + out.length;
+</script></body></html>

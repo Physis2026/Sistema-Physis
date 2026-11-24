@@ -175,7 +175,7 @@ function grafico(id, titulo, linhas, un, opc) { opc = opc || {}; const W = 640, 
   /* nome acessível = título + resumo de cada linha, em textos separados (cada um tem o seu par em inglês) */
   const resumo = linhas.filter(l => l.pts.length).map(l => { const v = l.pts.map(p => p[1]).filter(x => x != null && isFinite(x)); return v.length ? `${l.nome}: de ${f1(Math.min(...v))} a ${f1(Math.max(...v))} ${un}` : ""; }).filter(Boolean);
   return `<figure style="margin:0"><svg id="${id}" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-labelledby="${id}-t ${id}-d"><title id="${id}-t">${E(titulo)}</title>
-    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#C9D2C4)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H - m.b}" style="stroke:var(--linha,#C9D2C4)"/>
+    <line x1="${m.l}" y1="${H - m.b}" x2="${W - m.r}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/><line x1="${m.l}" y1="${m.t}" x2="${m.l}" y2="${H - m.b}" style="stroke:var(--linha,#D9D3C2)"/>
     <text x="${m.l - 6}" y="${m.t + 10}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y1, 0)}</text><text x="${m.l - 6}" y="${H - m.b}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${f1(y0, 0)}</text>
     <text x="${m.l}" y="${H - 8}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(eixoX(x0))}</text><text x="${W - m.r}" y="${H - 8}" font-size="11" text-anchor="end" style="fill:var(--tinta2,#4A4F44)">${E(eixoX(x1))}</text>
     <text x="${m.l + 4}" y="${m.t + 10}" font-size="11" style="fill:var(--tinta2,#4A4F44)">${E(un)}</text>${ref}${linhas.map(traco).join("")}</svg>

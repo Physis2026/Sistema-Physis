@@ -31,7 +31,13 @@ MODULOS = ("monitoramento", "agua", "zonas", "animais", "coleiras", "comedouros"
            "validacao")     # Validação · planejado × gerado, M&V (em desenvolvimento, 18/11/2026)
 LICENCA_PADRAO = "Licença Physis de Uso e Adaptação (minuta em revisão jurídica)"
 VENDOR_ARQUIVOS = ("maplibre-gl.js", "maplibre-gl.css", "pmtiles.js", "web-ifc-api-iife.js", "web-ifc.wasm", "three.min.js",
-                   "LEIA-ME.md", "LICENSE-maplibre-gl.txt", "LICENSE-three.txt")
+                   "LEIA-ME.md", "LICENSE-maplibre-gl.txt", "LICENSE-three.txt",
+                   # three.js 0.170 em módulos (vista 3D; mesma lista de servidor.THREE_MODULOS)
+                   "three/LICENSE", "three/SHA256.json", "three/three.module.min.js") + tuple("three/addons/" + a for a in (
+    "postprocessing/EffectComposer.js", "postprocessing/Pass.js", "postprocessing/RenderPass.js", "postprocessing/ShaderPass.js",
+    "postprocessing/MaskPass.js", "postprocessing/OutputPass.js", "postprocessing/GTAOPass.js", "shaders/CopyShader.js",
+    "shaders/OutputShader.js", "shaders/GTAOShader.js", "shaders/PoissonDenoiseShader.js", "math/SimplexNoise.js",
+    "loaders/GLTFLoader.js", "utils/BufferGeometryUtils.js"))
 # demonstrações públicas (demos/, servidas em /demo/<nome>/): só no pacote do servidor da Physis (o site)
 DEMOS_ARQUIVOS = ("physis-demo-sustainkit.html", "physis-demo-scada.html", "physis-demo-monitoramento.html",
                   "physis-demo-planejador.html", "physis-demo-cliente.html")
@@ -106,6 +112,14 @@ def escrever_manual(pasta: Path, modulos: list[str], cliente: str) -> Path:
     return md
 
 
+def edicao_completa(arq: Path) -> None:
+    """Marca o Planejador como edição completa (todos os módulos, sem a caixa de licença)."""
+    t = arq.read_text(encoding="utf-8")
+    if 'data-edicao="completa"' not in t:
+        t = t.replace("<html", '<html data-edicao="completa"', 1)
+        arq.write_text(t, encoding="utf-8")
+
+
 def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Path | None, licenca: str,
            supervisao: Path | None = None, gestao: Path | None = None, planejador: Path | None = None,
            pesquisa: bool = False, nome: str = "", cursos: list | None = None, suporte: dict | None = None,
@@ -163,6 +177,8 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
         shutil.copy2(supervisao, pasta / "web" / "supervisao.html")
     if "planejador" in modulos:
         shutil.copy2(planejador, pasta / "web" / "planejador.html")
+        if org.startswith("casa-physis"):      # 24/11/2026: Casa Physis sempre com a edição completa, sem ativação de licença
+            edicao_completa(pasta / "web" / "planejador.html")
     if "planejador" in modulos or (gestao is not None and gestao.is_file()):
         # mapa e leitor BIM do Planejador: bibliotecas abertas, entregues pelo próprio servidor (sem internet).
         # O pacote do servidor da Physis também leva, para montar sozinho a plataforma de quem compra.
@@ -170,6 +186,7 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
         for nome in VENDOR_ARQUIVOS:
             origem = next((p for p in (AQUI.parent / "vendor" / nome, AQUI / "web" / "vendor" / nome) if p.is_file()), None)
             if origem:
+                (pasta / "web" / "vendor" / nome).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(origem, pasta / "web" / "vendor" / nome)
     if gestao is not None and gestao.is_file():      # só o pacote interno da Physis leva o programa de gestão interna
         shutil.copy2(gestao, pasta / "web" / "gestao.html")

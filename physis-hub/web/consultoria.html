@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html data-edicao-propria lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,21 +11,21 @@
 <style>
 :root{
   color-scheme:light;
-  --verde:#33512F;--escuro:#1C2B21;--fundo:#F4F6F1;--sup:#FFFFFF;--linha:#C9D2C4;--tinta2:#4A4F44;--marca:#4B7547;
+  --verde:#1A4D2E;--escuro:#1B1F23;--fundo:#F4F1EA;--sup:#FFFFFF;--linha:#D9D3C2;--tinta2:#4A4F44;--marca:#C2410C;
   --ok-f:#DCEBD8;--ok-t:#1F4A1C;--al-f:#F5E2D7;--al-t:#7A2214;--at-f:#F6EAD0;--at-t:#5C3F00;
   --titulo:Fraunces,Georgia,"Times New Roman",serif;
   --fonte:Lexend,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  --sobre-verde:#FFFFFF;--suave:#EEF2EA;--campo:#FFFFFF;--borda-campo:#8A9284;--aviso-l:#E3C4BD;
+  --sobre-verde:#FFFFFF;--suave:#F4F1EA;--campo:#FFFFFF;--borda-campo:#8A8270;--aviso-l:#E3C4BD;
 }
 /* Fundo verde (modo de conforto): fundo suave, sem mudar o texto. Só cores da paleta. */
-html.a11y-verde{--fundo:#E2E9DC;--sup:#F7F9F4;--suave:#E2EADB}
+html.a11y-verde{--fundo:#E2E9DC;--sup:#FAF9F5;--suave:#E2EADB}
 /* Tema escuro: as cores do "fundo verde" da plataforma. Contraste AA conferido (texto 8:1 ou mais; verde de ação 8,6:1). */
 html[data-tema="escuro"]{
-  --verde:#B9CDB3;--escuro:#EEF2EA;--fundo:#1C2B21;--sup:#2A3829;--linha:#4A5A47;--tinta2:#D9D3C2;--marca:#A8BFA0;
+  --verde:#D9A58C;--escuro:#F4F1EA;--fundo:#0B3D2E;--sup:#0F4535;--linha:#2F5E4E;--tinta2:#C3D0BD;--marca:#D9A58C;
   --ok-f:#1F4A1C;--ok-t:#DCEBD8;--al-f:#5C2B2E;--al-t:#FF8A80;--at-f:#33372E;--at-t:#E5D5AE;
-  --sobre-verde:#1C2B21;--suave:#33372E;--campo:#1C2B21;--borda-campo:#8A9182;--aviso-l:#5C3F00;
+  --sobre-verde:#0F4535;--suave:#33372E;--campo:#0F4535;--borda-campo:#8A9182;--aviso-l:#5C3F00;
 }
-html[data-tema="escuro"].a11y-verde{--fundo:#1C2B21;--sup:#2A3829}
+html[data-tema="escuro"].a11y-verde{--fundo:#0B3D2E;--sup:#0F4535}
 html[data-tema="escuro"] .px-id img{filter:brightness(0) invert(1)}
 /* Alto contraste: texto secundário e linhas no tom do texto */
 html.a11y-contraste{--tinta2:var(--escuro);--linha:var(--escuro);--borda-campo:var(--escuro)}
@@ -74,7 +74,7 @@ h2{font:500 clamp(1.45rem,3.2vw,1.9rem)/1.2 var(--titulo);color:var(--verde);mar
 h3{font:600 1.08rem/1.35 var(--fonte);margin:0 0 6px;color:var(--escuro)}
 .intro{color:var(--tinta2);max-width:760px;margin:0 0 20px}
 .cartao{background:var(--sup);border:1px solid var(--linha);border-radius:12px;padding:18px}
-.cartao.destaque{border:2px solid var(--marca, #33512F)}
+.cartao.destaque{border:2px solid var(--marca, #1A4D2E)}
 .grade{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .grade p{margin:0}
 .cartao p + p{margin-top:8px}
@@ -144,11 +144,11 @@ body.editando [data-chave]:focus{outline:3px solid var(--verde);background:var(-
 .px-faixa{background:#F4F6F1;border-bottom:1px solid #C9D2C4;color:#1C2B21}
 .px-faixa .px-in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
 .px-faixa .px-id{display:flex;align-items:center;gap:14px;min-width:0;flex-wrap:wrap}
-.px-faixa .px-id img{height:42px!important;width:42px!important;object-fit:cover;object-position:0 50%;display:block;flex:none;background:#F4F6F1;border-radius:6px}
+.px-faixa .px-id img{height:42px!important;width:42px!important;object-fit:cover;object-position:0 50%;display:block;flex:none;background:#F4F1EA;border-radius:6px}
 .px-faixa .px-tit{font-family:Fraunces,Georgia,"Times New Roman",serif!important;font-weight:500;font-size:24px;line-height:1.15;letter-spacing:-.012em;color:#33512F;padding-left:0;border-left:0;margin:0}
-html[data-tema="escuro"] .px-faixa{background:#14180F;border-bottom-color:#4A5A47;color:#EEF2EA}
+html[data-tema="escuro"] .px-faixa{background:#0B3D2E;border-bottom-color:#2F5E4E;color:#F4F1EA}
 html[data-tema="escuro"] .px-faixa .px-id img{background:transparent;filter:brightness(0) invert(1)}
-html[data-tema="escuro"] .px-faixa .px-tit{color:#B9CDB3}
+html[data-tema="escuro"] .px-faixa .px-tit{color:#F4F1EA}
 @media (max-width:480px){.px-faixa .px-in{padding:10px 16px}.px-faixa .px-tit{font-size:21px}}
 /* sk-cons-modelo · página no modelo Physis (igual ao painel): faixa com a árvore, título serifado verde, abas e cartões do painel. */
 .heroi{padding:26px 16px 30px}
@@ -158,9 +158,9 @@ nav.menu a{display:flex;align-items:center;min-height:44px;padding:0 14px;border
 nav.menu a:hover{border-color:var(--verde);color:var(--verde)}
 .cartao{border-radius:14px}
 .botao{min-height:44px}
-/* Tema escuro igual ao do painel: fundo #14180F, superfície #1C2B21 */
-html[data-tema="escuro"]{--fundo:#14180F;--sup:#1C2B21;--suave:#2A3829;--campo:#14180F;--sobre-verde:#14180F}
-html[data-tema="escuro"].a11y-verde{--fundo:#1C2B21;--sup:#2A3829}
+/* Tema escuro igual ao do painel: fundo #1B1F23, superfície #1B1F23 */
+html[data-tema="escuro"]{--fundo:#0B3D2E;--sup:#0F4535;--suave:#0F4535;--campo:#0B3D2E;--sobre-verde:#0B3D2E}
+html[data-tema="escuro"].a11y-verde{--fundo:#0B3D2E;--sup:#0F4535}
 html[data-tema="escuro"] .px-faixa{background:var(--fundo)}
 @media (max-width:520px){.heroi{padding:22px 16px 22px}}
 </style>

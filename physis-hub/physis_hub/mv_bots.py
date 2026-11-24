@@ -573,6 +573,8 @@ BOTS["repositorios"] = mv_repositorios.bot_repositorios
 from . import mv_ecossistema, mv_financeiro, mv_fatos, mv_kit  # noqa: E402 — versão enxuta de 22/11/2026
 BOTS.update({"mercado": mv_ecossistema.bot_mercado, "financeiro": mv_financeiro.bot_financeiro, "vencimentos": mv_financeiro.bot_vencimentos,
              "kit": mv_kit.bot_kit, "fatos": mv_fatos.bot_fatos, "melhoria": mv_kit.bot_melhoria, "semanal": mv_kit.bot_semanal})
+from . import mv_modelos  # noqa: E402 — modelos dos fabricantes pelos catálogos (24/11/2026)
+BOTS["modelos"] = mv_modelos.bot_modelos
 
 
 def assinatura_pastas(raizes) -> str:

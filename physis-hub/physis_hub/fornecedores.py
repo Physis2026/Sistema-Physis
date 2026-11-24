@@ -53,7 +53,18 @@ FINALIDADE_CONTATO = ("Contato comercial do fornecedor com a Physis: pedir cota�
 SEGMENTOS = {"solar": "Energia solar"}          # Fase 2: água, AVAC, materiais de bioconstrução
 CATEGORIAS = {"modulos": "Módulos fotovoltaicos", "inversores": "Inversores", "estruturas": "Estruturas de fixação",
               "baterias": "Baterias", "protecao": "String box e proteção", "cabos": "Cabos e conectores",
-              "kits": "Kits completos", "instalacao": "Instalação e integração (profissionais parceiros)"}
+              "kits": "Kits completos", "instalacao": "Instalação e integração (profissionais parceiros)",
+              # 24/11/2026: AVAC e instalações (fabricantes da planilha PHYSIS_AVAC-5, sem base externa)
+              "ar_condicionado": "Ar-condicionado (split, VRF, fancoil, self, rooftop)", "chillers": "Chillers e torres de resfriamento",
+              "ventilacao": "Ventiladores, exaustores e filtragem", "difusao": "Difusores, grelhas, dampers e dutos", "bombas": "Bombas hidráulicas",
+              "valvulas": "Válvulas, atuadores e isolamento", "aquecimento": "Aquecedores a gás, solar e bombas de calor", "piscina": "Equipamentos de piscina",
+              "automacao": "Automação predial e inversores de frequência"}
+SEGMENTO_CATEGORIA = {"Split e multi-split": "ar_condicionado", "VRF / fluxo variável": "ar_condicionado", "Fancoils e UTAs": "ar_condicionado",
+                      "Rooftop e self-contained": "ar_condicionado", "Desumidificação": "ar_condicionado", "Chillers": "chillers", "Torres de resfriamento": "chillers",
+                      "Ventiladores industriais": "ventilacao", "Exaustores residenciais": "ventilacao", "Filtragem de ar": "ventilacao",
+                      "Difusores, grelhas e dampers": "difusao", "Dutos flexíveis": "difusao", "Bombas hidráulicas": "bombas", "Válvulas e atuadores": "valvulas",
+                      "Isolamento térmico": "valvulas", "Aquecimento solar": "aquecimento", "Aquecedores a gás": "aquecimento", "Bombas de calor para piscina": "aquecimento",
+                      "Equipamentos de piscina": "piscina", "Automação predial": "automacao", "Inversores de frequência": "automacao"}
 CATEGORIA_DA_BASE = {"módulos fotovoltaicos": "modulos", "inversores": "inversores", "baterias": "baterias",
                      "componentes de quadro": "protecao"}
 ABRANGENCIAS = {"nacional": "Nacional", "regional": "Regional", "estadual": "Estadual", "local": "Local"}

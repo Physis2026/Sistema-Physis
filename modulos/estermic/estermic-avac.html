@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estermic · AVAC (versão de teste)</title>
+<!-- VERSÃO DE TESTE (20/11/2026). Ferramenta INTERNA da Physis para o contrato direto com a Estermic (sem loja).
+     Tela clara tipo B e escura tipo A (physis-hub/docs/PALETA.md, "Tipos de tela"). Sem internet: todos os scripts são locais.
+     Os documentos ao cliente saem no template do CLIENTE (marca da Estermic; neutro até recebermos logo, fontes e paleta). -->
+<style>
+:root{--fundo:#F4F1EA;--sup:#FFFFFF;--faixa:#0B3D2E;--faixa-t:#FFFFFF;--linha:#D9D3C2;--t:#1B1F23;--t2:#4A4F44;--dest:#C2410C;--num:#C2410C;
+  --bt:#C2410C;--bt-t:#FFFFFF;--cont:#1A4D2E;--terra:#BB6B4A;--at-f:#F6EAD0;--at-t:#8A6410;--al-f:#F5E2D7;--al-t:#7A2214;--ok-f:#DCEBD8;--ok-t:#1F4A1C;--foco:#C2410C}
+html[data-tema="escuro"]{--fundo:#0B3D2E;--sup:#0F4535;--faixa:#0C2C21;--faixa-t:#F4F1EA;--linha:#2F5E4E;--t:#F4F1EA;--t2:#C3D0BD;--dest:#D9A58C;--num:#F97316;
+  --bt:#C2410C;--bt-t:#FFFFFF;--cont:#D9A58C;--terra:#D9A58C;--at-f:#33372E;--at-t:#E5D5AE;--al-f:#33372E;--al-t:#F5E2D7;--ok-f:#2F5E4E;--ok-t:#F4F1EA;--foco:#D9A58C}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--t);font:16px/1.55 Lora,Georgia,serif}
+a{color:var(--dest)}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.topo{background:var(--faixa);color:var(--faixa-t);padding:.6rem 1rem;border-bottom:3px solid var(--terra)}
+.topo p{margin:0;font-size:.9rem}
+h1{font-family:"Josefin Sans",Lora,Georgia,serif;font-size:1.8rem;margin:.6rem 0 .2rem}
+h2{font-family:Lora,Georgia,serif;font-size:1.3rem;margin:1rem 0 .5rem}
+h2::before{content:"";display:block;width:2.5rem;height:3px;background:var(--terra);margin-bottom:.35rem}
+h3,.t3{font-size:1.05rem;margin:.6rem 0 .3rem}
+.envelope{max-width:1180px;margin:0 auto;padding:0 1rem 2rem}
+.selo-teste{display:inline-block;background:var(--at-f);color:var(--at-t);border-left:4px solid var(--terra);padding:.2rem .6rem;font-weight:bold}
+nav[aria-label="Partes do módulo"]{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}
+button,.botao{min-height:44px;min-width:44px;padding:.45rem .9rem;border-radius:6px;border:2px solid var(--cont);background:transparent;color:var(--t);font:inherit;cursor:pointer}
+button.principal{background:var(--bt);border-color:var(--bt);color:var(--bt-t)}
+button[aria-pressed="true"],[role=tab][aria-selected="true"]{background:var(--cont);color:var(--fundo);border-color:var(--cont)}
+button:disabled{opacity:.55;cursor:not-allowed}
+input,select,textarea{font:inherit;color:var(--t);background:var(--sup);border:1px solid var(--t2);border-radius:4px;min-height:40px;padding:.3rem .45rem;max-width:100%}
+textarea{width:100%;min-height:6rem}
+label{display:block;font-size:.92rem;color:var(--t2);margin-top:.35rem}
+.cartao{background:var(--sup);border:1px solid var(--linha);border-radius:8px;padding: .8rem 1rem;margin:.7rem 0}
+.grade,.precos{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.4rem .9rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.rolagem{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:.92rem;margin:.3rem 0}
+caption{text-align:left;font-weight:bold;padding:.3rem 0}
+th,td{border:1px solid var(--linha);padding:.3rem .45rem;text-align:left;vertical-align:top}
+thead th{background:var(--faixa);color:var(--faixa-t)}
+.t2{color:var(--t2)}.pq{font-size:.88rem}.apoio{margin-top:0}
+.numero{font-size:1.8rem;color:var(--num);font-weight:bold}
+.faixa{padding:.5rem .8rem;border-radius:6px;border-left:5px solid var(--terra);margin:.5rem 0}
+.faixa.at,.atencao{background:var(--at-f);color:var(--at-t)}.faixa.al,.alerta{background:var(--al-f);color:var(--al-t)}.faixa.in,.pendente{background:var(--sup);color:var(--t)}
+.faixa.ok{background:var(--ok-f);color:var(--ok-t)}
+.selo{display:inline-block;padding:0 .4rem;border-radius:4px;font-size:.85rem}.selo.ok{background:var(--ok-f);color:var(--ok-t)}.selo.at{background:var(--at-f);color:var(--at-t)}.selo.al{background:var(--al-f);color:var(--al-t)}.selo.in{border:1px solid var(--linha)}
+.so-leitor{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.marcador{color:var(--dest);font-weight:bold}
+.kpis .marcador{font-size:1rem;overflow-wrap:anywhere}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem}
+footer{background:var(--faixa);color:var(--faixa-t);border-top:3px solid var(--terra);padding:1rem;font-size:.9rem}
+footer a{color:var(--faixa-t)}
+ul.alertas{list-style:none;padding:0;margin:.3rem 0}ul.alertas li{padding:.35rem .6rem;margin:.2rem 0;border-left:5px solid var(--terra);border-radius:4px}
+@media (max-width:420px){h1{font-size:1.45rem}.envelope{padding:0 .6rem 2rem}}
+</style>
+<!-- módulos locais (sem internet). A cópia personalizada do AVAC define window.AVAC; a carga térmica, window.CARGA_TERMICA. -->
+<script src="../../sistema/physis-preferencias.js"></script>
+<script src="avac-estermic-copia.js"></script>
+<script src="../../sistema/physis-cargatermica.js"></script>
+<script src="../../sistema/physis-ifc.js"></script>
+<script src="../../sistema/physis-imagem-3d.js"></script>
+<script src="../../sistema/physis-croqui.js"></script>
+<script src="../../sistema/physis-mapa-local.js"></script>
+<script src="estermic-avac.js"></script>
+</head>
+<body>
+<div id="pp-lugar"></div>
+<header class="topo"><p>Physis Engineering · ferramenta interna · contrato direto (sem loja)</p></header>
+<div class="envelope">
+<h1>Estermic · AVAC</h1>
+<p><span class="selo-teste">VERSÃO DE TESTE</span> <span class="t2">Revisão interna (Ryan, equipe Physis) em 23/11 às 13h59; prioridade 0 até 24/11.</span></p>
+<nav aria-label="Partes do módulo" id="abas"></nav>
+<div data-physis-desenvolvimento="estermic" style="padding:0 1rem"></div>
+<div data-physis-modelador="estermic" style="padding:0 1rem"></div>
+<main id="conteudo" tabindex="-1"><p>Carregando…</p></main>
+<div id="aviso-vivo" class="so-leitor" role="status" aria-live="polite"></div>
+</div>
+<footer>
+<p><strong>Physis Engineering</strong> · CNPJ 44.982.448/0001-23 (provisório [CONFERIR]) · Simples Nacional · Petrópolis/RJ</p>
+<p>Contato: [MARCADOR] · <a href="#privacidade">Política de privacidade (LGPD)</a> [MARCADOR] · <a href="#termos">Termos de uso</a> [MARCADOR]</p>
+<p>Nada sai desta tela sem aprovação: o pedido de nota ao contador é só RASCUNHO. Dados guardados neste navegador e no arquivo que você exportar.</p>
+</footer>
+<script>
+"use strict";
+/* ═══ globais que o módulo AVAC e a carga térmica usam na hora de desenhar (mesmas definições do painel.html) ═══ */
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const numBr = v => { const s = String(v == null ? "" : v).trim(); if (!s) return null; const n = Number(s.replace(/\./g, "").replace(",", ".")); return isNaN(n) ? (isNaN(Number(s)) ? null : Number(s)) : n; };
+const n2 = (v, c) => Number(v).toLocaleString("pt-BR", { minimumFractionDigits:c, maximumFractionDigits:c });
+const brl = v => v == null ? "[MARCADOR]" : "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits:2, maximumFractionDigits:2 });
+const el = id => document.getElementById(id);
+const ui = { cliente:null, aba:"projeto", sub:0, base:null, baseMsg:"", rascunho:null, msg:"" };
+const E = window.ESTERMIC, CHAVE = "physis-estermic-avac";
+let estado = E.padrao();
+try { const g = localStorage.getItem(CHAVE); if (g) estado = E.normalizar(JSON.parse(g)); } catch (x) { /* sem armazenamento: segue com o padrão */ }
+/* 24/11/2026: servida pelo sistema Estermic (physis_hub.estermic_servidor, porta 8704), o estado fica no servidor com histórico;
+   aberta como arquivo, segue só no navegador. */
+let noServidor = false, tGravar = null;
+function salvar() { try { localStorage.setItem(CHAVE, JSON.stringify(estado)); } catch (x) {}
+  if (!noServidor) return; clearTimeout(tGravar);
+  tGravar = setTimeout(() => { fetch("/api/estermic/estado", { method:"PUT", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ estado, origem:"tela" }) })
+    .then(r => { if (!r.ok) fala("Não gravou no servidor (" + r.status + "); fica neste navegador."); }).catch(() => fala("Servidor Estermic fora do ar: alterações ficam neste navegador.")); }, 800); }
+if (location.protocol.indexOf("http") === 0) fetch("/api/estermic/estado").then(r => r.ok ? r.json() : null).then(j => {
+  if (!j) return; noServidor = true; if (j.estado) { estado = E.normalizar(j.estado); desenhar(); } else salvar(); }).catch(() => {});
+const subAtual = () => estado.subprojetos[ui.sub] || estado.subprojetos[0];
+/* calcLer/calcGravar: cada subprojeto guarda o próprio estado das contas (avac, cargatermica) */
+const calcLer = k => { const d = subAtual().dados[k]; return d ? JSON.parse(JSON.stringify(d)) : {}; };
+const calcGravar = (k, v) => { subAtual().dados[k] = JSON.parse(JSON.stringify(v)); salvar(); };
+const localDaInstalacao = () => { const l = subAtual().local; return l.municipio || l.uf ? { municipio:l.municipio, uf:l.uf, lat:l.lat, lon:l.lon } : null; };
+function desenhar() { render(); }
+const fala = t => { const a = el("aviso-vivo"); if (a) a.textContent = t; ui.msg = t; };
+const mkv = v => (v == null || String(v).trim() === "") ? '<span class="marcador">[MARCADOR]</span>' : esc(v);
+
+/* ═══ campos ligados ao estado por caminho (data-e-k) ═══ */
+function getPath(o, p) { return String(p).split(".").reduce((c, k) => c == null ? c : c[k], o); }
+function setPath(o, p, v) { const ps = String(p).split("."); let c = o; for (let i = 0; i < ps.length - 1; i++) { if (c[ps[i]] == null) c[ps[i]] = /^\d+$/.test(ps[i + 1]) ? [] : {}; c = c[ps[i]]; } c[ps[ps.length - 1]] = v; }
+let nId = 0;
+function campo(p, rot, tipo, op) { op = op || {}; const id = "c-" + String(p).replace(/[^A-Za-z0-9]/g, "_"), v = getPath(estado, p);
+  const ph = op.ph || "[MARCADOR]", aj = op.ajuda ? `<span class="t2 pq" id="${id}-aj">${esc(op.ajuda)}</span>` : "", desc = op.ajuda ? ` aria-describedby="${id}-aj"` : "";
+  let ctl;
+  if (tipo === "area") ctl = `<textarea id="${id}" data-e-k="${esc(p)}" data-e-t="s" placeholder="${esc(ph)}"${desc}>${esc(v == null ? "" : v)}</textarea>`;
+  else if (tipo === "sel") ctl = `<select id="${id}" data-e-k="${esc(p)}" data-e-t="s"${desc}>${op.ops.map(o => `<option value="${esc(o[0])}"${String(o[0]) === String(v) ? " selected" : ""}>${esc(o[1])}</option>`).join("")}</select>`;
+  else if (tipo === "bool") ctl = `<input type="checkbox" id="${id}" data-e-k="${esc(p)}" data-e-t="b"${v ? " checked" : ""}${desc}>`;
+  else ctl = `<input id="${id}" type="${tipo === "data" ? "date" : "text"}" ${tipo === "n" || tipo === "d" ? 'inputmode="decimal"' : ""} data-e-k="${esc(p)}" data-e-t="${tipo === "n" || tipo === "d" ? tipo : "s"}" value="${esc(v == null ? "" : (tipo === "n" ? String(v).replace(".", ",") : v))}" placeholder="${esc(ph)}"${op.lista ? ` list="${op.lista}"` : ""}${desc}>`;
+  return tipo === "bool" ? `<div><label for="${id}" style="display:flex;gap:.5rem;align-items:center;min-height:44px">${ctl} ${esc(rot)}</label>${aj}</div>` : `<div><label for="${id}">${esc(rot)}</label>${ctl}${aj}</div>`; }
+document.addEventListener("change", ev => { const t = ev.target; if (!t || !t.dataset || t.dataset.eK == null) return;
+  let v = t.dataset.eT === "b" ? t.checked : t.value; if (t.dataset.eT === "n") v = numBr(v);
+  if (t.dataset.eT === "d") { const s = String(v).trim().replace(",", "."); v = s === "" || !isFinite(Number(s)) ? null : Number(s); }   /* coordenadas: ponto ou vírgula decimal, sem milhar */
+  setPath(estado, t.dataset.eK, v); salvar(); const id = t.id; render(); const n = el(id); if (n) n.focus(); });
+
+/* ═══ abas ═══ */
+const ABAS = [["projeto", "Projeto e contratos"], ["bimgis", "BIM e GIS"], ["calculo", "Cálculo AVAC"], ["equip", "Equipamentos"],  /* 24/11/2026: modelo antes do cálculo */ ["fin", "Financeiro"], ["emissao", "Emissão"], ["pend", "Pendências e aprendizados"]];
+function seletorSub() { return `<div class="chips" role="group" aria-label="Subprojeto">${estado.subprojetos.map((s, i) => `<button type="button" id="sub-${i}" data-sub="${i}" aria-pressed="${i === ui.sub}">${esc(E.nomeSub(s, i))}</button>`).join("")}<button type="button" id="sub-novo" data-acao="sub-novo">Incluir subprojeto</button></div>`; }
+
+function telaCliente() {
+  return `<section class="cartao" aria-labelledby="h-cli"><h2 id="h-cli">Selecionar cliente</h2>
+  <p class="t2">Contrato direto no Brasil (PJ para PJ, nota fiscal de serviço, ISS, em reais), sem a loja. Escolha o cliente para abrir a inclusão de projeto.</p>
+  <label for="sel-cliente">Cliente</label><select id="sel-cliente"><option value="estermic">Estermic</option></select>
+  <h3>Como funcionam as atividades da Estermic (core)</h3>
+  ${campo("cliente.explicacao", "Explicação do funcionamento core das atividades do cliente", "area", { ajuda:"Ainda não informado pela dona: fica [MARCADOR] até ser preenchido." })}
+  <p class="t2 pq">Como o módulo trabalha para este cliente: cada subprojeto tem contrato próprio (número, valor, fases, prazos e condições de pagamento),
+  cálculo AVAC próprio (contas do módulo base da Physis, sem mudança), local e modelo (GIS e BIM), lista de equipamentos com peças, e emissão de EP [CONFERIR], IFC, lista (ODS), relatório e memorial no template da Estermic.</p>
+  <p><button type="button" class="principal" id="abrir-cliente" data-acao="abrir-cliente">Abrir inclusão de projeto</button></p></section>`; }
+
+function telaProjeto() { const s = subAtual(), i = ui.sub, p = "subprojetos." + i;
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-proj"><h2 id="h-proj">${esc(E.nomeSub(s, i))}</h2><div class="grade">
+    ${campo(p + ".nome", "Nome do subprojeto", "s")}${campo(p + ".contrato.numero", "Número do contrato", "s")}${campo(p + ".contrato.valor", "Valor do contrato (R$)", "n")}
+    ${campo(p + ".contrato.assinatura", "Data de assinatura", "data")}${campo(p + ".contrato.prazoFinal", "Prazo final do contrato", "data")}${campo(p + ".contrato.iss", "ISS: município e alíquota", "s", { ph:"[MARCADOR] conferir com o contador" })}</div>
+    ${campo(p + ".escopo", "Escopo do subprojeto", "area")}${campo(p + ".contrato.condicoes", "Condições de pagamento", "area")}
+    <h3>Fases e prazos</h3>${tabelaFases(i, false)}<p><button type="button" id="fase-add" data-acao="fase-add">Acrescentar fase</button></p></section>
+    <section class="cartao" aria-labelledby="h-cli2"><h2 id="h-cli2">Dados do cliente e do contador</h2><div class="grade">
+    ${campo("cliente.cnpj", "CNPJ da Estermic", "s")}${campo("cliente.contato", "Contato na Estermic", "s")}${campo("contador.email", "E-mail do Robson (contador)", "s")}</div>
+    <p class="t2 pq">Emissor: ${esc(estado.emissor.nome)} · CNPJ ${esc(estado.emissor.cnpj)} (${esc(estado.emissor.cnpjSituacao)} [CONFERIR]) · ${esc(estado.emissor.regime)}.</p></section>`; }
+
+function tabelaFases(i, financeiro) { const s = estado.subprojetos[i], F = E.financeiro(s), p = "subprojetos." + i + ".fases.";
+  if (!s.fases.length) return `<p class="t2">Nenhuma fase: <span class="marcador">[MARCADOR]</span> (fases, valores e prazos ainda não informados).</p>`;
+  const td = (k, j, rot, t) => { const id = "c-" + (p + j + "." + k).replace(/[^A-Za-z0-9]/g, "_"), v = s.fases[j][k];
+    return `<td><label class="so-leitor" for="${id}">${esc(rot + " da fase " + (j + 1))}</label><input id="${id}" type="${t === "data" ? "date" : "text"}" ${t === "n" ? 'inputmode="decimal"' : ""} data-e-k="${p + j + "." + k}" data-e-t="${t === "n" ? "n" : "s"}" value="${esc(v == null ? "" : (t === "n" ? String(v).replace(".", ",") : v))}" placeholder="[MARCADOR]" style="width:${t === "data" ? "10em" : "8em"}"></td>`; };
+  const cols = financeiro ? ["Fase", "Valor (R$)", "Prazo de faturar", "Faturado (R$)", "NF", "Vencimento", "Recebido (R$)", "Situação", "Ação"] : ["Fase", "Descrição", "Valor (R$)", "Prazo", "Ação"];
+  return `<div class="rolagem"><table><caption>Fases do ${esc(E.nomeSub(s, i))}</caption><thead><tr>${cols.map(c => `<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>${s.fases.map((f, j) => `<tr>${td("nome", j, "Nome", "s")}`
+    + (financeiro ? td("valor", j, "Valor", "n") + td("prazo", j, "Prazo", "data") + td("faturado", j, "Faturado", "n") + td("nf", j, "Nota fiscal", "s") + td("vencimento", j, "Vencimento", "data") + td("recebido", j, "Recebido", "n")
+      + `<td>${esc(F.porFase[j].situacao)}</td><td><button type="button" class="principal" id="nota-${i}-${j}" data-acao="nota" data-j="${j}">Pedir nota ao contador</button></td>`
+      : td("descricao", j, "Descrição", "s") + td("valor", j, "Valor", "n") + td("prazo", j, "Prazo", "data") + `<td><button type="button" id="fase-del-${j}" data-acao="fase-del" data-j="${j}" aria-label="Remover a fase ${j + 1}">Remover</button></td>`) + "</tr>").join("")}</tbody></table></div>`; }
+
+function telaCalculo() { const s = subAtual(), i = ui.sub;
+  let corpo = typeof telaAvac === "function" ? telaAvac() : `<p class="faixa al">Módulo AVAC não carregado.</p>`;
+  corpo = corpo.replace(/<h1>([^<]*)<\/h1>/, '<h2 id="h-avac-base">$1 (módulo base, cópia Estermic)</h2>');   /* um título só por tela */
+  return seletorSub() + (s.dadosConfirmados ? `<p class="faixa ok">Dados de cálculo confirmados como do projeto.</p>`
+    : `<p class="faixa at">Enquanto não confirmar, os números abaixo são o EXEMPLO da planilha PHYSIS_AVAC-5 (não são da Estermic) e os documentos saem marcados como EXEMPLO.</p>`)
+    + campo("subprojetos." + i + ".dadosConfirmados", "Os dados de cálculo deste subprojeto são do projeto (não do exemplo)", "bool") + corpo; }
+
+function telaEquip() { const s = subAtual(), i = ui.sub, p = "subprojetos." + i + ".equipamentos.";
+  const base = ui.base, aviso = base ? `<p class="t2 pq">Base de equipamentos da Physis carregada (${base.itens.length} itens, classes genéricas sem marca).</p>`
+    : `<div class="faixa at"><p>Base de equipamentos não carregada${ui.baseMsg ? " (" + esc(ui.baseMsg) + ")" : ""}. Aberta como arquivo, a tela não lê o JSON sozinha: envie sistema/physis-equipamentos.json.</p>
+       <label for="up-base">Enviar a base de equipamentos (JSON)</label><input type="file" id="up-base" accept=".json,application/json"></div>`;
+  const linhas = s.equipamentos.map((q, j) => { const sg = E.sugerirDaBase(base, q), dl = "fab-" + j;
+    const td = (k, rot, w, lista) => { const id = "c-" + (p + j + "." + k).replace(/[^A-Za-z0-9]/g, "_"), v = q[k];
+      return `<td><label class="so-leitor" for="${id}">${esc(rot + " de " + (q.tag || "item " + (j + 1)))}</label><input id="${id}" data-e-k="${p + j + "." + k}" data-e-t="${k === "qtd" || k === "cap" ? "n" : "s"}" value="${esc(v == null ? "" : v)}" placeholder="[MARCADOR]" style="width:${w}"${lista ? ` list="${lista}"` : ""}></td>`; };
+    const selBase = `<td><label class="so-leitor" for="base-${j}">Referência na base Physis para ${esc(q.tag || "item")}</label><select id="base-${j}" data-e-k="${p + j}.baseId" data-e-t="s"><option value="">— escolher —</option>${sg.itens.map(b => `<option value="${esc(b.id)}"${b.id === q.baseId ? " selected" : ""}>${esc(b.descricao)}</option>`).join("")}</select></td>`;
+    const selCat = `<td><label class="so-leitor" for="selc-${j}">Categoria para seleção de ${esc(q.tag || "item")}</label><select id="selc-${j}" data-e-k="${p + j}.selecao" data-e-t="s"><option value="">— categoria —</option>${Object.keys(E.SELECAO).map(c => `<option value="${esc(c)}"${c === q.selecao ? " selected" : ""}>${esc(c)}</option>`).join("")}</select></td>`;
+    const dimC = `<td>${["lx", "ly", "lz"].map((k, n) => { const id = "c-" + (p + j + "." + k).replace(/[^A-Za-z0-9]/g, "_"); return `<label class="so-leitor" for="${id}">${["Largura", "Profundidade", "Altura"][n]} (m) de ${esc(q.tag || "item")}</label><input id="${id}" data-e-k="${p + j + "." + k}" data-e-t="n" value="${esc(q[k] == null ? "" : q[k])}" placeholder="${["L", "P", "A"][n]}" style="width:3.5em">`; }).join(" × ")}</td>`;
+    const pecas = (q.pecas || []).map((pc, k) => { const pp = p + j + ".pecas." + k + ".", c = (kk, rot, w) => { const id = "c-" + (pp + kk).replace(/[^A-Za-z0-9]/g, "_");
+        return `<label class="so-leitor" for="${id}">${esc(rot + " da peça " + (k + 1) + " de " + (q.tag || "item"))}</label><input id="${id}" data-e-k="${pp + kk}" data-e-t="${kk === "qtd" ? "n" : "s"}" value="${esc(pc[kk] == null ? "" : pc[kk])}" placeholder="${kk === "codigo" ? "[MARCADOR] part number" : "[MARCADOR]"}" style="width:${w}">`; };
+      return `<li>${c("descricao", "Descrição", "12em")} ${c("codigo", "Código", "10em")} ${c("qtd", "Quantidade", "4em")} <button type="button" id="peca-del-${j}-${k}" data-acao="peca-del" data-j="${j}" data-k="${k}" aria-label="Remover peça ${k + 1} de ${esc(q.tag || "item")}">Remover</button></li>`; }).join("");
+    return `<tr><th scope="row">${j + 1}</th>${td("tag", "TAG", "5em")}<td>${esc(q.sistema || "")}</td>${td("descricao", "Descrição", "14em")}${td("qtd", "Quantidade", "4em")}<td>${q.cap == null ? "—" : esc(n2(q.cap, Number.isInteger(q.cap) ? 0 : 2))} ${esc(q.un || "")}</td>
+      ${td("fabricante", "Fabricante", "9em", dl)}<datalist id="${dl}">${sg.fabricantes.map(f => `<option value="${esc(f)}">`).join("")}</datalist>${td("modelo", "Modelo", "9em")}${selCat}${selBase}${dimC}
+      <td><ul style="margin:0;padding-left:1rem">${pecas}</ul><button type="button" id="peca-add-${j}" data-acao="peca-add" data-j="${j}">Acrescentar peça</button></td>
+      <td><button type="button" id="eq-del-${j}" data-acao="eq-del" data-j="${j}" aria-label="Remover ${esc(q.tag || "item " + (j + 1))}">Remover</button></td></tr>`; }).join("");
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-eq"><h2 id="h-eq">Fabricantes, equipamentos e peças</h2>${aviso}
+    <p class="chips"><button type="button" class="principal" id="eq-calc" data-acao="eq-calc">Trazer do cálculo AVAC</button><button type="button" id="eq-add" data-acao="eq-add">Acrescentar item à mão</button></p>
+    <p class="t2 pq">Cada item recebe TAG (AC-01, VE-01…). Fabricantes sugeridos vêm da aba Fabricantes da planilha (base Physis); modelo e código das peças (part number) ficam [MARCADOR] até haver dado real.</p>
+    ${s.equipamentos.length ? `<div class="rolagem"><table><caption>Lista de equipamentos e sistemas — ${esc(E.nomeSub(s, i))}</caption><thead><tr>${["Nº", "TAG", "Sistema", "Descrição", "Qtd.", "Capacidade", "Fabricante", "Modelo", "Categoria (seleção)", "Base Physis", "Bloco IFC L × P × A (m)", "Peças (código)", "Ação"].map(c => `<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>${linhas}</tbody></table></div>` : `<p class="t2">Lista vazia.</p>`}</section>`; }
+
+function telaBimGis() { const s = subAtual(), i = ui.sub, p = "subprojetos." + i + ".local.";
+  let mapa = ""; try { if (window.PhysisMapaLocal) mapa = PhysisMapaLocal.html({ lat:s.local.lat, lon:s.local.lon, id:"mapa-sp" + i, rotulo:"Local do " + E.nomeSub(s, i), botaoSalvar:true,
+    aoSalvar:(lat, lon) => { s.local.lat = lat; s.local.lon = lon; salvar(); setTimeout(render, 0); return { ok:true }; } }); } catch (x) { mapa = ""; }
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-gis"><h2 id="h-gis">Localização (GIS)</h2><div class="grade">
+    ${campo(p + "endereco", "Endereço", "s")}${campo(p + "municipio", "Município", "s")}${campo(p + "uf", "UF", "s")}
+    ${campo(p + "lat", "Latitude (graus decimais)", "d")}${campo(p + "lon", "Longitude (graus decimais)", "d")}${campo(p + "altitude", "Altitude (m)", "d")}</div>
+    <div id="mapa-lugar">${mapa}</div>
+    <p class="chips"><button type="button" id="baixar-geojson" data-acao="geojson">Baixar GeoJSON (todos os subprojetos)</button></p></section>
+
+    <section class="cartao" aria-labelledby="h-ifc-arq"><h2 id="h-ifc-arq">Importar IFC ou PDF da arquitetura</h2>
+    <p class="t2">Lê os espaços (IfcSpace) com área e pé-direito e preenche sozinho o cálculo: ambientes climatizados, banheiros, garagem, lixo, salas técnicas, piscina, sauna e churrasqueira. Confira depois na aba Cálculo AVAC; o que o IFC não traz fica em branco.</p>
+    <label for="up-ifc-arq">Arquivo IFC (IFC2x3 ou IFC4)</label><input type="file" id="up-ifc-arq" accept=".ifc">
+    <label for="up-pdf-arq">Planta em PDF (com texto), rascunho à mão ou foto</label><input type="file" id="up-pdf-arq" accept=".pdf,image/*">
+    <label for="croqui-larg">Largura real do desenho (m), para rascunho à mão ou foto</label><input id="croqui-larg" type="text" inputmode="decimal" value="${esc(ui.croquiLarg || "")}" placeholder="ex.: 10" style="width:6em">
+    ${ui.croqui ? `<div class="faixa ok" role="status"><p>Rascunho processado: ${ui.croqui.n} ambientes, giro corrigido de ${n2(ui.croqui.ang, 1)}°.</p><div style="max-width:420px;background:#FFFFFF">${ui.croqui.svg}</div>
+      <p class="chips"><button type="button" id="croqui-dxf" data-acao="croqui-dxf">Baixar DXF da planta retificada</button> <label for="croqui-pe">Pé-direito (m)</label><input id="croqui-pe" type="text" inputmode="decimal" style="width:5em" placeholder="ex.: 2,8"> <button type="button" id="croqui-ifc" data-acao="croqui-ifc">Baixar IFC (paredes e ambientes)</button></p>
+      <p class="chips"><label for="croqui-esp">Espessura das paredes (m)</label><input id="croqui-esp" type="text" inputmode="decimal" style="width:5em" placeholder="ex.: 0,15"> <button type="button" id="croqui-glb" data-acao="croqui-glb">Baixar modelo 3D (.glb)</button> <button type="button" id="croqui-render" data-acao="croqui-render">Render no servidor (Blender)</button></p><p class="t2" role="status" id="croqui-render-msg"></p><div id="croqui-render-img"></div></div>` : ""}
+    ${(() => { const o = (((subAtual().dados || {}).avac || {}).e || {}).origemIfc; return o ? `<p class="faixa ok" role="status">Importado de ${esc(o.arquivo)}: ${o.espacos} espaços, ${n2(o.area_total_m2, 2)} m²${o.sem_area.length ? " · sem área no IFC: " + esc(o.sem_area.join(", ")) : ""}.</p>
+      <div class="rolagem"><table><caption>Espaços lidos e como entraram no cálculo</caption><thead><tr><th scope="col">Espaço</th><th scope="col">Área (m²)</th><th scope="col">Entrou como</th><th scope="col">Origem da área</th></tr></thead><tbody>${o.classes.map(c => `<tr><th scope="row">${esc(c.nome)}</th><td>${c.area == null ? "—" : n2(c.area, 2)}</td><td>${esc(c.classe)}</td><td>${esc(c.fonte || "")}</td></tr>`).join("")}</tbody></table></div>
+      <p class="chips"><button type="button" id="ifc-desfazer" data-acao="ifc-desfazer"${ui.antesIfc ? "" : " disabled"}>Desfazer a importação</button></p>` : ""; })()}</section>
+    <section class="cartao" aria-labelledby="h-bim"><h2 id="h-bim">Modelo (BIM, IFC4)</h2>
+    <p class="t2">O IFC leva o terreno com latitude e longitude, a edificação e um elemento por equipamento da lista (TAG, fabricante, modelo, capacidade e peças como propriedades). Geometria: só posição; o modelo 3D detalhado é [MARCADOR].</p>
+    <p class="t2">Classes de instalações (IFC4): chiller, torre de resfriamento, bombas, ventiladores e exaustores, difusores e grelhas e quadros saem com a classe nativa (IfcChiller, IfcCoolingTower, IfcPump, IfcFan, IfcAirTerminal, IfcElectricDistributionBoard); o resto como equipamento de climatização. Fluxo aberto: abrir no Bonsai (antigo BlenderBIM) ou no FreeCAD para modelar a rede de dutos e tubos, federar com arquitetura e estrutura e verificar interferências; quadros no QElectroTech.</p>
+    <p class="chips"><button type="button" class="principal" id="baixar-ifc" data-acao="ifc">Baixar IFC do subprojeto</button></p></section>`; }
+
+function telaFin() { const A = E.alertas(estado, new Date());
+  const kpi = (t, v) => `<div class="cartao"><p class="t2 pq" style="margin:0">${esc(t)}</p><span class="numero">${v == null ? '<span class="marcador">[MARCADOR]</span>' : esc(brl(v))}</span></div>`;
+  return `<section class="cartao" aria-labelledby="h-al"><h2 id="h-al">Alertas e prazos</h2>${A.length ? `<ul class="alertas">${A.map(a => `<li class="${a.nivel}"><strong>${a.nivel === "alerta" ? "Alerta" : a.nivel === "atencao" ? "Atenção" : "Pendente"}:</strong> ${esc(a.texto)}</li>`).join("")}</ul>` : `<p class="faixa ok">Sem alertas.</p>`}
+    ${campo("config.diasAviso", "Avisar com antecedência de (dias)", "n", { ajuda:"Preferência de uso da tela." })}</section>`
+    + estado.subprojetos.map((s, i) => { const F = E.financeiro(s);
+      return `<section class="cartao" aria-labelledby="h-fin-${i}"><h2 id="h-fin-${i}">${esc(E.nomeSub(s, i))} · contrato ${mkv(s.contrato.numero)}</h2>
+      <div class="kpis">${kpi("Contratado", F.contratado)}${kpi("Faturado", F.faturado)}${kpi("A faturar", F.aFaturar)}${kpi("Recebido", F.recebido)}${kpi("A receber", F.aReceber)}</div>
+      ${F.divergeFases ? `<p class="faixa at">A soma das fases (${esc(brl(F.somaFases))}) difere do valor do contrato.</p>` : ""}
+      ${tabelaFases(i, true)}</section>`; }).join("")
+    + (ui.rascunho ? `<section class="cartao" role="region" aria-labelledby="h-rasc"><h2 id="h-rasc">Rascunho do pedido de nota (não enviado)</h2>
+      <p class="faixa at">Só rascunho: o sistema nunca envia. Confira, copie ou baixe e envie você mesmo.</p>
+      <p><strong>Para:</strong> ${esc(ui.rascunho.para)}<br><strong>Assunto:</strong> ${esc(ui.rascunho.assunto)}</p>
+      <label for="rasc-corpo">Texto do e-mail</label><textarea id="rasc-corpo" readonly rows="14">${esc(ui.rascunho.corpo)}</textarea>
+      <p class="chips"><button type="button" id="rasc-copiar" data-acao="rasc-copiar">Copiar texto</button><button type="button" id="rasc-eml" data-acao="rasc-eml">Baixar rascunho (.eml)</button><button type="button" id="rasc-fechar" data-acao="rasc-fechar">Fechar</button></p></section>` : ""); }
+
+function telaEmissao() { const s = subAtual(), i = ui.sub, M = E.marcaEfetiva(estado.marcaCliente);
+  return seletorSub() + `<section class="cartao" aria-labelledby="h-em"><h2 id="h-em">Emitir arquivos — ${esc(E.nomeSub(s, i))}</h2>
+    ${s.dadosConfirmados ? "" : `<p class="faixa at">Dados de cálculo não confirmados: os documentos saem marcados como EXEMPLO.</p>`}
+    <div class="chips">
+      <button type="button" class="principal" id="em-ep" data-acao="em" data-doc="ep">EP [CONFERIR] (ODT)</button>
+      <button type="button" class="principal" id="em-memorial" data-acao="em" data-doc="memorial">Memorial de cálculo (ODT)</button>
+      <button type="button" class="principal" id="em-relatorio" data-acao="em" data-doc="relatorio">Relatório descritivo (ODT)</button>
+      <button type="button" class="principal" id="em-lista" data-acao="em" data-doc="lista">Lista de equipamentos (ODS)</button>
+      <button type="button" class="principal" id="em-ifc" data-acao="ifc">Modelo IFC</button>
+      <button type="button" id="em-pdfa" data-acao="pdfa">Relatório em PDF/A (servidor)</button>
+      <button type="button" id="em-fin" data-acao="em" data-doc="financeiro">Financeiro por fase (ODS, uso interno)</button></div>
+    <p class="t2 pq">EP tratado como Especificação de Projeto até a dona confirmar a sigla [CONFERIR]. PDF/A: só com o servidor Physis (LibreOffice); aberta como arquivo, use o ODT.</p></section>
+    <section class="cartao" aria-labelledby="h-marca"><h2 id="h-marca">Template do cliente (marca da Estermic)</h2>
+    <p class="t2">Os documentos ao cliente usam só logo, fontes e paleta da Estermic, com "Elaborado por Physis Engineering" no rodapé. ${M.neutra ? '<span class="marcador">Marca ainda não recebida: valores neutros em uso.</span>' : ""}</p>
+    <div class="grade">${campo("marcaCliente.nome", "Nome no cabeçalho", "s")}${campo("marcaCliente.corPrincipal", "Cor principal (#RRGGBB)", "s")}${campo("marcaCliente.corTexto", "Cor do texto (#RRGGBB)", "s")}
+    ${campo("marcaCliente.corLinha", "Cor das linhas (#RRGGBB)", "s")}${campo("marcaCliente.fonteTitulo", "Fonte de título", "s")}${campo("marcaCliente.fonteTexto", "Fonte de texto", "s")}</div>
+    <label for="up-logo">Logo do cliente (PNG)</label><input type="file" id="up-logo" accept="image/png">${estado.marcaCliente.logoPng ? ' <span class="t2">logo carregado</span>' : ""}</section>
+    <section class="cartao" aria-labelledby="h-dados"><h2 id="h-dados">Guardar e trazer os dados</h2>
+    <p class="chips"><button type="button" id="exp-estado" data-acao="exp-estado">Exportar dados (JSON)</button></p>
+    <label for="up-estado">Importar dados (JSON exportado por esta tela)</label><input type="file" id="up-estado" accept=".json,application/json"></section>`; }
+
+function telaPend() { const P = E.pendencias(estado);
+  return `<section class="cartao" aria-labelledby="h-pend"><h2 id="h-pend">Pendências (${P.length})</h2><ul>${P.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
+  <section class="cartao" aria-labelledby="h-apr"><h2 id="h-apr">Aprendizados para o módulo padrão</h2>
+  <p class="t2">Cada melhoria feita para a Estermic que deve voltar aos módulos técnicos vendidos pela Physis. A lista-mestra está em modulos/estermic/aprendizados-modulo-padrao.json; os registrados aqui saem no JSON exportado.</p>
+  <div class="grade"><div><label for="apr-area">Área</label><select id="apr-area"><option>cálculo</option><option>equipamentos</option><option>documentos</option><option>BIM/GIS</option><option>financeiro</option><option>tela</option></select></div>
+  <div><label for="apr-desc">O que melhorou</label><input id="apr-desc" type="text"></div></div>
+  <p class="chips"><button type="button" id="apr-add" data-acao="apr-add">Registrar aprendizado</button><button type="button" id="apr-exp" data-acao="apr-exp">Exportar aprendizados (JSON)</button></p>
+  ${estado.aprendizados.length ? `<ul>${estado.aprendizados.map(a => `<li>${esc(a.data)} · ${esc(a.area)} · ${esc(a.descricao)}</li>`).join("")}</ul>` : `<p class="t2">Nenhum registrado nesta tela.</p>`}</section>`; }
+
+function render() {
+  const nav = el("abas"), main = el("conteudo");
+  if (!ui.cliente) { nav.innerHTML = ""; main.innerHTML = telaCliente(); return; }
+  nav.innerHTML = ABAS.map(([k, n]) => `<button type="button" id="aba-${k}" data-aba="${k}" aria-pressed="${k === ui.aba}">${esc(n)}</button>`).join("");
+  const A = E.alertas(estado, new Date()), nA = A.filter(a => a.nivel === "alerta").length;
+  const topo = `<p class="t2 pq">Cliente: <strong>Estermic</strong> · ${estado.subprojetos.length} subprojetos · ${nA ? `<strong>${nA} alerta(s)</strong> · ` : ""}${E.pendencias(estado).length} pendência(s)${ui.msg ? " · " + esc(ui.msg) : ""}</p>`;
+  const f = { projeto:telaProjeto, calculo:telaCalculo, equip:telaEquip, bimgis:telaBimGis, fin:telaFin, emissao:telaEmissao, pend:telaPend }[ui.aba] || telaProjeto;
+  main.innerHTML = topo + f();
+  if (ui.aba === "bimgis" && window.PhysisMapaLocal && PhysisMapaLocal.ligar) { try { const s = subAtual(); PhysisMapaLocal.ligar(el("mapa-lugar"), { lat:s.local.lat, lon:s.local.lon }); } catch (x) {} }
+}
+
+/* ═══ arquivos ═══ */
+function baixar(nome, dados, tipo) { const b = new Blob([dados], { type:tipo }), a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nome;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); fala("Arquivo gerado: " + nome); }
+const nomeArq = (doc, ext) => ("estermic-" + (subAtual().nome || "subprojeto-" + (ui.sub + 1)) + "-" + doc).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-") + "-TESTE." + ext;
+const meta = t => ({ titulo:t, teste:estado.teste, elaboradoPor:estado.emissor.nome });
+function blocosDe(doc) { if (doc === "ep") return E.ep(estado, ui.sub, ui.base); if (doc === "memorial") return E.memorial(estado, ui.sub, window.AVAC, window.CARGA_TERMICA); return E.relatorio(estado, ui.sub, window.AVAC); }
+function emitir(doc) {
+  if (doc === "lista") { const T = E.tabelaEquipamentos(estado, ui.sub); return baixar(nomeArq("lista-equipamentos", "ods"), E.ods([T], estado.marcaCliente, meta("Lista de equipamentos")), "application/vnd.oasis.opendocument.spreadsheet"); }
+  if (doc === "financeiro") return baixar(nomeArq("financeiro-interno", "ods"), E.ods([E.tabelaFinanceiro(estado)], { nome:"Physis Engineering · uso interno" }, meta("Financeiro por fase")), "application/vnd.oasis.opendocument.spreadsheet");
+  const tit = { ep:"EP [CONFERIR]", memorial:"Memorial de cálculo", relatorio:"Relatório descritivo" }[doc];
+  baixar(nomeArq(doc, "odt"), E.odt(blocosDe(doc), estado.marcaCliente, meta(tit)), "application/vnd.oasis.opendocument.text"); }
+function lerArquivo(inp, comoTexto) { return new Promise((ok, erro) => { const f = inp.files && inp.files[0]; if (!f) return erro(new Error("nenhum arquivo"));
+  const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => erro(r.error); if (comoTexto) r.readAsText(f, "utf-8"); else r.readAsDataURL(f); }); }
+document.addEventListener("change", ev => { const t = ev.target; if (!t || !t.id) return;
+  if (t.id === "up-pdf-arq") { const f = t.files && t.files[0]; if (!f) return;
+    if (!/pdf$/i.test(f.type) && !/\.pdf$/i.test(f.name)) { const larg = numBr((document.getElementById("croqui-larg") || {}).value); ui.croquiLarg = larg || "";
+      if (!(larg > 0)) { fala("Informe a largura real do desenho (m) para dar escala ao rascunho e tente de novo."); return; }
+      const im = new Image(); im.onload = () => { try { const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas"); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+          const g = c.getContext("2d"); g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+          const r = PhysisCroqui.deImagem(g.getImageData(0, 0, c.width, c.height).data, c.width, c.height, { larguraReal_m:larg });
+          if (!r.ambientes.length) throw new Error("nenhum ambiente fechado encontrado (as paredes precisam fechar os ambientes)");
+          ui.croqui = { n:r.ambientes.length, ang:r.angulo_graus, svg:r.svg.replace(/<\?xml[^>]*>/, ""), dxf:r.dxf, r, nome:f.name.replace(/\.[^.]+$/, "") };
+          /* nomes escritos dentro de cada ambiente: OCR (Tesseract) no servidor, um recorte por ambiente; sem servidor, "Ambiente n" */
+          const lerNome = a => new Promise(ok => { if (location.protocol.indexOf("http") !== 0) return ok(null); const [x0, y0, x1, y1] = a.caixa_img, cc = document.createElement("canvas");
+            cc.width = Math.max(1, x1 - x0); cc.height = Math.max(1, y1 - y0); cc.getContext("2d").drawImage(c, x0, y0, cc.width, cc.height, 0, 0, cc.width, cc.height);
+            cc.toBlob(bl => fetch("/api/estermic/ocr", { method:"POST", body:bl }).then(x => x.ok ? x.json() : null).then(j => { const t = j && j.ok ? j.palavras.map(w => w.t).filter(w => /[A-Za-zÀ-ú]{2,}/.test(w)).join(" ").trim() : "";
+              if (j && !j.ok) ui.ocrAviso = j.erro; ok(t || null); }).catch(() => ok(null)), "image/png"); });
+          fala("Lendo os nomes dos ambientes…");
+          Promise.all(r.ambientes.map(lerNome)).then(nomes => { nomes.forEach((nm, k) => { if (nm) r.ambientes[k].nome = nm; });
+            const esp = r.ambientes.map(a => ({ nome:a.nome, nome_longo:a.nome, area_m2:a.area_m2, altura_m:null, fonte:"rascunho processado (" + f.name + ")" }));
+            const s = subAtual(), atual = s.dados.avac && s.dados.avac.e ? s.dados.avac.e : window.AVAC.padrao(); ui.antesIfc = JSON.stringify(s.dados.avac || null);
+            s.dados.avac = { e:E.preencherDoIfc(atual, esp, f.name) }; salvar();
+            fala(r.ambientes.length + " ambientes lidos do rascunho; cálculo preenchido." + (nomes.some(Boolean) ? "" : " Renomeie os ambientes na aba Cálculo AVAC.") + (ui.ocrAviso ? " (" + ui.ocrAviso + ")" : "")); render(); }); }
+        catch (x) { fala("Não deu para processar o rascunho: " + x.message); } finally { URL.revokeObjectURL(im.src); } };
+      im.onerror = () => fala("Imagem ilegível."); im.src = URL.createObjectURL(f); return; }
+    const carregar = () => window.pdfjsLib ? Promise.resolve(window.pdfjsLib) : new Promise((ok, erro) => { const s0 = document.createElement("script"); s0.src = "/vendor/pdf.min.js";
+      s0.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/vendor/pdf.worker.min.js"; ok(window.pdfjsLib); }; s0.onerror = () => erro(new Error("leitor de PDF indisponível (abra pelo sistema Estermic, porta 8704)")); document.head.appendChild(s0); });
+    f.arrayBuffer().then(buf => carregar().then(lib => lib.getDocument({ data:new Uint8Array(buf) }).promise)).then(async doc => { const itens = [];
+      for (let p = 1; p <= Math.min(doc.numPages, 30); p++) { const pg = await doc.getPage(p), tc = await pg.getTextContent(); tc.items.forEach(i => itens.push({ s:i.str, x:i.transform[4], y:i.transform[5], p })); }
+      const esp = E.espacosDoTexto(itens); if (!esp.length) throw new Error("nenhum rótulo de área (m²) encontrado no texto do PDF");
+      const s = subAtual(), atual = s.dados.avac && s.dados.avac.e ? s.dados.avac.e : window.AVAC.padrao(); ui.antesIfc = JSON.stringify(s.dados.avac || null);
+      s.dados.avac = { e:E.preencherDoIfc(atual, esp, f.name) }; salvar(); fala(esp.length + " espaços lidos do PDF; cálculo preenchido."); render(); })
+      .catch(x => fala("Não deu para ler o PDF: " + x.message)); }
+  if (t.id === "up-ifc-arq") lerArquivo(t, true).then(txt => { const esp = PhysisIFC.espacos(txt); if (!esp.length) throw new Error("o IFC não tem espaços (IfcSpace)");
+    const s = subAtual(), atual = s.dados.avac && s.dados.avac.e ? s.dados.avac.e : window.AVAC.padrao(); ui.antesIfc = JSON.stringify(s.dados.avac || null);
+    s.dados.avac = { e:E.preencherDoIfc(atual, esp, t.files[0].name) }; salvar(); fala(esp.length + " espaços lidos do IFC; cálculo preenchido."); render(); })
+    .catch(x => fala("Não deu para ler o IFC: " + x.message));
+  if (t.id === "up-base") lerArquivo(t, true).then(s => { const b = JSON.parse(s); if (!Array.isArray(b.itens)) throw new Error("não é a base de equipamentos"); ui.base = b; fala("Base de equipamentos carregada."); render(); }).catch(x => { ui.baseMsg = x.message; render(); });
+  if (t.id === "up-logo") lerArquivo(t, false).then(u => { estado.marcaCliente.logoPng = String(u).split(",")[1] || null; salvar(); fala("Logo do cliente carregado."); render(); });
+  if (t.id === "up-estado") lerArquivo(t, true).then(s => { estado = E.normalizar(JSON.parse(s)); salvar(); fala("Dados importados."); render(); }).catch(x => fala("Arquivo inválido: " + x.message)); });
+
+document.addEventListener("click", ev => { const b = ev.target && ev.target.closest ? ev.target.closest("button") : null; if (!b) return;
+  if (b.dataset.aba) { ui.aba = b.dataset.aba; render(); const n = el("aba-" + ui.aba); if (n) n.focus(); return; }
+  if (b.dataset.sub != null) { ui.sub = +b.dataset.sub; ui.rascunho = null; render(); const n = el("sub-" + ui.sub); if (n) n.focus(); return; }
+  const a = b.dataset.acao; if (!a) return; const s = subAtual(), j = +b.dataset.j, id = b.id;
+  try {
+    if (a === "abrir-cliente") { ui.cliente = "estermic"; ui.aba = "projeto"; }
+    else if (a === "sub-novo") { estado.subprojetos.push(E.normalizar({ subprojetos:[{}] }).subprojetos[0]); estado.subprojetos[estado.subprojetos.length - 1].id = "sp" + estado.subprojetos.length; ui.sub = estado.subprojetos.length - 1; }
+    else if (a === "fase-add") s.fases.push({ nome:"", descricao:"", valor:null, prazo:"", faturado:null, nf:"", vencimento:"", recebido:null });
+    else if (a === "fase-del") { if (!confirm("Remover a fase " + (j + 1) + "?")) return; s.fases.splice(j, 1); }
+    else if (a === "eq-calc") { const novos = E.equipamentosDoCalculo(s, window.AVAC), manuais = s.equipamentos.filter(q => q.origem !== "calculo");
+      if (s.equipamentos.some(q => q.origem === "calculo") && !confirm("Substituir os itens que vieram do cálculo (fabricante, modelo e peças desses itens serão perdidos)?")) return;
+      s.equipamentos = novos.concat(manuais); fala(novos.length + " item(ns) trazidos do cálculo AVAC."); }
+    else if (a === "eq-add") s.equipamentos.push({ tag:"EQ-" + String(s.equipamentos.length + 1).padStart(2, "0"), origem:"manual", sistema:"", descricao:"", qtd:1, cap:null, un:"", fabricante:"", modelo:"", baseId:"", pecas:[] });
+    else if ((a === "croqui-glb" || a === "croqui-render") && ui.croqui) { try { const pe = numBr((document.getElementById("croqui-pe") || {}).value), es = numBr((document.getElementById("croqui-esp") || {}).value);
+        const g = PhysisCroqui.glb(ui.croqui.r, pe, es);
+        if (a === "croqui-glb") { const u = URL.createObjectURL(new Blob([g], { type:"model/gltf-binary" })), l = document.createElement("a"); l.href = u; l.download = ui.croqui.nome + "-3d.glb"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); }
+        else { const m = document.getElementById("croqui-render-msg"); m.textContent = "Renderizando no servidor (pode levar alguns minutos)…";
+          fetch("/api/estermic/render", { method:"POST", body:g }).then(x => x.json()).then(j => { if (!j.ok) { m.textContent = j.erro; return; }
+            m.textContent = "Render pronto."; document.getElementById("croqui-render-img").innerHTML = '<img alt="Render da planta" style="max-width:100%" src="data:image/png;base64,' + j.png + '">'; })
+            .catch(() => { m.textContent = "Servidor sem render (abra pelo sistema Estermic, porta 8704)."; }); } }
+      catch (x) { fala(x.message); } return; }
+    else if (a === "croqui-ifc" && ui.croqui) { try { const pe = numBr((document.getElementById("croqui-pe") || {}).value), t = PhysisCroqui.ifc(ui.croqui.r, pe, ui.croqui.nome);
+        const bl = new Blob([t], { type:"application/x-step" }), u = URL.createObjectURL(bl), l = document.createElement("a"); l.href = u; l.download = ui.croqui.nome + "-retificado.ifc"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); }
+      catch (x) { fala(x.message); } return; }
+    else if (a === "croqui-dxf" && ui.croqui) { const bl = new Blob([ui.croqui.dxf], { type:"application/dxf" }), u = URL.createObjectURL(bl), l = document.createElement("a"); l.href = u; l.download = ui.croqui.nome + "-retificado.dxf"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000); return; }
+    else if (a === "ifc-desfazer" && ui.antesIfc) { const v = JSON.parse(ui.antesIfc); if (v) s.dados.avac = v; else delete s.dados.avac; ui.antesIfc = null; fala("Importação do IFC desfeita."); }
+    else if (a === "eq-del") { if (!confirm("Remover o item " + (s.equipamentos[j].tag || j + 1) + "?")) return; s.equipamentos.splice(j, 1); }
+    else if (a === "peca-add") (s.equipamentos[j].pecas = s.equipamentos[j].pecas || []).push({ descricao:"", codigo:"", qtd:1 });
+    else if (a === "peca-del") s.equipamentos[j].pecas.splice(+b.dataset.k, 1);
+    else if (a === "nota") { ui.rascunho = E.rascunhoNota(estado, ui.sub = +String(id).split("-")[1], j); fala("Rascunho gerado; nada foi enviado."); }
+    else if (a === "rasc-copiar") { const t = el("rasc-corpo"); if (navigator.clipboard) navigator.clipboard.writeText(t.value).then(() => fala("Texto copiado."), () => { t.select(); fala("Selecione e copie."); }); else { t.select(); fala("Selecione e copie."); } return; }
+    else if (a === "rasc-eml") { baixar("rascunho-nota-estermic.eml", ui.rascunho.eml, "message/rfc822"); return; }
+    else if (a === "rasc-fechar") ui.rascunho = null;
+    else if (a === "geojson") { baixar("estermic-subprojetos-TESTE.geojson", JSON.stringify(E.geojson(estado), null, 1), "application/geo+json"); return; }
+    else if (a === "ifc") { const txt = PhysisIFC.escrever(E.ifcDados(estado, ui.sub)); baixar(nomeArq("modelo", "ifc"), txt, "application/x-step"); return; }
+    else if (a === "em") { emitir(b.dataset.doc); return; }
+    else if (a === "pdfa") { if (!/^https?:/.test(location.protocol)) { fala("PDF/A precisa do servidor Physis; aberta como arquivo, baixe o ODT."); render(); return; }
+      const u8 = E.odt(blocosDe("relatorio"), estado.marcaCliente, meta("Relatório descritivo"));
+      fetch("/api/documentos/pdfa", { method:"POST", credentials:"same-origin", headers:{ "Content-Type":"application/vnd.oasis.opendocument.text" }, body:u8 })
+        .then(r => r.ok ? r.arrayBuffer().then(x => baixar(nomeArq("relatorio", "pdf"), new Uint8Array(x), "application/pdf")) : fala("O servidor não gerou o PDF/A (" + r.status + ")."), () => fala("Servidor indisponível."));
+      return; }
+    else if (a === "exp-estado") { baixar("estermic-avac-dados-TESTE.json", JSON.stringify(estado, null, 1), "application/json"); return; }
+    else if (a === "apr-add") { const d = el("apr-desc").value.trim(); if (!d) { fala("Descreva o aprendizado."); return; }
+      estado.aprendizados.push({ data:new Date().toISOString().slice(0, 10), area:el("apr-area").value, descricao:d, origem:"estermic", levar_para:"[CONFERIR]", estado:"proposto" }); fala("Aprendizado registrado."); }
+    else if (a === "apr-exp") { baixar("aprendizados-estermic-TESTE.json", JSON.stringify(estado.aprendizados, null, 1), "application/json"); return; }
+    else return;
+  } catch (x) { fala("Não foi possível: " + x.message); }
+  salvar(); render(); const n = el(id) || el("conteudo"); if (n) n.focus(); });
+
+/* base de equipamentos: lida do sistema quando servida por http(s); aberta como arquivo, pelo envio acima */
+if (/^https?:/.test(location.protocol)) fetch("../../sistema/physis-equipamentos.json").then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status))).then(b => { ui.base = b; render(); }, x => { ui.baseMsg = x.message; });
+if (/[?&]cliente=estermic\b/.test(location.search)) ui.cliente = "estermic";
+const ab = /[?&]aba=(\w+)/.exec(location.search); if (ab) ui.aba = ab[1];
+render();
+try { PhysisPreferencias.iniciar({ chave:"physis-pref", ondeColocar:"#pp-lugar", conteudo:"#conteudo", menu:"#abas", escalaPorZoom:true,
+  excecoes:["Estermic", "Physis Engineering", "AVAC", "IFC", "GeoJSON", "ODT", "ODS", "PDF/A", "EP"],
+  dicionario:{ "Selecionar cliente":"Select client", "Cliente":"Client", "Abrir inclusão de projeto":"Open project intake", "Projeto e contratos":"Project and contracts",
+    "Cálculo AVAC":"HVAC calculation", "Equipamentos":"Equipment", "BIM e GIS":"BIM and GIS", "Financeiro":"Finance", "Emissão":"Issue files",
+    "Pendências e aprendizados":"Open items and learnings", "Incluir subprojeto":"Add subproject", "Acrescentar fase":"Add phase", "Fases e prazos":"Phases and deadlines",
+    "Pedir nota ao contador":"Ask the accountant for an invoice", "Alertas e prazos":"Alerts and deadlines", "Trazer do cálculo AVAC":"Bring from HVAC calculation",
+    "Acrescentar item à mão":"Add item manually", "Acrescentar peça":"Add part", "Remover":"Remove", "Localização (GIS)":"Location (GIS)", "Modelo (BIM, IFC4)":"Model (BIM, IFC4)", "Classes de instalações (IFC4): chiller, torre de resfriamento, bombas, ventiladores e exaustores, difusores e grelhas e quadros saem com a classe nativa (IfcChiller, IfcCoolingTower, IfcPump, IfcFan, IfcAirTerminal, IfcElectricDistributionBoard); o resto como equipamento de climatização. Fluxo aberto: abrir no Bonsai (antigo BlenderBIM) ou no FreeCAD para modelar a rede de dutos e tubos, federar com arquitetura e estrutura e verificar interferências; quadros no QElectroTech.":"MEP classes (IFC4): chillers, cooling towers, pumps, fans and exhausts, diffusers and grilles and boards get their native class (IfcChiller, IfcCoolingTower, IfcPump, IfcFan, IfcAirTerminal, IfcElectricDistributionBoard); the rest as HVAC equipment. Open workflow: open in Bonsai (formerly BlenderBIM) or FreeCAD to model the duct and pipe network, federate with architecture and structure and check clashes; boards in QElectroTech.",
+    "Baixar IFC do subprojeto":"Download subproject IFC", "Baixar GeoJSON (todos os subprojetos)":"Download GeoJSON (all subprojects)", "Memorial de cálculo (ODT)":"Calculation report (ODT)",
+    "Relatório descritivo (ODT)":"Descriptive report (ODT)", "Lista de equipamentos (ODS)":"Equipment list (ODS)", "Modelo IFC":"IFC model", "Copiar texto":"Copy text",
+    "Baixar rascunho (.eml)":"Download draft (.eml)", "Fechar":"Close", "Registrar aprendizado":"Record learning", "Exportar dados (JSON)":"Export data (JSON)",
+    "Template do cliente (marca da Estermic)":"Client template (Estermic brand)", "Guardar e trazer os dados":"Save and load data", "Sem alertas.":"No alerts.",
+    "Contratado":"Contracted", "Faturado":"Invoiced", "A faturar":"To invoice", "Recebido":"Received", "A receber":"Receivable", "VERSÃO DE TESTE":"TEST VERSION" },
+  aoMudar:() => {} }); } catch (x) { /* sem a barra de preferências a tela segue funcionando */ }
+</script>
+<script src="../../sistema/desenvolvimento-dados.js"></script>
+<script id="physis-modelador">
+/* physis-modelador.js v1 (22/11/2026): bot de modelagem na página inicial de todo projeto com modelagem 3D.
+   Pedido em texto (PT/EN) ou imagem/arquivo → modelo gerado LOCALMENTE (sem internet, sempre o mesmo resultado)
+   + cálculos preliminares + exportação no formato certo (STL, OBJ, IFC, GeoJSON, CSV).
+   Geradores v1: turbina eólica para impressão 3D (Savonius), dutos de ar-condicionado (IFC), chuva no terreno
+   (KML/KMZ do Google Earth, GeoJSON, GPX ou área digitada) e relevo a partir de imagem. Pedido que nenhum gerador
+   entende vira texto para a caixa de comandos da equipe (fila de pedidos); quando a IA da Physis estiver no servidor,
+   ela usa estes mesmos geradores. Premissas e números de regra prática vêm marcados [CONFERIR]: é estimativa
+   preliminar, não projeto. Uso: <div data-physis-modelador="modelagem3d"></div>. Original único: sistema/physis-modelador.js. */
+(function (w) {
+  "use strict";
+  var d = w.document;
+  function lingua() { try { return (localStorage.getItem("physis-pref-idioma") || localStorage.getItem("physis-idioma") || d.documentElement.lang || "pt").slice(0, 2) === "en" ? "en" : "pt"; } catch (e) { return "pt"; } }
+  var TX = {
+    pt: { tit: "Bot de modelagem", sub: "Escreva o pedido ou envie uma imagem ou arquivo (KML/KMZ do Google Earth, GeoJSON, GPX; terreno em grade .asc ou XYZ). Exemplos:",
+      ex: ["gere uma turbina para impressão 3D de 40 cm", "inclua a previsão de passagem de ar-condicionado numa sala de 60 m²", "mapeie a incidência de chuva no terreno com 1.500 mm/ano", "balanço net zero de uma casa com 450 kWh por mês", "carga térmica NBR 16401 de uma sala de 40 m² com 8 pessoas", "calha e cisterna para telhado de 120 m²", "estufa de 3 x 6 m", "caixa para sensores 10 x 8 x 5 cm", "relevo da imagem com 12 cm"],
+      gerar: "Gerar", arquivo: "Imagem ou arquivo", calc: "Cálculos preliminares", baixar: "Baixar", naoEntendi: "Nenhum gerador local entende este pedido ainda. Copie o texto para a caixa de comandos da equipe: ele entra na fila de pedidos e volta como rascunho.",
+      copiar: "Copiar pedido", copiado: "Copiado.", aviso: "Estimativa preliminar para conversar e decidir; não substitui projeto assinado. Itens [CONFERIR] são premissas a confirmar.",
+      semTerreno: "Para a chuva, envie o contorno do terreno (KML/KMZ do Google Earth, GeoJSON ou GPX) ou escreva a área (ex.: 2.000 m²).",
+      lido: "Arquivo lido", pontos: "pontos", sugestoes: "Sugestões" },
+    en: { tit: "Modelling bot", sub: "Write the request or upload an image or file (Google Earth KML/KMZ, GeoJSON, GPX; terrain as .asc or XYZ grid). Examples:",
+      ex: ["generate a 40 cm wind turbine for 3D printing", "add the air-conditioning duct route for a 60 m² room", "map rainfall on the site with 1,500 mm/year", "net zero balance for a house using 450 kWh per month", "cooling load NBR 16401 for a 40 m² room with 8 people", "gutter and cistern for a 120 m² roof", "greenhouse 3 x 6 m", "sensor case 10 x 8 x 5 cm", "relief from the image, 12 cm"],
+      gerar: "Generate", arquivo: "Image or file", calc: "Preliminary calculations", baixar: "Download", naoEntendi: "No local generator understands this request yet. Copy it to the team's command box: it joins the request queue and comes back as a draft.",
+      copiar: "Copy request", copiado: "Copied.", aviso: "Preliminary estimate to discuss and decide; it does not replace a signed design. [TO CHECK] items are assumptions to confirm.",
+      semTerreno: "For rainfall, upload the site outline (Google Earth KML/KMZ, GeoJSON or GPX) or type the area (e.g., 2,000 m²).",
+      lido: "File read", pontos: "points", sugestoes: "Suggestions" }
+  };
+  // site público (InovaSTEM): sem citar ferramentas internas nem enviar coordenadas a terceiros
+  var PUB = {
+    pt: { naoEntendi: "Nenhum gerador entende este pedido ainda. Sugira a ideia em Desafios e projetos ou no Fórum: a comunidade e a equipe ajudam a modelar.",
+      mais: "Para seguir: use as subabas Modelos BIM (CAD e IFC), Lugar (GIS) e Simulação do laboratório." },
+    en: { naoEntendi: "No generator understands this request yet. Suggest the idea in Challenges and projects or in the Forum: the community and the team help model it.",
+      mais: "Next: use the lab sub-tabs BIM models (CAD and IFC), Place (GIS) and Simulation." } };
+  var CONF = { pt: "[CONFERIR]", en: "[TO CHECK]" };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function num(s) { return parseFloat(String(s).replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); }
+  function fmt(n, k) { return (Math.round(n * Math.pow(10, k || 0)) / Math.pow(10, k || 0)).toLocaleString(lingua() === "en" ? "en-GB" : "pt-BR"); }
+
+  // ------------------------------------------------------------------ geometria básica (triângulos em mm)
+  function Malha() { this.t = []; }
+  Malha.prototype.tri = function (a, b, c) { this.t.push([a, b, c]); };
+  Malha.prototype.quad = function (a, b, c, e) { this.tri(a, b, c); this.tri(a, c, e); };
+  Malha.prototype.caixa = function (x0, y0, z0, x1, y1, z1) {
+    var p = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], m = this;
+    [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]].forEach(function (f) { m.quad(p[f[0]], p[f[1]], p[f[2]], p[f[3]]); });
+  };
+  Malha.prototype.hexa = function (p) {  // sólido de 8 vértices (0–3 base, 4–7 topo), como a caixa
+    var m = this; [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]].forEach(function (f) { m.quad(p[f[0]], p[f[1]], p[f[2]], p[f[3]]); });
+  };
+  Malha.prototype.cilindro = function (cx, cy, r, z0, z1, n) {  // disco/cilindro fechado
+    for (var i = 0; i < n; i++) {
+      var a = 2 * Math.PI * i / n, b = i + 1 === n ? 0 : 2 * Math.PI * (i + 1) / n, p0 = [cx + r * Math.cos(a), cy + r * Math.sin(a)], p1 = [cx + r * Math.cos(b), cy + r * Math.sin(b)];
+      this.quad([p0[0], p0[1], z0], [p1[0], p1[1], z0], [p1[0], p1[1], z1], [p0[0], p0[1], z1]);
+      this.tri([cx, cy, z1], [p0[0], p0[1], z1], [p1[0], p1[1], z1]); this.tri([cx, cy, z0], [p1[0], p1[1], z0], [p0[0], p0[1], z0]);
+    }
+  };
+  Malha.prototype.arco = function (cx, cy, r, e, a0, a1, z0, z1, n) {  // casca de cilindro (pá, tubo, anel) com espessura e: SEMPRE fechada
+    var cheio = Math.abs(a1 - a0) >= 2 * Math.PI - 1e-9, rI = r - e, M = this;
+    if (!cheio) [a0, a1].forEach(function (a, k) {   // tampas das pontas: sem elas a malha fica com arestas abertas (erro no fatiador)
+      var o = [cx + r * Math.cos(a), cy + r * Math.sin(a)], q = [cx + rI * Math.cos(a), cy + rI * Math.sin(a)];
+      if (k === 0) M.quad([q[0], q[1], z0], [o[0], o[1], z0], [o[0], o[1], z1], [q[0], q[1], z1]);
+      else M.quad([o[0], o[1], z0], [q[0], q[1], z0], [q[0], q[1], z1], [o[0], o[1], z1]);
+    });
+    for (var i = 0; i < n; i++) {
+      var a = a0 + (a1 - a0) * i / n, b = cheio && i + 1 === n ? a0 : a0 + (a1 - a0) * (i + 1) / n, ri = r - e;
+      var o0 = [cx + r * Math.cos(a), cy + r * Math.sin(a)], o1 = [cx + r * Math.cos(b), cy + r * Math.sin(b)], i0 = [cx + ri * Math.cos(a), cy + ri * Math.sin(a)], i1 = [cx + ri * Math.cos(b), cy + ri * Math.sin(b)];
+      this.quad([o0[0], o0[1], z0], [o1[0], o1[1], z0], [o1[0], o1[1], z1], [o0[0], o0[1], z1]);
+      this.quad([i1[0], i1[1], z0], [i0[0], i0[1], z0], [i0[0], i0[1], z1], [i1[0], i1[1], z1]);
+      this.quad([o0[0], o0[1], z1], [o1[0], o1[1], z1], [i1[0], i1[1], z1], [i0[0], i0[1], z1]);
+      this.quad([i0[0], i0[1], z0], [i1[0], i1[1], z0], [o1[0], o1[1], z0], [o0[0], o0[1], z0]);
+    }
+  };
+  Malha.prototype.anelRet = function (x0, y0, x1, y1, e, z0, z1) {  // moldura retangular fechada (sólido único)
+    var o = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], i = [[x0 + e, y0 + e], [x1 - e, y0 + e], [x1 - e, y1 - e], [x0 + e, y1 - e]], M = this;
+    for (var k = 0; k < 4; k++) { var q = (k + 1) % 4;
+      M.quad([o[k][0], o[k][1], z0], [o[q][0], o[q][1], z0], [o[q][0], o[q][1], z1], [o[k][0], o[k][1], z1]);
+      M.quad([i[q][0], i[q][1], z0], [i[k][0], i[k][1], z0], [i[k][0], i[k][1], z1], [i[q][0], i[q][1], z1]);
+      M.quad([o[k][0], o[k][1], z1], [o[q][0], o[q][1], z1], [i[q][0], i[q][1], z1], [i[k][0], i[k][1], z1]);
+      M.quad([i[k][0], i[k][1], z0], [i[q][0], i[q][1], z0], [o[q][0], o[q][1], z0], [o[k][0], o[k][1], z0]); }
+  };
+  Malha.prototype.caixaOca = function (X, Y, Z, e) {  // caixa aberta em cima: fundo + paredes num sólido único, sem arestas compartilhadas
+    var o = [[0, 0], [X, 0], [X, Y], [0, Y]], i = [[e, e], [X - e, e], [X - e, Y - e], [e, Y - e]], M = this;
+    M.quad([0, 0, 0], [0, Y, 0], [X, Y, 0], [X, 0, 0]);                       // fundo por fora
+    M.quad([e, e, e], [X - e, e, e], [X - e, Y - e, e], [e, Y - e, e]);         // fundo por dentro
+    for (var k = 0; k < 4; k++) { var q = (k + 1) % 4;
+      M.quad([o[k][0], o[k][1], 0], [o[q][0], o[q][1], 0], [o[q][0], o[q][1], Z], [o[k][0], o[k][1], Z]);
+      M.quad([i[q][0], i[q][1], e], [i[k][0], i[k][1], e], [i[k][0], i[k][1], Z], [i[q][0], i[q][1], Z]);
+      M.quad([o[k][0], o[k][1], Z], [o[q][0], o[q][1], Z], [i[q][0], i[q][1], Z], [i[k][0], i[k][1], Z]); }
+  };
+  function stl(m, nome) {  // STL binário
+    var n = m.t.length, buf = new ArrayBuffer(84 + 50 * n), dv = new DataView(buf), o = 84;
+    dv.setUint32(80, n, true);
+    m.t.forEach(function (t) {
+      var u = [t[1][0] - t[0][0], t[1][1] - t[0][1], t[1][2] - t[0][2]], v = [t[2][0] - t[0][0], t[2][1] - t[0][1], t[2][2] - t[0][2]];
+      var nx = u[1] * v[2] - u[2] * v[1], ny = u[2] * v[0] - u[0] * v[2], nz = u[0] * v[1] - u[1] * v[0], l = Math.hypot(nx, ny, nz) || 1;
+      [nx / l, ny / l, nz / l].concat(t[0], t[1], t[2]).forEach(function (x, k) { dv.setFloat32(o + 4 * k, x, true); });
+      o += 50;
+    });
+    return new Blob([buf], { type: "model/stl" });
+  }
+  function obj(m) {
+    var s = "# Physis · modelador\n", k = 1;
+    m.t.forEach(function (t) { t.forEach(function (p) { s += "v " + p[0].toFixed(3) + " " + p[1].toFixed(3) + " " + p[2].toFixed(3) + "\n"; }); s += "f " + k + " " + (k + 1) + " " + (k + 2) + "\n"; k += 3; });
+    return new Blob([s], { type: "text/plain" });
+  }
+  function checar(m) {  // malha fechada: cada aresta usada por exatamente 2 triângulos (o que os fatiadores acusam como problema de "arestas")
+    var f = function (v) { return (Math.round(v * 1000) / 1000 + 0).toFixed(3); }, k = function (p) { return f(p[0]) + "," + f(p[1]) + "," + f(p[2]); }, E = {};
+    m.t.forEach(function (t) { for (var i = 0; i < 3; i++) { var a = k(t[i]), b = k(t[(i + 1) % 3]), e = a < b ? a + "|" + b : b + "|" + a; E[e] = (E[e] || 0) + 1; } });
+    var abertas = 0, mais = 0; Object.keys(E).forEach(function (e) { if (E[e] === 1) abertas++; else if (E[e] > 2) mais++; });
+    return { abertas: abertas, nao_manifold: mais, ok: abertas === 0 && mais === 0 };
+  }
+  function bico(x, min) { return Math.max(min || 1.2, Math.ceil(x / 0.4 - 1e-9) * 0.4); }  // espessura em múltiplos do bico de 0,4 mm
+  function volume(m) { var v = 0; m.t.forEach(function (t) { var a = t[0], b = t[1], c = t[2]; v += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6; }); return Math.abs(v); }
+  function caixaDe(m) { var lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9]; m.t.forEach(function (t) { t.forEach(function (p) { for (var i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i]); hi[i] = Math.max(hi[i], p[i]); } }); }); return [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]]; }
+
+  // ------------------------------------------------------------------ IFC4 mínimo (STEP), com elementos extrudados
+  function ifc(nome, elementos) {
+    var L = [], id = 0, ag = Date.now().toString(36).toUpperCase();
+    function e(s) { id += 1; L.push("#" + id + "=" + s + ";"); return "#" + id; }
+    function g() { var c = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$", s = ""; for (var i = 0; i < 22; i++) s += c[Math.floor(Math.random() * 64)]; return "'" + s + "'"; }
+    var pessoa = e("IFCPERSON($,'Physis',$,$,$,$,$,$)"), org = e("IFCORGANIZATION($,'Physis Engineering',$,$,$)"), po = e("IFCPERSONANDORGANIZATION(" + pessoa + "," + org + ",$)");
+    var app = e("IFCAPPLICATION(" + org + ",'1','Physis modelador','physis-modelador')"), dono = e("IFCOWNERHISTORY(" + po + "," + app + ",$,.ADDED.,$,$,$," + Math.floor(Date.now() / 1000) + ")");
+    var orig = e("IFCCARTESIANPOINT((0.,0.,0.))"), eixo = e("IFCAXIS2PLACEMENT3D(" + orig + ",$,$)"), ctx = e("IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05," + eixo + ",$)");
+    var um = e("IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.)"), un = e("IFCUNITASSIGNMENT((" + um + "))");
+    var proj = e("IFCPROJECT(" + g() + "," + dono + ",'" + nome.replace(/'/g, "") + "',$,$,$,$,(" + ctx + ")," + un + ")");
+    var lp = e("IFCLOCALPLACEMENT($," + eixo + ")"), site = e("IFCSITE(" + g() + "," + dono + ",'Terreno',$,$," + lp + ",$,$,.ELEMENT.,$,$,$,$,$)");
+    var bld = e("IFCBUILDING(" + g() + "," + dono + ",'Edificação',$,$," + lp + ",$,$,.ELEMENT.,$,$,$)"), sto = e("IFCBUILDINGSTOREY(" + g() + "," + dono + ",'Pavimento',$,$," + lp + ",$,$,.ELEMENT.,0.)");
+    e("IFCRELAGGREGATES(" + g() + "," + dono + ",$,$," + proj + ",(" + site + "))"); e("IFCRELAGGREGATES(" + g() + "," + dono + ",$,$," + site + ",(" + bld + "))"); e("IFCRELAGGREGATES(" + g() + "," + dono + ",$,$," + bld + ",(" + sto + "))");
+    var filhos = [];
+    elementos.forEach(function (el) {  // el: {tipo:'IFCDUCTSEGMENT'|..., nome, x,y,z (mm), dx,dy (perfil), comp (mm), dir:[x,y,z]}
+      var p = e("IFCCARTESIANPOINT((" + el.x.toFixed(1) + "," + el.y.toFixed(1) + "," + el.z.toFixed(1) + "))"), dz = e("IFCDIRECTION((" + el.dir.join(",") + "))");
+      var ref = e("IFCDIRECTION((" + (Math.abs(el.dir[2]) > 0.9 ? "1.,0.,0." : "0.,0.,1.") + "))");
+      var pl = e("IFCLOCALPLACEMENT(" + lp + "," + e("IFCAXIS2PLACEMENT3D(" + p + "," + dz + "," + ref + ")") + ")");
+      var perfil = e("IFCRECTANGLEPROFILEDEF(.AREA.,$," + e("IFCAXIS2PLACEMENT2D(" + e("IFCCARTESIANPOINT((0.,0.))") + ",$)") + "," + el.dx.toFixed(1) + "," + el.dy.toFixed(1) + ")");
+      var solido = e("IFCEXTRUDEDAREASOLID(" + perfil + "," + eixo + "," + e("IFCDIRECTION((0.,0.,1.))") + "," + el.comp.toFixed(1) + ")");
+      var forma = e("IFCPRODUCTDEFINITIONSHAPE($,$,(" + e("IFCSHAPEREPRESENTATION(" + ctx + ",'Body','SweptSolid',(" + solido + "))") + "))");
+      filhos.push(e(el.tipo + "(" + g() + "," + dono + ",'" + el.nome.replace(/'/g, "") + "',$,$," + pl + "," + forma + ",$,$)"));
+    });
+    if (filhos.length) e("IFCRELCONTAINEDINSPATIALSTRUCTURE(" + g() + "," + dono + ",$,$,(" + filhos.join(",") + ")," + sto + ")");
+    var cab = "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('ViewDefinition [ReferenceView]'),'2;1');\nFILE_NAME('" + nome.replace(/'/g, "") + ".ifc','" + new Date().toISOString().slice(0, 19) + "',('Physis'),('Physis Engineering'),'physis-modelador','Physis','');\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n";
+    return new Blob([cab + L.join("\n") + "\nENDSEC;\nEND-ISO-10303-21;\n"], { type: "application/x-step" });
+  }
+
+  // ------------------------------------------------------------------ leitura de arquivos geográficos (Google Earth e similares)
+  function lerKML(txt) {
+    var xml = new DOMParser().parseFromString(txt, "application/xml"), cs = xml.getElementsByTagName("coordinates"), pts = [];
+    for (var i = 0; i < cs.length; i++) cs[i].textContent.trim().split(/\s+/).forEach(function (c) { var p = c.split(",").map(Number); if (p.length >= 2 && isFinite(p[0])) pts.push([p[0], p[1]]); });
+    return pts;
+  }
+  function lerGPX(txt) {
+    var xml = new DOMParser().parseFromString(txt, "application/xml"), pts = [];
+    ["trkpt", "rtept", "wpt"].forEach(function (t) { var n = xml.getElementsByTagName(t); for (var i = 0; i < n.length; i++) pts.push([+n[i].getAttribute("lon"), +n[i].getAttribute("lat")]); });
+    return pts;
+  }
+  function lerGeoJSON(o) {
+    var pts = [];
+    (function andar(c) { if (typeof c[0] === "number") pts.push([c[0], c[1]]); else c.forEach(andar); })(
+      (o.features ? o.features : [o]).map(function (f) { return (f.geometry || f).coordinates; }));
+    return pts;
+  }
+  function areaM2(pts) {  // polígono lon/lat → m² (projeção local equiretangular; erro pequeno em terrenos)
+    if (pts.length < 3) return 0;
+    var lat0 = pts.reduce(function (s, p) { return s + p[1]; }, 0) / pts.length, kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110574, a = 0;
+    for (var i = 0; i < pts.length; i++) { var p = pts[i], q = pts[(i + 1) % pts.length]; a += (p[0] * kx) * (q[1] * ky) - (q[0] * kx) * (p[1] * ky); }
+    return Math.abs(a) / 2;
+  }
+
+  // ------------------------------------------------------------------ geradores
+  function gTurbina(txt, L) {
+    // Feita para imprimir SEM SUPORTE e com pouco filamento: cada seção (até 200 mm) é um disco apoiado na mesa com as pás e o
+    // cubo subindo na vertical; a tampa de cima é um disco à parte. Tudo monta num eixo roscado M8 com porcas (encaixe e aperto).
+    var m = txt.match(/(\d+[.,]?\d*)\s*(cm|mm|m)\b/i), alt = m ? num(m[1]) * ({ cm: 10, mm: 1, m: 1000 })[m[2].toLowerCase()] : 400;
+    var vel = (txt.match(/(\d+[.,]?\d*)\s*m\/s/i) || [])[1], v = vel ? num(vel) : 5, MAX = 200;
+    var D = Math.min(alt * 0.5, MAX - 12), r = D / 4, e = bico(D / 110, 1.6), ch = bico(alt / 120, 2.4), R = D / 2 + 4, furo = 4.3, cubo = bico(4.3 + 2.4, 6.8);
+    var nSec = Math.max(1, Math.ceil(alt / MAX)), hs = alt / nSec, partes = [], M = new Malha();
+    function secao(z0) {  // disco-base (anel com furo do eixo) + 2 pás em S + cubo; nada fica no ar
+      var p = new Malha();
+      p.arco(0, 0, R, R - furo, 0, 2 * Math.PI, z0, z0 + ch, 72);
+      p.arco(-r + 1.5 * e, 0, r, e, 0, Math.PI, z0 + ch, z0 + hs, 48); p.arco(r - 1.5 * e, 0, r, e, Math.PI, 2 * Math.PI, z0 + ch, z0 + hs, 48);  // pontas afastadas: nenhuma aresta dividida por 4 faces
+      p.arco(0, 0, cubo, cubo - furo, 0, 2 * Math.PI, z0 + ch, z0 + hs, 32);
+      return p;
+    }
+    for (var k = 0; k < nSec; k++) { var p = secao(0); partes.push({ nome: "secao_" + (k + 1), malha: p }); secao(k * (hs + 8)).t.forEach(function (t) { M.t.push(t); }); }
+    var tampa = new Malha(); tampa.arco(0, 0, R, R - furo, 0, 2 * Math.PI, 0, ch, 72); partes.push({ nome: "tampa", malha: tampa });
+    tampa.t.forEach(function (t) { M.t.push(t.map(function (q) { return [q[0], q[1], q[2] + nSec * (hs + 8)]; })); });
+    var Am = (D / 1000) * (alt / 1000), cp = 0.15, P = 0.5 * 1.225 * Am * Math.pow(v, 3) * cp, vol = 0, ok = true, ab = 0;
+    partes.forEach(function (q) { vol += volume(q.malha) / 1000; var c = checar(q.malha); ok = ok && c.ok; ab += c.abertas; });
+    var calc = [
+      [L === "en" ? "Type" : "Tipo", "Savonius (S) · " + nSec + (L === "en" ? " section(s) of " : " seção(ões) de ") + fmt(hs, 0) + " mm + " + (L === "en" ? "top disc" : "tampa")],
+      [L === "en" ? "Height × diameter" : "Altura × diâmetro", fmt(alt / 10, 1) + " × " + fmt(D / 10, 1) + " cm" + (D < alt * 0.5 ? " (" + (L === "en" ? "diameter limited to the 200 mm bed" : "diâmetro limitado à mesa de 200 mm") + ")" : "")],
+      [L === "en" ? "Swept area" : "Área varrida", fmt(Am, 3) + " m²"],
+      [L === "en" ? "Power at " : "Potência a ", fmt(v, 1) + " m/s, Cp " + cp + " " + CONF[L] + ": " + fmt(P, 2) + " W"],
+      [L === "en" ? "Print without supports" : "Impressão sem suporte", (L === "en" ? "yes: each part lies flat on its disc, walls vertical, nothing floating" : "sim: cada peça apoia no próprio disco, paredes verticais, nada no ar")],
+      [L === "en" ? "Closed mesh (no open edges)" : "Malha fechada (sem arestas abertas)", ok ? (L === "en" ? "yes" : "sim") : (L === "en" ? "no: " : "não: ") + ab],
+      [L === "en" ? "Walls / discs" : "Paredes / discos", fmt(e, 1) + " / " + fmt(ch, 1) + " mm (" + (L === "en" ? "multiples of the 0.4 mm nozzle" : "múltiplos do bico de 0,4 mm") + ")"],
+      [L === "en" ? "Filament (approx.)" : "Filamento (aprox.)", fmt(vol, 0) + " cm³ " + (L === "en" ? "of walls" : "de paredes") + " · PLA ≈ " + fmt(vol * 1.24, 0) + " g " + CONF[L] + " · " + (L === "en" ? "3 perimeters, 15% gyroid" : "3 perímetros, giroide 15%")],
+      [L === "en" ? "Assembly" : "Montagem", (L === "en" ? "M8 threaded rod " : "barra roscada M8 de ") + fmt(alt + 40, 0) + " mm + " + (2 * nSec + 2) + (L === "en" ? " M8 nuts/washers; hole Ø " : " porcas/arruelas M8; furo Ø ") + fmt(furo * 2, 1) + " mm (+0,6 mm " + (L === "en" ? "clearance" : "de folga") + ")"]];
+    return { nome: "turbina_savonius_" + Math.round(alt / 10) + "cm", malha: M, partes: partes, calc: calc, formatos: ["stl", "obj"],
+      sugestoes: L === "en" ? ["Align the sections by the blades before tightening; a drop of glue (CA) between discs adds stiffness.", "Outdoors: PETG or ASA; add a 608 bearing at the base.", "Measure wind on site before choosing the generator."]
+        : ["Alinhar as seções pelas pás antes de apertar; uma gota de cola (cianoacrilato) entre discos dá mais rigidez.", "Uso externo: PETG ou ASA; rolamento 608 na base.", "Medir o vento no local antes de escolher o gerador."] };
+  }
+  function gDutos(txt, L, trCalc) {
+    var a = (txt.match(/(\d+[.,]?\d*)\s*m²|(\d+[.,]?\d*)\s*m2/i) || []), area = a[1] ? num(a[1]) : a[2] ? num(a[2]) : 40;
+    var pe = (txt.match(/p[eé][- ]?direito\s*(?:de\s*)?(\d+[.,]?\d*)/i) || [])[1], h = pe ? num(pe) : 2.8;
+    var lado = Math.sqrt(area), btu = area * 600, tr = trCalc || btu / 12000, q = tr * 400 * 1.699, vAr = 4, secao = q / 3600 / vAr, w = Math.sqrt(secao * 2), hd = secao / w;
+    var L1 = lado * 1000, z = (h - 0.25) * 1000, els = [{ tipo: "IFCDUCTSEGMENT", nome: "Duto tronco " + Math.round(w * 1000) + "x" + Math.round(hd * 1000), x: 0, y: L1 / 2, z: z, dx: w * 1000, dy: hd * 1000, comp: L1, dir: [1, 0, 0] }];
+    var nBocas = Math.max(2, Math.round(area / 15));
+    for (var i = 0; i < nBocas; i++) els.push({ tipo: "IFCAIRTERMINAL", nome: "Difusor " + (i + 1), x: L1 * (i + 0.5) / nBocas, y: L1 / 2, z: z - 150, dx: 300, dy: 300, comp: 150, dir: [0, 0, 1] });
+    var M = new Malha(); M.caixa(0, L1 / 2 - w * 500, z - hd * 1000, L1, L1 / 2 + w * 500, z);
+    els.slice(1).forEach(function (el) { M.caixa(el.x - 150, el.y - 150, el.z - 150, el.x + 150, el.y + 150, el.z); });
+    var calc = [
+      [L === "en" ? "Room" : "Ambiente", fmt(area, 1) + " m² · " + (L === "en" ? "ceiling " : "pé-direito ") + fmt(h, 2) + " m"],
+      [L === "en" ? "Cooling load (rule of thumb)" : "Carga térmica (regra prática)", fmt(btu, 0) + " BTU/h ≈ " + fmt(tr, 2) + " TR (600 BTU/h·m²) " + CONF[L]],
+      [L === "en" ? "Air flow" : "Vazão de ar", fmt(q, 0) + " m³/h (400 cfm/TR) " + CONF[L]],
+      [L === "en" ? "Trunk duct at 4 m/s" : "Duto tronco a 4 m/s", fmt(w * 1000, 0) + " × " + fmt(hd * 1000, 0) + " mm (" + fmt(secao, 3) + " m²)"],
+      [L === "en" ? "Diffusers" : "Difusores", nBocas + " × 300 × 300 mm"]];
+    return { nome: "dutos_ac_" + Math.round(area) + "m2", malha: M, ifc: els, calc: calc, formatos: ["ifc", "stl"],
+      sugestoes: L === "en" ? ["Replace the rule of thumb with the HVAC module's load calculation (NBR 16401) before sizing.", "Import the building IFC in the BIM design module to route the duct through the real rooms."]
+        : ["Trocar a regra prática pelo cálculo de carga do módulo AVAC (NBR 16401) antes de dimensionar.", "Importar o IFC da edificação no módulo de projeto BIM para passar o duto pelos ambientes reais."] };
+  }
+  function gChuva(txt, L, geo) {
+    var mm = (txt.match(/(\d[\d.,]*)\s*mm/i) || [])[1], P = mm ? num(mm) : NaN, a = (txt.match(/(\d[\d.,]*)\s*m²|(\d[\d.,]*)\s*m2/i) || []);
+    var area = geo && geo.pts.length >= 3 ? areaM2(geo.pts) : a[1] ? num(a[1]) : a[2] ? num(a[2]) : 0;
+    if (!area) return { erro: TX[L].semTerreno };
+    var c = /telhado|cobertura|roof/i.test(txt) ? 0.8 : /grama|gramado|vegeta|lawn|grass/i.test(txt) ? 0.3 : 0.5, chuvaMM = isFinite(P) ? P : 1500;
+    var vol = area * chuvaMM / 1000 * c, M = new Malha(), lado = Math.sqrt(area) * 1000; M.caixa(0, 0, 0, lado, lado, 200);
+    var calc = [[L === "en" ? "Site area" : "Área do terreno", fmt(area, 0) + " m²" + (geo ? " (" + esc(geo.nome) + ", " + geo.pts.length + " " + TX[L].pontos + ")" : "")],
+      [L === "en" ? "Annual rainfall" : "Chuva anual", fmt(chuvaMM, 0) + " mm" + (isFinite(P) ? "" : " " + CONF[L] + (L === "en" ? " (use INMET/CHIRPS for the site)" : " (usar INMET/CHIRPS do local)"))],
+      [L === "en" ? "Runoff coefficient" : "Coeficiente de escoamento", c + " " + CONF[L]],
+      [L === "en" ? "Water falling and running off per year" : "Água que cai e escoa por ano", fmt(area * chuvaMM / 1000, 0) + " m³ · " + fmt(vol, 0) + " m³ " + (L === "en" ? "runoff" : "escoados")],
+      [L === "en" ? "Cistern for 30 days of rain (approx.)" : "Cisterna para 30 dias de chuva (aprox.)", fmt(vol / 12, 1) + " m³ " + CONF[L]]];
+    var gj = { type: "FeatureCollection", features: [{ type: "Feature", properties: { area_m2: Math.round(area), chuva_mm_ano: chuvaMM, coef_escoamento: c, escoamento_m3_ano: Math.round(vol), fonte: "Physis modelador (estimativa preliminar)" },
+      geometry: geo && geo.pts.length >= 3 ? { type: "Polygon", coordinates: [geo.pts.concat([geo.pts[0]])] } : null }] };
+    return { nome: "chuva_terreno", malha: M, geojson: gj, calc: calc, formatos: ["geojson", "csv", "stl"],
+      sugestoes: L === "en" ? ["With a terrain model (DEM/GeoTIFF or contour lines) the bot will map slope and flow direction.", "Cross with the planned roofs to size gutters (NBR 10844)."]
+        : ["Com o modelo do terreno (MDT/GeoTIFF ou curvas de nível), o bot passa a mapear declividade e direção do escoamento.", "Cruzar com os telhados previstos para dimensionar calhas (NBR 10844)."] };
+  }
+  function gRelevo(txt, L, img) {
+    var m = txt.match(/(\d+[.,]?\d*)\s*(cm|mm)\b/i), larg = m ? num(m[1]) * (m[2].toLowerCase() === "cm" ? 10 : 1) : 100, n = 120;
+    var cv = d.createElement("canvas"), r = img.height / img.width, nx = n, ny = Math.max(2, Math.round(n * r)); cv.width = nx; cv.height = ny;
+    var c = cv.getContext("2d"); c.drawImage(img, 0, 0, nx, ny); var px = c.getImageData(0, 0, nx, ny).data, H = [], hmax = 4, base = 1.2, s = larg / (nx - 1);
+    for (var j = 0; j < ny; j++) { H.push([]); for (var i = 0; i < nx; i++) { var k = 4 * (j * nx + i); H[j].push(base + hmax * (1 - (0.3 * px[k] + 0.59 * px[k + 1] + 0.11 * px[k + 2]) / 255)); } }
+    var M = new Malha();
+    for (j = 0; j < ny - 1; j++) for (i = 0; i < nx - 1; i++) {
+      var p = function (a, b, z) { return [a * s, b * s, z]; };
+      M.quad(p(i, j, H[j][i]), p(i + 1, j, H[j][i + 1]), p(i + 1, j + 1, H[j + 1][i + 1]), p(i, j + 1, H[j + 1][i]));
+      M.quad(p(i, j, 0), p(i, j + 1, 0), p(i + 1, j + 1, 0), p(i + 1, j, 0));
+    }
+    for (i = 0; i < nx - 1; i++) { M.quad([i * s, 0, 0], [(i + 1) * s, 0, 0], [(i + 1) * s, 0, H[0][i + 1]], [i * s, 0, H[0][i]]); M.quad([(i + 1) * s, (ny - 1) * s, 0], [i * s, (ny - 1) * s, 0], [i * s, (ny - 1) * s, H[ny - 1][i]], [(i + 1) * s, (ny - 1) * s, H[ny - 1][i + 1]]); }
+    for (j = 0; j < ny - 1; j++) { M.quad([0, (j + 1) * s, 0], [0, j * s, 0], [0, j * s, H[j][0]], [0, (j + 1) * s, H[j + 1][0]]); M.quad([(nx - 1) * s, j * s, 0], [(nx - 1) * s, (j + 1) * s, 0], [(nx - 1) * s, (j + 1) * s, H[j + 1][nx - 1]], [(nx - 1) * s, j * s, H[j][nx - 1]]); }
+    var calc = [[L === "en" ? "Size" : "Tamanho", fmt(larg / 10, 1) + " × " + fmt(larg * r / 10, 1) + " cm, " + (L === "en" ? "relief up to " : "relevo até ") + (base + hmax) + " mm"],
+      [L === "en" ? "Volume (approx.)" : "Volume (aprox.)", fmt(volume(M) / 1000, 1) + " cm³"]];
+    return { nome: "relevo_imagem", malha: M, calc: calc, formatos: ["stl", "obj"],
+      sugestoes: L === "en" ? ["Photo → full 3D object (several photos around it): use Physis 3D on the InovaSTEM platform or a 3D scanning app."] : ["Foto → objeto 3D completo (várias fotos ao redor): usar a Physis 3D da plataforma InovaSTEM ou um aplicativo de escaneamento 3D."] };
+  }
+  // ------------------------------------------------------------------ v2 (22/11/2026): net zero, água, estufa, caixa, terreno real, AVAC NBR 16401
+  function pr(id, d) { try { var v = w.PhysisCalc && w.PhysisCalc.premissa(id); return typeof v === "number" ? v : d; } catch (e) { return d; } }
+  function centro(geo) { if (!geo || !geo.pts.length) return null; var x = 0, y = 0; geo.pts.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / geo.pts.length, y / geo.pts.length]; }
+  function achar(txt, rx, d) { var m = txt.match(rx); return m ? num(m[1]) : d; }
+  function placas(M, n, lat, x0, y0) {  // fileiras de módulos 1,13 × 2,28 m inclinados na latitude (mm)
+    var inc = Math.min(35, Math.max(10, Math.abs(lat))) * Math.PI / 180, a = 1134, b = 2279, porF = Math.ceil(Math.sqrt(n * 2)), k = 0;
+    for (var i = 0; k < n; i++) for (var j = 0; j < porF && k < n; j++, k++) {
+      var x = x0 + j * (a + 20), y = y0 + i * (b * Math.cos(inc) + 900), h = b * Math.sin(inc);
+      var yb = y + b * Math.cos(inc); M.hexa([[x, y, 265], [x + a, y, 265], [x + a, yb, 265 + h], [x, yb, 265 + h], [x, y, 300], [x + a, y, 300], [x + a, yb, 300 + h], [x, yb, 300 + h]]);  // módulo com 35 mm de espessura
+      M.caixa(x + 40, y + b * Math.cos(inc) - 60, 0, x + 100, y + b * Math.cos(inc), 300 + h); M.caixa(x + a - 100, y + b * Math.cos(inc) - 60, 0, x + a - 40, y + b * Math.cos(inc), 300 + h);
+    }
+  }
+  function gNetZero(txt, L, geo) {
+    var c = centro(geo), lat = c ? c[1] : -22.5, kwh = achar(txt, /(\d[\d.,]*)\s*kwh/i, NaN), area = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, geo && geo.pts.length >= 3 ? areaM2(geo.pts) : 150);
+    var cons = isFinite(kwh) ? kwh : area * 30 / 12, hsp = achar(txt, /(\d[\d.,]*)\s*(?:hsp|kwh\/m²·dia|h de sol)/i, 4.5), PR = pr("pv.pr", 0.78), fe = pr("rede.fator_emissao", 0.0289);
+    var kwp = cons * 12 / (hsp * 365 * PR), wp = 550, n = Math.max(1, Math.ceil(kwp * 1000 / wp)), ger = n * wp / 1000 * hsp * 365 * PR, co2 = ger / 1000 * fe;
+    var chuva = achar(txt, /(\d[\d.,]*)\s*mm/i, 1500), telh = achar(txt, /telhado\s*(?:de\s*)?(\d[\d.,]*)/i, area), agua = telh * chuva / 1000 * pr("chuva.coef_escoamento", 0.8);
+    var M = new Malha(); placas(M, Math.min(n, 60), lat, 0, 0);
+    var calc = [
+      [L === "en" ? "Consumption" : "Consumo", fmt(cons, 0) + " kWh/" + (L === "en" ? "month" : "mês") + (isFinite(kwh) ? "" : " (" + fmt(area, 0) + " m² × 30 kWh/m²·" + (L === "en" ? "year" : "ano") + " " + CONF[L] + ")")],
+      [L === "en" ? "Solar for net zero energy" : "Solar para energia net zero", fmt(kwp, 2) + " kWp · " + n + " × " + wp + " Wp " + CONF[L] + " · HSP " + fmt(hsp, 1) + (L === "en" ? " h " : " h ") + CONF[L] + " · PR " + PR],
+      [L === "en" ? "Generation / roof area" : "Geração / área de telhado", fmt(ger, 0) + " kWh/" + (L === "en" ? "year" : "ano") + " · ≈ " + fmt(n * 2.6, 0) + " m² " + (L === "en" ? "of modules" : "de módulos")],
+      [L === "en" ? "Avoided emissions" : "Emissões evitadas", fmt(co2, 2) + " tCO₂/" + (L === "en" ? "year" : "ano") + " (" + fe + " tCO₂/MWh, " + (L === "en" ? "grid factor" : "fator da rede") + " " + CONF[L] + ")"],
+      [L === "en" ? "Rainwater from the roof" : "Água de chuva do telhado", fmt(agua, 0) + " m³/" + (L === "en" ? "year" : "ano") + " (" + fmt(telh, 0) + " m², " + fmt(chuva, 0) + " mm)"],
+      [L === "en" ? "Tilt / latitude" : "Inclinação / latitude", fmt(Math.min(35, Math.max(10, Math.abs(lat))), 0) + "° · " + fmt(lat, 3) + (c ? "" : " " + CONF[L])]];
+    return { nome: "net_zero_" + Math.round(cons) + "kwh", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
+      sugestoes: L === "en" ? ["Confirm HSP with a solar map (pvlib) for the exact site and shading.", "Add batteries or biogas only if the goal includes resilience (off-grid hours).", "Enter the 12 bills to replace the estimated consumption."]
+        : ["Confirmar a HSP com um mapa solar (pvlib) para o local e o sombreamento exatos.", "Somar baterias ou biogás só se a meta incluir resiliência (horas sem rede).", "Informar as 12 contas de luz para trocar o consumo estimado."] };
+  }
+  function gAgua(txt, L) {
+    var A = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, 120), I = achar(txt, /(\d[\d.,]*)\s*mm\/h/i, 150), chuva = achar(txt, /(\d[\d.,]*)\s*mm(?!\/)/i, 1500), C = pr("chuva.coef_escoamento", 0.8);
+    // NBR 10844, calha semicircular, n 0,011, declividade 0,5%: capacidade por diâmetro (L/min)
+    var TAB = [[100, 130], [125, 236], [150, 384], [200, 829]], Q = I * A / 60, nq = 1, larg;
+    while (Q / nq > TAB[TAB.length - 1][1]) nq++;
+    larg = (TAB.filter(function (t) { return t[1] >= Q / nq; })[0] || TAB[TAB.length - 1])[0];
+    var cist = A * chuva / 1000 * C / 12 * 1.5;
+    var M = new Malha(), Lm = Math.sqrt(A) * 1000; M.caixa(0, 0, 0, Lm, larg, larg * 0.6); M.cilindro(Lm + 1500, 0, Math.sqrt(cist / Math.PI / 2) * 1000, 0, 2000, 48);
+    var calc = [[L === "en" ? "Roof" : "Telhado", fmt(A, 0) + " m²"],
+      [L === "en" ? "Design flow (NBR 10844)" : "Vazão de projeto (NBR 10844)", fmt(Q, 1) + " L/min · I = " + fmt(I, 0) + " mm/h " + CONF[L]],
+      [L === "en" ? "Gutters / downpipes" : "Calhas / condutores", nq + " × " + (L === "en" ? "semicircular gutter Ø " : "calha semicircular Ø ") + larg + " mm (0,5%) · " + (L === "en" ? "downpipe Ø min. " : "condutor Ø mín. ") + pr("drenagem.condutor_diam_min", 70) + " mm " + CONF[L]],
+      [L === "en" ? "Cistern (1.5 month of runoff)" : "Cisterna (1,5 mês de escoamento)", fmt(cist, 1) + " m³ " + CONF[L] + " · " + (L === "en" ? "first flush " : "descarte inicial ") + pr("chuva.descarte_inicial", 2) + " mm"]];
+    return { nome: "calha_cisterna_" + Math.round(A) + "m2", malha: M, calc: calc, formatos: ["stl", "csv"],
+      sugestoes: L === "en" ? ["Size month by month with the platform's cistern calculation (NBR 15527) and real demand."] : ["Dimensionar mês a mês com a conta de cisterna da plataforma (NBR 15527) e a demanda real."] };
+  }
+  function gEstufa(txt, L) {
+    var m = txt.match(/(\d+[.,]?\d*)\s*[x×]\s*(\d+[.,]?\d*)\s*m/i), a = m ? num(m[1]) : 3, b = m ? num(m[2]) : 6, h = achar(txt, /altura\s*(?:de\s*)?(\d+[.,]?\d*)/i, 2.4), M = new Malha();
+    var arcos = Math.max(2, Math.round(b / 1.2) + 1);
+    for (var k = 0; k < arcos; k++) { var y = b * 1000 * k / (arcos - 1); M.arco(a * 500, y, a * 500, 30, 0, Math.PI, 0, 30, 24); }
+    M.caixa(0, 0, 0, a * 1000, 40, 300); M.caixa(0, b * 1000 - 40, 0, a * 1000, b * 1000, 300);
+    var vent = a * b * 0.2, calc = [[L === "en" ? "Floor / growing area" : "Piso / área de cultivo", fmt(a * b, 1) + " m² · " + fmt(a * b * 0.7, 1) + " m² " + (L === "en" ? "beds" : "de canteiros") + " " + CONF[L]],
+      [L === "en" ? "Hoops" : "Arcos", arcos + " × " + (L === "en" ? "every " : "a cada ") + fmt(b / (arcos - 1), 2) + " m"],
+      [L === "en" ? "Natural ventilation" : "Ventilação natural", "≥ " + fmt(vent, 1) + " m² (20% " + (L === "en" ? "of floor" : "do piso") + ") " + CONF[L]],
+      [L === "en" ? "Rainwater from the cover" : "Água de chuva da cobertura", fmt(a * b * 1.5 * 0.8, 1) + " m³/" + (L === "en" ? "year" : "ano") + " (1.500 mm) " + CONF[L]]];
+    return { nome: "estufa_" + a + "x" + b + "m", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
+      sugestoes: L === "en" ? ["Add SustainKit sensors (temperature, humidity, soil) and drip irrigation fed by the cistern."] : ["Incluir sensores do SustainKit (temperatura, umidade, solo) e gotejamento alimentado pela cisterna."] };
+  }
+  function gCaixa(txt, L) {
+    var m = txt.match(/(\d+[.,]?\d*)\s*[x×]\s*(\d+[.,]?\d*)\s*[x×]\s*(\d+[.,]?\d*)\s*(cm|mm)/i), f = m && m[4].toLowerCase() === "cm" ? 10 : 1;
+    var X = m ? num(m[1]) * f : 100, Y = m ? num(m[2]) * f : 80, Z = m ? num(m[3]) * f : 50, e = 2, M = new Malha();
+    var tampa = new Malha(), corpo = new Malha();
+    corpo.caixaOca(X, Y, Z, e);                                                   // corpo: um sólido só
+    tampa.caixa(0, 0, 0, X, Y, e); tampa.anelRet(e + 0.3, e + 0.3, X - e - 0.3, Y - e - 0.3, 1.6, e, e + 4);  // tampa + aba de encaixe (folga 0,3 mm)
+    corpo.t.forEach(function (t) { M.t.push(t); }); tampa.t.forEach(function (t) { M.t.push(t.map(function (q) { return [q[0] + X + 10, q[1], q[2]]; })); });
+    var calc = [[L === "en" ? "Inside" : "Interno", fmt(X - 2 * e, 0) + " × " + fmt(Y - 2 * e, 0) + " × " + fmt(Z - e, 0) + " mm"], [L === "en" ? "Material" : "Material", fmt(volume(M) / 1000, 1) + " cm³ · PETG/ASA " + (L === "en" ? "outdoors" : "para área externa")]];
+    return { nome: "caixa_sensores_" + Math.round(X) + "x" + Math.round(Y) + "x" + Math.round(Z), malha: M, partes: [{ nome: "corpo", malha: corpo }, { nome: "tampa", malha: tampa }], calc: calc, formatos: ["stl", "obj"],
+      sugestoes: L === "en" ? ["Add a cable gland hole (PG7) and a rubber gasket for IP54."] : ["Prever furo para prensa-cabo (PG7) e vedação de borracha para IP54."] };
+  }
+  function gAvac(txt, L) {  // NBR 16401-1 (método simplificado de componentes) e 16401-3 (ar externo)
+    var A = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)/i, 40), h = achar(txt, /p[eé][- ]?direito\s*(?:de\s*)?(\d+[.,]?\d*)/i, 2.8), pes = achar(txt, /(\d+)\s*pessoas|(\d+)\s*people/i, Math.max(1, Math.round(A / 6)));
+    var jan = achar(txt, /(\d[\d.,]*)\s*m(?:²|2)\s*de\s*janela|janelas?\s*(?:de\s*)?(\d[\d.,]*)/i, A * 0.15), dT = achar(txt, /Δ?T\s*(?:de\s*)?(\d+)/i, 8);
+    var qEnv = (A * 0.6 * 2.5 + A * 1.0) * dT, qJan = jan * 200 * 0.6, qPes = pes * (75 + 55), qIlu = A * 10, qEq = A * 15, qAr = (pes * 2.5 + A * 0.3) * 1.2 * (dT * 1.0 + 15);
+    var Q = qEnv + qJan + qPes + qIlu + qEq + qAr, btu = Q * 3.412, tr = btu / 12000, r = gDutos("sala de " + A + " m² pé-direito " + h, L, tr);
+    var calc = [[L === "en" ? "Room" : "Ambiente", fmt(A, 1) + " m² · " + pes + (L === "en" ? " people" : " pessoas") + " · " + (L === "en" ? "windows " : "janelas ") + fmt(jan, 1) + " m² · ΔT " + dT + " K " + CONF[L]],
+      [L === "en" ? "Envelope + windows" : "Envoltória + janelas", fmt(qEnv + qJan, 0) + " W (U 2,5 W/m²K; FS 0,6; 200 W/m² " + CONF[L] + ")"],
+      [L === "en" ? "People, lighting, equipment" : "Pessoas, iluminação, equipamentos", fmt(qPes + qIlu + qEq, 0) + " W (75+55 W/" + (L === "en" ? "person" : "pessoa") + "; 10 e 15 W/m²)"],
+      [L === "en" ? "Outdoor air (NBR 16401-3)" : "Ar externo (NBR 16401-3)", fmt(pes * 2.5 + A * 0.3, 0) + " L/s · " + fmt(qAr, 0) + " W " + CONF[L]],
+      [L === "en" ? "Total cooling load" : "Carga térmica total", fmt(Q / 1000, 2) + " kW · " + fmt(btu, 0) + " BTU/h · " + fmt(tr, 2) + " TR"],
+      [L === "en" ? "Rule of thumb (check)" : "Regra prática (conferência)", fmt(A * 600, 0) + " BTU/h"]];
+    r.calc = calc.concat(r.calc.slice(2)); r.nome = "avac_nbr16401_" + Math.round(A) + "m2"; return r;
+  }
+  function lerGrade(txt) {  // ESRI ASCII (.asc) ou XYZ (x y z por linha) → {nx, ny, cel, z[]}
+    var ls = txt.trim().split(/\r?\n/), cab = {}, i = 0;
+    while (i < ls.length && /^[a-z_]+\s/i.test(ls[i])) { var p = ls[i].trim().split(/\s+/); cab[p[0].toLowerCase()] = +p[1]; i++; }
+    if (cab.ncols) { var z = []; ls.slice(i).forEach(function (l) { l.trim().split(/\s+/).forEach(function (v) { z.push(+v); }); }); return { nx: cab.ncols, ny: cab.nrows, cel: cab.cellsize || 1, sem: cab.nodata_value, z: z }; }
+    var pts = ls.map(function (l) { return l.trim().split(/[\s,;]+/).map(Number); }).filter(function (p) { return p.length >= 3 && isFinite(p[2]); });
+    var xs = Array.from(new Set(pts.map(function (p) { return p[0]; }))).sort(function (a, b) { return a - b; }), ys = Array.from(new Set(pts.map(function (p) { return p[1]; }))).sort(function (a, b) { return b - a; });
+    var mz = {}, zz = []; pts.forEach(function (p) { mz[p[0] + "," + p[1]] = p[2]; });
+    ys.forEach(function (y) { xs.forEach(function (x) { zz.push(mz[x + "," + y]); }); });
+    return { nx: xs.length, ny: ys.length, cel: xs.length > 1 ? xs[1] - xs[0] : 1, z: zz };
+  }
+  function gTerreno(txt, L, grade) {
+    var g = grade, nx = g.nx, ny = g.ny, passo = Math.max(1, Math.ceil(Math.max(nx, ny) / 150)), Z = function (i, j) { var v = g.z[j * nx + i]; return v == null || v === g.sem || !isFinite(v) ? NaN : v; };
+    var zmin = Infinity, zmax = -Infinity, imin = 0, jmin = 0, decl = [];
+    for (var j = 0; j < ny; j++) for (var i = 0; i < nx; i++) { var v = Z(i, j); if (isFinite(v)) { if (v < zmin) { zmin = v; imin = i; jmin = j; } zmax = Math.max(zmax, v); }
+      if (i > 0 && j > 0 && isFinite(v)) { var dx = (v - Z(i - 1, j)) / g.cel, dy = (v - Z(i, j - 1)) / g.cel; if (isFinite(dx) && isFinite(dy)) decl.push(Math.atan(Math.hypot(dx, dy)) * 180 / Math.PI); } }
+    decl.sort(function (a, b) { return a - b; });
+    var M = new Malha(), esc = 1000 * g.cel;
+    for (j = 0; j + passo < ny; j += passo) for (i = 0; i + passo < nx; i += passo) {
+      var a = Z(i, j), b = Z(i + passo, j), c = Z(i + passo, j + passo), e = Z(i, j + passo); if (![a, b, c, e].every(isFinite)) continue;
+      M.quad([i * esc, -j * esc, (a - zmin) * 1000], [(i + passo) * esc, -j * esc, (b - zmin) * 1000], [(i + passo) * esc, -(j + passo) * esc, (c - zmin) * 1000], [i * esc, -(j + passo) * esc, (e - zmin) * 1000]);
+    }
+    var acima = decl.filter(function (x) { return x > pr("app.declividade", 45); }).length, area = (nx - 1) * (ny - 1) * g.cel * g.cel;
+    var calc = [[L === "en" ? "Grid" : "Grade", nx + " × " + ny + " · " + (L === "en" ? "cell " : "célula ") + g.cel + " m · " + fmt(area, 0) + " m²"],
+      [L === "en" ? "Elevation range" : "Desnível", fmt(zmin, 1) + " → " + fmt(zmax, 1) + " m (" + fmt(zmax - zmin, 1) + " m)"],
+      [L === "en" ? "Slope (median / max)" : "Declividade (mediana / máx.)", fmt(decl[Math.floor(decl.length / 2)] || 0, 1) + "° / " + fmt(decl[decl.length - 1] || 0, 1) + "°"],
+      [L === "en" ? "Above 45° (APP, Forest Code)" : "Acima de 45° (APP, Código Florestal)", fmt(100 * acima / Math.max(1, decl.length), 1) + "% " + (L === "en" ? "of cells" : "das células")],
+      [L === "en" ? "Water runs to" : "A água escoa para", (L === "en" ? "lowest point at cell " : "o ponto mais baixo, célula ") + imin + ", " + jmin + " (" + fmt(zmin, 1) + " m)"]];
+    return { nome: "terreno", malha: M, calc: calc, formatos: ["stl", "obj", "csv"],
+      sugestoes: L === "en" ? ["GeoTIFF (Copernicus/ALOS/SRTM): export as ASCII grid (.asc) in QGIS until the GeoTIFF reader is added.", "Cross with rainfall to size drainage and with the APP map."]
+        : ["GeoTIFF (Copernicus/ALOS/SRTM): exportar como grade ASCII (.asc) no QGIS até entrar a leitura de GeoTIFF.", "Cruzar com a chuva para dimensionar a drenagem e com o mapa de APP."] };
+  }
+  function chuvaOnline(geo) {  // média anual 2015–2024 (Open-Meteo/ERA5) quando há internet; sem internet fica [CONFERIR]
+    var c = centro(geo); if (!c || !w.fetch) return Promise.resolve(null);
+    var u = "https://archive-api.open-meteo.com/v1/archive?latitude=" + c[1].toFixed(4) + "&longitude=" + c[0].toFixed(4) + "&start_date=2015-01-01&end_date=2024-12-31&daily=precipitation_sum&timezone=UTC";
+    return w.fetch(u).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (!j || !j.daily) return null; var s = 0, n = 0; j.daily.precipitation_sum.forEach(function (v) { if (v != null) { s += v; n++; } }); return n > 3000 ? { mm: s / (n / 365.25), fonte: "Open-Meteo/ERA5 2015–2024" } : null;
+    }).catch(function () { return null; });
+  }
+
+  // ---------------------------------------------------------------- análises físicas e perguntas (24/11/2026)
+  // Decisão da dona: cada pedido leva as análises que o objeto exige (calha → escoamento/CFD; peça longa impressa →
+  // flambagem; …). Quando falta dado essencial, o bot PERGUNTA em vez de supor. Nenhuma propriedade de material vem de
+  // fábrica: sem o valor no pedido, fica [MARCADOR].
+  var FERR = { cfd: "OpenFOAM", fea: "CalculiX", multi: "Elmer FEM", cad: "FreeCAD", aster: "Code_Aster (Salome-Meca)", ele: "QElectroTech" };
+  function analisesDe(qual, L) {
+    var en = L === "en", A = function (pt, e, f) { return [en ? e : pt, FERR[f]]; };
+    return ({
+      agua: [A("Escoamento na calha e no condutor (CFD, superfície livre)", "Gutter and downpipe flow (CFD, free surface)", "cfd"),
+             A("Transbordamento na chuva de projeto", "Overflow at design rainfall", "cfd")],
+      turbina: [A("Aerodinâmica do rotor (CFD)", "Rotor aerodynamics (CFD)", "cfd"), A("Tensão nas pás e no eixo (elementos finitos)", "Blade and shaft stress (finite elements)", "fea"),
+                A("Flambagem do eixo impresso", "Printed shaft buckling", "fea")],
+      estufa: [A("Ventilação e temperatura interna (CFD com empuxo)", "Ventilation and indoor temperature (buoyant CFD)", "cfd"), A("Estrutura sob vento (elementos finitos)", "Structure under wind (finite elements)", "fea")],
+      caixa: [A("Aquecimento dos componentes (térmica)", "Component heating (thermal)", "multi"), A("Vedação e queda (elementos finitos)", "Sealing and drop (finite elements)", "fea")],
+      dutos: [A("Perda de carga e distribuição de ar (CFD)", "Pressure drop and air distribution (CFD)", "cfd")],
+      avac: [A("Distribuição de ar e conforto (CFD)", "Air distribution and comfort (CFD)", "cfd")],
+      peca: [A("Flambagem (Euler; modo de flambagem por elementos finitos)", "Buckling (Euler; finite-element buckling mode)", "fea"), A("Flexão e deformação", "Bending and deflection", "fea")]
+    })[qual] || [];
+  }
+  function perguntasDe(qual, txt, L) {
+    var en = L === "en", q = [];
+    if (!qual) return en ? ["What object is it (e.g., gutter, bracket, rod, case, turbine)?", "Main dimensions in mm (length, width/diameter, thickness)?",
+      "Material and how it will be made (3D printing, machining, sheet metal)?", "What load or use (weight, water, wind, heat, outdoors)?"]
+      : ["Que objeto é (ex.: calha, suporte, haste, caixa, turbina)?", "Medidas principais em mm (comprimento, largura/diâmetro, espessura)?",
+         "Material e como será feito (impressão 3D, usinagem, chapa)?", "Que carga ou uso (peso, água, vento, calor, ao ar livre)?"];
+    if (qual === "peca") {
+      if (!/(\d[\d.,]*)\s*(mm|cm|m)\b/i.test(txt)) q.push(en ? "Length of the part (mm)?" : "Comprimento da peça (mm)?");
+      if (!/(di[aâ]metro|[øØ]|se[cç][aã]o|\d\s*[x×]\s*\d)/i.test(txt)) q.push(en ? "Cross-section: diameter or width × thickness (mm)?" : "Seção: diâmetro ou largura × espessura (mm)?");
+      if (!/E\s*(=|de)?\s*\d|GPa|MPa/.test(txt)) q.push(en ? "Material elastic modulus E (GPa), from the filament/material datasheet?" : "Módulo de elasticidade E do material (GPa), da ficha do filamento/material?");
+      if (!/engast|apoiad|livre|fixed|pinned|free/i.test(txt)) q.push(en ? "How is it held: fixed at one end and free, pinned at both ends, or fixed at both?" : "Como fica presa: engastada numa ponta e livre, apoiada nas duas pontas ou engastada nas duas?");
+      if (!/carga|peso|kg|\bN\b|load/i.test(txt)) q.push(en ? "Axial load (N or kg)?" : "Carga axial (N ou kg)?");
+    }
+    if (qual === "agua" && !/m(?:²|2)/i.test(txt)) q.push(en ? "Roof area draining to the gutter (m²)?" : "Área de telhado que escoa para a calha (m²)?");
+    return q;
+  }
+  function gPeca(txt, L) {  // haste/barra longa: λ, carga crítica de Euler (E do pedido) e arquivo CalculiX de flambagem
+    var en = L === "en", mm = function (rx, d) { var m = txt.match(rx); if (!m) return d; var v = num(m[1]); return /cm/i.test(m[2] || "") ? v * 10 : /^m$/i.test(m[2] || "") ? v * 1000 : v; };
+    var Lc = mm(/(?:comprimento|length|longa|longo|haste|barra|rod|bar)\D{0,20}?(\d[\d.,]*)\s*(mm|cm|m)\b/i, NaN);
+    if (!isFinite(Lc)) Lc = mm(/(\d[\d.,]*)\s*(mm|cm|m)\b/i, NaN);
+    var dm = txt.match(/(?:di[aâ]metro|[øØ])\s*(?:de\s*)?(\d[\d.,]*)\s*(mm|cm)?/i), rt = txt.match(/(\d[\d.,]*)\s*[x×]\s*(\d[\d.,]*)\s*(mm|cm)?/i);
+    var I, Aa, sec;
+    if (dm) { var D = num(dm[1]) * (/cm/i.test(dm[2] || "") ? 10 : 1); I = Math.PI * Math.pow(D, 4) / 64; Aa = Math.PI * D * D / 4; sec = "Ø " + fmt(D, 1) + " mm"; }
+    else if (rt) { var b = num(rt[1]) * (/cm/i.test(rt[3] || "") ? 10 : 1), h = num(rt[2]) * (/cm/i.test(rt[3] || "") ? 10 : 1); I = Math.min(b * h * h * h, h * b * b * b) / 12; Aa = b * h; sec = fmt(b, 1) + " × " + fmt(h, 1) + " mm"; }
+    var Em = txt.match(/E\s*(?:=|de)?\s*(\d[\d.,]*)\s*GPa/i), E = Em ? num(Em[1]) * 1000 : NaN;   // MPa = N/mm²
+    var K = /engastad[ao] nas duas|fixed at both/i.test(txt) ? 0.5 : /engast|fixed/i.test(txt) && /livre|free/i.test(txt) ? 2 : /apoiad|pinned/i.test(txt) ? 1 : NaN;
+    var r = Math.sqrt(I / Aa), lam = K * Lc / r, Pcr = Math.PI * Math.PI * E * I / Math.pow(K * Lc, 2);
+    var cg = txt.match(/(\d[\d.,]*)\s*(kg|N)\b/i), P = cg ? num(cg[1]) * (/kg/i.test(cg[2]) ? 9.81 : 1) : NaN;
+    var M = new Malha(); if (dm) M.cilindro(0, 0, D / 2, 0, Lc, 32); else M.caixa(0, 0, 0, b, h, Lc);
+    var MK = "[MARCADOR]", calc = [[en ? "Part" : "Peça", fmt(Lc, 0) + " mm · " + sec],
+      [en ? "Slenderness λ = K·L/r" : "Esbeltez λ = K·L/r", isFinite(lam) ? fmt(lam, 0) + " (K " + K + ")" : MK + (en ? " (end conditions)" : " (fixação)")],
+      [en ? "Euler critical load" : "Carga crítica de Euler", isFinite(Pcr) ? fmt(Pcr, 1) + " N" : MK + (en ? " (E of the material)" : " (E do material)")],
+      [en ? "Applied load / safety factor" : "Carga aplicada / fator de segurança", isFinite(P) && isFinite(Pcr) ? fmt(P, 1) + " N · " + fmt(Pcr / P, 2) : MK]];
+    var n = 20, inp = "** CalculiX: flambagem de haste (Physis, estudo preliminar)\n*NODE\n";
+    for (var i = 0; i <= 2 * n; i++) inp += (i + 1) + ", 0, 0, " + (Lc * i / (2 * n)).toFixed(3) + "\n";
+    inp += "*ELEMENT, TYPE=B32, ELSET=HASTE\n"; for (i = 0; i < n; i++) inp += (i + 1) + ", " + (2 * i + 1) + ", " + (2 * i + 2) + ", " + (2 * i + 3) + "\n";
+    inp += "*MATERIAL, NAME=MAT\n*ELASTIC\n" + (isFinite(E) ? E : "[MARCADOR_E_MPa]") + ", [MARCADOR_POISSON]\n" +
+      (dm ? "*BEAM SECTION, ELSET=HASTE, MATERIAL=MAT, SECTION=CIRC\n" + D.toFixed(3) + "\n" : "*BEAM SECTION, ELSET=HASTE, MATERIAL=MAT, SECTION=RECT\n" + b + ", " + h + "\n") + "1, 0, 0\n" +
+      "*BOUNDARY\n" + (K === 1 ? "1, 1, 3\n" + (n + 1) + ", 6, 6\n" : "1, 1, 6\n") + (K === 1 ? (2 * n + 1) + ", 1, 2\n" : K === 0.5 ? (2 * n + 1) + ", 1, 2\n" + (2 * n + 1) + ", 4, 6\n" : "") +
+      "*STEP\n*BUCKLE\n3\n*CLOAD\n" + (2 * n + 1) + ", 3, -1.\n*END STEP\n";
+    return { nome: "haste_" + Math.round(Lc) + "mm", malha: M, calc: calc, formatos: ["stl", "csv", "inp"], inp: inp,
+      sugestoes: en ? ["Run the .inp in CalculiX (ccx): the first buckling factor × 1 N is the critical load; compare with Euler.", "For 3D printing, the layers weaken across the print direction: print the rod lying down when possible."]
+        : ["Rodar o .inp no CalculiX (ccx): o 1º fator de flambagem × 1 N é a carga crítica; comparar com Euler.", "Na impressão 3D as camadas enfraquecem na direção de impressão: imprimir a haste deitada quando possível."] };
+  }
+  var CONSTRUCAO = { netzero: 1, avac: 1, dutos: 1 };   // base de construção: só nas telas internas, não no site público
+  function entender(txt, temImg) {
+    if (/net ?zero|carbono zero|zerar (a )?(energia|conta|emiss)|balan[cç]o energ|energia solar|fotovolt|solar panel/i.test(txt)) return "netzero";
+    if (/calha|cisterna|[aá]gua de chuva|capta[cç][aã]o de chuva|gutter|cistern/i.test(txt)) return "agua";
+    if (/estufa|greenhouse/i.test(txt)) return "estufa";
+    if (/caixa|case|gabinete/i.test(txt) && /sensor|eletr[oô]nic|placa|esp32|arduino/i.test(txt)) return "caixa";
+    if (/carga t[eé]rmica|NBR ?16401|cooling load/i.test(txt)) return "avac";
+    if (/haste|barra|vareta|pilar|coluna|suporte longo|objeto longo|pe[cç]a longa|\brod\b|\bbar\b|long part/i.test(txt)) return "peca";
+    if (/turbina|aerogerador|rotor e[oó]lic|wind turbine|turbine/i.test(txt)) return "turbina";
+    if (/ar[- ]condicionado|\bduto|\bAVAC\b|\bHVAC\b|climatiza|air[- ]condition|\bduct/i.test(txt)) return "dutos";
+    if (/chuva|pluvi|precipita|rain/i.test(txt)) return "chuva";
+    if (temImg || /relevo|litofan|heightmap|relief/i.test(txt)) return "relevo";
+    return "";
+  }
+
+  // ------------------------------------------------------------------ interface
+  function estilo() {
+    if (d.getElementById("pmd-estilo")) return;
+    var s = d.createElement("style"); s.id = "pmd-estilo";
+    s.textContent = ".pmd{border:1px solid #D9D3C2;border-left:5px solid #C2410C;border-radius:12px;padding:.8rem 1rem;margin:1rem 0;background:#FFFFFF;color:#1B1F23}" +
+      ".pmd h2{margin:.1rem 0 .3rem;font-size:1.15rem}.pmd textarea{width:100%;min-height:3.2rem;font:inherit;padding:.4rem;border:1px solid #D9D3C2;border-radius:8px;background:transparent;color:inherit}" +
+      ".pmd .pmd-l{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}.pmd button,.pmd .pmd-b{border:1px solid #D9D3C2;border-radius:8px;padding:.35rem .7rem;font:inherit;cursor:pointer;background:#FFFFFF;color:inherit}" +
+      ".pmd .pmd-p{background:#C2410C;border-color:#C2410C;color:#FFFFFF}.pmd .pmd-ex{font-size:.88rem;opacity:.85;cursor:pointer;text-decoration:underline dotted}" +
+      ".pmd table{border-collapse:collapse;width:100%;font-size:.92rem}.pmd td{border-bottom:1px solid #D9D3C2;padding:.25rem .3rem;vertical-align:top}.pmd .pmd-v{min-height:0;margin:.5rem 0}.pmd small{opacity:.8}.pmd canvas{max-width:100%;height:auto}.pmd{overflow-wrap:anywhere;max-width:100%}" + "html[data-tema='escuro'] .pmd{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pmd button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pmd td,html[data-tema='escuro'] .pmd .pdv-m{border-color:#2F5E4E}";
+    d.head.appendChild(s);
+  }
+  function baixar(blob, nome) { var u = URL.createObjectURL(blob), a = d.createElement("a"); a.href = u; a.download = nome; d.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 3000); }
+  function ver(box, m) {
+    var THREE = w.THREE; box.innerHTML = ""; if (!THREE || !m.t.length) return;
+    var W = Math.min(box.clientWidth || 560, 720), H = Math.round(W * 0.55), ren = new THREE.WebGLRenderer({ antialias: true }); ren.setSize(W, H); box.appendChild(ren.domElement);
+    var pos = []; m.t.forEach(function (t) { t.forEach(function (p) { pos.push(p[0], p[1], p[2]); }); });
+    var g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); g.computeBoundingBox();
+    var c = new THREE.Vector3(), tam = new THREE.Vector3(); g.boundingBox.getCenter(c); g.boundingBox.getSize(tam); g.translate(-c.x, -c.y, -c.z); g.rotateX(-Math.PI / 2);
+    var cena = new THREE.Scene(), cs = getComputedStyle(d.documentElement); cena.background = new THREE.Color((cs.getPropertyValue("--sup") || "#FFFFFF").trim() || "#FFFFFF");
+    cena.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: new THREE.Color("#B07A12"), roughness: .6, side: THREE.DoubleSide })));
+    cena.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.1)); var l = new THREE.DirectionalLight(0xffffff, .8); l.position.set(1, 2, 3); cena.add(l);
+    var r = Math.max(tam.x, tam.y, tam.z) || 1, cam = new THREE.PerspectiveCamera(40, W / H, r / 100, r * 100), ang = 0.6, vivo = true;
+    (function laco() { if (!vivo || !box.contains(ren.domElement)) return; ang += 0.01; cam.position.set(Math.sin(ang) * r * 2, r * 0.9, Math.cos(ang) * r * 2); cam.lookAt(0, 0, 0); ren.render(cena, cam); requestAnimationFrame(laco); })();
+    ren.domElement.setAttribute("role", "img"); ren.domElement.setAttribute("aria-label", "Prévia 3D do modelo gerado");
+  }
+  function sugPub(lista, t) { return lista.concat([t.mais]); }
+  function montar(el) {
+    if (el.getAttribute("data-pmd-ok")) return; el.setAttribute("data-pmd-ok", "1");
+    var L = lingua(), ctx = el.getAttribute("data-physis-modelador") || "", publico = /^inovastem/.test(ctx), t = publico ? Object.assign({}, TX[L], PUB[L]) : TX[L];
+    var emQuadro = false; try { emQuadro = d.documentElement.hasAttribute("data-physis-demo"); } catch (e) { emQuadro = false; }
+    if (emQuadro) { el.hidden = true; return; }
+    estilo();
+    el.innerHTML = '<section class="pmd" aria-label="' + t.tit + '"><h2>' + t.tit + "</h2><small>" + t.sub + " " + t.ex.map(function (x) { return '<span class="pmd-ex" tabindex="0">' + esc(x) + "</span>"; }).join(" · ") + "</small>" +
+      '<div class="pmd-l"><textarea class="pmd-t" aria-label="' + t.tit + '"></textarea></div><div class="pmd-l"><label class="pmd-b">' + t.arquivo +
+      ' <input type="file" class="pmd-f" accept="image/*,.kml,.kmz,.geojson,.json,.gpx,.asc,.xyz,.txt,.csv" hidden></label><span class="pmd-fn"></span><button class="pmd-p pmd-g">' + t.gerar + '</button></div><div class="pmd-o" role="status"></div><div class="pmd-v"></div></section>';
+    var ta = el.querySelector(".pmd-t"), out = el.querySelector(".pmd-o"), vbox = el.querySelector(".pmd-v"), img = null, geo = null, grade = null;
+    Array.prototype.forEach.call(el.querySelectorAll(".pmd-ex"), function (x) { var f = function () { ta.value = x.textContent; ta.focus(); }; x.onclick = f; x.onkeydown = function (e) { if (e.key === "Enter") f(); }; });
+    el.querySelector(".pmd-f").onchange = function (e) {
+      var f = e.target.files[0]; if (!f) return; img = null; geo = null; grade = null; var nm = f.name.toLowerCase(), fn = el.querySelector(".pmd-fn"); fn.textContent = f.name;
+      if (/^image\//.test(f.type)) { var im = new Image(); im.onload = function () { img = im; }; im.src = URL.createObjectURL(f); return; }
+      var ok = function (pts) { geo = { nome: f.name, pts: pts }; fn.textContent = t.lido + ": " + f.name + " (" + pts.length + " " + t.pontos + ")"; };
+      if (/\.kmz$/.test(nm)) {
+        if (!w.JSZip) { fn.textContent = "KMZ: " + (L === "en" ? "unzip it and upload the .kml" : "descompacte e envie o .kml"); return; }
+        w.JSZip.loadAsync(f).then(function (z) { var k = Object.keys(z.files).filter(function (n) { return /\.kml$/i.test(n); })[0]; return k ? z.files[k].async("string") : ""; }).then(function (s) { ok(lerKML(s)); });
+      } else if (/\.(asc|xyz|txt|csv)$/.test(nm)) f.text().then(function (s) { grade = lerGrade(s); fn.textContent = t.lido + ": " + f.name + " (" + grade.nx + " × " + grade.ny + ")"; });
+      else f.text().then(function (s) { ok(/\.kml$/.test(nm) ? lerKML(s) : /\.gpx$/.test(nm) ? lerGPX(s) : lerGeoJSON(JSON.parse(s))); });
+    };
+    var sug = function (lista) { return publico ? sugPub(lista, t) : lista; };
+    el.querySelector(".pmd-g").onclick = function () {
+      var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
+      if (publico && CONSTRUCAO[qual]) qual = "";
+      var pq = perguntasDe(qual, txt, L);
+      if (pq.length && (!qual || qual === "peca" || qual === "agua")) {
+        out.innerHTML = "<p><strong>" + (L === "en" ? "To model without guessing, answer in the box and press Generate again:" : "Para modelar sem supor, responda na caixa e clique em Gerar de novo:") +
+          "</strong></p><ol class='pmd-q'>" + pq.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol>"; vbox.innerHTML = ""; return;
+      }
+      if (!qual) {
+        out.innerHTML = "<p>" + t.naoEntendi + "</p>" + (publico ? "" : "<button class='pmd-c'>" + t.copiar + "</button>"); vbox.innerHTML = ""; if (publico) return;
+        out.querySelector(".pmd-c").onclick = function () { var b = this; (navigator.clipboard ? navigator.clipboard.writeText("Modelagem (" + ctx + "): " + txt) : Promise.reject()).then(function () { b.textContent = t.copiado; }, function () { ta.select(); }); };
+        return;
+      }
+      if (qual === "chuva" && geo && !publico && !/\d\s*mm/i.test(txt)) { out.innerHTML = "<p>" + (L === "en" ? "Looking up the site's rainfall…" : "Buscando a chuva do local…") + "</p>";
+        chuvaOnline(geo).then(function (c) { if (c) { ta.value = txt + " " + Math.round(c.mm) + " mm"; fonteChuva = c.fonte; } gerarAgora(); }); return; }
+      gerarAgora();
+    };
+    var fonteChuva = "";
+    function gerarAgora() {
+      var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
+      r = qual === "turbina" ? gTurbina(txt, L) : qual === "dutos" ? gDutos(txt, L) : qual === "avac" ? gAvac(txt, L) : qual === "chuva" ? gChuva(txt, L, geo) : qual === "netzero" ? gNetZero(txt, L, geo)
+        : qual === "agua" ? gAgua(txt, L) : qual === "estufa" ? gEstufa(txt, L) : qual === "caixa" ? gCaixa(txt, L) : qual === "peca" ? gPeca(txt, L) : qual === "terreno" ? gTerreno(txt, L, grade) : img ? gRelevo(txt, L, img) : { erro: L === "en" ? "Upload an image for the relief." : "Envie uma imagem para o relevo." };
+      if (fonteChuva && r.calc) { r.calc.push([L === "en" ? "Rainfall source" : "Fonte da chuva", fonteChuva]); fonteChuva = ""; }
+      if (r.erro) { out.innerHTML = "<p>" + esc(r.erro) + "</p>"; vbox.innerHTML = ""; return; }
+      var bt = r.formatos.map(function (f) { return '<button data-f="' + f + '">' + t.baixar + " ." + f + "</button>"; }).join(" ");
+      out.innerHTML = "<p><strong>" + esc(r.nome) + "</strong></p><h3 style='margin:.4rem 0;font-size:1rem'>" + t.calc + "</h3><table>" + r.calc.map(function (c) { return "<tr><td>" + esc(c[0]) + "</td><td>" + esc(c[1]) + "</td></tr>"; }).join("") +
+        "</table>" + (analisesDe(qual, L).length ? "<h3 style='margin:.4rem 0;font-size:1rem'>" + (L === "en" ? "Analyses this object needs" : "Análises que este objeto pede") + "</h3><ul>" +
+          analisesDe(qual, L).map(function (a) { return "<li>" + esc(a[0]) + " · <small>" + esc(a[1]) + "</small></li>"; }).join("") + "</ul>" : "") + "<p><small>" + t.aviso + "</small></p><div class='pmd-l'>" + bt + "</div><p><strong>" + t.sugestoes + ":</strong></p><ul>" + sug(r.sugestoes).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("") + "</ul>";
+      Array.prototype.forEach.call(out.querySelectorAll("[data-f]"), function (b) {
+        b.onclick = function () {
+          var f = b.getAttribute("data-f");
+          if (f === "stl" && r.partes) r.partes.forEach(function (q, i) { setTimeout(function () { baixar(stl(q.malha), r.nome + "_" + q.nome + ".stl"); }, 400 * i); });
+          else if (f === "stl") baixar(stl(r.malha), r.nome + ".stl"); else if (f === "obj") baixar(obj(r.malha), r.nome + ".obj");
+          else if (f === "inp") baixar(new Blob([r.inp], { type: "text/plain" }), r.nome + ".inp");
+          else if (f === "ifc") baixar(ifc(r.nome, r.ifc || []), r.nome + ".ifc");
+          else if (f === "geojson") baixar(new Blob([JSON.stringify(r.geojson, null, 1)], { type: "application/geo+json" }), r.nome + ".geojson");
+          else if (f === "csv") baixar(new Blob(["﻿item;valor\n" + r.calc.map(function (c) { return '"' + c[0] + '";"' + String(c[1]).replace(/"/g, "'") + '"'; }).join("\n")], { type: "text/csv" }), r.nome + ".csv");
+        };
+      });
+      w.PhysisModelador.ultimo = r; ver(vbox, r.malha);
+    };
+  }
+  w.PhysisModelador = { analises: analisesDe, perguntas: perguntasDe, checar: checar, montar: montar, entender: entender, gerar: { peca: gPeca,  turbina: gTurbina, dutos: gDutos, chuva: gChuva, netzero: gNetZero, agua: gAgua, estufa: gEstufa, caixa: gCaixa, avac: gAvac, terreno: gTerreno }, lerGrade: lerGrade, chuvaOnline: chuvaOnline, exportar: { stl: stl, obj: obj, ifc: ifc }, lerKML: lerKML, areaM2: areaM2, ultimo: null };
+  function tudo() { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]"), montar); }
+  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", tudo); else tudo();
+  if (w.MutationObserver) new MutationObserver(function () { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]:not([data-pmd-ok])"), montar); }).observe(d.documentElement, { childList: true, subtree: true });
+})(typeof window !== "undefined" ? window : this);
+</script>
+<script id="physis-desenvolvimento">
+/* physis-desenvolvimento.js v1 (22/11/2026): painel "Desenvolvimento" igual em todos os módulos, plataformas internas e Gestão.
+   Fonte única: o Physis M&A. O bot "desenvolvimento" grava sistema/desenvolvimento-dados.js (window.PHYSIS_DESENV);
+   esta página só LÊ. Uso: <div data-physis-desenvolvimento="planejador"></div> (ou "todos" na Gestão).
+   Sem internet, sem rastreamento; segue idioma e tema das preferências Physis. */
+(function (w) {
+  "use strict";
+  var d = w.document;
+  var T = {
+    pt: { tit: "Desenvolvimento", fonte: "Fonte: Physis M&A · atualizado em", semDados: "Ainda sem dados do M&A: rode o bot \"desenvolvimento\" (ou espere a próxima hora).",
+      tarefas: "tarefas", feitas: "feitas", revisao: "em revisão", abertas: "abertas", atrasadas: "atrasadas", prox: "Próximos prazos",
+      aprov: "Aprovações", reg: "Última regressão", nada: "nada pendente", estimada: "[CONFERIR]", arquivo: "Onde fica",
+      est: { a_fazer: "a fazer", fazendo: "fazendo", bloqueada: "bloqueada", revisao: "em revisão", feita: "feita",
+             pendente: "pendente", aprovado: "aprovado", ajustar: "ajustar", reprovado: "reprovado" } },
+    en: { tit: "Development", fonte: "Source: Physis M&V · updated", semDados: "No M&V data yet: run the \"desenvolvimento\" bot (or wait for the next hour).",
+      tarefas: "tasks", feitas: "done", revisao: "in review", abertas: "open", atrasadas: "late", prox: "Next deadlines",
+      aprov: "Approvals", reg: "Last regression", nada: "nothing pending", estimada: "[TO CHECK]", arquivo: "Location",
+      est: { a_fazer: "to do", fazendo: "doing", bloqueada: "blocked", revisao: "in review", feita: "done",
+             pendente: "pending", aprovado: "approved", ajustar: "adjust", reprovado: "rejected" } }
+  };
+  function idioma() { try { return (localStorage.getItem("physis-pref-idioma") || d.documentElement.lang || "pt").slice(0, 2) === "en" ? "en" : "pt"; } catch (e) { return "pt"; } }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function estilo() {
+    if (d.getElementById("pdv-estilo")) return;
+    var s = d.createElement("style"); s.id = "pdv-estilo";
+    s.textContent = ".pdv{border:1px solid #D9D3C2;border-left:5px solid #BB6B4A;border-radius:12px;padding:.6rem .9rem;margin:1rem 0;background:#FFFFFF;color:#1B1F23;font-size:.92rem}" +
+      ".pdv summary{cursor:pointer;font-weight:700}.pdv .pdv-m{margin:.6rem 0;padding-top:.5rem;border-top:1px dashed #D9D3C2}" +
+      ".pdv .pdv-barra{height:8px;border-radius:6px;background:#D9D3C2;overflow:hidden;margin:.35rem 0}.pdv .pdv-barra span{display:block;height:100%;background:#2F7D5B}" +
+      ".pdv .pdv-n{display:inline-block;margin:.1rem .5rem .1rem 0}.pdv .pdv-at{color:#C2410C;font-weight:700}.pdv ul{margin:.3rem 0;padding-left:1.1rem}.pdv small{opacity:.8}" + "html[data-tema='escuro'] .pdv{background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pdv button:not([class*=\"-p\"]){background:#0F4535;color:#F4F1EA;border-color:#2F5E4E}html[data-tema='escuro'] .pdv td,html[data-tema='escuro'] .pdv .pdv-m{border-color:#2F5E4E}";
+    d.head.appendChild(s);
+  }
+  function bloco(m, t) {
+    var x = m.tarefas || {}, f = x.total ? Math.round(100 * x.feitas / x.total) : 0;
+    var h = '<div class="pdv-m"><strong>' + esc(idioma() === "en" ? m.nome_en : m.nome) + "</strong><br><small>" + esc(m.descricao) + " · " + t.arquivo + ": " + esc(m.arquivo) + "</small>" +
+      '<div class="pdv-barra" role="img" aria-label="' + f + '%"><span style="width:' + Math.max(2, f) + '%"></span></div>' +
+      '<span class="pdv-n">' + x.total + " " + t.tarefas + '</span><span class="pdv-n">' + x.feitas + " " + t.feitas + '</span><span class="pdv-n">' + x.revisao + " " + t.revisao +
+      '</span><span class="pdv-n">' + x.abertas + " " + t.abertas + '</span><span class="pdv-n' + (x.atrasadas ? " pdv-at" : "") + '">' + x.atrasadas + " " + t.atrasadas + "</span>";
+    h += "<div><em>" + t.prox + ":</em>" + ((m.proximas || []).length ? "<ul>" + m.proximas.map(function (p) {
+      return "<li>" + esc(p.fim) + " · " + esc(t.est[p.estado] || p.estado) + " · " + esc(p.titulo) + (p.estimada ? " " + t.estimada : "") + "</li>"; }).join("") + "</ul>" : " " + t.nada) + "</div>";
+    h += "<div><em>" + t.aprov + ":</em>" + ((m.aprovacoes || []).length ? "<ul>" + m.aprovacoes.map(function (a) {
+      return "<li>" + esc(a.prazo) + " · " + esc(t.est[a.estado] || a.estado) + " · " + esc(a.item) + "</li>"; }).join("") + "</ul>" : " " + t.nada) + "</div></div>";
+    return h;
+  }
+  function render(el) {
+    var t = T[idioma()], D = w.PHYSIS_DESENV, qual = el.getAttribute("data-physis-desenvolvimento") || "todos";
+    // painel INTERNO: nunca aparece dentro da plataforma do cliente (tela em quadro) nem sem os dados do M&A
+    var emQuadro = false; try { emQuadro = w.self !== w.top || d.documentElement.hasAttribute("data-em-quadro") || d.documentElement.hasAttribute("data-physis-demo"); } catch (e) { emQuadro = true; }
+    if (emQuadro || !D || !D.modulos) { el.innerHTML = ""; el.hidden = true; return; }
+    el.hidden = false;
+    estilo();
+    var h = '<details class="pdv"' + (qual === "todos" ? " open" : "") + "><summary>" + t.tit + "</summary>";
+    var ks = qual === "todos" ? Object.keys(D.modulos) : qual.split(",");
+    ks.forEach(function (k) { if (D.modulos[k]) h += bloco(D.modulos[k], t); });
+    h += "<p><small>" + t.reg + ": " + esc(D.regressao && D.regressao.quando) + " · " + esc(D.regressao && D.regressao.resultado).slice(0, 160) + "<br>" + t.fonte + " " + esc(D.gerado) + "</small></p></details>";
+    el.innerHTML = h;
+  }
+  function tudo() { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-desenvolvimento]"), render); }
+  w.PhysisDesenvolvimento = { render: render, atualizar: tudo };
+  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", tudo); else tudo();
+  w.addEventListener("storage", function (e) { if (e.key && e.key.indexOf("physis-pref") === 0) tudo(); });
+})(typeof window !== "undefined" ? window : this);
+</script>
+</body>
+</html>

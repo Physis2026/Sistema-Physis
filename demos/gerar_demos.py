@@ -478,8 +478,9 @@ def planejador() -> str:
     t = sem_painel_interno(PLANEJADOR.read_text(encoding="utf-8"))
     nome = "physis-demo-planejador.html"
     pt, en = titulo(nome)
-    t = troca(t, 'var T = {\n    "Planejador Physis": "Physis Planner",', 'var T = {\n    ' + json.dumps(pt, ensure_ascii=False) + ": " + json.dumps(en, ensure_ascii=False) +
-              ', "Planejador Physis": "Physis Planner",', nome)   # o título da aba, no dicionário da página
+    # o título da aba entra no dicionário da página (âncora só na chave: o gêmeo acrescentou linhas antes dela, 23/11/2026)
+    t = troca(t, '"Planejador Physis": "Physis Planner",', json.dumps(pt, ensure_ascii=False) + ": " + json.dumps(en, ensure_ascii=False) +
+              ', "Planejador Physis": "Physis Planner",', nome)
     return marcar(t, nome, nome, "planejador")
 
 

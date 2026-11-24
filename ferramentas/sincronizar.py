@@ -41,6 +41,9 @@ ALVOS = [
     RAIZ / "app-nativo" / "site" / "baixar.html",
     RAIZ / "modulos" / "modelagem3d" / "modelagem-3d.html",  # módulo de modelagem 3D (22/11/2026): ferramentas que saíram do M&A
     RAIZ / "physis-hub" / "web" / "mv.html",   # Physis M&A: a barra também tem de ser idêntica (bot páginas, 22/11/2026)
+    # vista 3D melhorada, versão de TESTE (22/11/2026): página de comparação, fora do Planejador
+    RAIZ / "modulos" / "planejador" / "visualizador-3d-teste.html",
+    RAIZ / "modulos" / "estermic" / "estermic-avac.html",    # módulo Estermic AVAC (ramo teste/identidade-guia, junção de 23/11/2026)
 ]
 # A "Tela do cliente" (sistema/physis-tela-cliente.html) saiu em 15/11/2026: tudo o que ela fazia está nas abas da plataforma.
 PLATAFORMA = RAIZ / "physis-hub" / "web" / "painel.html"
@@ -85,6 +88,12 @@ BLOCOS = {
     "physis-explica": RAIZ / "sistema" / "physis-explica.js",
     "explica-planejador": RAIZ / "sistema" / "explica-planejador.js",
     "explica-inovastem": RAIZ / "sistema" / "explica-inovastem.js",
+    # vista 3D (three.js): luz, sombras, PBR, captura em alta resolução e GLB. TESTE de 22/11/2026
+    "physis-3d": RAIZ / "sistema" / "physis-3d.js",
+    # aba Net zero do Planejador, dividida pelos planos (TESTE de 22/11/2026, M&A pg:b880e775e565)
+    "planejador-netzero": RAIZ / "sistema" / "planejador-netzero.js",
+    # edição manual de textos e ordem dos blocos (24/11/2026), só com conta; grava a direção
+    "physis-edicao": RAIZ / "sistema" / "physis-edicao.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.

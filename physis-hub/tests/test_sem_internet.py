@@ -9,6 +9,7 @@ Protege:
 Só roda dentro do repositório (no pacote do cliente, vendor/ e ferramentas/ não vão).
 """
 import hashlib
+import json
 import importlib.util
 import re
 import unittest
@@ -56,7 +57,10 @@ class SemInternet(unittest.TestCase):
         self.assertEqual(achados, [], "programa dependendo da internet")
 
     def test_vendor_confere(self):
-        for nome, esperado in VENDOR.items():
+        # three.js em módulos (ferramentas/baixar_three.py conferiu com o SHA-256 publicado pelo jsDelivr em 22/11/2026)
+        tres = RAIZ / "vendor" / "three" / "SHA256.json"
+        extra = {"three/" + n: h for n, h in json.loads(tres.read_text(encoding="utf-8")).items()} if tres.is_file() else {}
+        for nome, esperado in {**VENDOR, **extra}.items():
             atual = hashlib.sha256((RAIZ / "vendor" / nome).read_bytes()).hexdigest()
             self.assertEqual(atual, esperado, f"vendor/{nome} mudou: confira a origem e atualize vendor/LEIA-ME.md")
 

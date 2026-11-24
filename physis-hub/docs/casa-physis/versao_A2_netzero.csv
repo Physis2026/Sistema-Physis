@@ -1,0 +1,97 @@
+# Variante A2 net zero (TESTE, 22/11/2026): a variante A + zona de regeneração da piscina (12 m², 50 % FLL) colada no lado de cima da piscina.
+# retângulo em metros locais (P-01 = 0,0; y da Rua H para a Rua G); zona = Zona 1, Zona 2 ou Zona 3;
+# decimais com vírgula. Copie, renomeie (ex.: versao_B.csv) e altere.
+chave;elemento;zona;x;y;larg;prof;area_m2;piso_topo;corte_m3;aterro_m3
+chuva_h;Jardim de chuva;Zona 1;0,2;0,3;2,2;3,4;7,5;;;
+vagas_h;4 vagas na Rua H em nível (2,5 × 5,0) · rampa de ≈ 18% com patamar de 5 m a 5% · C1 embaixo;Zona 1;2,6;0;10;4;50;902,3;;
+cist1;C1;Zona 1;3;0,3;5,29;3,4;18;900,77;42,2;0
+rampa_h;Rampa 3 m;Zona 1;18;0;3;4;12;;;
+casa;Casa 1 em contêineres: 2 × 40 pés na cota 0 (901,22) + 2 × 20 pés em cima em L a partir da fachada sul: azul perpendicular a 3,5 m da fachada leste e laranja paralelo a oeste, emendados;Zona 1;2;4;12,19;4,88;62,4;901,22;0;0
+piscina;Piscina 4 × 6 (vista norte);Zona 1;14,6;11,15;4;6;24;895,05;69,1;0
+comum;Área comum integrada;Zona 1;2;12;17;8;136;893,5;;
+deck;Deck 6 m;Zona 1;6,3;12;7,7;6;46,2;895,2;;
+gourmet;Gourmet coberta (aprumada com a cozinha);Zona 1;9,4;12;4,6;4,5;20,7;895,2;;
+apoio;MEC inferior (antigo apoio técnico, removido na;Zona 1;15;5,5;4;5;0;899,79;13,1;0,5
+hortaA;Horta A;Zona 1;2,2;12,24;4;5,56;22,2;894,32;;
+t3;T3 · área externa;Zona 1;2;18;12;2;24;893,5;;
+patio_serv;Pátio de serviço;Zona 1;14;17,33;5;2,67;13,3;896,44;;
+lazer_patio;Estar (bancos e pergolado);Zona 1;14,05;17,45;1,7;2,5;4,2;;;
+jardim_patio;;Zona 1;15,85;17,42;3,05;0,5;1,5;;;
+hortaL;Horta leste;Zona 1;0,2;4,5;1,7;15;25,5;;;
+hortaO;Horta oeste;Zona 1;19,1;12;1,7;7,5;12,8;;;
+cist2;C2;Zona 2;11,55;36,55;3,1;1,6;5;885,48;21,1;0
+lab;LAB (baixo) · escritório multiuso: 8 lugares de dia, 4 camas à noite (8 módulos-baú);Zona 2;2,46;21,29;6,41;3,55;14,8;891,36;7,9;0
+lab_up;LAB (cima);Zona 2;4,91;20,06;3,55;6,41;14,8;894,26;;
+mec;MEC (baixo);Zona 2;11,71;21,05;6,48;5,07;14,8;892,86;6,7;0,3
+mec_up;MEC (cima);Zona 2;12,57;20,05;5,07;6,48;14,8;895,76;;
+viveiro;Viveiro (terraço);Zona 2;2,46;21,29;0,01;0,01;0;894,26;;
+viveiro_b;Viveiro (terraço);Zona 2;7,65;22,3;0,01;0,01;0;894,26;;
+viveiro2;Viveiro (terraço);Zona 2;15,42;23,11;0,01;0,01;0;895,76;;
+viveiro2_b;Viveiro (terraço);Zona 2;11,71;21,05;0,01;0,01;0;895,76;;
+escada_patio;Escada pátio → zona 2;Zona 2;18,4;20;0,6;5,5;3,3;;;
+peixes;Tanque de peixes 8,1 m³ (na linha d’água);Zona 2;6,74;25,2;6,02;3,15;19;890,26;12,8;0
+caminho2;;Zona 2;10,2;20;1;5,5;5,5;;;
+caminho2b;;Zona 2;10,2;27,8;1;10,54;10,5;;;
+passarela;;Zona 2;10,2;25,4;1;2,5;2,5;;;
+biodig;Biodigestor (enterrado);Zona 2;2,16;27,97;2,49;3,26;8,1;887,57;28,7;0
+hortaC;Horta C;Zona 2;4,86;28,37;5,08;3,47;17,6;888,2;;
+hortaB;Horta B;Zona 2;11,4;28,8;3,4;2,8;9,5;890,19;;
+lavabos;2 lavabos;Zona 2;16,5;26,25;2,5;1,2;3;891,8;5,9;0
+bar;Restaurante circular em bioconstrução, Ø 5,0 m, entre os dois decks;Zona 2;15;30;5;5;19,6;891,8;159,7;0
+deck1;Deck 1 em arco, ao sul do restaurante (coberto);Zona 2;14,9;27,6;5,2;2,8;9,9;889,65;;
+deck2;Deck 2 em arco, ao norte do restaurante;Zona 2;14,9;34,6;5,2;2,8;9,9;887,86;;
+lago;Lago + wetland 15 m²;Zona 2;11,25;31,6;3,7;4,8;17,8;890,59;0,8;11,7
+hortaD;Horta D;Zona 2;11,4;36,4;3,4;1,9;6,5;886,23;;
+cogu;Cogumelário 15 m²;Zona 2;5,6;34,75;4,6;3,24;14,9;885,21;;
+staff;Apoio de funcionários;Zona 2;2;35,12;3,3;1,48;4,9;883,83;1,3;0,1
+coelhos;Coelhos;Zona 2;2,12;28,97;2,43;1,26;3,1;889,38;;
+aves;Galinhas;Zona 2;0,2;23;1,7;7;11,9;;;
+abelhas2;Melipo- nário 2;Zona 2;0,3;21,2;1,4;1,6;2,2;;;
+cabritos;Cabritos;Zona 2;0,2;30;1,7;8,34;14,2;;;
+pomar;Frutíferas;Zona 2;20,1;21;1,8;17,34;31,2;;;
+abelhas;Melipo- nário;Zona 2;20,2;21,2;1,6;1,4;2,2;;;
+LF1;Loft 1 4 × 4 (losango, giro 58°);Zona 3;13,75;38,09;5,51;5,51;16;884,5;;
+LF2;Loft 2 4 × 4 (losango, giro 62°);Zona 3;7,79;39,41;5,42;5,42;16;883;;
+LF3;Loft 3 4 × 4 (losango, giro 62°) (PCD);Zona 3;2,29;40,91;5,42;5,42;16;881,5;;
+pet;Canil · 3 baias, de frente para os lofts e de costas para os animais (parede comum com o apoio);Zona 2;2;36,6;3,1;1,48;4,6;887,8;;
+LF4;Loft 4 4 × 5 (na curva de nível, giro 17°) (PCD);Zona 3;13,35;47,77;5,3;5,96;20;880;;
+LF5;Loft 5 4 × 5 (na curva de nível, giro 32°) (PCD);Zona 3;12,99;55,71;6,02;6,35;20;877,5;;
+LF6;Loft 6 4 × 4 (PCD) · geminado com o 7, sobre o estacionamento da Rua G, fora do caminho da água (aptidão 0,51);Zona 3;7,75;49,70;4,00;4,00;16,00;879,40;;
+LF7;Loft 7 4 × 5 (mês 36) · geminado com o 6, sobre o estacionamento da Rua G, frente norte;Zona 3;7,75;53,70;4,00;5,00;20,00;879,40;;
+fogo;Fogo de chão;Zona 3;16,6;63,2;1,4;1,4;2;878,57;;
+minilago;Mini-lago;Zona 3;18,8;62,8;1,3;2,6;3;878,83;0,7;0,3
+loja;Loja 24 h no térreo, sob a varanda do loft 7, na cota do acesso da Rua G (fora das vagas, recuo ≥ 2 m);Zona 3;7,75;57,60;4,00;1,70;6,80;876,30;;
+flor_o2;Floresta oeste (incorporada à faixa x 19–21, junto à floresta filtrante);Zona 3;19,1;38,44;0,01;17,46;0;;;
+trilha3;Trilha da borda leste (dentro do afastamento);Zona 3;19;38,34;0,01;0,01;0;;;
+flor_l;Eucalipto (toras);Zona 3;0,2;38,44;1,7;8;13,6;;;
+filtr_l;Floresta filtrante;Zona 3;0,2;46,54;1,7;4,96;8,4;875,93;;
+filtr_o;Floresta filtrante (nativa);Zona 3;20,1;38,44;1,8;17,46;31,4;881,62;;
+garagem;Acesso existente: entrada e saída pela Rua G junto ao P-05 (pista de 3,5 m com patamar de espera), corredor de 5,5 m em frente a 2 vagas em nível (1 PCD) a 876,30;Zona 3;0,65;47,85;12;13,4;95;876,3;57,8;11,9
+vagas_g;2 vagas em nível no corredor do acesso (1 PCD);Zona 3;2,6;49,6;9;8;25;;;
+residuos;Resí- duos;Zona 3;5,3;58,6;1,6;2;4;;;
+cist4;C3 (sob o estacionamento do acesso);Zona 3;3,9;55;4,6;2,4;11,1;873,46;45,1;0
+fossa;Fossa natural + filtro (sob o estacionamento do acesso, tampas carroçáveis);Zona 3;7,5;50,8;4,1;2,2;9;874,17;16,4;0
+piso_fogo;;Zona 3;16,2;62,8;2,2;2,2;4,8;;;
+viveiro_s;Viveiro (sombrite) sobre o biodigestor enterrado 3,2 × 2,4;Zona 2;2,16;25,47;2,49;3,26;8,1;888,72;;
+calc_rest1;;Zona 2;11,2;27,85;3,8;1;3,8;;;
+calc_rest2;;Zona 2;15,5;25,04;3,39;3,36;11,4;;;
+calc_tronco1;;Zona 1;14,1;4;0,9;8;7,2;;;
+calc_tronco3;Passarela do bolsão de manobra à fileira A (1,50 m);Zona 3;7;44,6;0,01;0,01;0;;;
+calc_pet;;Zona 3;0;0;0,01;0,01;0;;;
+calc_lab;;Zona 2;2,42;20,02;1;1,27;1,3;;;
+calc_LF6;Passarela de ligação dos lofts ao acesso (1,50 m) · desativada na versão nas curvas de nível;Zona 3;2;44,6;0,01;0,01;0;;;
+calc_LF1;Passarela de ligação dos lofts ao acesso (1,50 m) · desativada na versão nas curvas de nível;Zona 3;13,6;46,1;0,01;0,01;0;;;
+calc_LF7;;Zona 3;0;0;0,01;0,01;0;;;
+calc_staff;;Zona 2;5,5;36,34;0,01;0,01;0;;;
+calc_biodig;;Zona 2;1,81;20,81;1;4,66;4,7;;;
+calc_cabritos;;Zona 2;1,9;35,84;0,01;0,01;0;;;
+calc_lig0;;Zona 2;13,19;37,89;2,13;2,03;4,3;;;
+calc_lig2;;Zona 3;0;0;0,01;0,01;0;;;
+var1;Varanda embutida do loft 1 (lateral, 1,0 m);Zona 3;15,85;41,49;3,93;2,96;4;884,5;;
+var2;Varanda embutida do loft 2 (lateral, 1,0 m);Zona 3;9,69;42,93;4;2,78;4;883;;
+var3;Varanda embutida do loft 3 (lateral, 1,0 m);Zona 3;4,19;44,43;4;2,78;4;881,5;;
+var4;Varanda embutida do loft 4 (lateral, 1,0 m);Zona 3;17,17;48,95;2,43;5,07;5;880;;
+var5;Varanda embutida do loft 5 (lateral, 1,0 m);Zona 3;16,4;57,8;3,47;4,78;5;877,5;;
+var6;Varanda do loft 6 (oeste, 1,0 m);Zona 3;6,75;49,70;1,00;4,00;4,00;879,40;;
+var7;Varanda do loft 7 (frente norte, 1,0 m);Zona 3;7,75;58,70;4,00;1,00;4,00;879,40;;
+piscina_regen;Zona de regeneração da piscina natural (12 m², 50 % FLL, 03) · lâmina 0,30 m acima da piscina, volta por gravidade;Zona 1;15,00;8,15;4,00;3,00;12,00;895,35;;

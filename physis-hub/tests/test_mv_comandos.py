@@ -51,10 +51,14 @@ class TestComandos(unittest.TestCase):
         r = self.c.executar("/checklist f0-advogado")
         self.assertIn("Revisão jurídica", r["resultado"])
 
-    def test_texto_livre_vai_para_fila_do_claude_com_tarefa(self):
+    def test_texto_livre_respondido_pelo_bot_autonomo_sem_claude(self):
         r = self.c.executar("Prepare perguntas ao advogado para #f0-advogado")
-        self.assertEqual((r["tipo"], r["estado"], r["tarefa"]), ("claude", "na_fila", "f0-advogado"))
-        self.assertEqual(len(self.c.fila("na_fila")), 1)
+        self.assertEqual((r["tipo"], r["estado"], r["tarefa"]), ("autonomo", "rascunho", "f0-advogado"))
+        self.assertTrue(r["resultado"].strip())
+        self.assertNotIn("Claude", r["resultado"])
+        self.assertEqual(len(self.c.fila("na_fila")), 0)
+        e = self.c.executar("Escreva um e-mail sobre #f0-advogado")      # pedido comum vira o comando local
+        self.assertNotEqual(e["estado"], "na_fila")
         p = self.c.decidir_pedido(r["id"], "aprovado")
         self.assertEqual(p["estado"], "aprovado")
 

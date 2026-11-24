@@ -1,4 +1,25 @@
-# Lista de modificações · terceira e quarta rodadas
+# Lista de modificações
+
+## Rodada de 24/11/2026 (correção final) · cada item entra na lista de aprovações do M&A (grupo "Final 24/11")
+
+| Nº | Pedido | O que mudou | Onde ver | Testado |
+|---|---|---|---|---|
+| F1 | Novo visual | Cores e fontes do guia de identidade (tipo A escuro, tipo B claro) nas telas atuais; só aparência | Gestão, SustainKit, SCADA, Planejador, consultoria | testes de paleta e contraste |
+| F2 | Bots autônomos, sem Claude | Texto livre na caixa de comandos respondido na hora (comandos locais + IA Physis); fila antiga respondida pelo vigia | M&A › Bots e comandos | sim |
+| F3 | IA Physis generativa própria | Modelo aberto local (Ollama, qwen2.5:7b); busca → diretrizes (regras, decisões, aprendizagens) → skill → geração → trava de números → rascunho; resposta por trechos na hora e texto do modelo em segundo plano | M&A; py -m physis_hub.mv_cli ia | sim (modelo real no PC da Physis) |
+| F4 | Planejador completo na Casa | Edição completa, sem ativação de licença, na instalação da Casa Physis | Casa › Planejador | sim |
+| F5 | Análises por objeto e perguntas | Bot de modelagem diz as análises (CFD, flambagem, térmica…) e pergunta o que falta; flambagem conferida no CalculiX | Modelagem 3D, InovaSTEM › Simulação | sim |
+| F6 | InovaSTEM sem repetição | Uma aba Impressão 3D (peça, parâmetros, filamentos, fatiamento, testes e fila); Simulação por área com previsão da modelagem; sem conteúdo de construção | /laboratorio | sim |
+| F7 | Programas abertos e camadas | Catálogo só aberto (sem ORCA): mecânica, física, química, biologia, BIM e instalações, IoT/quadros, BMS e solar; guia de instalação no Acer com links [CONFERIR] e as 12 camadas | implantacao/PROGRAMAS-E-CAMADAS-ACER.md | catálogo sim; links não conferidos |
+| F8 | AVAC completo | Água gelada; piscina com filtragem e borda infinita; sauna; exaustão de churrasqueira (dutos e aquecimento solar já existiam) | AVAC | sim |
+| F9 | Sprinklers no Planejador | Número de chuveiros, vazão e reserva a partir de parâmetros digitados da NBR 10897 | Planejador › Módulos | sim |
+| F10 | Estermic à parte | Sistema próprio na porta 8704, estado no servidor com histórico, IFC de instalações (chiller, bombas, ventiladores, difusores, torre) | http://127.0.0.1:8704 | sim |
+| F11 | Atualização final | Um comando confere, copia bancos, regenera, testa, verifica serviços, salva e faz backup em zip | ferramentas/atualizacao_final.py | sim (PC da Physis, 24/11 01:49) |
+| F12 | Quadros elétricos | Todas as normas registradas (IEC 60617/61082/81346, NBR 5410, NBR IEC 61439, IEC 60204-1, NBR 5444, NR-10, NR-12) [CONFERIR vigência] | guia do Acer | documento |
+
+## Rodadas anteriores
+
+### Terceira e quarta rodadas
 
 14/11/2026. Para aprovar antes da emissão dos documentos finais. Os pacotes finais ainda não foram refeitos.
 

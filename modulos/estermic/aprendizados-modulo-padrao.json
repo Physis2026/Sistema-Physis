@@ -1,0 +1,90 @@
+{
+  "_leia": "VERSÃO DE TESTE (20/11/2026). Aprendizados do módulo AVAC personalizado da Estermic que devem voltar aos módulos técnicos vendidos pela Physis. Base do aprendizado de máquina: um registro por melhoria, com área, o que mudou, onde está no módulo Estermic e para onde levar. Estado: proposto → aprovado pela dona → levado ao módulo padrão (com teste). A tela modulos/estermic/estermic-avac.html também registra aprendizados novos e os exporta em JSON para juntar aqui.",
+  "copia_base": {
+    "arquivo_base": "sistema/physis-avac.js",
+    "copia": "modulos/estermic/avac-estermic-copia.js",
+    "sha256_base_quando_copiado": "3142a54c974b7113cdd73bf3c3e18e877265c2718af000f2fe8ff962e205b61e",
+    "casos_base": "sistema/physis-avac-casos.json",
+    "casos_copia": "modulos/estermic/avac-estermic-casos.json",
+    "regra": "Enquanto não houver aprendizado de cálculo aprovado, a cópia é igual à base (o teste test_estermic_avac confere). Mudou a conta na cópia: registrar aqui com \"muda_calculo\": true e o caso de teste novo."
+  },
+  "aprendizados": [
+    {
+      "id": "EST-001",
+      "data": "2026-11-20",
+      "area": "financeiro",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "Contrato individual por subprojeto (número, valor, fases, prazos, condições, ISS) e mapa financeiro por fase: contratado, faturado, a faturar, recebido, a receber, com alertas de prazo.",
+      "onde": "modulos/estermic/estermic-avac.js (financeiro, alertas)",
+      "levar_para": "Planejador / Gestão Physis (contratos diretos) [CONFERIR]"
+    },
+    {
+      "id": "EST-002",
+      "data": "2026-11-20",
+      "area": "financeiro",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "Gatilho \"pedir nota ao contador\" que só gera rascunho (texto e .eml com X-Unsent) com os dados da fase; nunca envia.",
+      "onde": "modulos/estermic/estermic-avac.js (rascunhoNota)",
+      "levar_para": "Gestão Physis (financeiro) [CONFERIR]"
+    },
+    {
+      "id": "EST-003",
+      "data": "2026-11-20",
+      "area": "equipamentos",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "Lista de equipamentos do AVAC com TAG por sistema (AC-01, VE-01…), fabricante, modelo, referência na base Physis e peças individuais com código (part number). O módulo base só tem categoria genérica.",
+      "onde": "modulos/estermic/estermic-avac.js (equipamentosDoCalculo, sugerirDaBase, tabelaEquipamentos)",
+      "levar_para": "sistema/physis-avac.js (aba Resumo e lista de equipamentos)"
+    },
+    {
+      "id": "EST-004",
+      "data": "2026-11-20",
+      "area": "BIM/GIS",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "IFC4 a partir da lista de equipamentos do AVAC (um IfcUnitaryEquipment por item, com TAG, fabricante, modelo e peças como propriedades) e GeoJSON dos locais dos subprojetos.",
+      "onde": "modulos/estermic/estermic-avac.js (ifcDados, geojson)",
+      "levar_para": "sistema/physis-avac.js + sistema/physis-ifc.js"
+    },
+    {
+      "id": "EST-005",
+      "data": "2026-11-20",
+      "area": "documentos",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "Template de documento do CLIENTE: ODT/ODS com logo, fontes e paleta do cliente (neutros até recebidos) e só \"Elaborado por Physis Engineering\" no rodapé. O physis-odf.js tem a marca Physis fixa (marca d'água, verde, cabeçalho).",
+      "onde": "modulos/estermic/estermic-avac.js (odt, ods, marcaEfetiva)",
+      "levar_para": "sistema/physis-odf.js e physis-hub/physis_hub/documentos.py (espelho) — opção de marca do cliente"
+    },
+    {
+      "id": "EST-006",
+      "data": "2026-11-20",
+      "area": "documentos",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "Memorial de cálculo por sistema exportável (ODT), com a carga térmica por ambiente quando houver, e marca EXEMPLO automática enquanto os dados não forem confirmados como do projeto.",
+      "onde": "modulos/estermic/estermic-avac.js (memorial, cabecalhoDoc)",
+      "levar_para": "sistema/physis-avac.js (aba Memória de cálculo)"
+    },
+    {
+      "id": "EST-007",
+      "data": "2026-11-20",
+      "area": "cálculo",
+      "origem": "estermic",
+      "estado": "proposto",
+      "muda_calculo": false,
+      "descricao": "Vários projetos de AVAC no mesmo cliente: o estado das contas (avac, cargatermica) passa a ser por subprojeto (calcLer/calcGravar por subprojeto), sem mudar as contas.",
+      "onde": "modulos/estermic/estermic-avac.html (calcLer, calcGravar)",
+      "levar_para": "Planejador / plataforma (projetos múltiplos) [CONFERIR]"
+    }
+  ]
+}

@@ -12,13 +12,17 @@ class Fila(unittest.TestCase):
     def test_arquivo_e_alerta_depois_de_24h(self):
         mv = MV(":memory:")
         c = mv_comandos.Comandos(mv)
-        p = c.executar("Ler os anexos e propor a ficha")
+        p = c._pedido("claude", "Ler os anexos e propor a ficha")         # pedido antigo, de antes do bot autônomo
         mv.db.execute("UPDATE mv_pedido_bot SET criado=? WHERE id=?", (time.time() - 30 * 3600, p["id"]))
         d = Path(tempfile.mkdtemp())
         r = mv_vigia.exportar_fila(mv, d)
         self.assertEqual(r["fila"], 1)
         self.assertIn("Ler os anexos", (d / "fila-claude.md").read_text(encoding="utf-8"))
         self.assertTrue(any(a["tipo"] == "fila_parada" for a in mv.alertas()))
+        from physis_hub import mv_autonomo
+        self.assertEqual(mv_autonomo.processar_fila(mv)["respondidos"], 1)     # o bot responde sozinho, sem Claude
+        self.assertEqual(c.pedido(p["id"])["estado"], "rascunho")
+        self.assertEqual(mv_vigia.exportar_fila(mv, d)["fila"], 0)
 
 
 class ContaParaEdital(unittest.TestCase):
@@ -32,6 +36,6 @@ class ContaParaEdital(unittest.TestCase):
         e = mv.db.execute("SELECT titulo, etapa FROM mv_edital WHERE id=?", (r["edital"],)).fetchone()
         self.assertEqual(tuple(e), ("Captação municipal 2027", "triagem"))
         self.assertEqual(cl.conta("captacao-municipal-2027")["estado"], "arquivada")
-        ped = mv.db.execute("SELECT origem, comando FROM mv_pedido_bot WHERE estado='na_fila'").fetchone()
+        ped = mv.db.execute("SELECT origem, comando FROM mv_pedido_bot WHERE estado IN ('na_fila','rascunho')").fetchone()
         self.assertEqual(ped[0], "edital:ed-captacao-municipal-2027")
         self.assertIn("ficha do edital", ped[1])

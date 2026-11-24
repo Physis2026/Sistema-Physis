@@ -22,7 +22,7 @@ LIMITE_H = {"atrasos": 9, "documentos": 2, "dados_iot": 2, "resumo": 26, "backup
             "editais": 26, "simulacao": 26, "gestoes": 26, "bancos": 26, "acervo": 26, "ia": 26, "cursos": 26, "auditoria": 26,
             "financeiro": 26, "vencimentos": 26, "fatos": 26, "kit": 26, "repositorios": 26, "desenvolvimento": 26, "sincronizacao": 26, "melhoria": 26, "semanal": 7 * 24 + 6}
 # sob demanda (sem rotina, versão enxuta): o vigia não cobra horário
-SOB_DEMANDA = {"mercado"}
+SOB_DEMANDA = {"mercado", "modelos"}
 
 
 def exportar_fila(mv: MV, saida: Path | None = None, agora: float | None = None) -> dict:
@@ -85,6 +85,8 @@ def bot_vigia(mv: MV, agora: float | None = None, limites: dict | None = None) -
             mv.alertar("vigia", "bot_parado", bot, "alerta", f"Bot {bot} sem execução boa {quando} (limite {lim} h)",
                        "Conferir as tarefas PhysisMV\\bots_hora e resumo_7h (mv_cli agenda) e o computador do nó")
         out[bot] = {"estado": estado, "idade_h": idade, "limite_h": lim}
+    from . import mv_autonomo
+    out["_autonomo"] = mv_autonomo.processar_fila(mv)      # 24/11/2026: sem Claude; o bot responde o que ficou na fila
     out["_fila_claude"] = exportar_fila(mv, agora=agora)
     mv.fechar_alertas_nao_vistos("vigia", inicio)
     mv.registrar_execucao("vigia", inicio, json.dumps(out))
@@ -109,10 +111,45 @@ def _rodar(cmd: list[str], timeout: int = 120) -> tuple[int, str]:
         return -1, repr(e)
 
 
+# 24/11/2026: o M&A caiu e só voltava no próximo login. O sentinela (de hora em hora) religa pela agenda o serviço que não responde.
+SERVICOS = {8710: ("Physis M&A", "PhysisMV\\painel"), 8700: ("Hub", "PhysisMV\\hub"), 8701: ("Casa Physis", "PhysisSites\\casa_8701"),
+            8702: ("InovaSTEM", "PhysisSites\\inovastem_8702"), 8703: ("site Physis + Gestão", "PhysisSites\\gestao_8703"), 8704: ("Estermic", "PhysisSites\\estermic_8704")}
+
+
+def _escutando(porta: int) -> bool:
+    import socket
+    try:
+        with socket.create_connection(("127.0.0.1", porta), timeout=3):
+            return True
+    except OSError:
+        return False
+
+
+def religar_servicos(mv: MV, executar=_rodar, escutando=_escutando, windows: bool | None = None) -> list[dict]:
+    windows = (os.name == "nt") if windows is None else windows
+    feitos = []
+    for porta, (nome, tarefa) in SERVICOS.items():
+        if escutando(porta):
+            continue
+        if windows:
+            cod, txt = executar(["schtasks", "/Run", "/TN", tarefa])
+            ok = cod == 0
+            mv.alertar("sentinela", "religado", str(porta), "atencao" if ok else "alerta",
+                       f"{nome} (porta {porta}) estava fora do ar: " + ("religado pela agenda" if ok else f"não religou ({txt[:120]})"),
+                       "Se repetir, rodar à mão para ver o erro: py -m physis_hub.mv_cli servir (M&A) ou a tarefa " + tarefa)
+            feitos.append({"porta": porta, "nome": nome, "religado": ok})
+        else:
+            mv.alertar("sentinela", "fora_do_ar", str(porta), "alerta", f"{nome} (porta {porta}) fora do ar", "systemctl status do serviço correspondente")
+            feitos.append({"porta": porta, "nome": nome, "religado": False})
+    return feitos
+
+
 def bot_sentinela(mv: MV, executar=_rodar, raiz: Path | None = None, which=shutil.which) -> dict:
     raiz = Path(raiz or RAIZ_REPO)
     inicio = mv.nova_rodada()
     out = {"verificar": None, "conteineres": None, "falhas": 0, "avisos": 0}
+    if getattr(mv, "caminho", "") != ":memory:":           # banco de teste: não mexe na agenda real
+        out["religados"] = religar_servicos(mv, executar)
     impl = raiz / "implantacao"
     if os.name == "nt" and (impl / "verificar.ps1").exists():
         cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(impl / "verificar.ps1")]

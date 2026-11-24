@@ -335,7 +335,7 @@ class Clientes:
         return [dict(r) for r in self.mv.db.execute(q + " ORDER BY data DESC, id DESC LIMIT 500", a)]
 
     def analisar(self, cid: str) -> dict:
-        """Bot de análise: revisa cada anexo da conta e pede ao Claude (fila) uma PROPOSTA de ficha a partir deles."""
+        """Bot de análise: revisa cada anexo da conta e pede ao bot autônomo (IA Physis local) uma PROPOSTA de ficha a partir deles."""
         c = self.conta(cid)
         anexos = [dict(r) for r in self.mv.db.execute("SELECT id, nome FROM mv_arquivo WHERE ref=? AND estado!='descartado'", (cid,))] \
             if self.mv.db.execute("SELECT name FROM sqlite_master WHERE name='mv_arquivo'").fetchone() else []
@@ -343,7 +343,8 @@ class Clientes:
         texto = (f"Ler os anexos da conta '{c['nome']}' ({cid}) e PROPOR a ficha (contrato, moeda, impostos, atividade core, responsável, "
                  f"contato, próximos passos, subprojetos e fases) para confirmação da dona. Anexos: "
                  + (", ".join(f"{a['nome']} ({a['id']})" for a in anexos) or "nenhum ainda") + ". Não inventar: [MARCADOR].")
-        return cmd._pedido("claude", texto, "", "na_fila", "Na fila do Claude; a proposta volta para confirmação campo a campo.", origem=f"conta:{cid}")
+        from . import mv_autonomo
+        return mv_autonomo.responder(cmd, texto, "", origem=f"conta:{cid}")
 
     def para_edital(self, cid: str) -> dict:
         """Conta que na verdade é captação/edital (decisão de 23/11/2026: "Captação municipal 2027" é edital, não projeto).
