@@ -68,7 +68,8 @@ class Rede(unittest.TestCase):
 class Ocr(unittest.TestCase):
     def test_ocr(self):
         from physis_hub import estermic_servidor as es
-        if not shutil.which("tesseract"):
+        exe = es.achar_programa(["tesseract"], ["C:/Program Files/Tesseract-OCR/tesseract.exe", "C:/Program Files (x86)/Tesseract-OCR/tesseract.exe"], "PHYSIS_TESSERACT")
+        if not exe:
             self.assertFalse(es.ocr(b"x")["ok"]); return
         try:
             from PIL import Image, ImageDraw, ImageFont

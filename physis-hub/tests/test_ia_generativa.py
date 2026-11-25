@@ -92,10 +92,12 @@ class Fluxo(unittest.TestCase):
             self.assertEqual(r["estado"], "rascunho")
             self.assertIn("modo extrativa", r["resultado"])          # resposta na hora, sem esperar o modelo
             import threading
-            for th in threading.enumerate():
-                if th is not threading.current_thread() and th.daemon:
-                    th.join(10)
-        final = c.pedido(r["id"])["resultado"]
+            import time
+            for _ in range(600):                                       # até 60 s, com o modelo falso ainda no lugar
+                final = c.pedido(r["id"])["resultado"]
+                if "modo generativa" in final:
+                    break
+                time.sleep(0.1)
         self.assertIn("modo generativa", final)                      # o modelo substitui em segundo plano
         self.assertIn("Fontes:", final)
 
