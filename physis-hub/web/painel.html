@@ -22419,8 +22419,13 @@ function telaRecibo(){ const p = ui.pedido, dt = new Date(p.data).toLocaleString
     <div><button type="button" id="b-nova" class="principal" data-compra="nova">Continuar comprando</button></div></section>` : `<div><button type="button" id="b-nova" data-compra="nova">Voltar à loja</button></div>`}
   ${!ui.central && !p.aprovado ? `<fieldset class="px-fora"><legend>Só nesta versão de teste</legend><p class="t2 pq">Sem servidor, ninguém libera o acesso. Use o botão para simular a liberação pela Physis.</p><div><button type="button" id="b-aprovar" data-compra="aprovar">Simular a liberação pela Physis</button></div></fieldset>` : ""}`; }
 
+if (typeof document !== "undefined" && !window.__acessoModo){ window.__acessoModo = true;
+  document.addEventListener("click", ev => { const b = ev.target.closest ? ev.target.closest("button[data-acesso-modo]") : null; if (!b) return;
+    ui.acesso = b.dataset.acessoModo; ui.acessoErro = ""; desenhar(true); const x = el("ac-usuario"); if (x) x.focus(); }); }
 function telaAcesso(){ const f = ui.acessoForm, criar = ui.acesso === "criar", min = (ui.inst && ui.inst.senha_min) || 12, tipo = f.ver ? "text" : "password", sim = !!(ui.inst && ui.inst.simulada), termos = criar && !sim && ui.inst && ui.inst.termos_versao, dois = !criar && !!ui.acesso2fa;
-  return `<h1>${criar ? "Crie o primeiro acesso" : "Entrar"}</h1><p class="t2" style="max-width:60ch">${criar ? "Esta é a primeira abertura da sua plataforma. Quem cria este acesso passa a ser a pessoa administradora e pode convidar outras depois." : "Entre com o usuário e a senha desta instalação."}</p>
+  const aberto = !sim && !!(ui.inst && ui.inst.cadastro_aberto && ui.inst.tem_conta);   /* cadastro aberto (ex.: InovaSTEM) */
+  return `<h1>${criar ? (aberto ? "Crie sua conta" : "Crie o primeiro acesso") : "Entrar"}</h1><p class="t2" style="max-width:60ch">${criar ? (aberto ? "Qualquer pessoa pode se cadastrar. A conta nasce com acesso de participante; confirme o e-mail pelo link que enviamos." : "Esta é a primeira abertura da sua plataforma. Quem cria este acesso passa a ser a pessoa administradora e pode convidar outras depois.") : "Entre com o usuário e a senha desta instalação."}</p>
+  ${aberto ? `<p><button type="button" id="ac-trocar" data-acesso-modo="${criar ? "entrar" : "criar"}">${criar ? "Já tenho conta: entrar" : "Não tenho conta: criar agora"}</button></p>` : ""}
   ${sim ? `<div class="faixa at"><strong>Simulação da compra.</strong> Nesta demonstração a senha não é guardada. Na instalação real ela fica só no seu computador central, protegida, e nunca é enviada à Physis.</div>` : ""}
   <fieldset style="max-width:520px"><legend>${criar ? "Seu cadastro" : "Acesso"}</legend>
     ${criar ? `<div><label for="ac-nome">Seu nome (opcional)</label><input id="ac-nome" type="text" autocomplete="name" data-ac="nome" value="${esc(f.nome)}" style="width:100%"></div>` : ""}

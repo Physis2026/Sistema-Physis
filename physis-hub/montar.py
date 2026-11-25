@@ -123,7 +123,7 @@ def edicao_completa(arq: Path) -> None:
 def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Path | None, licenca: str,
            supervisao: Path | None = None, gestao: Path | None = None, planejador: Path | None = None,
            pesquisa: bool = False, nome: str = "", cursos: list | None = None, suporte: dict | None = None,
-           pegada: dict | None = None, marca: dict | None = None) -> Path:
+           pegada: dict | None = None, marca: dict | None = None, cadastro_aberto: bool = False) -> Path:
     """marca (opcional): marca própria da instalação, como a da Casa Physis ({nome, logo_texto, logo_clara, logo_escura},
     logos = caminhos de arquivos SVG). As logos vão para web/marca/ e o painel as mostra no lugar da logo da Physis."""
     if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{1,63}", org):
@@ -210,6 +210,8 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
             "montada_em": time.strftime("%Y-%m-%dT%H:%M:%S")}
     if nome:
         inst["nome"] = nome
+    if cadastro_aberto:   # qualquer pessoa cria a própria conta (papel cliente): InovaSTEM
+        inst["cadastro_aberto"] = True
     if pesquisa:      # instalação de pesquisa: mostra também o que está em desenvolvimento, marcado como tal
         inst["pesquisa"] = True
     # cursos da aba Cursos: comprados ou liberados gratuitamente pela Physis ({nome, link https, gratuito, carga...})
