@@ -247,7 +247,42 @@ def cfd_duto(pedido: dict, executar=None) -> dict:
                 "nota": "malha de 8.000 células, funções de parede e trecho de entrada: diferenças de até cerca de 20% em relação a Darcy são esperadas"}
 
 
+ENTRAR_HTML = """<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entrar · Estermic</title><style>
+body{font-family:system-ui,sans-serif;background:#F6F4EE;color:#1B1F23;margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center}
+main{background:#FFFFFF;border:1px solid #D9D3C2;border-radius:12px;padding:2rem;max-width:380px;width:calc(100% - 2rem)}
+h1{font-family:Fraunces,Georgia,serif;color:#33512F;margin-top:0}label{display:block;margin:.8rem 0 .3rem}
+input{width:100%;min-height:44px;font:inherit;padding:.4rem .6rem;border:1px solid #6B6B5E;border-radius:8px;box-sizing:border-box}
+button{margin-top:1rem;min-height:44px;width:100%;font:inherit;background:#33512F;color:#FFFFFF;border:0;border-radius:8px;cursor:pointer}
+:focus-visible{outline:3px solid #C2410C;outline-offset:2px}#erro{color:#9B1C1C;min-height:1.4em}
+@media (prefers-color-scheme: dark){body{background:#1B1F23;color:#F6F4EE}main{background:#22282C;border-color:#4A4F44}h1{color:#B9D3B0}input{background:#1B1F23;color:#F6F4EE}}
+</style></head><body><main><h1>Estermic</h1><p>Entre com a senha da Estermic.</p>
+<form id="f"><label for="senha">Senha</label><input id="senha" type="password" autocomplete="current-password" required>
+<p id="erro" role="alert"></p><button type="submit">Entrar</button></form></main>
+<script>document.getElementById("f").addEventListener("submit",function(ev){ev.preventDefault();
+fetch("/api/estermic/entrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({senha:document.getElementById("senha").value})})
+.then(function(r){if(r.ok){location.reload();}else{document.getElementById("erro").textContent=r.status===429?"Muitas tentativas: espere alguns minutos.":"Senha incorreta.";}})
+.catch(function(){document.getElementById("erro").textContent="Sem ligação com o servidor.";});});</script></body></html>"""
+SESSAO_S = 12 * 3600
+
+
 def fabrica(banco: Banco, senha: str | None):
+    import secrets as _sec
+    import time as _t
+    chave_sessao = _sec.token_bytes(32)          # as sessões valem até o servidor reiniciar
+    falhas: dict = {}
+
+    def _token() -> str:
+        exp = str(int(_t.time()) + SESSAO_S)
+        return exp + "." + hmac.new(chave_sessao, exp.encode(), "sha256").hexdigest()
+
+    def _token_ok(tk: str) -> bool:
+        exp, _, sig = (tk or "").partition(".")
+        return exp.isdigit() and int(exp) > _t.time() and hmac.compare_digest(sig, hmac.new(chave_sessao, exp.encode(), "sha256").hexdigest())
+
+    def _confere(p: str) -> bool:
+        return bool((senha is True and conferir_senha(p)) or (senha not in (None, True) and hmac.compare_digest(p, senha)))
+
     class H(BaseHTTPRequestHandler):
         server_version = "PhysisEstermic/1"
 
@@ -257,18 +292,55 @@ def fabrica(banco: Banco, senha: str | None):
         def _auth(self) -> bool:
             if not senha:
                 return True
+            # sessão pela página de entrada (cookie) ou Basic (scripts). Sem nenhum dos dois: a PÁGINA de entrada, nunca a
+            # janela de senha do navegador (pedido de 25/11/2026); nas rotas /api, 401 em JSON
+            for parte in (self.headers.get("Cookie") or "").split(";"):
+                k, _, v = parte.strip().partition("=")
+                if k == "estermic_sessao" and _token_ok(v):
+                    return True
             h = self.headers.get("Authorization", "")
             if h.startswith("Basic "):
                 try:
                     u, _, p = base64.b64decode(h[6:]).decode("utf-8").partition(":")
-                    if u.strip().lower() == "physis" and (senha is True and conferir_senha(p) or senha is not True and hmac.compare_digest(p, senha)):
+                    if u.strip().lower() == "physis" and _confere(p):
                         return True
                 except Exception:  # noqa: BLE001
                     pass
-            self.send_response(401)
-            self.send_header("WWW-Authenticate", 'Basic realm="Physis Estermic"')
-            self.end_headers()
+            if self.command == "GET" and not self.path.startswith("/api/"):
+                b = ENTRAR_HTML.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Content-Length", str(len(b)))
+                self.end_headers()
+                self.wfile.write(b)
+                return False
+            self._json(401, {"erro": "entre pela página da Estermic"})
             return False
+
+        def _entrar(self):
+            ip = self.client_address[0]
+            n, ate = falhas.get(ip, (0, 0.0))
+            if _t.time() < ate:
+                return self._json(429, {"erro": "muitas tentativas"})
+            try:
+                tam = int(self.headers.get("Content-Length") or 0)
+                d = json.loads(self.rfile.read(tam).decode("utf-8")) if 0 < tam <= 4096 else {}
+            except ValueError:
+                d = {}
+            if senha and _confere(str(d.get("senha") or "")):
+                falhas.pop(ip, None)
+                b = b'{"ok": true}'
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Set-Cookie", "estermic_sessao=" + _token() + "; Path=/; Max-Age=" + str(SESSAO_S) + "; HttpOnly; SameSite=Strict")
+                self.send_header("Content-Length", str(len(b)))
+                self.end_headers()
+                self.wfile.write(b)
+                return None
+            n += 1
+            falhas[ip] = (n, _t.time() + 300 if n >= 10 else 0.0)
+            return self._json(401, {"erro": "senha incorreta"})
 
         def _json(self, cod: int, obj) -> None:
             b = json.dumps(obj, ensure_ascii=False).encode("utf-8")
@@ -309,6 +381,8 @@ def fabrica(banco: Banco, senha: str | None):
             self.wfile.write(dados)
 
         def do_POST(self):  # noqa: N802
+            if self.path.split("?", 1)[0] == "/api/estermic/entrar":
+                return self._entrar()
             if not self._auth():
                 return
             if self.path.split("?", 1)[0] == "/api/estermic/render":

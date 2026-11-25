@@ -74,6 +74,30 @@ class Servidor(unittest.TestCase):
                 es.servir(0, "0.0.0.0", self.b)
 
 
+
+class PaginaDeEntrada(unittest.TestCase):
+    """Sem janela de senha do navegador: página de entrada e cookie de sessão (25/11/2026)."""
+    def test_pagina_e_cookie(self):
+        b = es.Banco(":memory:")
+        with mock.patch.dict(os.environ, {"PHYSIS_ESTERMIC_SENHA": "senha-de-teste-123"}):
+            s = es.servir(0, "127.0.0.1", b)
+        threading.Thread(target=s.serve_forever, daemon=True).start()
+        self.addCleanup(s.shutdown)
+        u = f"http://127.0.0.1:{s.server_address[1]}"
+        r = urllib.request.urlopen(u + "/")
+        self.assertEqual(r.status, 200)
+        self.assertIsNone(r.headers.get("WWW-Authenticate"))
+        self.assertIn("api/estermic/entrar", r.read().decode())
+        ruim = urllib.request.Request(u + "/api/estermic/entrar", json.dumps({"senha": "errada"}).encode(), {"Content-Type": "application/json"}, method="POST")
+        with self.assertRaises(urllib.error.HTTPError) as c:
+            urllib.request.urlopen(ruim)
+        self.assertEqual(c.exception.code, 401)
+        boa = urllib.request.Request(u + "/api/estermic/entrar", json.dumps({"senha": "senha-de-teste-123"}).encode(), {"Content-Type": "application/json"}, method="POST")
+        ck = urllib.request.urlopen(boa).headers.get("Set-Cookie").split(";")[0]
+        r2 = urllib.request.urlopen(urllib.request.Request(u + "/api/estermic/saude", headers={"Cookie": ck}))
+        self.assertEqual(json.loads(r2.read())["ok"], True)
+
+
 class Integracao(unittest.TestCase):
     def test_aprovacao_no_ma_agenda_e_ifc(self):
         ids = {a["id"]: a for a in mv_comandos.APROVACOES_23_11}
