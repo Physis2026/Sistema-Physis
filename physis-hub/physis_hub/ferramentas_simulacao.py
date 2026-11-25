@@ -5,8 +5,10 @@ análise do bot de modelagem usa. Só software aberto (decisão da dona de 24/11
 """
 from __future__ import annotations
 
+import glob as _glob
 import importlib.util
 import json
+import os
 import shutil
 
 # (id, nome, área, para quê, comandos/módulos que indicam instalado, licença, aberto?)
@@ -49,6 +51,38 @@ AREAS = {"mecanica": "Mecânica e engenharia (CAD/CAE/CFD)", "fisica": "Física 
 ANALISE = {"cfd": "openfoam", "fea": "calculix", "multi": "elmer", "cad": "freecad", "aster": "code_aster", "ele": "qelectrotech"}
 
 
+# Windows: os instaladores põem os programas em "Arquivos de Programas" sem colocar no PATH, então só o which() não acha
+# (verificação no PC-PHYSIS, 24/11/2026: FreeCAD, KiCad, Avogadro... instalados, mas "instalado": false aqui).
+# Mesmos lugares que ferramentas/verificar_programas.py procura. PHYSIS_FERRAMENTA_<ID> (ex.: PHYSIS_FERRAMENTA_FREECAD)
+# aponta um executável fora desses lugares.
+_PF = ["C:/Program Files", "C:/Program Files (x86)", os.path.expandvars("%LOCALAPPDATA%/Programs")]
+LOCAIS_WINDOWS = {
+    "freecad": ["FreeCAD*/bin/FreeCAD.exe", "FreeCAD*/bin/freecadcmd.exe"],
+    "freecad_bim": ["FreeCAD*/bin/FreeCAD.exe"],
+    "calculix": ["FreeCAD*/bin/ccx.exe", "FreeCAD*/bin/ccx*.exe"],
+    "avogadro": ["Avogadro2/bin/avogadro2.exe", "Avogadro*/bin/avogadro2.exe"],
+    "kicad": ["KiCad/*/bin/kicad.exe", "KiCad/*/bin/kicad-cli.exe"],
+    "librecad": ["LibreCAD/librecad.exe"],
+    "qelectrotech": ["QElectroTech*/bin/qelectrotech.exe", "QElectroTech*/qelectrotech.exe"],
+    "bonsai": ["Blender Foundation/Blender*/blender.exe"],
+    "cellblender": [],
+    "copasi": ["copasi.org/COPASI*/bin/CopasiUI.exe"],
+    "elmer": ["Elmer*/bin/ElmerSolver.exe"],
+    "lammps": ["LAMMPS*/bin/lmp.exe"],
+    "openstudio": ["OpenStudio*/bin/openstudio.exe"],
+    "sam": ["SAM/*/SAM.exe"],
+}
+LOCAIS_RAIZ = {"openstudio": ["C:/openstudio-*/bin/openstudio.exe", "C:/EnergyPlusV*/energyplus.exe"],
+               "opensim": ["C:/OpenSim*/bin/opensim-cmd.exe"], "openems": ["C:/openEMS/openEMS.exe"]}
+
+
+def instalado_windows(id_: str, achar=_glob.glob) -> bool:
+    if os.environ.get(f"PHYSIS_FERRAMENTA_{id_.upper()}") and os.path.exists(os.environ[f"PHYSIS_FERRAMENTA_{id_.upper()}"]):
+        return True
+    pads = [f"{b}/{p}" for b in _PF for p in LOCAIS_WINDOWS.get(id_, [])] + LOCAIS_RAIZ.get(id_, [])
+    return any(achar(p) for p in pads)
+
+
 def instalado(sinais: list[str], which=shutil.which) -> bool:
     for s in sinais:
         if s.startswith("py:"):
@@ -59,9 +93,11 @@ def instalado(sinais: list[str], which=shutil.which) -> bool:
     return False
 
 
-def situacao(which=shutil.which) -> list[dict]:
+def situacao(which=shutil.which, windows: bool | None = None, achar=_glob.glob) -> list[dict]:
+    win = (os.name == "nt") if windows is None else windows
     return [{"id": i, "nome": n, "area": AREAS[a], "uso": u, "licenca": lic, "aberto": ab,
-             "instalado": instalado(sin, which) if ab else False} for i, n, a, u, sin, lic, ab in CATALOGO]
+             "instalado": (instalado(sin, which) or (win and instalado_windows(i, achar))) if ab else False}
+            for i, n, a, u, sin, lic, ab in CATALOGO]
 
 
 if __name__ == "__main__":
