@@ -111,6 +111,11 @@ class MV:
                 pass
         self.db.row_factory = sqlite3.Row
         self.db.executescript(ESQUEMA)
+        try:                     # caixa de perguntas e pedidos dos bots desde o início (mv_cli.log: no such table: mv_pergunta, 25/11/2026)
+            from . import mv_comandos
+            self.db.executescript(mv_comandos.ESQUEMA)
+        except Exception:  # noqa: BLE001 — o módulo de comandos cria de novo quando for usado
+            pass
         for fid, nome, desc in FRENTES:
             self.db.execute("INSERT OR IGNORE INTO mv_frente VALUES (?,?,?)", (fid, nome, desc))
         self.db.commit()
