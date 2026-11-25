@@ -74,7 +74,7 @@ def montar_inp(p: dict) -> str:
     for i, v in enumerate(p["intensidades"]):
         o.append(f"Chuva {_hhmm(i * p['passo_min'])} {v:.4f}")
     o.append(f"Chuva {_hhmm(dur)} 0")
-    o += ["", "[REPORT]", "SUBCATCHMENTS ALL", "", "[END]", ""]
+    o += ["", "[REPORT]", "SUBCATCHMENTS ALL", ""]          # SWMM 5.2 não tem [END] (é do EPANET): ERRO 205
     return "\n".join(o)
 
 
