@@ -24,3 +24,8 @@ class Mover(unittest.TestCase):
         self.assertEqual(mv.db.execute("SELECT COUNT(*) FROM mv_edital").fetchone()[0], 2)
         self.assertTrue(mv.tarefa("t1")["projeto"].startswith("Edital · "))
         self.assertEqual(me.planejar(mv)["projetos"], {}, "rodar de novo não repete")
+        mv.salvar_tarefa({"id": "t2", "frente": "engineering", "projeto": "Pesquisa municipal Petrópolis", "titulo": "Ficou no projeto antigo", "responsavel": "Rafaella"})
+        p2 = me.planejar(mv)
+        self.assertGreaterEqual(p2["seguir"]["Pesquisa municipal Petrópolis"], 1)
+        me.aplicar(mv, p2)
+        self.assertEqual(mv.tarefa("t2")["projeto"], "Edital · Pesquisa municipal Petrópolis")

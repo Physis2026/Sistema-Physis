@@ -28,12 +28,19 @@ RX = re.compile(r"munic[ií]p|prefeitura|pesquisa municipal", re.I)
 def planejar(mv: MV) -> dict:
     cl = mv_clientes.Clientes(mv)
     contas = [c for c in cl.contas() if RX.search(c["nome"] or "") and c.get("estado") != "arquivada"]
-    nomes_contas = {c["nome"] for c in cl.contas()}          # tarefas de conta seguem a conta (que vira edital)
+    todas = cl.contas()
+    nomes_contas = {c["nome"] for c in todas}          # tarefas de conta seguem a conta (que vira edital)
+    arquivadas = {c["nome"]: c["id"] for c in todas if c.get("estado") == "arquivada" and RX.search(c["nome"] or "")}
+    seguir = {}                                          # conta já virou edital, mas as tarefas ficaram no projeto antigo
+    for tid, proj in mv.db.execute("SELECT id, projeto FROM mv_tarefa WHERE estado<>'feita'").fetchall():
+        if proj in arquivadas:
+            seguir.setdefault(proj, []).append(tid)
     projetos = {}
     for tid, proj in mv.db.execute("SELECT id, projeto FROM mv_tarefa WHERE projeto<>'' AND estado<>'feita'").fetchall():
         if RX.search(proj or "") and proj not in nomes_contas and not proj.startswith("Edital · "):
             projetos.setdefault(proj, []).append(tid)
-    return {"contas": [{"id": c["id"], "nome": c["nome"]} for c in contas], "projetos": {k: len(v) for k, v in projetos.items()}, "_tarefas": projetos}
+    return {"contas": [{"id": c["id"], "nome": c["nome"]} for c in contas], "projetos": {k: len(v) for k, v in projetos.items()}, "_tarefas": projetos,
+            "seguir": {k: len(v) for k, v in seguir.items()}, "_seguir": seguir}
 
 
 def aplicar(mv: MV, plano: dict) -> dict:
@@ -50,6 +57,9 @@ def aplicar(mv: MV, plano: dict) -> dict:
             mv.db.execute(f"INSERT INTO mv_edital ({','.join(d)}) VALUES ({','.join('?' * len(d))})", list(d.values()))
         mv.db.executemany("UPDATE mv_tarefa SET projeto=? WHERE id=?", [(f"Edital · {proj}", t) for t in tids])
         feitos.append({"edital": eid, "tarefas": len(tids)})
+    for proj, tids in plano.get("_seguir", {}).items():
+        mv.db.executemany("UPDATE mv_tarefa SET projeto=? WHERE id=?", [(f"Edital · {proj}", t) for t in tids])
+        feitos.append({"tarefas_para_o_edital": proj, "tarefas": len(tids)})
     mv.db.commit()
     return {"movidos": feitos}
 
@@ -61,6 +71,7 @@ def main(argv=None) -> int:
         p = planejar(mv)
         print("Contas que viram edital:", [c["nome"] for c in p["contas"]] or "nenhuma")
         print("Projetos de tarefas que ganham edital:", p["projetos"] or "nenhum")
+        print("Tarefas que seguem a conta que já virou edital:", p["seguir"] or "nenhuma")
         if "--aplicar" not in argv:
             print("Nada foi mudado. Para mover: --aplicar")
             return 0

@@ -261,7 +261,7 @@ def fabrica(banco: Banco, senha: str | None):
             if h.startswith("Basic "):
                 try:
                     u, _, p = base64.b64decode(h[6:]).decode("utf-8").partition(":")
-                    if u == "physis" and hmac.compare_digest(p, senha):
+                    if u.strip().lower() == "physis" and (senha is True and conferir_senha(p) or senha is not True and hmac.compare_digest(p, senha)):
                         return True
                 except Exception:  # noqa: BLE001
                     pass
@@ -348,16 +348,45 @@ def fabrica(banco: Banco, senha: str | None):
     return H
 
 
+ARQ_SENHA = "estermic-senha.json"     # na pasta de dados (fora do Git): sal e resumo PBKDF2, nunca a senha
+
+
+def definir_senha(nova: str, pasta: Path | None = None) -> Path:
+    import hashlib
+    sal = os.urandom(16)
+    arq = Path(pasta or mvmod.pasta_padrao()) / ARQ_SENHA
+    arq.write_text(json.dumps({"usuario": "physis", "sal": sal.hex(), "resumo": hashlib.pbkdf2_hmac("sha256", nova.encode(), sal, 200000).hex()}), encoding="utf-8")
+    return arq
+
+
+def conferir_senha(dada: str, pasta: Path | None = None) -> bool | None:
+    import hashlib
+    arq = Path(pasta or mvmod.pasta_padrao()) / ARQ_SENHA
+    if not arq.is_file():
+        return None
+    d = json.loads(arq.read_text(encoding="utf-8"))
+    return hmac.compare_digest(hashlib.pbkdf2_hmac("sha256", dada.encode(), bytes.fromhex(d["sal"]), 200000).hex(), d["resumo"])
+
+
 def servir(porta: int | None = None, endereco: str | None = None, banco: Banco | None = None) -> ThreadingHTTPServer:
     porta = int(porta or os.environ.get("PHYSIS_ESTERMIC_PORTA") or 8704)
     endereco = endereco or os.environ.get("PHYSIS_ESTERMIC_ENDERECO") or "127.0.0.1"
     senha = os.environ.get("PHYSIS_ESTERMIC_SENHA") or None
+    if not senha and (Path(mvmod.pasta_padrao()) / ARQ_SENHA).is_file():
+        senha = True                                   # senha pelo arquivo com resumo (py -m physis_hub.estermic_servidor --senha)
     if endereco not in ("127.0.0.1", "localhost") and not senha:
         raise SystemExit("Para abrir na rede, defina PHYSIS_ESTERMIC_SENHA (setx PHYSIS_ESTERMIC_SENHA ...).")
     return ThreadingHTTPServer((endereco, porta), fabrica(banco or Banco(), senha))
 
 
 if __name__ == "__main__":
+    if "--senha" in sys.argv:
+        import getpass
+        n1 = getpass.getpass("Senha nova da Estermic (usuário physis, mínimo 12 caracteres): ")
+        if n1 != getpass.getpass("Repita: ") or len(n1) < 12:
+            print("Senhas diferentes ou curtas. Nada foi mudado."); sys.exit(1)
+        print("Gravada em", definir_senha(n1), "(só o resumo). Religue a Estermic.")
+        sys.exit(0)
     s = servir()
     print(f"Physis Estermic em http://{s.server_address[0]}:{s.server_address[1]}{PAGINA}")
     s.serve_forever()

@@ -6,6 +6,8 @@ Cada site tem as PRÓPRIAS contas: a conta criada na Gestão não vale na Casa, 
     cd C:\physis\physis-ma-20261122-1bd599e
     py ferramentas\contas_site.py listar                       # só lê: usuários e papéis de cada site
     py ferramentas\contas_site.py senha casa rafaella          # define uma senha nova (pede a senha; não aparece na tela)
+    py ferramentas\contas_site.py resetar                     # TODAS as contas de TODOS os sites: uma senha nova para todas,
+                                                              # usuário em minúsculas, conta ativa, sessões encerradas (24/11/2026)
 
 Sites: gestao (physis-physis-site), casa (physis-casa-physis-inicial), inovastem (physis-inovastem), hub (physis-hub do sistema).
 A senha nova segue a mesma regra do site (mínimo de 12 caracteres, sem senha comum) e encerra as sessões abertas daquela conta.
@@ -83,10 +85,44 @@ def senha(site: str, usuario: str) -> int:
     return 0
 
 
+def resetar(nova: str | None = None) -> int:
+    """24/11/2026: "nenhuma senha está aceita; resetar todas". Para cada conta de cada site: usuário em minúsculas (o login compara
+    em minúsculas), conta ativa, senha nova (a mesma para todas, digitada uma vez) e sessões encerradas. Não apaga conta nenhuma."""
+    if nova is None:
+        nova = getpass.getpass("Senha nova para TODAS as contas (mínimo 12 caracteres): ")
+        if nova != getpass.getpass("Repita a senha nova: "):
+            print("As duas senhas não são iguais. Nada foi mudado.")
+            return 1
+    erro = seg.senha_fraca(nova, "")
+    if erro:
+        print("Senha recusada:", erro)
+        return 1
+    total = 0
+    for nome, pasta in SITES.items():
+        for b in (bancos(pasta) if pasta.is_dir() else []):
+            con = sqlite3.connect(b, timeout=30)
+            cols = {r[1] for r in con.execute("PRAGMA table_info(conta)")}
+            for cid, usuario in con.execute("SELECT id, usuario FROM conta").fetchall():
+                sal = os.urandom(16)
+                con.execute("UPDATE conta SET sal=?, resumo=? WHERE id=?", (sal, Hub._resumir(nova, sal), cid))
+                if usuario != usuario.strip().lower() and not con.execute("SELECT 1 FROM conta WHERE usuario=? AND id<>?", (usuario.strip().lower(), cid)).fetchone():
+                    con.execute("UPDATE conta SET usuario=? WHERE id=?", (usuario.strip().lower(), cid))
+                if "ativa" in cols:
+                    con.execute("UPDATE conta SET ativa=1 WHERE id=?", (cid,))
+                con.execute("DELETE FROM sessao WHERE conta=?", (cid,))
+                total += 1
+                print(f"{nome}: {usuario.strip().lower()} (senha trocada)")
+            con.commit(); con.close()
+    print(f"{total} conta(s) com senha nova. Religue os sites para limpar bloqueios por tentativas.")
+    return 0
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
     if a[:1] == ["listar"]:
         listar()
+    elif a[:1] == ["resetar"]:
+        sys.exit(resetar())
     elif len(a) == 3 and a[0] == "senha":
         sys.exit(senha(a[1], a[2]))
     else:
