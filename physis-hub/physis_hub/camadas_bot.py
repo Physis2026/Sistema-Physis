@@ -176,6 +176,8 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
     GDAL direto do endereço (/vsicurl/), só a janela das cidades: não baixa o Brasil inteiro. Erro = ValueError."""
     d = brutos / camada
     d.mkdir(parents=True, exist_ok=True)
+    if camada in VETOR_OFICIAL and eh_wfs(url):
+        return oficial_wfs(camada, url, pasta, js, rodar)
     remoto = url.startswith(("http://", "https://"))
     nome = ((urllib.parse.urlparse(url).path if remoto else url.replace("\\", "/")).rsplit("/", 1)[-1] or camada)[:120]
     arq = d / nome
@@ -258,6 +260,32 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
     return str(destino)
 
 
+def eh_wfs(url: str) -> bool:
+    """Serviço WFS (ex.: CAR/SICAR https://geoserver.car.gov.br/geoserver/sicar/wfs): o GDAL lê só a janela, sem baixar o país."""
+    u = url.lower()
+    return u.startswith("wfs:") or (u.startswith(("http://", "https://")) and (urllib.parse.urlparse(u).path.rstrip("/").endswith("/wfs") or "service=wfs" in u))
+
+
+def oficial_wfs(camada: str, url: str, pasta: Path, js, rodar=subprocess.run) -> str:
+    """endereço[#camada1,camada2]: sem '#', o ogr2ogr traz todas as camadas do serviço dentro da janela das cidades."""
+    base, _, nomes = url.partition("#")
+    base = base[4:] if base.lower().startswith("wfs:") else base
+    if not achar_gdal("ogr2ogr"):
+        raise ValueError("ogr2ogr não encontrado (vem com o QGIS)")
+    o, s, l, n = uniao(js)
+    destino = pasta / ARQUIVO[camada]
+    tmp = destino.with_suffix(".novo.geojson"); tmp.unlink(missing_ok=True)
+    args = ["ogr2ogr", "-f", "GeoJSON", "-t_srs", "EPSG:4326", "-spat", str(o), str(s), str(l), str(n), "-spat_srs", "EPSG:4326",
+            "-lco", "RFC7946=YES", "-nlt", "PROMOTE_TO_MULTI", str(tmp), "WFS:" + base]
+    args += [x.strip() for x in nomes.split(",") if x.strip()]
+    r = rodar(gdal(args), capture_output=True, text=True, timeout=3600)
+    if getattr(r, "returncode", 1) != 0 or not tmp.is_file():
+        raise ValueError("WFS não respondeu ou a camada não existe: " + (getattr(r, "stderr", "") or "")[-300:])
+    tmp.replace(destino)
+    _fonte(destino, url=url, camada=camada, oficial=True, janela=[o, s, l, n], leitura="serviço WFS (só a janela)")
+    return str(destino)
+
+
 def ler_fontes(pasta: Path) -> dict[str, str]:
     f = pasta / "fontes-camadas.txt"
     out = {}
@@ -265,7 +293,7 @@ def ler_fontes(pasta: Path) -> dict[str, str]:
         for l in f.read_text(encoding="utf-8-sig").splitlines():
             if ";" in l and not l.lstrip().startswith("#"):
                 c, u = [x.strip() for x in l.split(";", 1)]
-                if c in ARQUIVO and (u.startswith(("https://", "http://")) or re.match(r"^[A-Za-z]:[\\/]", u) or u.startswith("/")):
+                if c in ARQUIVO and (u.lower().startswith(("https://", "http://", "wfs:")) or re.match(r"^[A-Za-z]:[\\/]", u) or u.startswith("/")):
                     out.setdefault(c, u)          # endereço oficial ou arquivo baixado à mão neste PC (CAR, risco)
     return out
 
