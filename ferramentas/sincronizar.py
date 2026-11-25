@@ -40,6 +40,7 @@ ALVOS = [
     RAIZ / "physis-hub" / "web" / "municipio.html",
     RAIZ / "app-nativo" / "site" / "baixar.html",
     RAIZ / "modulos" / "modelagem3d" / "modelagem-3d.html",  # módulo de modelagem 3D (22/11/2026): ferramentas que saíram do M&A
+    RAIZ / "physis-hub" / "web" / "programas.html",  # programas do servidor (25/11/2026)
     RAIZ / "physis-hub" / "web" / "mv.html",   # Physis M&A: a barra também tem de ser idêntica (bot páginas, 22/11/2026)
     # vista 3D melhorada, versão de TESTE (22/11/2026): página de comparação, fora do Planejador
     RAIZ / "modulos" / "planejador" / "visualizador-3d-teste.html",

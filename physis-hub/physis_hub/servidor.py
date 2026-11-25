@@ -47,6 +47,7 @@ import html as html_mod
 import json
 import os
 import sys
+import tempfile
 import threading
 import traceback
 import time
@@ -86,6 +87,7 @@ from . import simulacao as simulacao_mod
 from . import cep as cep_mod
 from . import fornecedores as fornecedores_mod
 from . import catalogo_modelos as catalogo_mod
+from . import programas_externos as programas_mod
 from .simulacao import biogas as sim_biogas_mod
 from . import pegada_servidor as pegada_mod
 from . import seguranca as seg
@@ -830,6 +832,9 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                                        "fornecedores": lambda: fornecedores_mod.Fornecedores(
                                            hub, pasta=fornecedores_mod.pasta_padrao(banco_da_instancia(instancia))),
                                        # catálogo técnico (multi-split etc.): PHYSIS_CATALOGO = um banco para todas as instalações
+                                       # programas do PC ligados à plataforma (FreeCAD, QGIS, Blender...): só a equipe
+                                       "programas": lambda: programas_mod.Programas(os.environ.get("PHYSIS_PROGRAMAS_PASTA")
+                                                                                    or Path(arquivo_do_hub(hub) if arquivo_do_hub(hub) != ":memory:" else tempfile.gettempdir()).resolve().parent / "programas-trabalhos"),
                                        "catalogo": lambda: catalogo_mod.Catalogo(catalogo_mod.caminho_padrao(arquivo_do_hub(hub)), hub=hub),
                                        # intercâmbio com plataformas parceiras (docs/INTERCAMBIO.md): chave só no arquivo do servidor
                                        "intercambio": lambda: intercambio_mod.Intercambio(
@@ -1127,6 +1132,32 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     else:
                         self._json(cod, r)
                 return True
+            # Programas do PC pela plataforma (programas_externos.py): página /programas e API, só a equipe
+            if p in ("/programas", "/programas/"):
+                if self._exigir(seg.EQUIPE):
+                    self._arquivo(WEB / "programas.html", "text/html; charset=utf-8")
+                return True
+            if p == "/api/programas" or p.startswith("/api/programas/trabalho/"):
+                if not self._exigir(seg.EQUIPE):
+                    return True
+                pg = modulo("programas")
+                if p == "/api/programas":
+                    self._json(200, {"ok": True, "receitas": programas_mod.disponiveis(), "trabalhos": pg.lista()})
+                    return True
+                partes = p.split("/")
+                if len(partes) == 5:
+                    r = pg.estado(partes[4])
+                    self._json(r.pop("codigo", 200), r)
+                elif len(partes) == 7 and partes[5] == "arquivo":
+                    a = pg.arquivo(partes[4], unquote(partes[6]))
+                    if not a:
+                        self._json(404, {"ok": False, "erro": "arquivo não encontrado"})
+                    else:
+                        self._enviar_bytes(a[1], "application/octet-stream", {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(a[0]),
+                                                                              "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+                else:
+                    self._json(404, {"ok": False, "erro": "rota desconhecida"})
+                return True
             # Catálogo técnico de modelos (catalogo_modelos.py; docs/CATALOGO.md): cliente vê só o conferido; o resto equipe
             if p.startswith("/api/catalogo/"):
                 qc = self._exigir(seg.CLIENTE)
@@ -1254,6 +1285,28 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 if p.endswith("/apagar") and not self._sensivel(qf):
                     return True
                 self._json(*modulo("fornecedores").rota("POST", p, qf, corpo, parse_qs(u.query)))
+                return True
+            # Programas do PC: POST /api/programas/<receita>?nome=<arquivo>&p=<json dos parâmetros>; corpo = o arquivo (até 200 MB)
+            if p.startswith("/api/programas/") and not p.startswith("/api/programas/trabalho/"):
+                qp = self._exigir(seg.EQUIPE)
+                if not qp or self._limitado("arquivo"):
+                    return True
+                corpo = self._corpo_grande(programas_mod.ENTRADA_MAX + 1024)
+                if corpo is None and (self.headers.get("Content-Length") or "0").strip() == "0":
+                    corpo = b""
+                if corpo is None:
+                    self._recusar_corpo("arquivo grande demais (máximo 200 MB)")
+                    return True
+                qs = parse_qs(u.query)
+                try:
+                    params = json.loads((qs.get("p") or ["{}"])[0])
+                    if not isinstance(params, dict):
+                        raise ValueError
+                except ValueError:
+                    self._json(400, {"ok": False, "erro": "parâmetros inválidos"})
+                    return True
+                r = modulo("programas").iniciar(p.rsplit("/", 1)[1][:40], corpo, (qs.get("nome") or [""])[0][:120], params, qp["usuario"])
+                self._json(r.pop("codigo", 200 if r.get("ok") else 400), r)
                 return True
             # Catálogo técnico: planilha até 1 MB (equipe; o estado da planilha só vale para a direção); conferir só a direção;
             # seleção multi-split do AVAC para quem tem sessão (só lê o catálogo)
