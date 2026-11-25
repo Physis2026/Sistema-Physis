@@ -85,6 +85,7 @@ from . import mapeamento as mapeamento_mod
 from . import simulacao as simulacao_mod
 from . import cep as cep_mod
 from . import fornecedores as fornecedores_mod
+from . import catalogo_modelos as catalogo_mod
 from .simulacao import biogas as sim_biogas_mod
 from . import pegada_servidor as pegada_mod
 from . import seguranca as seg
@@ -164,6 +165,14 @@ def ler_instancia() -> dict:
 
 MAPEAMENTO_CORPO_MAX = 20 * 1024 * 1024        # arquivo do cliente ou IFC da aba Mapeamento
 SIMULACAO_CORPO_MAX = 8 * 1024 * 1024          # entrada de uma simulação (grade do terreno até 250.000 células)
+
+
+def arquivo_do_hub(h) -> str:
+    """Arquivo do banco aberto pelo hub (":memory:" nos testes)."""
+    try:
+        return h._db.execute("PRAGMA database_list").fetchone()[2] or ":memory:"
+    except Exception:  # noqa: BLE001
+        return ":memory:"
 
 
 def banco_da_instancia(inst: dict) -> str:
@@ -556,6 +565,8 @@ for _k, _v in ESQUEMAS_ROTAS.items():
     seg.ESQUEMAS.setdefault(_k, _v)
 for _k, _v in fornecedores_mod.ESQUEMAS.items():          # fornecedores e equipamentos (docs/FORNECEDORES.md)
     seg.ESQUEMAS.setdefault(_k, _v)
+for _k, _v in catalogo_mod.ESQUEMAS.items():              # catálogo técnico de modelos (docs/CATALOGO.md)
+    seg.ESQUEMAS.setdefault(_k, _v)
 for _k, _v in frota_mod.ESQUEMAS.items():                 # frota e combustível (docs/FROTA.md, em desenvolvimento)
     seg.ESQUEMAS.setdefault(_k, _v)
 for _k, _v in validacao_mod.ESQUEMAS.items():             # validação planejado × gerado (docs/VALIDACAO_MV.md, em desenvolvimento)
@@ -818,6 +829,8 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                                        "parceiros": lambda: parceiros_mod.Parceiros(hub),
                                        "fornecedores": lambda: fornecedores_mod.Fornecedores(
                                            hub, pasta=fornecedores_mod.pasta_padrao(banco_da_instancia(instancia))),
+                                       # catálogo técnico (multi-split etc.): PHYSIS_CATALOGO = um banco para todas as instalações
+                                       "catalogo": lambda: catalogo_mod.Catalogo(catalogo_mod.caminho_padrao(arquivo_do_hub(hub)), hub=hub),
                                        # intercâmbio com plataformas parceiras (docs/INTERCAMBIO.md): chave só no arquivo do servidor
                                        "intercambio": lambda: intercambio_mod.Intercambio(
                                            hub, instancia.get("intercambio_id") or os.environ.get("PHYSIS_INTERCAMBIO_ID") or hub.org,
@@ -1114,6 +1127,17 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     else:
                         self._json(cod, r)
                 return True
+            # Catálogo técnico de modelos (catalogo_modelos.py; docs/CATALOGO.md): cliente vê só o conferido; o resto equipe
+            if p.startswith("/api/catalogo/"):
+                qc = self._exigir(seg.CLIENTE)
+                if qc:
+                    cod, r = modulo("catalogo").rota("GET", p, qc, None, q)
+                    if isinstance(r, tuple):                       # ("bytes", nome, tipo, dados): planilha-modelo e exportação
+                        self._enviar_bytes(r[3], r[2], {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(r[1]),
+                                                        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+                    else:
+                        self._json(cod, r)
+                return True
             # Intercâmbio (intercambio.py; docs/INTERCAMBIO.md): /v1/ = outra plataforma, com assinatura; o resto = direção
             if p.startswith("/api/intercambio/"):
                 self._intercambio("GET", u, b"", q)
@@ -1230,6 +1254,20 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 if p.endswith("/apagar") and not self._sensivel(qf):
                     return True
                 self._json(*modulo("fornecedores").rota("POST", p, qf, corpo, parse_qs(u.query)))
+                return True
+            # Catálogo técnico: planilha até 1 MB (equipe; o estado da planilha só vale para a direção); conferir só a direção;
+            # seleção multi-split do AVAC para quem tem sessão (só lê o catálogo)
+            if p.startswith("/api/catalogo/") or p == "/api/avac/multisplit":
+                qc = self._exigir(seg.CLIENTE if p == "/api/avac/multisplit" else seg.EQUIPE)
+                if not qc or (p == "/api/catalogo/importar" and self._limitado("arquivo")):
+                    return True
+                corpo = self._corpo_grande(catalogo_mod.CSV_MAX + 64 * 1024)
+                if corpo is None and (self.headers.get("Content-Length") or "0").strip() == "0":
+                    corpo = b"{}"
+                if corpo is None:
+                    self._recusar_corpo("planilha grande demais (máximo 1 MB)")
+                    return True
+                self._json(*modulo("catalogo").rota("POST", p, qc, corpo, parse_qs(u.query)))
                 return True
             # Simulação (Fase 1): POST /api/simulacao/<parte>; 422 = dado faltando ([MARCADOR]); 400 = entrada inválida ou grande
             if p.startswith("/api/simulacao/"):
