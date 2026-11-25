@@ -89,6 +89,8 @@ class Estatico(unittest.TestCase):
             self.assertNotRegex(sem_coment, r"\beval\s*\(|new Function", nome)
             self.assertNotRegex(sem_coment, r"(?i)mailto:|smtp|sendmail|/api/(email|enviar)", nome + ": nada de enviar e-mail")
         for src in re.findall(r'<script src="([^"]+)"', self.html):
+            if src.endswith("desenvolvimento-dados.js"):   # gerado pelo bot desenvolvimento do M&A (fora do Git): opcional
+                continue
             self.assertTrue((PASTA / src).resolve().is_file(), src)
 
     def test_estrutura_da_tela(self):
