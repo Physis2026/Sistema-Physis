@@ -31,7 +31,7 @@ class Semente(unittest.TestCase):
         self.assertEqual(gp.rota("/api/gemeo/xyz")[0], 404)
 
     def test_sem_semente_nao_tem_aba(self):
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
             antes = os.environ.pop("PHYSIS_GEMEO", None)
             orig = gp.AQUI
             try:
@@ -59,7 +59,7 @@ class Servidor(unittest.TestCase):
     def test_rota_responde_ou_pede_sessao(self):
         from physis_hub.hub import Hub
         from physis_hub.servidor import iniciar
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
             hub = Hub(str(Path(d) / "h.db"), org="casa-physis-inicial", lugar="t")
             srv = iniciar(hub, 0, endereco="127.0.0.1")
             try:

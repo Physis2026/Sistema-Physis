@@ -29,7 +29,7 @@ class Mosaico(unittest.TestCase):
         self.assertEqual(mc.bbox_uf("DF", baixar=lambda u: {"id": 53} if "localidades" in u else gj), [-48, -16, -47, -15])
 
     def test_servidor_le_o_ladrilho_certo(self):
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
             p = Path(d) / "relevo"
             p.mkdir()
             (p / "a.asc").write_text(ASC.format(x=-44.3, y=-23.3, c=0.4), encoding="utf-8")
@@ -43,7 +43,7 @@ class Mosaico(unittest.TestCase):
             self.assertTrue(fora.get("sem_camada"))
 
     def test_simular_sem_gdal(self):
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
             bb = Path(d) / "b.json"
             bb.write_text(json.dumps({"DF": [-48.3, -16.1, -47.3, -15.5]}), encoding="utf-8")
             self.assertEqual(mc.main(["--ufs", "DF", "--camada", "relevo", "--entrada", "x.tif", "--pasta", d, "--bboxes", str(bb), "--simular"]), 0)
