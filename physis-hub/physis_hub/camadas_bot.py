@@ -182,8 +182,8 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
             raise ValueError("ogr2ogr não encontrado (vem com o QGIS)")
         tmp = destino.with_suffix(".novo.geojson")
         tmp.unlink(missing_ok=True)
-        r = rodar([exe, "-f", "GeoJSON", "-t_srs", "EPSG:4326", "-spat", str(o), str(s), str(l), str(n), "-spat_srs", "EPSG:4326",
-                   "-lco", "RFC7946=YES", str(tmp), str(src)], capture_output=True, text=True, timeout=1800)
+        r = rodar(gdal(["ogr2ogr", "-f", "GeoJSON", "-t_srs", "EPSG:4326", "-spat", str(o), str(s), str(l), str(n), "-spat_srs", "EPSG:4326",
+                   "-lco", "RFC7946=YES", str(tmp), str(src)]), capture_output=True, text=True, timeout=1800)
     else:
         src = arq if arq.suffix.lower() in (".tif", ".tiff", ".asc", ".img") else _maior(base, (".tif", ".tiff", ".asc", ".img"))
         if not src:
@@ -196,11 +196,11 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
         entrada = str(src)
         if warp:                                          # garante WGS84 antes de recortar
             w = d / "wgs84.tif"
-            rodar([warp, "-overwrite", "-t_srs", "EPSG:4326", "-te", str(o), str(s), str(l), str(n), str(src), str(w)],
+            rodar(gdal(["gdalwarp", "-overwrite", "-t_srs", "EPSG:4326", "-te", str(o), str(s), str(l), str(n), str(src), str(w)]),
                   capture_output=True, text=True, timeout=1800)
             if w.is_file():
                 entrada = str(w)
-        r = rodar([exe, "-of", "AAIGrid", "-projwin", str(o), str(n), str(l), str(s), entrada, str(tmp)],
+        r = rodar(gdal(["gdal_translate", "-of", "AAIGrid", "-projwin", str(o), str(n), str(l), str(s), entrada, str(tmp)]),
                   capture_output=True, text=True, timeout=1800)
     if getattr(r, "returncode", 1) != 0 or not tmp.is_file():
         raise ValueError("conversão falhou: " + (getattr(r, "stderr", "") or "")[-300:])
@@ -285,6 +285,146 @@ def rodar_bot(pasta: Path, cids: list[dict], quais: list[str] | None = None, for
             "provisorias": [c for c, r in res.items() if "provisória" in r["situacao"]]}
 
 
+# ── Brasil completo (25/11/2026: "incluir base de dados Brasil completa") ───────────────────────────────────────────────
+UFS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS",
+          "RO", "RR", "SC", "SP", "SE", "TO"]
+URL_BR_MUNICIPIOS = ("https://servicodados.ibge.gov.br/api/v3/malhas/paises/BR?formato=application/vnd.geo+json"
+                     "&qualidade=minima&intrarregiao=municipio")
+GEOFABRIK = "https://download.geofabrik.de/south-america/brazil/{r}-latest.osm.pbf"
+REGIOES_OSM = ["centro-oeste", "nordeste", "norte", "sudeste", "sul"]
+FILTROS_OSM = {   # camada: [(camada do driver OSM do GDAL, filtro SQL)]
+    "hidrografia": [("lines", "waterway IN ('river','stream','canal')"), ("points", "other_tags LIKE '%\"natural\"=>\"spring\"%'")],
+    "rede_eletrica": [("lines", "other_tags LIKE '%\"power\"=>\"line\"%' OR other_tags LIKE '%\"power\"=>\"minor_line\"%'"),
+                      ("points", "other_tags LIKE '%\"power\"=>\"substation\"%'"),
+                      ("multipolygons", "other_tags LIKE '%\"power\"=>\"substation\"%'")]}
+
+
+def gdal(args: list[str]) -> list[str]:
+    """Comando do GDAL do QGIS com o ambiente dele (o4w_env.bat acha PROJ e GDAL_DATA); fora do Windows, direto."""
+    exe = achar_gdal(args[0])
+    if not exe:
+        raise ValueError(f"{args[0]} não encontrado (vem com o QGIS)")
+    env = Path(exe).parent / "o4w_env.bat"
+    if os.name == "nt" and env.is_file():
+        return ["cmd", "/c", f'call "{env}" >nul && ' + subprocess.list2cmdline([exe] + args[1:])]
+    return [exe] + args[1:]
+
+
+def _bbox_gj(gj: dict) -> list[float]:
+    xs, ys = [], []
+
+    def anda(c):
+        if c and isinstance(c[0], (int, float)):
+            xs.append(c[0]); ys.append(c[1])
+        else:
+            for x in c:
+                anda(x)
+    for f in gj.get("features", []):
+        anda(f["geometry"]["coordinates"])
+    return [min(xs), min(ys), max(xs), max(ys)]
+
+
+def brasil(pasta: Path, quais: list[str] | None = None, pegar=buscar, rodar=subprocess.run, brutos: Path | None = None,
+           grade: float = 0.5, pausa: float = 0.3) -> dict:
+    """Brasil inteiro: limites de todos os municípios (IBGE), hidrografia e rede elétrica do país (OpenStreetMap, extratos
+    regionais da Geofabrik convertidos pelo GDAL e cortados em mosaico por estado), irradiação e vento em grade de 0,5° (NASA
+    POWER, retoma de onde parou). Edificações/vias (osm) ficam por cidade: o país inteiro não cabe no servidor."""
+    brutos = brutos or (pasta.parent / "dados-brutos" / "camadas")
+    brutos.mkdir(parents=True, exist_ok=True)
+    pasta.mkdir(parents=True, exist_ok=True)
+    quais = quais or ["limites", "hidrografia", "rede_eletrica", "irradiacao", "vento"]
+    res = {}
+    br = None
+    if "limites" in quais or {"irradiacao", "vento"} & set(quais):
+        try:
+            gj = json.loads(pegar(URL_BR_MUNICIPIOS).decode("utf-8"))
+            br = _bbox_gj(gj)
+            if "limites" in quais:
+                gj["_fonte"] = {"url": URL_BR_MUNICIPIOS, "baixado": time.strftime("%Y-%m-%d"), "licenca": "dados públicos do IBGE, citar a fonte"}
+                (pasta / "limites.geojson").write_text(json.dumps(gj, ensure_ascii=False), encoding="utf-8")
+                _fonte(pasta / "limites.geojson", url=URL_BR_MUNICIPIOS, abrangencia="Brasil, todos os municípios", oficial=True)
+                res["limites"] = {"situacao": "baixada (oficial, Brasil)", "municipios": len(gj.get("features", []))}
+        except Exception as e:  # noqa: BLE001
+            res["limites"] = {"situacao": "falta", "motivo": f"{type(e).__name__}: {str(e)[:200]}"}
+    ferr = Path(__file__).resolve().parents[2] / "ferramentas" / "mosaico_camadas.py"
+    for c in [x for x in ("hidrografia", "rede_eletrica") if x in quais]:
+        try:
+            gpkg = brutos / f"{c}-brasil.gpkg"
+            gpkg.unlink(missing_ok=True)
+            for reg in REGIOES_OSM:
+                pbf = brutos / f"{reg}-latest.osm.pbf"
+                if not pbf.is_file() or time.time() - pbf.stat().st_mtime > 30 * 86400:
+                    pbf.write_bytes(pegar(GEOFABRIK.format(r=reg)))
+                for camada_osm, filtro in FILTROS_OSM[c]:
+                    r = rodar(gdal(["ogr2ogr", "-f", "GPKG", "-append", "-nln", c, "-nlt", "PROMOTE_TO_MULTI", "-where", filtro,
+                                    str(gpkg), str(pbf), camada_osm]), capture_output=True, text=True, timeout=7200)
+                    if getattr(r, "returncode", 1) != 0:
+                        raise ValueError(f"ogr2ogr {reg}/{camada_osm}: " + (getattr(r, "stderr", "") or "")[-200:])
+            m = rodar([os.environ.get("PHYSIS_PY") or sys_executable(), str(ferr), "--ufs", ",".join(UFS_BR), "--camada", c,
+                       "--entrada", str(gpkg), "--pasta", str(pasta)], capture_output=True, text=True, timeout=14400,
+                      env=dict(os.environ, PATH=str(Path(achar_gdal("ogr2ogr") or ".").parent) + os.pathsep + os.environ.get("PATH", "")))
+            if getattr(m, "returncode", 1) != 0:
+                raise ValueError("mosaico: " + (getattr(m, "stdout", "") + getattr(m, "stderr", ""))[-300:])
+            unico = pasta / ARQUIVO[c]
+            if unico.is_file():                       # o arquivo único (só das cidades) esconderia o mosaico do Brasil
+                unico.replace(pasta / (ARQUIVO[c] + ".cidades-antigo"))
+            _fonte(pasta / c, url=GEOFABRIK.format(r="<região>"), provisoria=True, abrangencia="Brasil (mosaico por estado)",
+                   licenca="© colaboradores do OpenStreetMap, ODbL 1.0", oficial_pendente="ANA · BHO" if c == "hidrografia" else "ANEEL · SIGEL")
+            res[c] = {"situacao": "baixada (provisória: OpenStreetMap, Brasil em mosaico)"}
+        except Exception as e:  # noqa: BLE001
+            res[c] = {"situacao": "falta", "motivo": f"{type(e).__name__}: {str(e)[:200]}"}
+    if {"irradiacao", "vento"} & set(quais):
+        try:
+            if not br:
+                raise ValueError("sem o contorno do Brasil (IBGE) para montar a grade")
+            import math
+            lons = [round(x * grade, 4) for x in range(math.floor(br[0] / grade), math.ceil(br[2] / grade) + 1)]
+            lats = [round(y * grade, 4) for y in range(math.floor(br[1] / grade), math.ceil(br[3] / grade) + 1)]
+            cache_f = brutos / f"nasa-power-brasil-{grade}.json"
+            cache = json.loads(cache_f.read_text(encoding="utf-8")) if cache_f.is_file() else {}
+            faltando = 0
+            for la in lats:
+                for lo in lons:
+                    k = f"{lo},{la}"
+                    if k in cache:
+                        continue
+                    try:
+                        j = json.loads(pegar(URL_POWER.format(p="ALLSKY_SFC_SW_DWN,WS50M", lon=lo, lat=la)).decode("utf-8"))
+                        par = j["properties"]["parameter"]
+                        cache[k] = {"sol": par["ALLSKY_SFC_SW_DWN"], "vento": par["WS50M"].get("ANN")}
+                    except Exception:  # noqa: BLE001 — fica para a próxima rodada
+                        faltando += 1
+                    if len(cache) % 50 == 0:
+                        cache_f.write_text(json.dumps(cache), encoding="utf-8")
+                    time.sleep(pausa)
+            cache_f.write_text(json.dumps(cache), encoding="utf-8")
+            vazio = {"sol": {}, "vento": None}
+            g = {"lons": lons, "lats": lats, "pontos": {(lo, la): cache.get(f"{lo},{la}", vazio) for la in lats for lo in lons}}
+            if "irradiacao" in quais:
+                grava_asc(pasta / "irradiacao.asc", g, lambda p: p["sol"].get("ANN"))
+                for i, mm in enumerate(MESES, start=1):
+                    grava_asc(pasta / f"irradiacao_{i:02d}.asc", g, lambda p, mm=mm: p["sol"].get(mm))
+            if "vento" in quais:
+                grava_asc(pasta / "vento.asc", g, lambda p: p["vento"])
+            for c in ("irradiacao", "vento"):
+                if c in quais:
+                    _fonte(pasta / ARQUIVO[c], url="https://power.larc.nasa.gov/", provisoria=True, abrangencia="Brasil", grade_graus=grade,
+                           pontos=len(lons) * len(lats), pontos_faltando=faltando, licenca="dados públicos da NASA, citar a fonte",
+                           oficial_pendente="INPE/LABREN" if c == "irradiacao" else "CEPEL/CRESESB")
+                    res[c] = {"situacao": "baixada (provisória: NASA POWER, Brasil)" if not faltando else
+                              f"parcial: {faltando} ponto(s) para a próxima rodada", "pontos": len(lons) * len(lats)}
+        except Exception as e:  # noqa: BLE001
+            for c in ("irradiacao", "vento"):
+                if c in quais:
+                    res[c] = {"situacao": "falta", "motivo": f"{type(e).__name__}: {str(e)[:200]}"}
+    return {"pasta": str(pasta), "camadas": res, "faltam": [c for c, r in res.items() if r["situacao"] == "falta"]}
+
+
+def sys_executable() -> str:
+    import sys
+    return sys.executable
+
+
 def bot_camadas(mv, pasta: Path | None = None) -> dict:
     """Bot do M&A (rodada diária). Sem PHYSIS_CAMADAS: só avisa."""
     from . import mv_comandos, mv_ecossistema
@@ -294,6 +434,12 @@ def bot_camadas(mv, pasta: Path | None = None) -> dict:
         r = {"aviso": "PHYSIS_CAMADAS não definida"}
     else:
         r = rodar_bot(Path(alvo), mv_ecossistema.cidades())
+        if os.environ.get("PHYSIS_CAMADAS_BRASIL") == "1":          # Brasil completo: refeito a cada 30 dias (o resto retoma)
+            marca = Path(alvo) / ".brasil-feito"
+            if not marca.is_file() or time.time() - marca.stat().st_mtime > 30 * 86400:
+                r["brasil"] = brasil(Path(alvo))
+                if not r["brasil"]["faltam"]:
+                    marca.write_text(time.strftime("%Y-%m-%d"), encoding="utf-8")
         if r["faltam"]:
             ref = "camadas:faltam:" + ",".join(sorted(r["faltam"]))
             if not mv.db.execute("SELECT 1 FROM mv_pedido_bot WHERE comando=?", (ref,)).fetchone():

@@ -48,6 +48,28 @@ class Bot(unittest.TestCase):
             r = cb.rodar_bot(Path(d), CID, ["hidrografia", "vento"], pegar=lambda *a, **k: (_ for _ in ()).throw(OSError("sem rede")))
             self.assertEqual(sorted(r["faltam"]), ["hidrografia", "vento"])
 
+class Brasil(unittest.TestCase):
+    def test_brasil_limites_e_grade(self):
+        def pg(url, dados=None):
+            if "malhas/paises/BR" in url:
+                return json.dumps({"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"codarea": "1"},
+                    "geometry": {"type": "Polygon", "coordinates": [[[-44.0, -23.0], [-43.0, -23.0], [-43.0, -22.0], [-44.0, -22.0], [-44.0, -23.0]]]}}]}).encode()
+            return pegar(url)
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "camadas"
+            r = cb.brasil(p, ["limites", "irradiacao", "vento"], pegar=pg, pausa=0)
+            self.assertEqual(r["faltam"], [])
+            self.assertEqual(r["camadas"]["irradiacao"]["pontos"], 9)          # -44..-43 × -23..-22 em 0,5°
+            self.assertTrue(json.loads((p / "limites.geojson.fonte.json").read_text(encoding="utf-8"))["oficial"])
+            self.assertEqual(set(mp.ler_asc_janela(p / "vento.asc", (-44.1, -23.1, -42.9, -21.9))["valores"]), {5.2})
+
+    def test_gdal_sem_qgis(self):
+        import unittest.mock as um
+        with um.patch.object(cb, "achar_gdal", return_value=None):
+            with self.assertRaises(ValueError):
+                cb.gdal(["ogr2ogr"])
+
+
 class GradeGrossa(unittest.TestCase):
     def test_lote_pequeno_pega_a_celula_do_centro(self):
         with tempfile.TemporaryDirectory() as d:
