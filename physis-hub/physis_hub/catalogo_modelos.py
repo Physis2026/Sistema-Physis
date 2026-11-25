@@ -10,8 +10,10 @@ evaporadoras (saídas), faixa de combinação (% da capacidade nominal), evapora
 Regra 1 (nada é inventado):
 - toda linha nasce com FONTE (endereço ou nome do arquivo do catálogo), REFERÊNCIA (página/tabela) e DATA da fonte; sem elas a
   linha é recusada. Unidade só é convertida (1 kW = 3.412,142 BTU/h), nunca estimada;
-- tudo nasce "a_conferir" (planilha da equipe, tabela do Inmetro, leitura do bot); só a DIREÇÃO marca "conferido" (uma linha,
-  várias ou uma importação inteira). A seleção usa só o conferido; "incluir a conferir" mostra o resto com o aviso;
+- 25/11/2026 ("tudo automático pelos bots, nada manual"): o bot de modelos lê os catálogos e grava sozinho. A linha do bot ou do
+  Inmetro que passa em TODAS as conferências automáticas (fonte e página, data, unidades, faixas, campos completos, eficiência ×
+  capacidade/potência, MCA ≤ MOP) vira "conferido_bot" e já entra na seleção, marcada assim; com qualquer aviso fica "a_conferir".
+  A direção pode trocar o estado quando quiser (opcional, não é passo obrigatório);
 - o que falta fica escrito ("faltam dados: ...") e a seleção diz por que cada condensadora ficou de fora.
 Histórico só cresce (cadeia SHA-256, como fornecedores.py). Exportação para parceiros: só conferido, com fonte e resumo.
 """
@@ -37,7 +39,8 @@ TIPOS = {"condensadora_multi": "Condensadora multi-split", "evaporadora_multi": 
          "split": "Split (interna + externa)", "vrf_externa": "Condensadora VRF", "vrf_interna": "Unidade interna VRF",
          "chiller": "Chiller", "fancoil": "Fancoil", "bomba": "Bomba", "motor": "Motor elétrico",
          "inversor_fv": "Inversor fotovoltaico", "modulo_fv": "Módulo fotovoltaico", "inversor_freq": "Inversor de frequência"}
-ESTADOS = {"a_conferir": "A conferir", "conferido": "Conferido", "descartado": "Descartado"}
+ESTADOS = {"a_conferir": "A conferir", "conferido_bot": "Conferido pelo bot", "conferido": "Conferido", "descartado": "Descartado"}
+VALIDOS = ("conferido", "conferido_bot")          # entram na seleção e na exportação
 ORIGENS = ("planilha", "inmetro", "bot", "manual")
 # coluna: (mínimo, máximo, inteiro). Faixas largas só para pegar erro de digitação (vírgula fora do lugar), não de projeto.
 NUMEROS = {"cap_resf_btuh": (1000, 7_000_000, False), "cap_resf_kw": (0.3, 2000, False), "cap_aquec_kw": (0.3, 2000, False),
@@ -264,7 +267,7 @@ def selecionar_multisplit(modelos: list[dict], ambientes: list[dict], fabricante
         erro = "simultaneidade entre 0,3 e 1,0 (1,0 = todos os ambientes no pico ao mesmo tempo)"
     if erro:
         return {"ok": False, "erro": erro}
-    estados = ("conferido", "a_conferir") if incluir_a_conferir else ("conferido",)
+    estados = VALIDOS + ("a_conferir",) if incluir_a_conferir else VALIDOS
     fab = norm(fabricante)
     base = [m for m in modelos if m.get("estado") in estados and (not fab or norm(m.get("fabricante")) == fab)]
     conds = [m for m in base if m["tipo"] == "condensadora_multi"]
@@ -329,7 +332,8 @@ def selecionar_multisplit(modelos: list[dict], ambientes: list[dict], fabricante
                                       "cap_btuh": round(e["dados"]["cap_resf_btuh"])} for a, e in esc],
                        eletrica=elet, faltam_quadro=falta_q, refrigerante=d.get("refrigerante"),
                        tubulacao={k: d.get(k) for k in ("tubo_total_max_m", "tubo_ramal_max_m", "desnivel_max_m")},
-                       a_conferir=any(m["estado"] != "conferido" for m in partes), fontes=fontes))
+                       a_conferir=any(m["estado"] not in VALIDOS for m in partes),
+                       conferido_por_bot=any(m["estado"] == "conferido_bot" for m in partes), fontes=fontes))
     ok.sort(key=lambda o: (o["cap_btuh"], abs(o["combinacao_pct"] - 100), -(o["eficiencia"]["valor"] or 0), o["fabricante"], o["modelo"]))
     vistos, opcoes = set(), []
     for o in ok:
@@ -453,7 +457,12 @@ class Catalogo:
                 if mid in vistas:
                     recusadas.append({"linha": n, "modelo": linha["modelo"], "erro": "modelo repetido nesta planilha"}); continue
                 vistas.add(mid)
-                estado = linha["estado"] if (direcao and linha["estado"] in ESTADOS) else "a_conferir"
+                if direcao and linha["estado"] in ESTADOS:
+                    estado = linha["estado"]
+                elif origem in ("bot", "inmetro") and not avisos and not linha["faltam"] and linha["fonte_ref"]:
+                    estado = "conferido_bot"          # passou em todas as conferências automáticas
+                else:
+                    estado = "a_conferir"
                 dados_txt = json.dumps(linha["dados"], ensure_ascii=False, sort_keys=True)
                 ant = self._db.execute("SELECT dados,fonte,fonte_ref,data_fonte,linha,classe,estado FROM catalogo_modelo WHERE id=?",
                                        (mid,)).fetchone()
@@ -531,7 +540,7 @@ class Catalogo:
         mods = self.modelos("condensadora_multi,evaporadora_multi")
         r = selecionar_multisplit(mods, ambientes, fabricante, simultaneidade, incluir_a_conferir, max_opcoes)
         r["catalogo"] = {"condensadoras": sum(1 for m in mods if m["tipo"] == "condensadora_multi"),
-                         "conferidas": sum(1 for m in mods if m["tipo"] == "condensadora_multi" and m["estado"] == "conferido"),
+                         "conferidas": sum(1 for m in mods if m["tipo"] == "condensadora_multi" and m["estado"] in VALIDOS),
                          "evaporadoras": sum(1 for m in mods if m["tipo"] == "evaporadora_multi")}
         return r
 
@@ -563,7 +572,7 @@ class Catalogo:
             for f in fabs:
                 c = cont.get(norm(f), {})
                 linhas.append({"fabricante": f, **{t: {"conferido": c.get((t, "conferido"), 0), "a_conferir": c.get((t, "a_conferir"), 0)} for t in tipos},
-                               "lacuna": c.get((tipos[0], "conferido"), 0) == 0})
+                               "lacuna": c.get((tipos[0], "conferido"), 0) + c.get((tipos[0], "conferido_bot"), 0) == 0})
             segs.append({"segmento": seg_, "tipos": list(tipos), "fabricantes": linhas, "lacunas": sum(1 for l in linhas if l["lacuna"])})
         incompletos = [{"id": m["id"], "fabricante": m["fabricante"], "modelo": m["modelo"], "tipo": m["tipo"], "faltam": m["faltam"]}
                        for m in mods if m["faltam"] and m["estado"] != "descartado"]
@@ -598,8 +607,8 @@ class Catalogo:
                         p.append(f"catálogo de {ano}: mais velho que {self.anos_validade:g} anos (premissa {PREMISSA_ANOS})")
                 except ValueError:
                     pass
-            if m["estado"] != "conferido":
-                p.append("a conferir (só a direção marca conferido)")
+            if m["estado"] not in VALIDOS:
+                p.append("a conferir (não passou nas conferências automáticas)")
             por_modelo[m["id"]] = p
         prontos = [mid for mid, p in por_modelo.items() if not p]
         problemas = [{"id": m["id"], "tipo": m["tipo"], "fabricante": m["fabricante"], "modelo": m["modelo"], "problemas": por_modelo[m["id"]]}
@@ -661,7 +670,7 @@ class Catalogo:
             if p == "/api/catalogo/modelos":
                 if equipe:
                     return 200, {"ok": True, "tipos": TIPOS, "estados": ESTADOS, "modelos": self.modelos(g("tipo", 200), g("fabricante"), g("estado", 12))}
-                return 200, {"ok": True, "tipos": TIPOS, "modelos": [self.publico(m) for m in self.modelos(g("tipo", 200), g("fabricante"), "conferido")]}
+                return 200, {"ok": True, "tipos": TIPOS, "modelos": [self.publico(m) for m in self.modelos(g("tipo", 200), g("fabricante")) if m["estado"] in VALIDOS]}
             if not equipe:
                 return negado
             if p == "/api/catalogo/lacunas":

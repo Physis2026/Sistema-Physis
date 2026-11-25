@@ -49,6 +49,13 @@ CATALOGO = [
     ("windpowerlib", "windpowerlib", "bim", "energia de turbinas eólicas · 0,2 núcleo, 0,3 GB", ["py:windpowerlib"], "MIT", True),
     ("epanet", "EPANET (via WNTR)", "bim", "rede hidráulica e pressões · 0,2 núcleo, 0,2 GB", ["py:wntr", "py:epanet"], "MIT", True),
     ("swmm", "SWMM (via pyswmm)", "bim", "drenagem urbana e chuva · 0,5 núcleo, 0,3 GB", ["py:pyswmm", "swmm5"], "Domínio público", True),
+    # 25/11/2026: o que estava no inventário Windows × VM e faltava no catálogo do servidor
+    ("gmsh", "Gmsh", "mecanica", "malhas 2D/3D para CalculiX, Elmer e OpenFOAM", ["gmsh", "py:gmsh"], "GPL", True),
+    ("fenicsx", "FEniCSx", "fisica", "equações diferenciais por elementos finitos (roda na VM Linux)", ["py:dolfinx"], "LGPL", True),
+    ("qgis", "QGIS", "bim", "camadas de mapa, relevo e lotes (abre o que está em PHYSIS_CAMADAS)", ["qgis", "qgis-bin", "qgis-ltr-bin"], "GPL", True),
+    ("blender", "Blender", "bim", "modelagem 3D e renderização (base do Bonsai e do CellBlender)", ["blender"], "GPL", True),
+    ("prusaslicer", "PrusaSlicer", "mecanica", "fatiador da impressão 3D (perfis, bico, costura, pele felpuda)", ["prusa-slicer", "prusa-slicer-console"], "AGPL-3.0", True),
+    ("tesseract", "Tesseract OCR", "eletrica", "leitura de PDF escaneado (catálogos, editais); precisa do idioma por", ["tesseract"], "Apache-2.0", True),
 ]
 AREAS = {"mecanica": "Mecânica e engenharia (CAD/CAE/CFD)", "fisica": "Física (multifísica e eletromagnetismo)",
          "quimica": "Química (quântica e molecular)", "biologia": "Biologia e bioinformática", "eletrica": "IoT, quadros elétricos e automação", "bim": "BIM e instalações (Planejador)"}
