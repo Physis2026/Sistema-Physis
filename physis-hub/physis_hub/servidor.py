@@ -66,6 +66,7 @@ from . import zonas as zonas_mod
 from . import vento as vento_mod
 from . import residuos_gis as residuos_mod
 from . import aprendizado as aprendizado_mod
+from . import gemeo_painel as gemeo_painel_mod
 from . import robos as robos_mod
 from . import alertas_clima as alertas_mod
 from . import app_pwa
@@ -1082,6 +1083,16 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 if self._exigir(seg.CLIENTE) and not self._limitado("cep"):
                     self._json(*cep_srv.consultar(unquote(p.rsplit("/", 1)[-1])[:12]))
                 return True
+            # Gêmeo digital (gemeo_painel.py): resumo, semente e IFC, só com sessão; sem semente nesta instalação, 404
+            if p == "/api/gemeo" or p.startswith("/api/gemeo/"):
+                if self._exigir(seg.CLIENTE):
+                    r = gemeo_painel_mod.rota(p, arquivo_instancia().parent)
+                    if isinstance(r[0], str):
+                        self._enviar_bytes(r[3], r[2], {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(r[1]),
+                                                        "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+                    else:
+                        self._json(*r)
+                return True
             # Mapeamento: catálogo e camadas abertas sem login; contexto e arquivos do cliente com sessão
             if p.startswith("/api/mapeamento/"):
                 aberto = p.rstrip("/") in ("/api/mapeamento/camadas", "/api/mapeamento/camada")
@@ -1652,6 +1663,7 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     "licenca": instancia.get("licenca"), "sustainkit": (WEB / "sustainkit.html").exists(),
                     "supervisao": (WEB / "supervisao.html").exists(), "gestao": (WEB / "gestao.html").exists(),
                     "planejador": (WEB / "planejador.html").exists(), "pesquisa": bool(instancia.get("pesquisa")),
+                    "gemeo": gemeo_painel_mod.pasta_gemeo(arquivo_instancia().parent) is not None,
                     "nome_cliente": instancia.get("nome"),
                     # marca própria da instalação (ex.: Casa Physis): nome, título e logos em /marca/ (montar.py)
                     "instalacao": instancia.get("instalacao") or "physis",

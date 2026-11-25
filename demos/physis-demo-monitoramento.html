@@ -24085,7 +24085,42 @@ function telaPesquisa(){ const grupos = [["dev","Em desenvolvimento"],["par","Bu
     <div class="faixa at"><strong>Pesquisa.</strong> O que está nesta aba não foi revisado como produto. Use para estudo e testes, não para decisões de compra ou de obra sem a equipe Physis.</div>
     ${cartaoTelas()}${cartaoSistemas()}
     ${grupos.map(([st, nome]) => { const l = CAT.filter(c => !c.auto && c.g !== "curso" && c.st === st); return l.length ? `<section aria-labelledby="h-pq-${st}" style="display:flex;flex-direction:column;gap:10px"><h2 id="h-pq-${st}">${nome} (${l.length})</h2><div class="sols">${l.map(linha).join("")}</div></section>` : ""; }).join("")}`; }
-function telaPrograma(id){ const [nome, rota, sub] = PROG[id], doServidor = ui.modo === "hub" && ui.inst && !ui.inst.simulada && ui.inst[id] && rota;
+/* Gêmeo digital da Casa Physis (25/11/2026, versão de TESTE): sub-aba do Planejador quando a instalação tem a semente
+   (servidor: gemeo_painel.py, /api/gemeo). Só leitura: semente para o Planejador e IFC para o 3D; não muda contas. */
+function telaGemeo(){ if (ui.modo !== "hub") return `<p class="faixa in" role="status">O gêmeo digital vem do servidor da instalação: abra a plataforma pelo servidor da Casa Physis.</p>`;
+  if (!ui.gemeo){ ui.gemeo = { carregando:true }; fetch("api/gemeo", { cache:"no-store" }).then(r => r.json()).then(j => { ui.gemeo = j; desenhar(false); }).catch(() => { ui.gemeo = { ok:false, erro:"sem resposta do servidor" }; desenhar(false); }); }
+  const G = ui.gemeo; if (G.carregando) return `<p role="status">Carregando o gêmeo digital…</p>`;
+  if (!G.ok) return `<p class="faixa at" role="status">Gêmeo digital indisponível: ${esc(G.erro || "erro")}</p>`;
+  const t = G.totais || {}, f1 = (v, c) => v == null ? "—" : n2(v, c == null ? 1 : c), txt = v => typeof v === "string" ? v : JSON.stringify(v);
+  const est = Object.entries(G.estados || {}).map(([k, v]) => `${esc(k)}: ${v}`).join(" · ");
+  const zonas = (G.zonas || []).map(z => `<tr><th scope="row">${esc(z.nome)}</th><td>${esc(z.entidade)}</td><td>${z.elementos}</td><td>${f1(z.area_m2, 1)}</td></tr>`).join("");
+  const itens = (G.zonas || []).map(z => `<details class="cartao"><summary><h3 style="display:inline">${esc(z.nome)} · ${esc(z.entidade)} (${z.elementos})</h3></summary><div class="rolagem"><table><caption>Elementos da ${esc(z.nome)}</caption><thead><tr><th scope="col">Elemento</th><th scope="col">Estado de vida</th><th scope="col">Área (m²)</th></tr></thead><tbody>${z.itens.map(i => `<tr><th scope="row">${esc(i.nome)}</th><td>${esc(i.estado)}</td><td>${f1(i.area_m2, 1)}</td></tr>`).join("")}</tbody></table></div></details>`).join("");
+  const conf = (G.conferir || []).map(c => `<li><strong>${esc(c.campo)}</strong>: ${esc(txt(c.divergencia))}</li>`).join("");
+  const marc = (G.marcadores || []).map(c => `<li><strong>${esc(c.campo)}</strong>: ${esc(txt(c.marcador))}</li>`).join("");
+  return `<p class="faixa in" role="note">${esc(G.aviso || "")}</p>
+  <div class="grade">
+    <section class="cartao" aria-labelledby="h-gm-el"><h3 id="h-gm-el" class="t3">Elementos</h3><span class="numero">${t.elementos ?? "—"}</span><span class="t2">${esc(est)}</span></section>
+    <section class="cartao" aria-labelledby="h-gm-ar"><h3 id="h-gm-ar" class="t3">Área dos elementos</h3><span class="numero">${f1(t.area_m2, 0)}</span><span class="t2">m²</span></section>
+    <section class="cartao" aria-labelledby="h-gm-tr"><h3 id="h-gm-tr" class="t3">Terra</h3><span class="numero">${f1(t.corte_m3, 0)}</span><span class="t2">m³ de corte · ${f1(t.aterro_m3, 0)} m³ de aterro</span></section>
+    <section class="cartao" aria-labelledby="h-gm-va"><h3 id="h-gm-va" class="t3">Semente</h3><span class="numero">${(G.validacao || []).length ? "Com problemas" : "Íntegra"}</span><span class="t2">revisão ${esc(String(G.revisao ?? "—"))} · ${esc([G.municipio, G.uf].filter(Boolean).join(" · "))}</span></section></div>
+  ${(G.validacao || []).length ? `<div class="faixa al" role="alert"><ul>${G.validacao.map(v => `<li>${esc(v)}</li>`).join("")}</ul></div>` : ""}
+  <section class="cartao" aria-labelledby="h-gm-z"><h2 id="h-gm-z">Zonas e entidades</h2><div class="rolagem"><table><caption>Elementos por zona do lote</caption><thead><tr><th scope="col">Zona</th><th scope="col">Entidade</th><th scope="col">Elementos</th><th scope="col">Área (m²)</th></tr></thead><tbody>${zonas}</tbody></table></div></section>
+  ${itens}
+  <section class="cartao" aria-labelledby="h-gm-ab"><h2 id="h-gm-ab">Abrir e baixar</h2>
+    <p><a class="botao" href="api/gemeo/semente" download>Baixar a semente para o Planejador (JSON)</a> ${G.ifc ? `<a class="botao" href="api/gemeo/ifc" download>Baixar o modelo 3D (IFC)</a>` : ""}</p>
+    <p class="t2 pq">No Planejador: "Abrir projeto" com a semente. Para ver em 3D, anexe o IFC no Início do Planejador e use "Ver em 3D e áreas".</p></section>
+  <section class="cartao" aria-labelledby="h-gm-cf"><h2 id="h-gm-cf">A conferir (${G.conferir_total || 0}) e marcadores (${G.marcadores_total || 0})</h2>
+    ${conf ? `<h3 class="t3">Divergências no acervo [CONFERIR]</h3><ul>${conf}</ul>` : "<p>Nenhuma divergência aberta.</p>"}${marc ? `<h3 class="t3">Dados que faltam [MARCADOR]</h3><ul>${marc}</ul>` : ""}</section>
+  <section class="cartao" aria-labelledby="h-gm-md"><h2 id="h-gm-md">Camada medida</h2><p>${esc((G.medido || {}).situacao || "aguardando sensores")}</p></section>`; }
+if (typeof document !== "undefined" && !window.__gemeoEventos){ window.__gemeoEventos = true;
+  document.addEventListener("click", ev => { const b = ev.target.closest ? ev.target.closest("button[data-plan-sub]") : null; if (!b) return;
+    ui.planSub = b.dataset.planSub; desenhar(false); const x = el("plan-sub-" + ui.planSub); if (x) x.focus(); }); }
+function telaPrograma(id){ if (!(id === "planejador" && ui.inst && ui.inst.gemeo)) return telaProgramaBase(id);
+  const s = ui.planSub === "gemeo" ? "gemeo" : "programa", nome = PROG[id][0];
+  const chips = `<div class="chips" role="group" aria-label="Planejador ou gêmeo digital">${[["programa", "Planejador"], ["gemeo", "Gêmeo digital · Casa Physis"]].map(([k, n]) => `<button type="button" id="plan-sub-${k}" data-plan-sub="${k}" aria-pressed="${k === s}">${n}</button>`).join("")}</div>`;
+  if (s === "gemeo") return `<h1>${nome}</h1><p class="t2 apoio">Gêmeo digital da Casa Physis: zonas, entidades, elementos com procedência, o que falta conferir e o modelo 3D.</p>${chips}${telaGemeo()}`;
+  return telaProgramaBase(id).replace("</h1>", "</h1>" + chips); }
+function telaProgramaBase(id){ const [nome, rota, sub] = PROG[id], doServidor = ui.modo === "hub" && ui.inst && !ui.inst.simulada && ui.inst[id] && rota;
   if (!doServidor && !PROGRAMAS[id]) return `<h1>${nome}</h1>${sub ? `<p class="t2 apoio">${sub}</p>` : ""}${quadroLocal(id, nome)}`;   // não vem embutido: arquivo da mesma pasta
   return `<h1>${nome}</h1>${sub ? `<p class="t2 apoio">${sub}</p>` : ""}
   <div class="quadro"><iframe id="quadro-${id}" title="${nome}, programa completo" data-prog="${id}" ${doServidor ? `src="${rota}"` : id === "planejador" ? `src="${/\.html$/.test(location.pathname) ? "physis-demo-planejador.html" : "/demo/planejador/"}"` : ""}></iframe></div>
