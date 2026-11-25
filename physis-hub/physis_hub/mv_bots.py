@@ -647,3 +647,5 @@ def rodar(mv: MV, quais: list[str] | None = None) -> dict:
     except Exception as e:  # noqa: BLE001
         out["rotina"] = {"erro": repr(e)}
     return out
+from . import camadas_bot  # noqa: E402 — camadas de mapa: baixa e converte das fontes (25/11/2026)
+BOTS["camadas"] = camadas_bot.bot_camadas

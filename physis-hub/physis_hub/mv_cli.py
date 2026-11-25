@@ -24,7 +24,7 @@ from .mv import MV, pasta_padrao
 RAIZ_HUB = Path(__file__).resolve().parents[1]
 # rodada diária (7h). Na agenda vai só a palavra "diario": o schtasks aceita no máximo 261 caracteres em /TR e o caminho
 # da pasta do sistema (ex.: C:\\physis\\physis-ma-20261122-1bd599e) + o do Python + a lista inteira passavam disso (23/11/2026).
-RODADA_DIARIA = "atrasos documentos resumo backup paginas inovacao links editais dados_iot simulacao gestoes bancos acervo ia cursos financeiro vencimentos fatos kit repositorios desenvolvimento sincronizacao melhoria modelos auditoria vigia sentinela sala".split()
+RODADA_DIARIA = "atrasos documentos resumo backup paginas inovacao links editais dados_iot simulacao gestoes bancos acervo ia cursos financeiro vencimentos fatos kit repositorios desenvolvimento sincronizacao melhoria modelos camadas auditoria vigia sentinela sala".split()
 GRUPOS = {"diario": RODADA_DIARIA}
 LIMITE_TR = 261
 

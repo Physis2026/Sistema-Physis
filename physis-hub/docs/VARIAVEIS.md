@@ -15,9 +15,10 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_CALC_EXTERNO` | calc_cliente.py:51 | `if url and not destino_local(url) and os.environ.get("PHYSIS_CALC_EXTERNO") != "1":` |
 | `PHYSIS_CALC_TEMPO` | calc_cliente.py:93 (+1) | `t = float(tempo or os.environ.get("PHYSIS_CALC_TEMPO") or 60)` |
 | `PHYSIS_CALC_URL` | calc_cliente.py:50 | `url = (os.environ.get("PHYSIS_CALC_URL") or "").strip().rstrip("/")` |
-| `PHYSIS_CAMADAS` | mapeamento.py:125 | `p = pasta if pasta is not None else os.environ.get("PHYSIS_CAMADAS", "")` |
+| `PHYSIS_CAMADAS` | camadas_bot.py:292 (+2) | `alvo = pasta or (Path(os.environ["PHYSIS_CAMADAS"]) if os.environ.get("PHYSIS_CAMADAS") else None)` |
+| `PHYSIS_CAMADAS_DIAS` | camadas_bot.py:238 | `dias = float(os.environ.get("PHYSIS_CAMADAS_DIAS") or 0)` |
 | `PHYSIS_CASA_EDITAVEIS` | gemeo_importar.py:39 | `PASTA_PADRAO = Path(os.environ.get("PHYSIS_CASA_EDITAVEIS") or (` |
-| `PHYSIS_CATALOGO` | catalogo_modelos.py:133 | `amb = os.environ.get("PHYSIS_CATALOGO", "").strip()` |
+| `PHYSIS_CATALOGO` | catalogo_modelos.py:136 | `amb = os.environ.get("PHYSIS_CATALOGO", "").strip()` |
 | `PHYSIS_CEP_PROVEDOR` | cep.py:57 | `v = os.environ.get("PHYSIS_CEP_PROVEDOR", "brasilapi,viacep") if valor is None else valor` |
 | `PHYSIS_CERT_AVISO_DIAS` | mv_bots_extra.py:501 (+1) | `aviso = _limite("PHYSIS_CERT_AVISO_DIAS")` |
 | `PHYSIS_CHAMADAS` | servidor.py:798 (+1) | `csp = politica(os.environ.get("PHYSIS_CHAMADAS") or instancia.get("chamadas"))` |
@@ -81,7 +82,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_LOTE_DIARIO` | hub.py:756 | `if os.environ.get("PHYSIS_LOTE_DIARIO", "1").strip() == "0":` |
 | `PHYSIS_LUGAR` | servidor.py:2851 | `lugar=os.environ.get("PHYSIS_LUGAR", inst.get("lugar", "lugar01")),` |
 | `PHYSIS_MAPAS` | servidor.py:133 | `return Path(os.environ.get("PHYSIS_MAPAS") or (WEB.parent / "mapas"))` |
-| `PHYSIS_MAPEAMENTO_PASTA` | mapeamento.py:986 | `self.pasta = Path(pasta or os.environ.get("PHYSIS_MAPEAMENTO_PASTA") or "mapeamento-arquivos")` |
+| `PHYSIS_MAPEAMENTO_PASTA` | mapeamento.py:993 | `self.pasta = Path(pasta or os.environ.get("PHYSIS_MAPEAMENTO_PASTA") or "mapeamento-arquivos")` |
 | `PHYSIS_MARKETING_DADOS` | mv_bots_extra.py:341 (+1) | `pasta = Path(pasta or os.environ.get("PHYSIS_MARKETING_DADOS") or (mv_bots.DOCS / "Marketing Physis" / "dados"))` |
 | `PHYSIS_MERCADO_ONLINE` | mv_ecossistema.py:250 | `online = (os.environ.get("PHYSIS_MERCADO_ONLINE", "1") != "0") if online is None else online` |
 | `PHYSIS_MODELOS_PASTA` | documentos_auto.py:67 | `p = (os.environ.get("PHYSIS_MODELOS_PASTA") or "").strip()` |

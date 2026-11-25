@@ -22,7 +22,7 @@ RAIZ_REPO = RAIZ_HUB.parent
 PACOTE = RAIZ_HUB / "physis_hub"
 ENTRADAS = {"servidor", "mv_cli", "mv_servidor", "__init__", "__main__"}     # executados direto, não importados
 SEMANAIS: set = set()
-SOB_DEMANDA = {"mercado", "modelos"}     # versão enxuta: sem rotina (/mercado <cidade> [área])
+SOB_DEMANDA = {"mercado"}     # versão enxuta: sem rotina (/mercado <cidade> [área])
 
 LIMITES = {
     "PHYSIS_IOT_MUDO_H": ("dados_iot", "Quantas horas sem leitura de um sensor de campo o bot dados-iot deve considerar \"sensor mudo\"?",

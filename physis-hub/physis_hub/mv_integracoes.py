@@ -69,7 +69,8 @@ NOS = [
     ("b_ia", "bot índice IA", "bot", "Atualiza o índice da IA Physis."),
     ("b_auditoria", "bot auditoria", "bot", "Cruza bots, robôs e módulos; caixa de perguntas; plano de intervenção."),
     ("b_mercado", "bot mercado e parcerias (sob demanda)", "bot", "Fabricantes, fornecedores, testes, estágio, laboratórios, hubs, investidores, supermercados, collabs e resíduos por cidade; mapa GIS."),
-    ("b_modelos", "bot modelos dos fabricantes (sob demanda)", "bot", "Lê os catálogos guardados pela equipe e propõe os modelos de cada fabricante da lista para aprovar."),
+    ("b_camadas", "bot camadas de mapa", "bot", "Baixa e converte as camadas (OpenStreetMap, NASA POWER e os endereços oficiais de fontes-camadas.txt) na janela das cidades da Physis."),
+    ("b_modelos", "bot modelos dos fabricantes (diário)", "bot", "Lê os catálogos guardados pela equipe e propõe os modelos de cada fabricante da lista para aprovar."),
     ("b_financeiro", "bot financeiro (contábil)", "bot", "Comprovantes, duplicidades, conferência, saldo, fluxo por projeto e porta, NF-e; rascunho ao contador."),
     ("b_vencimentos", "bot vencimentos", "bot", "Calendário único: jurídico, fiscal, contratos, ACTs, certidões, editais e documentos (.ics); rascunhos ao advogado e ao contador."),
     ("b_desenv", "bot desenvolvimento", "bot", "Painel Desenvolvimento de cada módulo (sistema/desenvolvimento-dados.js) a partir das tarefas do M&A."),
@@ -90,7 +91,7 @@ NOS = [
 BOT_DO_NO = {"b_atrasos": "atrasos", "b_documentos": "documentos", "b_resumo": "resumo", "b_backup": "backup", "b_paginas": "paginas",
              "b_links": "links", "b_inovacao": "inovacao", "b_vigia": "vigia", "b_sentinela": "sentinela", "b_sala": "sala",
              "b_editais": "editais", "b_acervo": "acervo", "b_iot": "dados_iot", "b_simul": "simulacao", "b_gestoes": "gestoes",
-             "b_bancos": "bancos", "b_cursos": "cursos", "b_ia": "ia", "b_auditoria": "auditoria", "b_mercado": "mercado", "b_modelos": "modelos", "b_financeiro": "financeiro", "b_vencimentos": "vencimentos", "b_fatos": "fatos", "b_repos": "repositorios", "b_desenv": "desenvolvimento", "b_sincro": "sincronizacao", "b_kit": "kit", "b_melhoria": "melhoria", "b_semanal": "semanal"}
+             "b_bancos": "bancos", "b_cursos": "cursos", "b_ia": "ia", "b_auditoria": "auditoria", "b_mercado": "mercado", "b_modelos": "modelos", "b_camadas": "camadas", "b_financeiro": "financeiro", "b_vencimentos": "vencimentos", "b_fatos": "fatos", "b_repos": "repositorios", "b_desenv": "desenvolvimento", "b_sincro": "sincronizacao", "b_kit": "kit", "b_melhoria": "melhoria", "b_semanal": "semanal"}
 
 # de, para, o que passa, fonte no código, opcional
 ARESTAS = [
@@ -157,7 +158,7 @@ ARESTAS = [
     ("b_auditoria", "mv", "caixa de perguntas e plano de intervenção", "mv_auditoria.bot_auditoria"),
     ("dados_abertos", "b_mercado", "pontos e cadastros abertos", "mv_ecossistema.DADOS_ABERTOS"), ("pastas", "b_mercado", "parcerias.csv da equipe", "mv_ecossistema"),
     ("b_mercado", "mapeamento", "parcerias.geojson (mapa GIS)", "mv_ecossistema.geojson"), ("b_mercado", "mv", "candidatos a conferir e lacunas", "mv_pedido_bot"),
-    ("b_mercado", "fornecedores_hub", "candidatos para o cadastro oficial", "FORNECEDORES.md"), ("pastas", "b_modelos", "catálogos dos fabricantes", "mv_modelos"), ("b_modelos", "fornecedores_hub", "modelos aprovados", "semear_fornecedores.py"), ("fornecedores_hub", "plataforma", "fornecedores na sua região", "physis-fornecedores.js"),
+    ("b_mercado", "fornecedores_hub", "candidatos para o cadastro oficial", "FORNECEDORES.md"), ("pastas", "b_modelos", "catálogos dos fabricantes", "mv_modelos"), ("b_camadas", "mapeamento", "camadas em PHYSIS_CAMADAS", "camadas_bot.py"), ("b_modelos", "fornecedores_hub", "modelos aprovados", "semear_fornecedores.py"), ("fornecedores_hub", "plataforma", "fornecedores na sua região", "physis-fornecedores.js"),
     ("parceiros_hub", "loja", "profissionais aprovados", "parceiros.py"), ("residuos_hub", "b_mercado", "pontos de coleta (Overpass)", "residuos_gis.buscar_overpass"),
     ("mv", "b_financeiro", "lançamentos (mv_lanc)", "mv_financeiro"), ("pastas", "b_financeiro", "NF-e (XML)", "PHYSIS_NOTAS"), ("b_financeiro", "mv", "alertas e rascunho ao contador", "mv_pedido_bot"),
     ("mv", "b_vencimentos", "tarefas, editais, documentos", "mv_financeiro.bot_vencimentos"), ("pastas", "b_vencimentos", "vencimentos.csv (fiscal, contratos, ACTs)", "mv_financeiro"),

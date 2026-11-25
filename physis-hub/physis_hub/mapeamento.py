@@ -372,7 +372,14 @@ def ler_asc_janela(caminho: Path, b) -> dict:
         r0 = max(0, math.ceil(nr - 0.5 - (b[3] - y0) / cs))
         r1 = min(nr - 1, math.floor(nr - 0.5 - (b[1] - y0) / cs))
         if c1 < c0 or r1 < r0:
-            return {"nx": 0, "ny": 0, "cs": cs, "valores": [], "lon0": None, "lat0": None}
+            # 25/11/2026: grade grossa (ex.: NASA POWER, 0,5°) e lote pequeno: nenhum centro cai na janela. Se a janela está
+            # dentro da grade, vale a célula que contém o centro da janela (o valor daquele lugar, sem interpolar).
+            cx, cy = (b[0] + b[2]) / 2, (b[1] + b[3]) / 2
+            cc, rr = math.floor((cx - x0) / cs), math.floor(nr - (cy - y0) / cs)
+            if not (0 <= cc < nc and 0 <= rr < nr):
+                return {"nx": 0, "ny": 0, "cs": cs, "valores": [], "lon0": None, "lat0": None}
+            c0 = c1 = cc
+            r0 = r1 = rr
         if (c1 - c0 + 1) * (r1 - r0 + 1) > MAX_CELULAS:
             raise ValueError("janela com células demais para esta grade")
         vals = []
