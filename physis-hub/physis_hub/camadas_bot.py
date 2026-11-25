@@ -20,6 +20,7 @@ e o relatório diz o que faltou e por quê. Sem internet, sem GDAL ou sem endere
 from __future__ import annotations
 
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -160,13 +161,49 @@ def _maior(pasta: Path, exts: tuple[str, ...]) -> Path | None:
     return max(achados, key=lambda p: p.stat().st_size) if achados else None
 
 
+def baixar_para(url: str, destino: Path, tempo: int = 600) -> None:
+    """Download em blocos direto para o disco (arquivos oficiais de centenas de MB)."""
+    req = urllib.request.Request(url, headers={"User-Agent": "Physis-bot-camadas/1 (servidor da Physis)"})
+    tmp = destino.with_suffix(destino.suffix + ".parcial")
+    with urllib.request.urlopen(req, timeout=tempo) as r, open(tmp, "wb") as f:
+        for bloco in iter(lambda: r.read(1 << 20), b""):
+            f.write(bloco)
+    tmp.replace(destino)
+
+
 def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, rodar=subprocess.run) -> str:
-    """Baixa o arquivo oficial e converte. Devolve o caminho gravado; erro = ValueError com o motivo."""
+    """Baixa (ou copia, se for arquivo do próprio PC) o arquivo oficial e converte. Raster .tif na internet é lido pelo
+    GDAL direto do endereço (/vsicurl/), só a janela das cidades: não baixa o Brasil inteiro. Erro = ValueError."""
     d = brutos / camada
     d.mkdir(parents=True, exist_ok=True)
-    nome = (urllib.parse.urlparse(url).path.rsplit("/", 1)[-1] or camada)[:120]
+    remoto = url.startswith(("http://", "https://"))
+    nome = ((urllib.parse.urlparse(url).path if remoto else url.replace("\\", "/")).rsplit("/", 1)[-1] or camada)[:120]
     arq = d / nome
-    arq.write_bytes(pegar(url))
+    if camada in RASTER_OFICIAL and remoto and nome.lower().endswith((".tif", ".tiff")):
+        arq = None                                       # lido direto do endereço pelo gdalwarp
+    elif not remoto:
+        local = Path(url)
+        if not local.is_file():
+            raise ValueError(f"arquivo não encontrado neste PC: {url}")
+        shutil.copy2(local, arq)
+    elif pegar is buscar:
+        baixar_para(url, arq)
+    else:
+        arq.write_bytes(pegar(url))
+    if arq is None:
+        o, s, l, n = uniao(js)
+        destino = pasta / ARQUIVO[camada]
+        tmp = destino.with_suffix(".novo.asc"); w = d / "janela.tif"
+        r1 = rodar(gdal(["gdalwarp", "-overwrite", "-t_srs", "EPSG:4326", "-te", str(o), str(s), str(l), str(n), "-r", "near" if camada == "uso_solo" else "bilinear",
+                         "/vsicurl/" + url, str(w)]), capture_output=True, text=True, timeout=3600)
+        if getattr(r1, "returncode", 1) != 0 or not w.is_file():
+            raise ValueError("gdalwarp (leitura pelo endereço) falhou: " + (getattr(r1, "stderr", "") or "")[-300:])
+        r2 = rodar(gdal(["gdal_translate", "-of", "AAIGrid", str(w), str(tmp)]), capture_output=True, text=True, timeout=1800)
+        if getattr(r2, "returncode", 1) != 0 or not tmp.is_file():
+            raise ValueError("gdal_translate falhou: " + (getattr(r2, "stderr", "") or "")[-300:])
+        tmp.replace(destino)
+        _fonte(destino, url=url, camada=camada, oficial=True, janela=[o, s, l, n], leitura="direto do endereço (GDAL /vsicurl/)")
+        return str(destino)
     if zipfile.is_zipfile(arq):
         with zipfile.ZipFile(arq) as z:
             z.extractall(d / "extraido")
@@ -228,8 +265,8 @@ def ler_fontes(pasta: Path) -> dict[str, str]:
         for l in f.read_text(encoding="utf-8-sig").splitlines():
             if ";" in l and not l.lstrip().startswith("#"):
                 c, u = [x.strip() for x in l.split(";", 1)]
-                if c in ARQUIVO and u.startswith(("https://", "http://")):
-                    out[c] = u
+                if c in ARQUIVO and (u.startswith(("https://", "http://")) or re.match(r"^[A-Za-z]:[\\/]", u) or u.startswith("/")):
+                    out.setdefault(c, u)          # endereço oficial ou arquivo baixado à mão neste PC (CAR, risco)
     return out
 
 
