@@ -44,10 +44,22 @@ ARQUIVO = {"hidrografia": "hidrografia.geojson", "rede_eletrica": "rede_eletrica
 TODAS = list(ARQUIVO)
 
 
-def buscar(url: str, dados: bytes | None = None, tempo: int = 180) -> bytes:
-    req = urllib.request.Request(url, data=dados, headers={"User-Agent": "Physis-bot-camadas/1 (servidor da Physis)"})
-    with urllib.request.urlopen(req, timeout=tempo) as r:
-        return r.read()
+def buscar(url: str, dados: bytes | None = None, tempo: int = 180, tentativas: int = 4) -> bytes:
+    """Com novas tentativas (o Overpass responde 502/503/504/429 quando está cheio: 25/11/2026 no PC-PHYSIS)."""
+    import urllib.error
+    for i in range(tentativas):
+        req = urllib.request.Request(url, data=dados, headers={"User-Agent": "Physis-bot-camadas/1 (servidor da Physis)"})
+        try:
+            with urllib.request.urlopen(req, timeout=tempo) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 502, 503, 504) or i == tentativas - 1:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if i == tentativas - 1:
+                raise
+        time.sleep(20 * (i + 1))
+    raise OSError("sem resposta")
 
 
 def janelas(cids: list[dict]) -> list[tuple[float, float, float, float]]:
@@ -240,7 +252,7 @@ def rodar_bot(pasta: Path, cids: list[dict], quais: list[str] | None = None, for
 
     def precisa(c):
         p = pasta / ARQUIVO[c]
-        if forcar or not p.exists():
+        if forcar or not p.exists() or (c == "clima" and not any(p.glob("*.epw"))):   # pasta do clima vazia não conta
             return True
         meta = Path(str(p) + ".fonte.json")
         provisoria = meta.is_file() and json.loads(meta.read_text(encoding="utf-8")).get("provisoria")
