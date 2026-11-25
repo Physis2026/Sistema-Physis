@@ -14,6 +14,8 @@ class Programas(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.d = Path(self.tmp.name)
         f = self.d / "fake.py"; f.write_text(FAKE); f.chmod(f.stat().st_mode | stat.S_IEXEC)
+        if os.name == "nt":                      # Windows não roda .py com #! direto: um .cmd chama o Python (PC-PHYSIS, 25/11/2026)
+            c = self.d / "fake.cmd"; c.write_text('@"%s" "%s" %%*\r\n' % (sys.executable, f)); f = c
         self.pg = pe.Programas(self.d / "trab", localizar_=lambda prog: str(f) if prog not in ("python",) else sys.executable)
 
     def tearDown(self):
