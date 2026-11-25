@@ -18,6 +18,14 @@ RAIZ = Path(__file__).resolve().parents[2]
 class Servidor(unittest.TestCase):
     def setUp(self):
         self.b = es.Banco(":memory:")
+        # isola da senha REAL da máquina (C:\physis\dados\estermic-senha.json no PC da Physis): sem isto os testes
+        # "sem senha" recebiam 401 e o "rede exige senha" não falhava (verificação de 25/11/2026)
+        import tempfile
+        self._tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
+        self.addCleanup(self._tmp.cleanup)
+        p = mock.patch.object(es.mvmod, "pasta_padrao", lambda: Path(self._tmp.name))
+        p.start()
+        self.addCleanup(p.stop)
 
     def subir(self, senha=None):
         env = {"PHYSIS_ESTERMIC_SENHA": senha} if senha else {}
