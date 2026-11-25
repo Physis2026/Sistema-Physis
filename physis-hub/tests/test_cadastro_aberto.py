@@ -14,7 +14,7 @@ SENHA = "Senha-Forte-2026-xyz!"
 
 class Cadastro(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        self.tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         self.h = Hub(str(Path(self.tmp.name) / "h.db"), org="inovastem", lugar="t")
         self.assertTrue(self.h.criar_conta("Dona", "dona@x.org", SENHA)["ok"])
 
@@ -37,7 +37,7 @@ class Servidor(unittest.TestCase):
         antes = {k: os.environ.get(k) for k in env}
         os.environ.update(env)
         self.addCleanup(lambda: [os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v) for k, v in antes.items()])
-        tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
+        tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True); self.addCleanup(tmp.cleanup)
         h = Hub(str(Path(tmp.name) / "h.db"), org="inovastem", lugar="t")
         h.criar_conta("Dona", "dona@x.org", SENHA)
         srv = iniciar(h, 0, endereco="127.0.0.1"); self.addCleanup(srv.server_close); self.addCleanup(srv.shutdown)
