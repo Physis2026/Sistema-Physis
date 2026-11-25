@@ -4159,6 +4159,35 @@
           "onde": "physis_hub/validacao_nucleo.py e validacao_modelos.py (espelho: sistema/physis-validacao.js) · tamanho_amostra(), plano_amostral(), resumo_pee()"
         }
       ]
+    },
+    "quadros": {
+      "nome": "Quadros elétricos",
+      "resumo": "Um quadro por módulo, integrado ao AVAC, e o QGBT.",
+      "calculos": [
+        {
+          "id": "quadros.circuitos",
+          "nome": "Quadros por módulo (automação, rural, solar, geral) e QGBT",
+          "o_que_calcula": "Corrente, disjuntor, seção, queda de tensão e alimentador de cada quadro com o mesmo motor do QF-AVAC; Ar-condicionado e Piscina vêm do AVAC; QGBT soma os alimentadores sem fator de demanda.",
+          "formula": {
+            "texto": "ver AVAC: quadro elétrico",
+            "variaveis": []
+          },
+          "premissas": [],
+          "normas": [
+            {
+              "codigo": "ABNT NBR 5410",
+              "edicao": "2004 (versão corrigida 2008)",
+              "item": "dimensionamento de circuitos",
+              "como_e_usada": "Ver o cálculo avac.quadro."
+            }
+          ],
+          "limites_de_validade": "Ver AVAC.",
+          "fonte_de_dados": "Ver AVAC.",
+          "status": "simplificado",
+          "o_que_falta": "Fator de demanda do QGBT e seletividade entre quadros: [MARCADOR] premissas a definir com o projetista elétrico.",
+          "onde": "sistema/physis-quadros.js · telaQuadros()"
+        }
+      ]
     }
   },
   "adequacoes": [

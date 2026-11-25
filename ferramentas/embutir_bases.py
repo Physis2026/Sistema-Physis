@@ -25,7 +25,7 @@ BASES = {"base-certificacoes": S / "physis-certificacoes.json", "base-plantas": 
          "base-servidor-catalogo": S / "physis-servidor-catalogo.json",  # catálogo de módulos do Servidor verde
          "base-i18n-modulos": S / "physis-i18n-modulos.json"}        # inglês das telas dos módulos
 # módulos de cálculo em arquivo próprio (testados à parte), embutidos como <script> no <head>
-MODULOS = {"mod-avac": S / "physis-avac.js", "mod-saude": S / "physis-saude.js", "mod-juridico": S / "physis-juridico.js",
+MODULOS = {"mod-avac": S / "physis-avac.js", "mod-quadros": S / "physis-quadros.js", "mod-saude": S / "physis-saude.js", "mod-juridico": S / "physis-juridico.js",
            "mod-turbinas": S / "physis-turbinas.js", "mod-solar": S / "physis-solar.js",
            "mod-ifc": S / "physis-ifc.js",                        # IFC no navegador (Mapeamento sem servidor)
            "mod-mapeamento": S / "physis-mapeamento.js",          # Mapeamento (camadas, BIM, planta solar); depois da solar
