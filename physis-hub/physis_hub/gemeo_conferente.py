@@ -384,6 +384,7 @@ def sincronizar_respostas(mv, agora=None):
     from . import mv_comandos as C
     db = mv.db
     _garantir(db)
+    C._garantir(mv)        # a caixa de perguntas (mv_pergunta) pode ainda não existir num banco novo (mv_cli.log, 25/11/2026)
     n = 0
     for r in db.execute("SELECT id, tipo, pergunta_id FROM gemeo_achado WHERE escolha IS NULL AND pergunta_id IS NOT NULL").fetchall():
         p = db.execute("SELECT resposta, nota FROM mv_pergunta WHERE id=?", (r["pergunta_id"],)).fetchone()
