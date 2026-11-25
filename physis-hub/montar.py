@@ -177,6 +177,9 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
         shutil.copy2(supervisao, pasta / "web" / "supervisao.html")
     if "planejador" in modulos:
         shutil.copy2(planejador, pasta / "web" / "planejador.html")
+        # gêmeo digital da Casa Physis (gemeo_painel.py): a semente e o IFC vão junto só para as fichas casa-physis*
+        if org.startswith("casa-physis") and (AQUI.parent / "modulos" / "planejador" / "gemeo").is_dir():
+            shutil.copytree(AQUI.parent / "modulos" / "planejador" / "gemeo", pasta / "gemeo")
         if org.startswith("casa-physis"):      # 24/11/2026: Casa Physis sempre com a edição completa, sem ativação de licença
             edicao_completa(pasta / "web" / "planejador.html")
     if "planejador" in modulos or (gestao is not None and gestao.is_file()):

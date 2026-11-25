@@ -5,6 +5,7 @@ r"""Programas abertos que o sistema usa: o que já está instalado neste Windows
     py ferramentas\verificar_programas.py --instalar   # instala pelo winget só o que roda direto no Windows e ainda falta
 
 Os que precisam de Linux (OpenFOAM, Code_Aster, Gazebo, GROMACS) rodam no WSL (Ubuntu dentro do Windows) ou no Acer.
+ORCA fica fora: não é software aberto (decisão da dona, 24/11/2026; regra 11).
 IDs do winget marcados [CONFERIR] foram escritos sem poder consultar o winget daqui: se o winget não achar, use o link.
 """
 from __future__ import annotations
@@ -37,6 +38,12 @@ PROGRAMAS = [
     ("Avogadro 2", "moléculas (InovaSTEM)", "OpenChemistry.Avogadro2", ["avogadro2", "C:/Program Files/Avogadro2/bin/avogadro2.exe"], "https://two.avogadro.cc/", False),
     ("COPASI", "redes bioquímicas (InovaSTEM)", None, ["CopasiUI", "C:/Program Files/copasi.org/COPASI*/bin/CopasiUI.exe"], "https://copasi.org/Download/", False),
     ("OpenSim", "biomecânica (InovaSTEM)", None, ["opensim-cmd", "C:/OpenSim*/bin/opensim-cmd.exe"], "https://simtk.org/projects/opensim", False),
+    ("Elmer FEM", "multifísica: calor, estrutura, eletromagnetismo", None, ["ElmerSolver", "C:/Program Files/Elmer*/bin/ElmerSolver.exe"], "https://www.elmerfem.org (instalador Windows) [CONFERIR]", False),
+    ("openEMS", "eletromagnetismo 3D (FDTD): antenas das caixas de sensores", None, ["openEMS", "C:/openEMS/openEMS.exe"], "https://www.openems.de (pacote Windows) [CONFERIR]", False),
+    ("LAMMPS", "dinâmica molecular de materiais (InovaSTEM)", None, ["lmp", "lmp_serial", "C:/Program Files/LAMMPS*/bin/lmp.exe"], "https://www.lammps.org/download.html (instalador Windows) [CONFERIR]", False),
+    ("Psi4", "química quântica aberta (InovaSTEM)", None, ["py:psi4", "psi4"], "conda install -c conda-forge psi4 (Miniforge no Windows) [CONFERIR]", False),
+    ("CellBlender (MCell)", "simulação celular dentro do Blender (InovaSTEM)", None, ["C:/Users/*/AppData/Roaming/Blender Foundation/Blender/*/scripts/addons/cellblender"], "https://mcell.org (pacote Blender+CellBlender) [CONFERIR]", False),
+    ("Salome-Meca (pré e pós do Code_Aster)", "malha e resultados da estrutura avançada", None, ["salome", "C:/SALOME*/run_salome.bat"], "https://www.salome-platform.org (Windows: só SALOME; Code_Aster no WSL) [CONFERIR]", False),
     ("WSL + Ubuntu", "base para os programas de Linux", None, ["wsl"], "wsl --install -d Ubuntu", False),
     ("OpenFOAM (no WSL ou no Acer)", "CFD de dutos", None, ["wsl:simpleFoam", "simpleFoam"], "no Ubuntu: sudo apt install openfoam", True),
     ("Code_Aster / Salome-Meca", "mecânica estrutural avançada", None, ["as_run"], "https://code-aster.org (Linux)", True),
