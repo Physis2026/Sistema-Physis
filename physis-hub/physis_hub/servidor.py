@@ -780,7 +780,10 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
     if clima is None:
         rx = os.environ.get("PHYSIS_RX_URL")
         clima = clima_mod.Clima(hub, receptor_url=rx, enviar_local=clima_mod.receptor_local(rx) if rx else None)
-    exige_login = bool(instancia.get("login"))
+    # PHYSIS_EXIGIR_LOGIN=1: pede senha também na rede local (equipe acessando pela rede, 25/11/2026)
+    exige_login = bool(instancia.get("login")) or os.environ.get("PHYSIS_EXIGIR_LOGIN") == "1"
+    # cadastro aberto: qualquer pessoa cria a própria conta (papel cliente), ex.: InovaSTEM; PHYSIS_CADASTRO_ABERTO=1
+    cadastro_aberto = bool(instancia.get("cadastro_aberto")) or os.environ.get("PHYSIS_CADASTRO_ABERTO") == "1"
     csp = politica(os.environ.get("PHYSIS_CHAMADAS") or instancia.get("chamadas"))
     csp_planejador = csp.replace("'wasm-unsafe-eval'", "'wasm-unsafe-eval' 'unsafe-eval'", 1)
     fabricar = fabricante(instancia)
@@ -1664,6 +1667,7 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     "supervisao": (WEB / "supervisao.html").exists(), "gestao": (WEB / "gestao.html").exists(),
                     "planejador": (WEB / "planejador.html").exists(), "pesquisa": bool(instancia.get("pesquisa")),
                     "gemeo": gemeo_painel_mod.pasta_gemeo(arquivo_instancia().parent) is not None,
+                    "cadastro_aberto": cadastro_aberto,
                     "nome_cliente": instancia.get("nome"),
                     # marca própria da instalação (ex.: Casa Physis): nome, título e logos em /marca/ (montar.py)
                     "instalacao": instancia.get("instalacao") or "physis",
@@ -2677,7 +2681,8 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     # a primeira conta vira a direção: de fora da rede local, só com PHYSIS_PRIMEIRA_CONTA_EXTERNA=1
                     if not hub.tem_conta() and not self._local() and os.environ.get("PHYSIS_PRIMEIRA_CONTA_EXTERNA") != "1":
                         return self._json(403, {"ok": False, "erro": "a primeira conta só pode ser criada da rede local do servidor"})
-                    r = hub.criar_conta(str(d.get("nome", "")), str(d.get("usuario", "")), str(d.get("senha", "")), q["id"] if q else None)
+                    r = hub.criar_conta(str(d.get("nome", "")), str(d.get("usuario", "")), str(d.get("senha", "")), q["id"] if q else None,
+                                        aberto=cadastro_aberto and not q)
                     if not r["ok"]:
                         return self._json(400, r)
                     aceito, versao = seg._consentimento_do_corpo(d)
@@ -2685,7 +2690,9 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                         seg.consentimento_registrar(hub, r["id"], str(d.get("usuario", "")).strip().lower(), versao, True, self._ip())
                     if not r.get("primeira"):
                         self._mandar(seg.confirmar_enviar(hub, r["id"], url_publica))
-                        return self._json(200, r)
+                        if not (cadastro_aberto and not q):
+                            return self._json(200, r)
+                        # cadastro aberto: a pessoa já entra (a conta vale como cliente até confirmar o e-mail)
                 r = hub.entrar(str(d.get("usuario", "")), str(d.get("senha", "")), self._ip(), self.headers.get("User-Agent") or "",
                                d.get("codigo") if isinstance(d.get("codigo"), str) else None)
                 if not r.get("precisa_2fa"):

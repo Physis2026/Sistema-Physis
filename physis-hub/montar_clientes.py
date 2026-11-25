@@ -62,7 +62,8 @@ def main() -> None:
         pacote = montar(f["org"], f.get("lugar", "lugar01"), f["modulos"], a.saida, PROGRAMAS["sustainkit"],
                         LICENCA_PADRAO, PROGRAMAS["supervisao"], gestao, PROGRAMAS["planejador"],
                         bool(f.get("pesquisa")), f.get("nome", ""), f.get("cursos"), f.get("suporte") or suporte,
-                        pegada=f.get("pegada_servidor") or PEGADA_PADRAO.get(f["org"]), marca=marca_da_ficha(f))
+                        pegada=f.get("pegada_servidor") or PEGADA_PADRAO.get(f["org"]), marca=marca_da_ficha(f),
+                        cadastro_aberto=bool(f.get("cadastro_aberto")))
         print(f"{f['nome']}: {pacote.name} ({pacote.stat().st_size // 1024} kB) · módulos: {', '.join(f['modulos'])} · manual (rascunho)"
               + (" · pesquisa" if f.get("pesquisa") else ""))
 

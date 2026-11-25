@@ -466,7 +466,7 @@ class Hub:
         return bool(r) and r[0] == "administrador" and bool(r[1])
 
     def criar_conta(self, nome: str, usuario: str, senha: str, autor: int | None = None,
-                    pessoa: str = "", papel: str = "operador") -> dict:
+                    pessoa: str = "", papel: str = "operador", aberto: bool = False) -> dict:
         """A primeira conta e criada por quem abre a instalacao e vira administradora; as demais, por um administrador.
 
         Com PHYSIS_DOMINIO_EMAIL definido (ex.: physisengineering.com), as contas novas precisam ser e-mails desse dominio."""
@@ -484,9 +484,11 @@ class Hub:
             return {"ok": False, "erro": "Papel invalido."}
         with self._trava:
             primeira = not self.tem_conta()
-            if not primeira and not self._eh_admin(autor):
+            admin = self._eh_admin(autor)
+            if not primeira and not admin and not aberto:
                 return {"ok": False, "erro": "So um administrador cria novas contas."}
-            papel = "administrador" if primeira else papel
+            # cadastro aberto (ex.: InovaSTEM, 25/11/2026): quem se cadastra sozinho entra sempre como cliente
+            papel = "administrador" if primeira else (papel if admin else "cliente")
             sal = os.urandom(16)
             try:
                 # a primeira conta (dona da instalação, criada da rede local) nasce confirmada; as criadas pela
