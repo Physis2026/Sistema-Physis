@@ -126,10 +126,39 @@ def pasta_camadas(pasta: str | os.PathLike | None = None) -> Path | None:
     return Path(p) if p else None
 
 
-def _arquivo(c: dict, pasta: Path | None) -> Path | None:
+def _mosaico(c: dict, pasta: Path | None) -> list[dict] | None:
+    """Camada em mosaico (estados inteiros, 24/11/2026): pasta <nome>/ com indice.json = [{"arquivo", "bbox"}].
+    Os ladrilhos têm sobreposição maior que a janela máxima (ferramentas/mosaico_camadas.py), então toda janela
+    válida cabe inteira em pelo menos um ladrilho e o arquivo único continua sendo lido do mesmo jeito."""
+    if not pasta or c["formato"] == "epw":
+        return None
+    ind = pasta / Path(c["arquivo"]).stem / "indice.json"
+    if not ind.is_file():
+        return None
+    try:
+        lista = _ler_json_cache(ind)
+        return [x for x in lista if isinstance(x, dict) and "arquivo" in x and len(x.get("bbox") or []) == 4]
+    except (OSError, ValueError):
+        return None
+
+
+def _arquivo(c: dict, pasta: Path | None, b=None) -> Path | None:
     if c["id"] == "hidrografia" and os.environ.get("PHYSIS_HIDROGRAFIA"):
         return Path(os.environ["PHYSIS_HIDROGRAFIA"])
-    return (pasta / c["arquivo"]) if pasta else None
+    if pasta is None:
+        return None
+    unico = pasta / c["arquivo"]
+    if unico.exists() or b is None:
+        return unico
+    m = _mosaico(c, pasta)
+    if m:
+        base = pasta / Path(c["arquivo"]).stem
+        for x in m:
+            o, s, l, n = x["bbox"]
+            if o <= b[0] and s <= b[1] and l >= b[2] and n >= b[3]:
+                return base / x["arquivo"]
+        return None                     # janela fora dos estados instalados
+    return unico
 
 
 def _instalada(c: dict, pasta: Path | None) -> bool:
@@ -138,7 +167,7 @@ def _instalada(c: dict, pasta: Path | None) -> bool:
         return False
     if c["formato"] == "epw":
         return a.is_dir() and any(a.glob("*.epw"))
-    return a.is_file()
+    return a.is_file() or bool(_mosaico(c, pasta))
 
 
 def catalogo(pasta=None) -> list[dict]:
@@ -429,7 +458,9 @@ def camada(id_: str, bbox, pasta=None, poligono=None) -> dict:
     if not _instalada(c, p):
         return {"ok": False, "sem_camada": True, "camada": id_, "erro": "camada não instalada neste servidor"}
     base = {"ok": True, "camada": id_, "fonte": c["fonte"], "bbox": b}
-    a = _arquivo(c, p)
+    a = _arquivo(c, p, b)
+    if a is None or (c["formato"] != "epw" and not a.is_file()):
+        return {"ok": False, "sem_camada": True, "camada": id_, "erro": "lugar fora da região instalada desta camada"}
     try:
         if c["formato"] == "vetor":
             return {**base, "tipo": "vetor", "geojson": recortar_vetor(a, b)}
