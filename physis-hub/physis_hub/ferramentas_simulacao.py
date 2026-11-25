@@ -44,6 +44,11 @@ CATALOGO = [
     ("qelectrotech", "QElectroTech", "eletrica", "quadros de automação e controle: multifilar, comando, potência, CLP, referências cruzadas, réguas de bornes, BOM e layout da placa", ["qelectrotech"], "GPL", True),
     ("librecad", "LibreCAD", "eletrica", "desenho 2D em DXF: furação da placa, recortes da porta, arquivos para corte a laser", ["librecad"], "GPL-2.0", True),
     ("kicad", "KiCad", "eletrica", "placas eletrônicas (caixas de sensores, ESP32)", ["kicad", "kicad-cli"], "GPL", True),
+    # tabela da dona de 25/11/2026 (motores de cálculo do servidor; recursos: núcleos, memória e disco por instância)
+    ("energyplus", "EnergyPlus", "bim", "simulação horária da edificação (8760 h) · 1,0 núcleo, 1,0 GB, 2 GB de disco", ["energyplus", "py:pyenergyplus"], "BSD-3-Clause (licença própria do EnergyPlus)", True),
+    ("windpowerlib", "windpowerlib", "bim", "energia de turbinas eólicas · 0,2 núcleo, 0,3 GB", ["py:windpowerlib"], "MIT", True),
+    ("epanet", "EPANET (via WNTR)", "bim", "rede hidráulica e pressões · 0,2 núcleo, 0,2 GB", ["py:wntr", "py:epanet"], "MIT", True),
+    ("swmm", "SWMM (via pyswmm)", "bim", "drenagem urbana e chuva · 0,5 núcleo, 0,3 GB", ["py:pyswmm", "swmm5"], "Domínio público", True),
 ]
 AREAS = {"mecanica": "Mecânica e engenharia (CAD/CAE/CFD)", "fisica": "Física (multifísica e eletromagnetismo)",
          "quimica": "Química (quântica e molecular)", "biologia": "Biologia e bioinformática", "eletrica": "IoT, quadros elétricos e automação", "bim": "BIM e instalações (Planejador)"}
@@ -70,9 +75,10 @@ LOCAIS_WINDOWS = {
     "elmer": ["Elmer*/bin/ElmerSolver.exe"],
     "lammps": ["LAMMPS*/bin/lmp.exe"],
     "openstudio": ["OpenStudio*/bin/openstudio.exe"],
+    "energyplus": [],
     "sam": ["SAM/*/SAM.exe"],
 }
-LOCAIS_RAIZ = {"openstudio": ["C:/openstudio-*/bin/openstudio.exe", "C:/EnergyPlusV*/energyplus.exe"],
+LOCAIS_RAIZ = {"energyplus": ["C:/EnergyPlusV*/energyplus.exe"], "openstudio": ["C:/openstudio-*/bin/openstudio.exe", "C:/EnergyPlusV*/energyplus.exe"],
                "opensim": ["C:/OpenSim*/bin/opensim-cmd.exe"], "openems": ["C:/openEMS/openEMS.exe"]}
 
 
