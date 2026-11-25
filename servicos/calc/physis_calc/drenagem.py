@@ -88,7 +88,7 @@ def calcular(e: dict, somente_inp: bool = False) -> dict:
     from pyswmm import Simulation, Subcatchments
 
     serie = []
-    with tempfile.TemporaryDirectory(prefix="swmm-") as d:
+    with tempfile.TemporaryDirectory(prefix="swmm-", ignore_cleanup_errors=True) as d:
         arq = Path(d) / "bacia.inp"
         arq.write_text(inp, encoding="utf-8")
         with Simulation(str(arq)) as sim:

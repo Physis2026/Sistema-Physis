@@ -97,7 +97,7 @@ def calcular(e: dict, somente_inp: bool = False) -> dict:
     exigir("wntr")
     import wntr
 
-    with tempfile.TemporaryDirectory(prefix="epanet-") as d:
+    with tempfile.TemporaryDirectory(prefix="epanet-", ignore_cleanup_errors=True) as d:
         arq = Path(d) / "rede.inp"
         arq.write_text(inp, encoding="utf-8")
         wn = wntr.network.WaterNetworkModel(str(arq))
