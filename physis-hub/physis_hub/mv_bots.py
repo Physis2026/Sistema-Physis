@@ -649,3 +649,5 @@ def rodar(mv: MV, quais: list[str] | None = None) -> dict:
     return out
 from . import camadas_bot  # noqa: E402 — camadas de mapa: baixa e converte das fontes (25/11/2026)
 BOTS["camadas"] = camadas_bot.bot_camadas
+from . import mv_inovastem  # noqa: E402 — o que chega no site da InovaSTEM vira alerta (25/11/2026)
+BOTS["inovastem"] = mv_inovastem.bot_inovastem

@@ -20,7 +20,7 @@ RAIZ_REPO = Path(__file__).resolve().parents[2]
 # Intervalo máximo (h) entre execuções sem erro. Agenda: bots_hora (atrasos, documentos) e resumo_7h (o resto).
 LIMITE_H = {"atrasos": 9, "documentos": 2, "dados_iot": 2, "resumo": 26, "backup": 26, "paginas": 26, "inovacao": 26, "links": 26,
             "editais": 26, "simulacao": 26, "gestoes": 26, "bancos": 26, "acervo": 26, "ia": 26, "cursos": 26, "auditoria": 26,
-            "financeiro": 26, "vencimentos": 26, "fatos": 26, "kit": 26, "repositorios": 26, "desenvolvimento": 26, "sincronizacao": 26, "melhoria": 26, "camadas": 26, "modelos": 26, "semanal": 7 * 24 + 6}
+            "financeiro": 26, "vencimentos": 26, "fatos": 26, "kit": 26, "repositorios": 26, "desenvolvimento": 26, "sincronizacao": 26, "melhoria": 26, "camadas": 26, "inovastem": 2, "modelos": 26, "semanal": 7 * 24 + 6}
 # sob demanda (sem rotina, versão enxuta): o vigia não cobra horário
 SOB_DEMANDA = {"mercado"}
 

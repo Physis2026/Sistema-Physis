@@ -69,6 +69,7 @@ NOS = [
     ("b_ia", "bot índice IA", "bot", "Atualiza o índice da IA Physis."),
     ("b_auditoria", "bot auditoria", "bot", "Cruza bots, robôs e módulos; caixa de perguntas; plano de intervenção."),
     ("b_mercado", "bot mercado e parcerias (sob demanda)", "bot", "Fabricantes, fornecedores, testes, estágio, laboratórios, hubs, investidores, supermercados, collabs e resíduos por cidade; mapa GIS."),
+    ("b_inovastem", "bot InovaSTEM (avisos)", "bot", "Projetos, desafios, cadastros, pedidos de impressão e mensagens do fórum da InovaSTEM viram alerta no M&A."),
     ("b_camadas", "bot camadas de mapa", "bot", "Baixa e converte as camadas (OpenStreetMap, NASA POWER e os endereços oficiais de fontes-camadas.txt) na janela das cidades da Physis."),
     ("b_modelos", "bot modelos dos fabricantes (diário)", "bot", "Lê os catálogos guardados pela equipe e propõe os modelos de cada fabricante da lista para aprovar."),
     ("b_financeiro", "bot financeiro (contábil)", "bot", "Comprovantes, duplicidades, conferência, saldo, fluxo por projeto e porta, NF-e; rascunho ao contador."),
@@ -91,7 +92,7 @@ NOS = [
 BOT_DO_NO = {"b_atrasos": "atrasos", "b_documentos": "documentos", "b_resumo": "resumo", "b_backup": "backup", "b_paginas": "paginas",
              "b_links": "links", "b_inovacao": "inovacao", "b_vigia": "vigia", "b_sentinela": "sentinela", "b_sala": "sala",
              "b_editais": "editais", "b_acervo": "acervo", "b_iot": "dados_iot", "b_simul": "simulacao", "b_gestoes": "gestoes",
-             "b_bancos": "bancos", "b_cursos": "cursos", "b_ia": "ia", "b_auditoria": "auditoria", "b_mercado": "mercado", "b_modelos": "modelos", "b_camadas": "camadas", "b_financeiro": "financeiro", "b_vencimentos": "vencimentos", "b_fatos": "fatos", "b_repos": "repositorios", "b_desenv": "desenvolvimento", "b_sincro": "sincronizacao", "b_kit": "kit", "b_melhoria": "melhoria", "b_semanal": "semanal"}
+             "b_bancos": "bancos", "b_cursos": "cursos", "b_ia": "ia", "b_auditoria": "auditoria", "b_mercado": "mercado", "b_modelos": "modelos", "b_camadas": "camadas", "b_inovastem": "inovastem", "b_financeiro": "financeiro", "b_vencimentos": "vencimentos", "b_fatos": "fatos", "b_repos": "repositorios", "b_desenv": "desenvolvimento", "b_sincro": "sincronizacao", "b_kit": "kit", "b_melhoria": "melhoria", "b_semanal": "semanal"}
 
 # de, para, o que passa, fonte no código, opcional
 ARESTAS = [
