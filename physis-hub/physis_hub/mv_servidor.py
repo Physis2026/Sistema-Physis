@@ -42,7 +42,7 @@ def _ia():
     return _IA["m"]
 
 
-VENDOR_OK = {"three.min.js", "jszip.min.js"}       # bibliotecas abertas guardadas localmente (sem internet)
+VENDOR_OK = {"three.min.js", "jszip.min.js", "flowy/flowy.min.js", "flowy/flowy.min.css"}       # bibliotecas abertas guardadas localmente (sem internet)
 PORTA = int(os.environ.get("PHYSIS_MV_PORTA") or 8710)
 CORPO_MAX = 256 * 1024
 CORPO_UPLOAD = 56 * 1024 * 1024      # até 40 MB (modelos 3D) em base64
@@ -214,7 +214,7 @@ def fabricar(mv: MV):
                         return self._bytes((WEB / "logos" / m_logo.group(1)).read_bytes(),
                                            "image/svg+xml" if m_logo.group(2) == "svg" else "image/png")
                     if p.startswith("/vendor/") and p[8:] in VENDOR_OK and (VENDOR / p[8:]).is_file():
-                        return self._bytes((VENDOR / p[8:]).read_bytes(), "text/javascript; charset=utf-8")
+                        return self._bytes((VENDOR / p[8:]).read_bytes(), "text/css; charset=utf-8" if p.endswith(".css") else "text/javascript; charset=utf-8")
                     if p == "/icone.png" and (WEB / "app" / "icone-192.png").is_file():   # logo Physis no cabeçalho
                         return self._bytes((WEB / "app" / "icone-192.png").read_bytes(), "image/png")
                     rotas = {"/api/mv/saude": lambda: mv.saude(), "/api/mv/gantt": lambda: mv.gantt(fr),
@@ -229,6 +229,8 @@ def fabricar(mv: MV):
                              "/api/mv/integracoes": lambda: mv_integracoes.estado(mv),         # mapa da aba Monitoramento
                              # indicadores de TODAS as plataformas (hub, Casa, site/Gestão, InovaSTEM, GSA...), 26/11/2026
                              "/api/mv/indicadores": lambda: __import__("physis_hub.mv_indicadores", fromlist=["painel"]).painel(mv),
+                             "/api/mv/fluxogramas": lambda: __import__("physis_hub.mv_fluxogramas", fromlist=["x"]).listar(mv),
+                             "/api/mv/fluxograma": lambda: __import__("physis_hub.mv_fluxogramas", fromlist=["x"]).ler(mv, q.get("nome", "")),
                              "/api/mv/arquivos": lambda: arq.listar(q.get("destino") or None, q.get("ref") or None),
                              "/api/mv/arquivo/previa": lambda: arq.previa(q.get("id", "")),
                              "/api/mv/fila": lambda: cmd.fila(q.get("estado") or None),
@@ -278,6 +280,9 @@ def fabricar(mv: MV):
                 return self._json(400, {"erro": "corpo deve ser um objeto JSON"})
             try:
                 with _TRAVA:
+                    if p == "/api/mv/fluxograma":
+                        from . import mv_fluxogramas
+                        return self._json(200, mv_fluxogramas.gravar(mv, corpo.get("nome"), corpo.get("dados")))
                     if p == "/api/mv/estado":
                         return self._json(200, mv.mudar_estado(str(corpo.get("id")), str(corpo.get("estado")), str(corpo.get("bloqueio") or "")))
                     if p == "/api/mv/tarefa":

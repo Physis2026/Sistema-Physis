@@ -15,7 +15,15 @@
     ".pg-nav button[aria-current=page]{font-weight:700;outline:2px solid currentColor;outline-offset:1px}.pg-nav span{opacity:.85}";
   (d.head || d.documentElement).appendChild(st);
   function rot(i, n) { var a = i * N + 1, b = Math.min(n, (i + 1) * N); return a + "–" + b; }
-  function itens(c) { return Array.prototype.filter.call(c.children, function (e) { return e.tagName === "TR" || e.tagName === "LI"; }); }
+  function itens(c) { if (c.tagName === "TBODY" || c.tagName === "UL" || c.tagName === "OL") return Array.prototype.filter.call(c.children, function (e) { return e.tagName === "TR" || e.tagName === "LI"; });
+    var k = c.getAttribute("data-pg-chave"); return Array.prototype.filter.call(c.children, function (e) { return (e.tagName + "." + e.className) === k; }); }
+  /* grade de cartões repetidos (mesma tag e classe, mais de 20): também vira páginas (26/11/2026, telas com fichas de espécies etc.) */
+  function grades(raiz) { var out = [];
+    Array.prototype.forEach.call(raiz.querySelectorAll("div, section"), function (c) { if (c.children.length <= N || c.closest(FORA)) return;
+      var cont = {}; Array.prototype.forEach.call(c.children, function (e) { if (e.getAttribute("data-pg-nav") != null) return; var k = e.tagName + "." + e.className; cont[k] = (cont[k] || 0) + 1; });
+      var k = Object.keys(cont).sort(function (a, b) { return cont[b] - cont[a]; })[0];
+      if (k && cont[k] > N && !/^(TR|LI|OPTION|BUTTON|INPUT|LABEL|SPAN|SVG|PATH)\./.test(k)) { c.setAttribute("data-pg-chave", k); out.push(c); } });
+    return out; }
   function navDe(c) { var alvo = c.tagName === "TBODY" ? c.closest("table") : c, cx = alvo && alvo.parentNode && alvo.parentNode.classList && /rolagem|tabwrap/.test(alvo.parentNode.className) ? alvo.parentNode : alvo;
     var n = cx.nextElementSibling; return { cx: cx, nav: n && n.getAttribute && n.getAttribute("data-pg-nav") != null ? n : null }; }
   function um(c) {
@@ -35,7 +43,8 @@
   var ocupado = false;
   function tudo() { if (ocupado) return; ocupado = true;
     try { var raiz = d.querySelector("main") || d.body; if (!raiz) return;
-      Array.prototype.forEach.call(raiz.querySelectorAll("tbody, ul, ol"), function (c) { if (c.closest(FORA)) return; um(c); }); }
+      Array.prototype.forEach.call(raiz.querySelectorAll("tbody, ul, ol"), function (c) { if (c.closest(FORA)) return; um(c); });
+      grades(raiz).forEach(um); }
     finally { setTimeout(function () { ocupado = false; }, 0); } }
   d.addEventListener("click", function (ev) { var b = ev.target && ev.target.closest && ev.target.closest("[data-pg-ir]"); if (!b) return;
     var nav = b.closest("[data-pg-nav]"), c = nav && nav.__alvo; if (!c) return; c.setAttribute("data-pg", b.getAttribute("data-pg-ir")); um(c);

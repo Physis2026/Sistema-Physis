@@ -153,6 +153,7 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
   <button class="aba" role="tab" data-v="bots" aria-selected="false" hidden>Bots e comandos</button>
   <button class="aba" role="tab" data-v="indicadores" aria-selected="false">Indicadores das plataformas</button>
   <button class="aba" role="tab" data-v="monitoramento" aria-selected="false" hidden>Monitoramento</button>
+  <button class="aba" role="tab" data-v="fluxos" aria-selected="false" hidden>Fluxogramas</button>
 </nav>
 <main id="conteudo" tabindex="-1">
   <form id="cmdForm" class="cmdbar" aria-label="Comandos aos bots"><label for="cmdTxt">Comando aos bots</label>
@@ -178,17 +179,24 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
   </section>
   <section id="v-indicadores" role="tabpanel" hidden>
     <p class="muted">O trabalho de todas as plataformas numa tela: hub, Casa Physis, site e Gestão, InovaSTEM, GSA e as demais instalações. Só números (pedidos, entradas, erros, leituras, IA, loja, documentos, cópia de segurança); nunca dado pessoal.</p>
-    <div class="ferr"><button class="btn" id="indAtualizar" type="button">Atualizar</button></div>
+    <div class="ferr"><button class="btn" id="indAtualizar" type="button">Atualizar</button> <a class="btn" id="indSeo" href="#" target="_blank" rel="noopener">Auditoria de SEO (OpenSEO)</a></div>
     <div id="indAlertas" role="status" aria-live="polite"></div><div class="tabwrap" id="indTabela"></div><div id="indGraf"></div>
   </section>
-  <section id="v-monitoramento" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button></div>
+  <section id="v-fluxos" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button> <button type="button" class="btn" data-ir-v="fluxos">Fluxogramas</button></div>
+    <p class="muted">Desenhe os fluxos de informação (aba, módulo, plataforma, M&amp;A, banco, serviço): arraste um bloco da paleta para a área e solte embaixo de outro para ligar. Guardado no M&amp;A. Feito com Flowy (aberto, MIT).</p>
+    <div class="ferr"><label for="fxNome">Nome</label> <input id="fxNome" list="fxLista" maxlength="80" value="Fluxo atual"><datalist id="fxLista"></datalist>
+      <button class="btn" id="fxAbrir" type="button">Abrir</button><button class="btn" id="fxSalvar" type="button">Salvar</button><button class="btn" id="fxLimpar" type="button">Limpar</button><span id="fxMsg" role="status" aria-live="polite"></span></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><div id="fxPaleta" style="min-width:160px" aria-label="Paleta de blocos"></div>
+      <div id="fxCanvas" style="flex:1 1 400px;min-height:420px;position:relative;border:1px solid var(--linha,#D9D3C2);border-radius:12px;overflow:auto"></div></div>
+  </section>
+  <section id="v-monitoramento" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button> <button type="button" class="btn" data-ir-v="fluxos">Fluxogramas</button></div>
     <p class="muted">Mapa das integrações do Sistema Physis: cada engrenagem é um sistema e as linhas mostram a passagem de informação (as bolinhas andam no sentido do envio). O anel em volta de cada bot mostra o estado agora. Arraste para girar, role para aproximar (no teclado: setas e + / −) e clique num sistema para ver o que ele recebe e envia.</p>
     <div class="ferr"><button class="btn" id="monGirar" type="button" aria-pressed="true">Pausar giro</button><button class="btn" id="monAtualizar" type="button">Atualizar estado</button></div>
     <div id="mon3d" class="mon3d" role="img" aria-label="Mapa 3D das integrações; a mesma informação está na tabela abaixo"></div>
     <ul id="monLegenda" class="mon-leg"></ul>
     <details class="mon-tab"><summary>Tabela das integrações</summary><div class="tabwrap" id="monTabela"></div></details>
   </section>
-  <section id="v-bots" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button></div>
+  <section id="v-bots" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button> <button type="button" class="btn" data-ir-v="fluxos">Fluxogramas</button></div>
     <p class="muted">Comandos executam na hora; texto sem barra é respondido na hora pelo bot autônomo (documentos da Physis, sem serviço externo) e volta como rascunho. Nada é enviado para fora: e-mails ficam como rascunho e documentos como versão de teste.</p>
     <div class="cards"><div class="card"><h2>Comandos</h2><ul id="botsAjuda"></ul></div>
       <div class="card"><h2>Programar um bot</h2><form id="fProg" class="ferr"><label>Comando <input type="text" name="comando" placeholder="/rodar resumo" required></label>
@@ -196,7 +204,7 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
         <label>Nome <input type="text" name="nome" placeholder="opcional"></label><button class="btn prim">Programar</button></form><div class="tabwrap" id="botsProg"></div></div></div>
     <h2>Fila de pedidos e rascunhos</h2><div class="tabwrap" id="botsFila"></div>
   </section>
-  <section id="v-modelos3d" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button></div>
+  <section id="v-modelos3d" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="modelos3d">Modelagens</button> <button type="button" class="btn" data-ir-v="bots">Bots e comandos</button> <button type="button" class="btn" data-ir-v="monitoramento">Monitoramento</button> <button type="button" class="btn" data-ir-v="fluxos">Fluxogramas</button></div>
     <p class="muted">Controle do desenvolvimento das modelagens. As ferramentas (visualizador, galeria, impressão e escaneados) ficam no módulo Modelagem 3D do Sistema Physis; este painel é o mesmo que aparece dentro de cada módulo, nas plataformas internas e na Gestão.</p>
     <div class="cards" id="desenv"></div>
   </section>
@@ -305,7 +313,7 @@ const EN={"Marketing · aprovação":"Marketing · approval","Os conteúdos nasc
 "Todas as frentes":"All fronts","versão de teste":"test version","Physis Engineering · gestão e monitoramento integrados":"Physis Engineering · integrated management and monitoring",
 "Saúde":"Health","Gantt e caminho crítico":"Gantt and critical path","Kanban":"Kanban","Matriz de pendências":"Pending matrix","Roadmap 2027–2031":"Roadmap 2027–2031",
 "Alertas e intervenções":"Alerts and interventions","Documentos":"Documents","Financeiro":"Finance","Editais e propostas":"Calls and proposals","Carregando…":"Loading…",
-"Visão geral":"Overview","Cronograma":"Schedule","Modelagens, bots e monitoramento":"Modelling, bots and monitoring","Modelagens":"Modelling","O trabalho de todas as plataformas numa tela: hub, Casa Physis, site e Gestão, InovaSTEM, GSA e as demais instalações. Só números (pedidos, entradas, erros, leituras, IA, loja, documentos, cópia de segurança); nunca dado pessoal.":"The work of every platform on one screen: hub, Casa Physis, site and management, InovaSTEM, GSA and the other installations. Numbers only (requests, sign-ins, errors, readings, AI, store, documents, backup); never personal data.","Indicadores das plataformas":"Platform indicators","Atualizar":"Refresh","Nenhum alerta nas plataformas.":"No alerts on the platforms.","Indicadores por plataforma":"Indicators by platform","Plataforma":"Platform","Pedidos (24 h)":"Requests (24 h)","Pedidos (7 dias)":"Requests (7 days)","Entradas (7 dias)":"Sign-ins (7 days)","Erros 5xx (7 dias)":"5xx errors (7 days)","Tempo p95 (ms)":"p95 time (ms)","Leituras (7 dias)":"Readings (7 days)","IA (7 dias)":"AI (7 days)","Compras (30 dias)":"Orders (30 days)","Documentos emitidos (30 dias)":"Documents issued (30 days)","Cópia de segurança (h)":"Backup age (h)","sem indicadores ainda":"no indicators yet","Total (7 dias)":"Total (7 days)","Pedidos por dia, últimos 14 dias":"Requests per day, last 14 days","Projetos e cronograma":"Projects and schedule","Tarefas e pendências":"Tasks and pending","Por pessoa":"By person","Quadro":"Board","Lista":"List","Vista":"View","Tarefas":"Tasks","Pendências por pessoa":"Pending by person","Metas 2027–2031":"Goals 2027–2031","Alertas e ações":"Alerts and actions","Finanças por entidade":"Finance by entity","Editais e captação":"Calls and fundraising",
+"Visão geral":"Overview","Cronograma":"Schedule","Fluxogramas":"Flowcharts","Auditoria de SEO (OpenSEO)":"SEO audit (OpenSEO)","Paleta de blocos":"Block palette","Nome":"Name","Abrir":"Open","Salvar":"Save","Limpar":"Clear","Aba":"Tab","Módulo":"Module","Plataforma":"Platform","Banco de dados":"Database","Serviço / API":"Service / API","Arquivo":"File","Pessoa":"Person","Salvo.":"Saved.","Aberto.":"Opened.","Não encontrado.":"Not found.","Área limpa.":"Area cleared.","Não salvou: ":"Not saved: ","O Flowy não carregou (vendor/flowy).":"Flowy did not load (vendor/flowy).","Desenhe os fluxos de informação (aba, módulo, plataforma, M&A, banco, serviço): arraste um bloco da paleta para a área e solte embaixo de outro para ligar. Guardado no M&A. Feito com Flowy (aberto, MIT).":"Draw the information flows (tab, module, platform, M&A, database, service): drag a block from the palette into the area and drop it under another to link. Saved in the M&A. Built with Flowy (open source, MIT).","Modelagens, bots e monitoramento":"Modelling, bots and monitoring","Modelagens":"Modelling","O trabalho de todas as plataformas numa tela: hub, Casa Physis, site e Gestão, InovaSTEM, GSA e as demais instalações. Só números (pedidos, entradas, erros, leituras, IA, loja, documentos, cópia de segurança); nunca dado pessoal.":"The work of every platform on one screen: hub, Casa Physis, site and management, InovaSTEM, GSA and the other installations. Numbers only (requests, sign-ins, errors, readings, AI, store, documents, backup); never personal data.","Indicadores das plataformas":"Platform indicators","Atualizar":"Refresh","Nenhum alerta nas plataformas.":"No alerts on the platforms.","Indicadores por plataforma":"Indicators by platform","Plataforma":"Platform","Pedidos (24 h)":"Requests (24 h)","Pedidos (7 dias)":"Requests (7 days)","Entradas (7 dias)":"Sign-ins (7 days)","Erros 5xx (7 dias)":"5xx errors (7 days)","Tempo p95 (ms)":"p95 time (ms)","Leituras (7 dias)":"Readings (7 days)","IA (7 dias)":"AI (7 days)","Compras (30 dias)":"Orders (30 days)","Documentos emitidos (30 dias)":"Documents issued (30 days)","Cópia de segurança (h)":"Backup age (h)","sem indicadores ainda":"no indicators yet","Total (7 dias)":"Total (7 days)","Pedidos por dia, últimos 14 dias":"Requests per day, last 14 days","Projetos e cronograma":"Projects and schedule","Tarefas e pendências":"Tasks and pending","Por pessoa":"By person","Quadro":"Board","Lista":"List","Vista":"View","Tarefas":"Tasks","Pendências por pessoa":"Pending by person","Metas 2027–2031":"Goals 2027–2031","Alertas e ações":"Alerts and actions","Finanças por entidade":"Finance by entity","Editais e captação":"Calls and fundraising",
 "Origem":"Source","Plano Fase 0 + M&V":"Phase 0 plan + M&V","Correções (bots)":"Fixes (bots)","Gestão Fase 2 (577)":"Phase 2 management","Gestão Fase 2":"Phase 2 management","Todas":"All",
 "Só críticas, atrasadas ou em risco":"Only critical, late or at risk","Escala":"Scale","Dia (6 px)":"Day (6 px)","Dia (14 px)":"Day (14 px)","Mês (2 px/dia)":"Month (2 px/day)",
 "Planejada":"Planned","Caminho crítico":"Critical path","Prazo em risco":"Deadline at risk","Atrasada":"Late","Feita":"Done","Buscar":"Search",
@@ -406,7 +414,7 @@ document.querySelectorAll(".aba").forEach(b=>b.onclick=()=>abrir(b.dataset.v));
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ir-v]");if(b)abrir(b.dataset.irV);});
 document.querySelector("[role=tablist]").addEventListener("keydown",e=>{const a=[...document.querySelectorAll(".aba:not([hidden])")],i=a.indexOf(document.activeElement);
   if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();const n=a[(i+(e.key==="ArrowRight"?1:-1)+a.length)%a.length];n.focus();abrir(n.dataset.v);}});
-function abrir(v){atual=v;const pai={gantt:"projetos",matriz:"kanban",bots:"modelos3d",monitoramento:"modelos3d"}[v]||v;document.querySelectorAll(".aba").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===pai));document.querySelectorAll("[data-ir-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.irV===v));
+function abrir(v){atual=v;const pai={gantt:"projetos",matriz:"kanban",bots:"modelos3d",monitoramento:"modelos3d",fluxos:"modelos3d"}[v]||v;document.querySelectorAll(".aba").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===pai));document.querySelectorAll("[data-ir-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.irV===v));
   document.querySelectorAll("[role=tabpanel]").forEach(s=>s.hidden=s.id!=="v-"+v);render(v);montarUploads(v);}
 const fr=()=>$("#frente").value;
 function origemDe(t){return t.origem==="semente"?"semente":(t.origem||"").startsWith("bot")?"bot":t.origem;}
@@ -487,6 +495,7 @@ async function render(v){
   if(v==="financeiro"&&!MOCK){finNiveis();}
   if(v==="bots"){await bots();}
   if(v==="indicadores"){await indicadoresTodas();}
+  if(v==="fluxos"){await fluxogramas();}
   if(v==="monitoramento"){await monitoramento();}
   if(v==="modelos3d"){await modelos3d();}
   if(v==="editais"){await editais();}
@@ -811,7 +820,21 @@ async function indicadoresTodas(){const D=MOCK?null:await get("/api/mv/indicador
  const com=L.filter(p=>!p.sem_dado),mx=Math.max(1,...com.flatMap(p=>p.pedidos_14d)),W=280,H=60;
  $("#indGraf").innerHTML=com.length?"<h3>"+tx("Pedidos por dia, últimos 14 dias")+"</h3>"+com.map(p=>{const pts=p.pedidos_14d.map((v,i)=>(i*W/13).toFixed(1)+","+(H-v/mx*H).toFixed(1)).join(" ");
   return "<figure style='display:inline-block;margin:.4rem'><svg width='"+W+"' height='"+(H+4)+"' role='img' aria-label='"+esc(p.nome)+": "+p.pedidos_14d.join(", ")+"'><polyline fill='none' stroke='currentColor' stroke-width='2' points='"+pts+"'/></svg><figcaption>"+esc(p.nome)+"</figcaption></figure>";}).join(""):"";
+ $("#indSeo").href=location.protocol+"//"+location.hostname+":8720";
  $("#indAtualizar").onclick=()=>indicadoresTodas();}
+let FLOWY_OK=false;
+function carregarFlowy(){if(FLOWY_OK)return Promise.resolve();return new Promise((ok,er)=>{const l=document.createElement("link");l.rel="stylesheet";l.href="/vendor/flowy/flowy.min.css";document.head.appendChild(l);
+ const s=document.createElement("script");s.src="/vendor/flowy/flowy.min.js";s.onload=()=>{FLOWY_OK=true;ok();};s.onerror=er;document.head.appendChild(s);});}
+async function fluxogramas(){if(MOCK){$("#fxCanvas").innerHTML=semServidor("Fluxogramas");return;}
+ try{await carregarFlowy();}catch(e){$("#fxMsg").textContent=tx("O Flowy não carregou (vendor/flowy).");return;}
+ const tipos=["Aba","Módulo","Plataforma","M&A","Banco de dados","Serviço / API","Arquivo","Pessoa"];
+ $("#fxPaleta").innerHTML=tipos.map(n=>"<div class='create-flowy' style='border:1px solid currentColor;border-radius:8px;padding:6px 10px;margin:4px 0;cursor:grab'><input type='hidden' name='blockelemtype' class='blockelemtype' value='"+esc(n)+"'><strong>"+esc(tx(n))+"</strong></div>").join("");
+ const cv=$("#fxCanvas");if(!cv.dataset.ok){cv.dataset.ok="1";
+  flowy(cv,()=>{},()=>{},b=>{const s=b.querySelector("strong");if(s&&!b.querySelector(".blockyname")){const d2=document.createElement("div");d2.className="blockyname";d2.contentEditable="true";d2.textContent=s.textContent;d2.style.cssText="padding:2px 4px";s.replaceWith(d2);}return true;},20,40);}
+ const L=await get("/api/mv/fluxogramas");$("#fxLista").innerHTML=(L&&L.itens||[]).map(i=>"<option value='"+esc(i.nome)+"'>").join("");
+ $("#fxSalvar").onclick=async()=>{const r=await post("/api/mv/fluxograma",{nome:$("#fxNome").value,dados:flowy.output()||{}});$("#fxMsg").textContent=r&&r.ok?tx("Salvo."):tx("Não salvou: ")+((r&&r.erro)||"");};
+ $("#fxAbrir").onclick=async()=>{const r=await get("/api/mv/fluxograma?nome="+encodeURIComponent($("#fxNome").value));if(r&&r.ok&&r.dados&&r.dados.html!==undefined){flowy.import(r.dados);$("#fxMsg").textContent=tx("Aberto.");}else $("#fxMsg").textContent=tx("Não encontrado.");};
+ $("#fxLimpar").onclick=()=>{flowy.deleteBlocks();$("#fxMsg").textContent=tx("Área limpa.");};}
 async function monitoramento(){const D=MOCK?MOCK["/api/mv/integracoes"]:await get("/api/mv/integracoes");
  if(!D||(MOCK&&!window.THREE)){$("#mon3d").innerHTML=semServidor("Mapa de integrações");return;}
  const T=await carregarThree();if(MAPA)MAPA.parar();
@@ -1984,7 +2007,15 @@ if(window.PhysisPreferencias)PhysisPreferencias.iniciar({chave:"physis-pref",ond
     ".pg-nav button[aria-current=page]{font-weight:700;outline:2px solid currentColor;outline-offset:1px}.pg-nav span{opacity:.85}";
   (d.head || d.documentElement).appendChild(st);
   function rot(i, n) { var a = i * N + 1, b = Math.min(n, (i + 1) * N); return a + "–" + b; }
-  function itens(c) { return Array.prototype.filter.call(c.children, function (e) { return e.tagName === "TR" || e.tagName === "LI"; }); }
+  function itens(c) { if (c.tagName === "TBODY" || c.tagName === "UL" || c.tagName === "OL") return Array.prototype.filter.call(c.children, function (e) { return e.tagName === "TR" || e.tagName === "LI"; });
+    var k = c.getAttribute("data-pg-chave"); return Array.prototype.filter.call(c.children, function (e) { return (e.tagName + "." + e.className) === k; }); }
+  /* grade de cartões repetidos (mesma tag e classe, mais de 20): também vira páginas (26/11/2026, telas com fichas de espécies etc.) */
+  function grades(raiz) { var out = [];
+    Array.prototype.forEach.call(raiz.querySelectorAll("div, section"), function (c) { if (c.children.length <= N || c.closest(FORA)) return;
+      var cont = {}; Array.prototype.forEach.call(c.children, function (e) { if (e.getAttribute("data-pg-nav") != null) return; var k = e.tagName + "." + e.className; cont[k] = (cont[k] || 0) + 1; });
+      var k = Object.keys(cont).sort(function (a, b) { return cont[b] - cont[a]; })[0];
+      if (k && cont[k] > N && !/^(TR|LI|OPTION|BUTTON|INPUT|LABEL|SPAN|SVG|PATH)\./.test(k)) { c.setAttribute("data-pg-chave", k); out.push(c); } });
+    return out; }
   function navDe(c) { var alvo = c.tagName === "TBODY" ? c.closest("table") : c, cx = alvo && alvo.parentNode && alvo.parentNode.classList && /rolagem|tabwrap/.test(alvo.parentNode.className) ? alvo.parentNode : alvo;
     var n = cx.nextElementSibling; return { cx: cx, nav: n && n.getAttribute && n.getAttribute("data-pg-nav") != null ? n : null }; }
   function um(c) {
@@ -2004,7 +2035,8 @@ if(window.PhysisPreferencias)PhysisPreferencias.iniciar({chave:"physis-pref",ond
   var ocupado = false;
   function tudo() { if (ocupado) return; ocupado = true;
     try { var raiz = d.querySelector("main") || d.body; if (!raiz) return;
-      Array.prototype.forEach.call(raiz.querySelectorAll("tbody, ul, ol"), function (c) { if (c.closest(FORA)) return; um(c); }); }
+      Array.prototype.forEach.call(raiz.querySelectorAll("tbody, ul, ol"), function (c) { if (c.closest(FORA)) return; um(c); });
+      grades(raiz).forEach(um); }
     finally { setTimeout(function () { ocupado = false; }, 0); } }
   d.addEventListener("click", function (ev) { var b = ev.target && ev.target.closest && ev.target.closest("[data-pg-ir]"); if (!b) return;
     var nav = b.closest("[data-pg-nav]"), c = nav && nav.__alvo; if (!c) return; c.setAttribute("data-pg", b.getAttribute("data-pg-ir")); um(c);

@@ -191,6 +191,10 @@ def montar(org: str, lugar: str, modulos: list[str], saida: Path, sustainkit: Pa
             if origem:
                 (pasta / "web" / "vendor" / nome).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(origem, pasta / "web" / "vendor" / nome)
+    # editor de imagem aberto (miniPaint, MIT; 26/11/2026): em toda instalação, sem internet, em /editor-imagem/
+    mp = next((p for p in (AQUI.parent / "vendor" / "minipaint", AQUI / "web" / "vendor" / "minipaint") if (p / "index.html").is_file()), None)
+    if mp and not (pasta / "web" / "vendor" / "minipaint").exists():
+        shutil.copytree(mp, pasta / "web" / "vendor" / "minipaint")
     if gestao is not None and gestao.is_file():      # só o pacote interno da Physis leva o programa de gestão interna
         shutil.copy2(gestao, pasta / "web" / "gestao.html")
         if (AQUI / "web" / "consultoria.html").exists():      # página pública de consultoria do site da Physis

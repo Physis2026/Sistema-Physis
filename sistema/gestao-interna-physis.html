@@ -6018,7 +6018,7 @@ global.PARCEIROS = { ESPECIALIDADES, TIPOS_DOC, STATUS, cpfValido, cnpjValido, m
   /* ---- fornecedores ---- */
   function htmlFornecedores() {
     var fs = lerLista("fornecedores").slice().sort(function (a, b) { return String(a.nome).localeCompare(String(b.nome)); }), e = editF || {};
-    var h = "<div style=\"" + css({ background: C.fundo, border: "1px solid " + C.linha, borderRadius: "4px", padding: "12px", marginBottom: "14px" }) + "\">" +
+    var h = "<p style='margin:0 0 10px'><button type='button' onclick=\"var b=document.getElementById('gp-m-fornequip');if(b)b.click();\" style=\"" + estVazado + ";min-height:44px\">← " + (document.documentElement.lang === "en" ? "Suppliers: sheet, regions and equipment" : "Fornecedores: planilha, regiões e equipamentos") + "</button></p>" + "<div style=\"" + css({ background: C.fundo, border: "1px solid " + C.linha, borderRadius: "4px", padding: "12px", marginBottom: "14px" }) + "\">" +
       "<div style='font-weight:600;font-size:13.5px;margin-bottom:9px'>" + (editF ? T.editar : T5.novoForn) + "</div>" +
       "<div style=\"" + css({ display: "grid", gap: "8px", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))" }) + "\">" +
       campo(T5.nome, "<input id='adm-f-nome' style=\"" + estCampo + "\" value=\"" + esc(e.nome || "") + "\">") +
@@ -6632,12 +6632,12 @@ html.gp #physis-adm[data-grupo="org"] [data-aba]:not([data-aba="tar"]):not([data
     ["clientes", "Clientes", null],       // 15/11/2026: fichas da Central (GET /api/central/clientes), gp-robos
     ["chamados", "Chamados", null],       // caixa de chamados do suporte (GET/POST /api/suporte/chamados), gp-robos
     ["indicadores", "Indicadores da plataforma", null],   // 15/11/2026 (D18): saúde da plataforma por cliente, anomalias e melhorias (gp-indicadores)
-    ["fornequip", "Fornecedores e equipamentos", null],     // fornecedores por região e equipamentos (physis-fornecedores.js)
+    ["fornequip", "Fornecedores", null],     // 26/11/2026: UM menu de fornecedores (planilha, equipamentos, contratos e licenças); "forn" fica como parte
       ["parceiros", "Parceiros", null],     // curadoria dos profissionais parceiros (physis-parceiros.js)
     ["suporte", "Suporte Physis", null]   // 15/11/2026: pergunta ao robô do suporte antes de abrir chamado (gp-robos)
   ];
   var VISTAS = ["atv","cursos","reun","docs","mails","contas","eventos","editais","mkt","suporte","clientes","chamados","parceiros","fornequip","emissao","ia","indicadores"];   // partes da casca que não são do painel
-  var EN_MENU = { fornequip:"Suppliers and equipment", emissao:"Document issuing", ia:"AI: usage", indicadores:"Platform indicators", eventos:"Events", editais:"Funding calls", mkt:"Marketing", contas:"Account", mails:"E-mails", atv:"Activities", mapa:"Team map", dir:"Leadership", org:"Tasks and projects", prop:"Proposals", cont:"Contracts", fin:"Finance", forn:"Suppliers", alert:"Alerts", reun:"Meetings", docs:"Documents", cursos:"Courses", meus:"My contracts", suporte:"Physis Support", clientes:"Clients", chamados:"Tickets", parceiros:"Partners" };
+  var EN_MENU = { fornequip:"Suppliers", emissao:"Document issuing", ia:"AI: usage", indicadores:"Platform indicators", eventos:"Events", editais:"Funding calls", mkt:"Marketing", contas:"Account", mails:"E-mails", atv:"Activities", mapa:"Team map", dir:"Leadership", org:"Tasks and projects", prop:"Proposals", cont:"Contracts", fin:"Finance", forn:"Suppliers", alert:"Alerts", reun:"Meetings", docs:"Documents", cursos:"Courses", meus:"My contracts", suporte:"Physis Support", clientes:"Clients", chamados:"Tickets", parceiros:"Partners" };
   function emIngles() { var bs = document.querySelectorAll("#app button"); for (var i = 0; i < bs.length; i++) if (bs[i].textContent.trim() === "PT") return true; return false; }
   function rotular() { var en = emIngles(); document.documentElement.lang = en ? "en" : "pt-BR"; ITENS.forEach(function (i) { var b = document.getElementById("gp-m-" + i[0]); if (b) b.textContent = en ? EN_MENU[i[0]] : i[1]; });
     var m = document.getElementById("gp-m-meus"); if (m) m.textContent = en ? EN_MENU.meus : "Meus contratos"; var l = document.querySelector("#gp-menu .gp-quem label"); if (l) l.textContent = en ? "Who is using" : "Quem está usando";
@@ -7222,6 +7222,7 @@ html.gp #physis-adm[data-grupo="org"] [data-aba]:not([data-aba="tar"]):not([data
     var tit = document.querySelector(".px-faixa .px-tit"); if (tit) tit.textContent = "Gestão Physis";
     menu = document.createElement("nav"); menu.id = "gp-menu"; menu.setAttribute("aria-label", "Partes da Gestão Physis");
     ITENS.forEach(function (i) { var b = document.createElement("button"); b.type = "button"; b.id = "gp-m-" + i[0]; b.textContent = i[1]; b.onclick = function () { ir(i[0], true); }; menu.appendChild(b); });
+    if (!document.getElementById("gp-forn-um")) { var stF = document.createElement("style"); stF.id = "gp-forn-um"; stF.textContent = "#gp-m-forn{display:none!important}"; document.head.appendChild(stF); }   // 26/11/2026: entra por Fornecedores > Contratos e licenças
     /* Quem está usando e “Meus contratos” ficam no menu: o cabeçalho do aplicativo some nas outras partes. */
     var cx = document.createElement("div"); cx.className = "gp-quem"; cx.innerHTML = "<label for='gp-pessoa'>Quem está usando</label><select id='gp-pessoa'></select>"; menu.insertBefore(cx, menu.firstChild);
     var sel = cx.querySelector("select"), sincroniza = function () { var o = document.querySelector("#app select"); if (!o) return; if (sel.options.length !== o.options.length) { sel.innerHTML = ""; Array.prototype.forEach.call(o.options, function (x) { var y = document.createElement("option"); y.value = x.value; y.textContent = x.textContent; sel.appendChild(y); }); } if (document.activeElement !== sel && sel.value !== o.value) sel.value = o.value; };
@@ -8811,9 +8812,13 @@ html.gp .gx-esboco h4{margin:12px 0 4px;color:var(--gr-marca)}
   /* ══ Parceiros: curadoria (physis-parceiros.js; aprovar e suspender só a direção, o servidor também barra) ══ */
   function pintarFornequip() {
     var s = document.getElementById("gr-fornequip"); if (!s || s._montado) return;
-    var h = "<h1 id='gr-h-fornequip'>" + esc(L("Fornecedores e equipamentos", "Suppliers and equipment")) + "</h1>";
+    var h = "<h1 id='gr-h-fornequip'>" + esc(L("Fornecedores", "Suppliers")) + "</h1>" +
+      "<div class='chips' role='group' aria-label='" + esc(L("Partes de Fornecedores", "Supplier parts")) + "' style='display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px'>" +
+      "<button type='button' aria-pressed='true' style='min-height:44px'>" + esc(L("Planilha, regiões e equipamentos", "Sheet, regions and equipment")) + "</button>" +
+      "<button type='button' id='gr-ir-forn' aria-pressed='false' style='min-height:44px'>" + esc(L("Contratos e licenças", "Contracts and licences")) + "</button></div>";
     if (!SRV || !window.FORNECEDORES || !window.FORNECEDORES.montarGestao) { s.innerHTML = h + semServidor(); return; }
     s.innerHTML = h + "<div id='fornecedores-gestao' class='gr-caixa'></div>"; s._montado = true;
+    var irF = document.getElementById("gr-ir-forn"); if (irF) irF.onclick = function () { var b = document.getElementById("gp-m-forn"); if (b) b.click(); };
     try { window.FORNECEDORES.montarGestao(document.getElementById("fornecedores-gestao")); }
     catch (e) { s.querySelector("#fornecedores-gestao").innerHTML = "<p class='gr-erro' role='alert'>" + esc(L("A tela de fornecedores não abriu.", "The supplier screen did not open.")) + "</p>"; }
   }
@@ -10235,7 +10240,15 @@ PxPref.iniciar({ lugar: "#pxp-lugar", menu: "#gp-menu", tela: "gestao",
     ".pg-nav button[aria-current=page]{font-weight:700;outline:2px solid currentColor;outline-offset:1px}.pg-nav span{opacity:.85}";
   (d.head || d.documentElement).appendChild(st);
   function rot(i, n) { var a = i * N + 1, b = Math.min(n, (i + 1) * N); return a + "–" + b; }
-  function itens(c) { return Array.prototype.filter.call(c.children, function (e) { return e.tagName === "TR" || e.tagName === "LI"; }); }
+  function itens(c) { if (c.tagName === "TBODY" || c.tagName === "UL" || c.tagName === "OL") return Array.prototype.filter.call(c.children, function (e) { return e.tagName === "TR" || e.tagName === "LI"; });
+    var k = c.getAttribute("data-pg-chave"); return Array.prototype.filter.call(c.children, function (e) { return (e.tagName + "." + e.className) === k; }); }
+  /* grade de cartões repetidos (mesma tag e classe, mais de 20): também vira páginas (26/11/2026, telas com fichas de espécies etc.) */
+  function grades(raiz) { var out = [];
+    Array.prototype.forEach.call(raiz.querySelectorAll("div, section"), function (c) { if (c.children.length <= N || c.closest(FORA)) return;
+      var cont = {}; Array.prototype.forEach.call(c.children, function (e) { if (e.getAttribute("data-pg-nav") != null) return; var k = e.tagName + "." + e.className; cont[k] = (cont[k] || 0) + 1; });
+      var k = Object.keys(cont).sort(function (a, b) { return cont[b] - cont[a]; })[0];
+      if (k && cont[k] > N && !/^(TR|LI|OPTION|BUTTON|INPUT|LABEL|SPAN|SVG|PATH)\./.test(k)) { c.setAttribute("data-pg-chave", k); out.push(c); } });
+    return out; }
   function navDe(c) { var alvo = c.tagName === "TBODY" ? c.closest("table") : c, cx = alvo && alvo.parentNode && alvo.parentNode.classList && /rolagem|tabwrap/.test(alvo.parentNode.className) ? alvo.parentNode : alvo;
     var n = cx.nextElementSibling; return { cx: cx, nav: n && n.getAttribute && n.getAttribute("data-pg-nav") != null ? n : null }; }
   function um(c) {
@@ -10255,7 +10268,8 @@ PxPref.iniciar({ lugar: "#pxp-lugar", menu: "#gp-menu", tela: "gestao",
   var ocupado = false;
   function tudo() { if (ocupado) return; ocupado = true;
     try { var raiz = d.querySelector("main") || d.body; if (!raiz) return;
-      Array.prototype.forEach.call(raiz.querySelectorAll("tbody, ul, ol"), function (c) { if (c.closest(FORA)) return; um(c); }); }
+      Array.prototype.forEach.call(raiz.querySelectorAll("tbody, ul, ol"), function (c) { if (c.closest(FORA)) return; um(c); });
+      grades(raiz).forEach(um); }
     finally { setTimeout(function () { ocupado = false; }, 0); } }
   d.addEventListener("click", function (ev) { var b = ev.target && ev.target.closest && ev.target.closest("[data-pg-ir]"); if (!b) return;
     var nav = b.closest("[data-pg-nav]"), c = nav && nav.__alvo; if (!c) return; c.setAttribute("data-pg", b.getAttribute("data-pg-ir")); um(c);

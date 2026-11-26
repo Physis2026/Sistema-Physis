@@ -1137,6 +1137,22 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                         self._json(cod, r)
                 return True
             # Programas do PC pela plataforma (programas_externos.py): página /programas e API, só a equipe
+            # editor de imagem (miniPaint, MIT, sem internet): só com conta; só os arquivos do editor, nunca um caminho qualquer
+            if p == "/editor-imagem" or p.startswith("/editor-imagem/"):
+                if p == "/editor-imagem":
+                    self.send_response(302); self.send_header("Location", "/editor-imagem/"); self.end_headers(); return True
+                if not self._exigir(seg.CLIENTE):
+                    return True
+                rel = p[len("/editor-imagem/"):] or "index.html"
+                tipos = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml",
+                         ".json": "application/json", ".jpg": "image/jpeg", ".gif": "image/gif", ".css": "text/css; charset=utf-8", ".txt": "text/plain; charset=utf-8"}
+                ok = re.fullmatch(r"(index\.html|dist/bundle\.js|dist/bundle\.js\.LICENSE\.txt|images/[\w./-]+)", rel) and ".." not in rel and Path(rel).suffix.lower() in tipos
+                arq = next((b / rel for b in (WEB / "vendor" / "minipaint", WEB.parent.parent / "vendor" / "minipaint") if ok and (b / rel).is_file()), None)
+                if not arq:
+                    self._json(404, {"ok": False, "erro": "arquivo do editor não encontrado"})
+                else:
+                    self._arquivo(arq, tipos[Path(rel).suffix.lower()])
+                return True
             if p in ("/programas", "/programas/"):
                 if self._exigir(seg.EQUIPE):
                     self._arquivo(WEB / "programas.html", "text/html; charset=utf-8")

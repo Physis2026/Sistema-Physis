@@ -24,7 +24,7 @@ class Programas(unittest.TestCase):
     def test_receitas_e_disponibilidade(self):
         ids = {r["id"] for r in pe.disponiveis()}
         for k in ("freecad.solido", "qgis.vetor", "qgis.raster", "blender.glb", "kicad.gerber", "prusaslicer.fatiar", "librecad.pdf",
-                  "calculix.rodar", "gmsh.malha", "tesseract.ocr", "rdkit.descritores", "energyplus.idf", "openstudio.osw", "elmer.sif",
+                  "calculix.rodar", "gmsh.malha", "tesseract.ocr", "rdkit.descritores", "whisper.transcrever", "energyplus.idf", "openstudio.osw", "elmer.sif",
                   "lammps.in", "copasi.cps", "psi4.energia", "opensim.ferramenta", "servicos.saude"):
             self.assertIn(k, ids)
 

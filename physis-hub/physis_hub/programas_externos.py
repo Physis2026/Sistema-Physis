@@ -138,6 +138,25 @@ def _argv_blender(exe, ent, sai, p):
     return [exe, "-b", "--factory-startup", "--python", os.path.join(sai, "_blender.py")], {"_blender.py": BLENDER_PY}
 
 
+WHISPER_PY = r'''
+# transcrição local (faster-whisper, MIT; modelo aberto Whisper). Nada sai do PC. Idioma e tamanho do modelo pelos parâmetros.
+import json, os
+from faster_whisper import WhisperModel
+p = json.loads(os.environ.get("PHYSIS_PARAMS", "{}"))
+m = WhisperModel(p.get("modelo", "small"), device="auto", compute_type="int8")
+segs, info = m.transcribe(os.environ["PHYSIS_ENTRADA"], language=p.get("idioma", "pt"), vad_filter=True)
+sai = os.environ["PHYSIS_SAIDA"]; linhas = []; srt = []
+for i, s in enumerate(segs, 1):
+    linhas.append(s.text.strip())
+    f = lambda x: "%02d:%02d:%02d,%03d" % (x // 3600, x % 3600 // 60, x % 60, (x - int(x)) * 1000)
+    srt.append("%d\n%s --> %s\n%s\n" % (i, f(s.start), f(s.end), s.text.strip()))
+open(os.path.join(sai, "transcricao.txt"), "w", encoding="utf-8").write("\n".join(linhas) + "\n")
+open(os.path.join(sai, "legenda.srt"), "w", encoding="utf-8").write("\n".join(srt))
+json.dump({"idioma": info.language, "duracao_s": round(info.duration, 1), "trechos": len(linhas), "modelo": p.get("modelo", "small"),
+           "arquivos": ["transcricao.txt", "legenda.srt"]}, open(os.path.join(sai, "resumo.json"), "w", encoding="utf-8"), ensure_ascii=False)
+'''
+
+
 def _argv_py(script):
     return lambda exe, ent, sai, p: ([exe, os.path.join(sai, "_script.py")], {"_script.py": script})
 
@@ -183,6 +202,10 @@ RECEITAS = {
                       "montar": lambda exe, ent, sai, p: ([exe, ent, os.path.join(sai, "texto"), "-l", p.get("idioma", "por")], {})},
     "rdkit.descritores": {"programa": "python", "nome": "RDKit · descritores de moléculas (um SMILES por linha)",
                           "entrada": [".txt", ".smi", ".csv"], "params": {}, "montar": _argv_py(RDKIT_PY)},
+    # OpenWhispr usa o mesmo modelo aberto (Whisper): aqui roda no servidor, para reuniões e áudios da Gestão (26/11/2026)
+    "whisper.transcrever": {"programa": "python", "nome": "Whisper (local) · transcreve áudio ou vídeo em texto e legenda (SRT), sem internet",
+                            "entrada": [".mp3", ".wav", ".m4a", ".ogg", ".opus", ".webm", ".mp4", ".mkv"],
+                            "params": {"idioma": ["pt", "en", "es"], "modelo": ["small", "base", "medium"]}, "montar": _argv_py(WHISPER_PY)},
     "energyplus.idf": {"programa": "energyplus", "nome": "EnergyPlus · roda um IDF com o clima mais perto (EPW da camada clima)",
                        "entrada": [".idf"], "params": {}, "precisa_epw": True,
                        "montar": lambda exe, ent, sai, p: ([exe, "-w", p["_epw"], "-d", sai, "-r", ent], {})},
@@ -214,7 +237,7 @@ def disponiveis() -> list[dict]:
         exe = localizar(r["programa"]) if r["programa"] else "servico"
         ok = bool(exe)
         if ok and r["programa"] == "python":
-            mod = {"gmsh.malha": "gmsh", "rdkit.descritores": "rdkit"}.get(rid)
+            mod = {"gmsh.malha": "gmsh", "rdkit.descritores": "rdkit", "whisper.transcrever": "faster_whisper"}.get(rid)
             import importlib.util
             ok = importlib.util.find_spec(mod) is not None if mod else True
         out.append({"id": rid, "nome": r["nome"], "programa": r["programa"], "disponivel": ok, "entrada": r["entrada"],
@@ -339,7 +362,7 @@ class Programas:
                 ambiente_qgis(exe)
             for nome, texto in scripts.items():
                 (sai / nome).write_text(texto, encoding="utf-8")
-            env = dict(os.environ, PHYSIS_ENTRADA=str(ent or ""), PHYSIS_SAIDA=str(sai), PHYSIS_TAMANHO=str(p.get("tamanho", 5)))
+            env = dict(os.environ, PHYSIS_ENTRADA=str(ent or ""), PHYSIS_SAIDA=str(sai), PHYSIS_TAMANHO=str(p.get("tamanho", 5)), PHYSIS_PARAMS=json.dumps({k: v for k, v in p.items() if not str(k).startswith("_")}))
             cwd = str(Path(ent).parent) if r.get("cwd_entrada") and ent else str(sai)
             x = self.rodar(argv, capture_output=True, text=True, timeout=TEMPO_PADRAO, cwd=cwd, env=env)
             if r.get("cwd_entrada") and ent:                            # programas que escrevem ao lado da entrada
