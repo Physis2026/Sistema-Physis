@@ -9,15 +9,16 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_ACERVO` | mv_bots_extra.py:532 | `p = Path(pasta or os.environ.get("PHYSIS_ACERVO") or (base / "acervo"))` |
 | `PHYSIS_APP_DOWNLOAD` | servidor.py:623 | `env = (os.environ.get("PHYSIS_APP_DOWNLOAD") or "").strip()` |
 | `PHYSIS_BANCO` | mv_bots_extra.py:119 (+2) | `arq = Path(banco or os.environ.get("PHYSIS_BANCO") or "physis-hub.db")` |
-| `PHYSIS_BIBLIOTECA_PASTA` | documentos_auto.py:482 | `self.pasta_bib = Path(pasta_biblioteca or os.environ.get("PHYSIS_BIBLIOTECA_PASTA") or (RAIZ / "dados" / "biblioteca"))` |
+| `PHYSIS_BASE` | mv_indicadores.py:23 | `base = Path(os.environ.get("PHYSIS_BASE") or Path(getattr(mv, "caminho", ".")).resolve().parent.parent)` |
+| `PHYSIS_BIBLIOTECA_PASTA` | documentos_auto.py:484 | `self.pasta_bib = Path(pasta_biblioteca or os.environ.get("PHYSIS_BIBLIOTECA_PASTA") or (RAIZ / "dados" / "biblioteca"))` |
 | `PHYSIS_CADASTRO_ABERTO` | servidor.py:800 | `cadastro_aberto = bool(instancia.get("cadastro_aberto")) or os.environ.get("PHYSIS_CADASTRO_ABERTO") == "1"` |
 | `PHYSIS_CALC_CHAVE` | calc_cliente.py:61 | `chave = os.environ.get("PHYSIS_CALC_CHAVE")` |
 | `PHYSIS_CALC_EXTERNO` | calc_cliente.py:51 | `if url and not destino_local(url) and os.environ.get("PHYSIS_CALC_EXTERNO") != "1":` |
 | `PHYSIS_CALC_TEMPO` | calc_cliente.py:93 (+1) | `t = float(tempo or os.environ.get("PHYSIS_CALC_TEMPO") or 60)` |
 | `PHYSIS_CALC_URL` | calc_cliente.py:50 | `url = (os.environ.get("PHYSIS_CALC_URL") or "").strip().rstrip("/")` |
-| `PHYSIS_CAMADAS` | camadas_bot.py:524 (+3) | `alvo = pasta or (Path(os.environ["PHYSIS_CAMADAS"]) if os.environ.get("PHYSIS_CAMADAS") else None)` |
-| `PHYSIS_CAMADAS_BRASIL` | camadas_bot.py:529 | `if os.environ.get("PHYSIS_CAMADAS_BRASIL") == "1":          # Brasil completo: refeito a cada 30 dias (o resto retoma)` |
-| `PHYSIS_CAMADAS_DIAS` | camadas_bot.py:316 | `dias = float(os.environ.get("PHYSIS_CAMADAS_DIAS") or 0)` |
+| `PHYSIS_CAMADAS` | camadas_bot.py:526 (+3) | `alvo = pasta or (Path(os.environ["PHYSIS_CAMADAS"]) if os.environ.get("PHYSIS_CAMADAS") else None)` |
+| `PHYSIS_CAMADAS_BRASIL` | camadas_bot.py:531 | `if os.environ.get("PHYSIS_CAMADAS_BRASIL") == "1":          # Brasil completo: refeito a cada 30 dias (o resto retoma)` |
+| `PHYSIS_CAMADAS_DIAS` | camadas_bot.py:318 | `dias = float(os.environ.get("PHYSIS_CAMADAS_DIAS") or 0)` |
 | `PHYSIS_CASA_EDITAVEIS` | gemeo_importar.py:39 | `PASTA_PADRAO = Path(os.environ.get("PHYSIS_CASA_EDITAVEIS") or (` |
 | `PHYSIS_CATALOGO` | catalogo_modelos.py:136 | `amb = os.environ.get("PHYSIS_CATALOGO", "").strip()` |
 | `PHYSIS_CEP_PROVEDOR` | cep.py:57 | `v = os.environ.get("PHYSIS_CEP_PROVEDOR", "brasilapi,viacep") if valor is None else valor` |
@@ -90,6 +91,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_MERCADO_ONLINE` | mv_ecossistema.py:250 | `online = (os.environ.get("PHYSIS_MERCADO_ONLINE", "1") != "0") if online is None else online` |
 | `PHYSIS_MODELOS_PASTA` | documentos_auto.py:67 | `p = (os.environ.get("PHYSIS_MODELOS_PASTA") or "").strip()` |
 | `PHYSIS_MV_BACKUP` | mv_bots.py:410 | `BACKUP_DIR = Path(os.environ.get("PHYSIS_MV_BACKUP") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "backup"))` |
+| `PHYSIS_MV_BANCOS` | mv_indicadores.py:25 | `for b in [x for x in (os.environ.get("PHYSIS_MV_BANCOS") or "").split(";") if x.strip()]:` |
 | `PHYSIS_MV_DADOS` | mv.py:88 | `p = Path(os.environ.get("PHYSIS_MV_DADOS") or (Path(__file__).resolve().parents[3] / "dados"))` |
 | `PHYSIS_MV_GESTOES` | mv_bots_extra.py:423 | `p = Path(pasta or os.environ.get("PHYSIS_MV_GESTOES") or (mv_bots.DOCS / "Sistema Physis" / "28_Physis_MV" / "gestoes"))` |
 | `PHYSIS_MV_NOS` | mv_bots.py:457 | `NOS_DIR = Path(os.environ.get("PHYSIS_MV_NOS") or (DOCS / "Sistema Physis" / "28_Physis_MV" / "nos"))` |
@@ -108,7 +110,7 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_PROGRAMAS_PASTA` | servidor.py:837 | `"programas": lambda: programas_mod.Programas(os.environ.get("PHYSIS_PROGRAMAS_PASTA")` |
 | `PHYSIS_PROJETO_ARQUIVOS` | servidor.py:840 | `"projeto_arquivos": lambda: projeto_arquivos_mod.ProjetoArquivos(os.environ.get("PHYSIS_PROJETO_ARQUIVOS")` |
 | `PHYSIS_PROXY_CONFIAVEL` | seguranca.py:72 | `bruto = os.environ.get("PHYSIS_PROXY_CONFIAVEL", "") if valor is None else valor` |
-| `PHYSIS_PY` | camadas_bot.py:455 | `m = rodar([os.environ.get("PHYSIS_PY") or sys_executable(), str(ferr), "--ufs", ",".join(UFS_BR), "--camada", c,` |
+| `PHYSIS_PY` | camadas_bot.py:457 | `m = rodar([os.environ.get("PHYSIS_PY") or sys_executable(), str(ferr), "--ufs", ",".join(UFS_BR), "--camada", c,` |
 | `PHYSIS_RAIZ_INSTITUTO` | mv_paginas.py:39 | `INSTITUTO = Path(os.environ.get("PHYSIS_RAIZ_INSTITUTO") or (Path(__file__).resolve().parents[3] / "instituto-physis"))   # ao lado do sistema` |
 | `PHYSIS_RAIZ_SISTEMA` | mv_paginas.py:18 | `RAIZ = Path(os.environ.get("PHYSIS_RAIZ_SISTEMA") or Path(__file__).resolve().parents[2])` |
 | `PHYSIS_REDE_LOCAL` | seguranca.py:129 | `redes = REDES_LOCAIS + tuple(proxies_confiaveis(os.environ.get("PHYSIS_REDE_LOCAL", "")))` |

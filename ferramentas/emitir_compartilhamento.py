@@ -87,8 +87,40 @@ def conferir_zip(z: Path, manifesto: dict | None = None) -> int:
         fa(f"{z.name}: não é zip válido"); return 0
 
 
+def documentos_gerados(saida: Path, base: Path) -> tuple[Path, int]:
+    """Primeira versão dos documentos gerados pelo sistema (tabela docauto de cada banco: hub e instalações em <base>/clientes).
+    Versão 1 vai como está; documento já revisado (versão > 1) vai na versão atual com o aviso no índice (a primeira não fica
+    guardada no banco). Arquivo gerado (ODT/PDF) quando existe; senão o texto."""
+    import sqlite3
+    dbs = sorted(base.glob("physis-ma-*/physis-hub/*.db")) + sorted(p for p in (base / "clientes").glob("physis-*/*.db") if ".antiga-" not in str(p) and ".falhou-" not in str(p))
+    z = saida / "documentos.zip"; n = 0; idx = ["# Documentos gerados pelo sistema (primeira versão)", "", "| Plataforma | Documento | Tipo | Versão | Situação |", "|---|---|---|---|---|"]
+    with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as zz:
+        for db in dbs:
+            plat = db.parent.name.replace("physis-", "") if db.parent.name != "physis-hub" else "hub"
+            try:
+                con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=5)
+                try:   # a 1ª versão guardada antes da edição (docauto_v1), quando existe
+                    linhas = con.execute("SELECT d.id, d.tipo, COALESCE(v.titulo, d.titulo), d.estado, COALESCE(v.texto, d.texto), "
+                                         "CASE WHEN v.doc_id IS NULL THEN d.arquivo ELSE v.arquivo END, CASE WHEN v.doc_id IS NULL THEN d.versao ELSE 1 END "
+                                         "FROM docauto d LEFT JOIN docauto_v1 v ON v.doc_id=d.id ORDER BY d.criado_em").fetchall()
+                except sqlite3.Error:
+                    linhas = con.execute("SELECT id, tipo, titulo, estado, texto, arquivo, versao FROM docauto ORDER BY criado_em").fetchall()
+                con.close()
+            except sqlite3.Error:
+                continue
+            for i, tipo, tit, est, texto, arq, ver in linhas:
+                nome = re.sub(r"[^\w.-]+", "_", f"{tit}")[:80] or i
+                if arq:
+                    ext = ".pdf" if bytes(arq[:4]) == b"%PDF" else ".odt" if bytes(arq[:2]) == b"PK" else ".bin"
+                    zz.writestr(f"documentos/{plat}/{nome}_v{ver}{ext}", bytes(arq))
+                zz.writestr(f"documentos/{plat}/{nome}_v{ver}.txt", texto or "")
+                idx.append(f"| {plat} | {tit} | {tipo} | {ver}{'' if ver == 1 else ' (a 1ª não fica guardada: esta é a atual)'} | {est} |"); n += 1
+        zz.writestr("documentos/INDICE.md", "\n".join(idx) + "\n")
+    return z, n
+
+
 def main() -> int:
-    ap = argparse.ArgumentParser(); ap.add_argument("--saida", required=True); ap.add_argument("--rapido", action="store_true")
+    ap = argparse.ArgumentParser(); ap.add_argument("--saida", required=True); ap.add_argument("--rapido", action="store_true"); ap.add_argument("--base", default="")
     a = ap.parse_args(); s = Path(a.saida); s.mkdir(parents=True, exist_ok=True); dia = time.strftime("%Y-%m-%d")
     L.append(f"# Testes antes de compartilhar · {time.strftime('%d/%m/%Y %H:%M')}"); L.append("")
     L.append("## 1. Suíte de testes")
@@ -123,6 +155,10 @@ def main() -> int:
             zz.write(pg, "paginas/" + pg.name); idx.append(f"<li><a href='{pg.name}'>{pg.stem.replace('physis-demo-', '').replace('-', ' ')}</a></li>")
         idx.append("</ul></main></body></html>"); zz.writestr("paginas/index.html", "".join(idx))
     n = conferir_zip(s / "paginas.zip"); ok(f"paginas.zip · {len(pags)} páginas + índice · {(s / 'paginas.zip').stat().st_size // 1024} kB") if n else None
+    L.append(""); L.append("## 4b. Documentos gerados pelo sistema (primeira versão)")
+    zdoc, ndoc = documentos_gerados(s, Path(a.base) if a.base else RAIZ.parent)
+    if conferir_zip(zdoc) or ndoc == 0:
+        (ok if ndoc else av)(f"documentos.zip · {ndoc} documento(s)" if ndoc else "nenhum documento gerado pelo sistema ainda (documentos.zip só com o índice)")
     L.append(""); L.append("## 5. Zips por pessoa")
     r = subprocess.run([PY, str(RAIZ / "ferramentas" / "kits_por_pessoa.py"), "--saida", str(kits)], capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode: fa("kits_por_pessoa falhou: " + r.stderr[-300:])
@@ -139,7 +175,7 @@ def main() -> int:
         if falta: fa(f"{p}: faltam {sorted(falta)}")
         if sobra: fa(f"{p}: kits de outra pessoa {sorted(sobra)}")
         if not falta and not sobra and conferir_zip(z): ok(f"{p}: {len(kz)} kit(s) · {z.stat().st_size // 1048576} MB")
-    L.append(""); L.append(f"**Resultado: {F[0]} falha(s), {A[0]} aviso(s).** " + ("NÃO compartilhe: corrija as falhas e rode de novo." if F[0] else "Ensaio (--rapido): rode sem --rapido antes de compartilhar." if a.rapido else "Pode compartilhar: por-pessoa/<Nome>.zip para cada pessoa e paginas.zip para todos."))
+    L.append(""); L.append(f"**Resultado: {F[0]} falha(s), {A[0]} aviso(s).** " + ("NÃO compartilhe: corrija as falhas e rode de novo." if F[0] else "Ensaio (--rapido): rode sem --rapido antes de compartilhar." if a.rapido else "Pode compartilhar: por-pessoa/<Nome>.zip para cada pessoa, paginas.zip e documentos.zip para todos."))
     (s / "RELATORIO-TESTES.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     if (pp / "INDICE.md").is_file(): (s / "INDICE.md").write_text((pp / "INDICE.md").read_text(encoding="utf-8"), encoding="utf-8")
     print("\n".join(L)); print("Relatório:", s / "RELATORIO-TESTES.md")

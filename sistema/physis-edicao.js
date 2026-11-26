@@ -1,11 +1,14 @@
-/* physis-edicao.js v1 (24/11/2026): edição manual de textos e da ordem dos blocos das páginas servidas pelo hub (site da Physis,
+/* physis-edicao.js v2 (26/11/2026: cor de destaque da paleta, "Baixar como app" e revisão das mudanças) · v1 (24/11/2026): edição manual de textos e da ordem dos blocos das páginas servidas pelo hub (site da Physis,
    Casa Physis, Hub, InovaSTEM). Pedido da dona: "editar textos e layout das páginas manualmente".
    - Só aparece para quem entrou com conta (/api/instancia → autenticado); gravar exige a direção (o servidor confere).
    - Texto: títulos, parágrafos e itens de lista dentro de <main> viram editáveis (texto puro). A chave é um resumo do texto
      ORIGINAL ("t.<hash>"): se o texto original do sistema mudar, a troca antiga deixa de valer (nada some sem aviso: a lista
      de trocas fica no servidor).
    - Layout: blocos de <main> (section/.cartao de primeiro nível) sobem, descem ou ficam ocultos ("layout.ordem", "layout.ocultos").
-     Cores e fontes não mudam (regra 6: só a paleta).
+     Cores: só a COR DE DESTAQUE (botões e ações), escolhida entre as da paleta com contraste AA sobre o creme (regra 6);
+     vale no tema claro; o escuro e o fundo verde seguem a paleta deles. Fontes não mudam.
+   - Baixar como app: a página como está (com as trocas), num arquivo único .html que abre sem internet (dados ao vivo só
+     com o servidor).
    - Grava em /api/site/textos/<página> (o mesmo armazenamento da consultoria). Páginas com edição própria (data-edicao-propria)
      ficam de fora. Sem internet; sem dependências. */
 (function (w) {
@@ -15,6 +18,10 @@
   function hash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); }
   function pagina() { var p = (d.documentElement.getAttribute("data-pagina") || location.pathname).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     return ("ed-" + (p || "inicio")).slice(0, 40); }
+  /* cores de destaque aceitas: da PALETA.md, todas com contraste AA com texto creme #F4F1EA */
+  var CORES = { "#0B3D2E": "Verde profundo", "#33512F": "Verde da marca", "#1B1F23": "Carvão", "#7A2214": "Terracota escuro" };
+  (function () { var st = d.createElement("style"); st.id = "ped-cores";
+    st.textContent = "html[data-ped-cor]:not([data-tema=escuro]){--acao:var(--ped-acao)}"; (d.head || d.documentElement).appendChild(st); })();
   var PAG = pagina(), salvos = {}, originais = new WeakMap(), editando = false, aplicando = false;
   function principal() { return d.querySelector("main") || d.body; }
   function textos() { var m = principal(); return Array.prototype.filter.call(m.querySelectorAll("h1,h2,h3,h4,p,li"), function (e) {
@@ -30,6 +37,7 @@
       if (ordem.length && bs.length) { var pai = bs[0].parentNode, por = {}; bs.forEach(function (b) { por[chaveBloco(b)] = b; });
         ordem.forEach(function (k) { if (por[k]) pai.appendChild(por[k]); }); }
       blocos().forEach(function (b) { if (ocultos.indexOf(chaveBloco(b)) >= 0) b.hidden = true; });
+      var cor = salvos["cores.acao"]; if (cor && CORES[cor]) { d.documentElement.style.setProperty("--ped-acao", cor); d.documentElement.setAttribute("data-ped-cor", "1"); }
     } finally { aplicando = false; }
   }
   function carregar() { return fetch("/api/site/textos/" + PAG, { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; })
@@ -44,7 +52,13 @@
     msg = d.createElement("span"); msg.setAttribute("role", "status");
     var bEd = botao("Editar página", function () { ligar(!editando); bEd.textContent = editando ? "Parar de editar" : "Editar página"; bEd.setAttribute("aria-pressed", String(editando)); });
     bEd.setAttribute("aria-pressed", "false");
-    barra.appendChild(bEd); barra.appendChild(botao("Salvar", salvar)); barra.appendChild(botao("Desfazer tudo", desfazer, "Voltar aos textos e à ordem originais")); barra.appendChild(msg);
+    var sel = d.createElement("select"); sel.id = "ped-cor"; sel.setAttribute("aria-label", "Cor de destaque da página (paleta)");
+    sel.style.cssText = "min-height:36px;border:1px solid #D9D3C2;border-radius:8px;background:#FFFFFF;color:#1B1F23;font:inherit";
+    sel.innerHTML = '<option value="">Cor: padrão</option>' + Object.keys(CORES).map(function (c) { return '<option value="' + c + '">Cor: ' + CORES[c] + "</option>"; }).join("");
+    sel.value = salvos["cores.acao"] || ""; sel.onchange = function () { if (sel.value) { d.documentElement.style.setProperty("--ped-acao", sel.value); d.documentElement.setAttribute("data-ped-cor", "1"); } else d.documentElement.removeAttribute("data-ped-cor"); };
+    barra.appendChild(bEd); barra.appendChild(sel); barra.appendChild(botao("Salvar", salvar)); barra.appendChild(botao("Revisar mudanças", revisar));
+    barra.appendChild(botao("Baixar como app", baixarApp, "Baixar esta página como arquivo único (abre sem internet)"));
+    barra.appendChild(botao("Desfazer tudo", desfazer, "Voltar aos textos, à ordem e às cores originais")); barra.appendChild(msg);
     d.body.appendChild(barra);
   }
   function controles(b) {
@@ -69,6 +83,7 @@
     var envio = {};
     textos().forEach(function (e) { var k = chaveTexto(e), t = e.textContent.trim(); if (t !== originais.get(e)) envio[k] = t; else if (salvos[k]) envio[k] = ""; });
     envio["layout.ordem"] = blocos().map(chaveBloco).join(",");
+    var sc = d.getElementById("ped-cor"); envio["cores.acao"] = sc && sc.value ? sc.value : "";
     envio["layout.ocultos"] = blocos().filter(function (b) { return b.getAttribute("data-ped-oculto") || b.hidden; }).map(chaveBloco).join(",");
     msg.textContent = "Salvando…";
     fetch("/api/site/textos/" + PAG, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ textos: envio }) })
@@ -76,6 +91,21 @@
       .then(function (x) { if (x.r.ok && x.j.ok) { Object.keys(envio).forEach(function (k) { if (envio[k]) salvos[k] = envio[k]; else delete salvos[k]; }); msg.textContent = "Salvo."; }
         else msg.textContent = x.r.status === 401 || x.r.status === 403 ? "Só a direção pode gravar (entre com a conta da direção)." : "Não salvou: " + (x.j.erro || x.r.status); })
       .catch(function () { msg.textContent = "Sem ligação com o servidor."; });
+  }
+  function revisar() {
+    var ks = Object.keys(salvos), tx = ks.filter(function (k) { return k.indexOf("t.") === 0; }).length;
+    msg.textContent = ks.length ? (tx + " texto(s) trocado(s)" + (salvos["layout.ordem"] ? " · ordem dos blocos mudada" : "") + (salvos["layout.ocultos"] ? " · blocos ocultos: " + salvos["layout.ocultos"].split(",").filter(Boolean).length : "")
+      + (salvos["cores.acao"] ? " · cor: " + (CORES[salvos["cores.acao"]] || salvos["cores.acao"]) : "")) : "Página como a original (nenhuma mudança gravada).";
+  }
+  function baixarApp() {
+    if (editando) ligar(false);
+    var c = d.documentElement.cloneNode(true);
+    Array.prototype.forEach.call(c.querySelectorAll(".ped-barra,.ped-ctl,[data-physis-preferencias=lugar] *"), function (e) { if (!e.closest("[data-physis-preferencias=lugar]") || e.parentNode) { if (e.classList && (e.classList.contains("ped-barra") || e.classList.contains("ped-ctl"))) e.remove(); } });
+    Array.prototype.forEach.call(c.querySelectorAll("[contenteditable]"), function (e) { e.removeAttribute("contenteditable"); e.style.outline = ""; });
+    var m = d.createElement("meta"); m.name = "physis-exportado"; m.content = new Date().toISOString() + " · " + location.pathname; var hd = c.querySelector("head"); if (hd) hd.insertBefore(m, hd.firstChild);
+    var html = "<!doctype html>\n" + c.outerHTML, a = d.createElement("a"), u = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+    a.href = u; a.download = PAG.replace(/^ed-/, "physis-") + ".html"; d.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(u); a.remove(); }, 1000);
+    msg.textContent = "Página baixada como arquivo único (abre sem internet; dados ao vivo só com o servidor).";
   }
   function desfazer() {
     var envio = {}; Object.keys(salvos).forEach(function (k) { envio[k] = ""; }); if (!Object.keys(envio).length) { msg.textContent = "Nada para desfazer."; return; }

@@ -450,6 +450,8 @@ CREATE TABLE IF NOT EXISTS docauto (
   criado_por TEXT NOT NULL, criado_em REAL NOT NULL, atualizado_em REAL NOT NULL,
   enviado_por TEXT, enviado_em REAL, aprovado_por TEXT, aprovado_em REAL, resumo_aprovado TEXT,
   emitido_por TEXT, emitido_em REAL, emitido_arquivo BLOB, emitido_pdf BLOB, resultado TEXT NOT NULL DEFAULT '');
+CREATE TABLE IF NOT EXISTS docauto_v1 (
+  doc_id TEXT PRIMARY KEY, titulo TEXT NOT NULL, texto TEXT NOT NULL, arquivo BLOB, guardado_em REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS docauto_hist (
   seq INTEGER PRIMARY KEY AUTOINCREMENT, doc_id TEXT NOT NULL, quando REAL NOT NULL, quem TEXT NOT NULL,
   acao TEXT NOT NULL, de TEXT, para TEXT, nota TEXT NOT NULL DEFAULT '');
@@ -576,6 +578,9 @@ class DocumentosAuto:
             novo_estado = "em_revisao" if estado == "aprovado" else estado       # aprovado e mudou: volta para revisão
             agora = self.hub.relogio()
             pend = pendencias(texto)
+            # 26/11/2026: a PRIMEIRA versão gerada pelo sistema fica guardada antes da 1ª edição (vai no pacote da equipe)
+            self.hub._db.execute("INSERT OR IGNORE INTO docauto_v1(doc_id, titulo, texto, arquivo, guardado_em) "
+                                 "SELECT id, titulo, texto, arquivo, ? FROM docauto WHERE id=?", (agora, doc_id))
             # editar à mão troca o modelo ODT pelo texto (o ODT preenchido deixa de valer)
             self.hub._db.execute("UPDATE docauto SET texto=?, titulo=?, arquivo=NULL, pendencias=?, versao=?, resumo=?, estado=?, "
                                  "atualizado_em=?, aprovado_por=CASE WHEN ?='em_revisao' THEN NULL ELSE aprovado_por END, "

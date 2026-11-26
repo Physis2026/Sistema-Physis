@@ -181,8 +181,10 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
     remoto = url.startswith(("http://", "https://"))
     nome = ((urllib.parse.urlparse(url).path if remoto else url.replace("\\", "/")).rsplit("/", 1)[-1] or camada)[:120]
     arq = d / nome
-    if camada in RASTER_OFICIAL and remoto and nome.lower().endswith((".tif", ".tiff")):
-        arq = None                                       # lido direto do endereço pelo gdalwarp
+    if camada in RASTER_OFICIAL and nome.lower().endswith((".tif", ".tiff")):
+        if not remoto and not Path(url).is_file():
+            raise ValueError(f"arquivo não encontrado neste PC: {url}")
+        arq = None                                       # lido direto (endereço ou arquivo local grande, sem copiar) pelo gdalwarp
     elif not remoto:
         local = Path(url)
         if not local.is_file():
@@ -198,14 +200,14 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
         destino = pasta / ARQUIVO[camada]
         tmp = destino.with_suffix(".novo.asc"); w = d / "janela.tif"
         r1 = rodar(gdal(["gdalwarp", "-overwrite", "-t_srs", "EPSG:4326", "-te", str(o), str(s), str(l), str(n), "-r", "near" if camada == "uso_solo" else "bilinear",
-                         "/vsicurl/" + url, str(w)]), capture_output=True, text=True, timeout=3600)
+                         ("/vsicurl/" + url) if remoto else url, str(w)]), capture_output=True, text=True, timeout=3600)
         if getattr(r1, "returncode", 1) != 0 or not w.is_file():
             raise ValueError("gdalwarp (leitura pelo endereço) falhou: " + (getattr(r1, "stderr", "") or "")[-300:])
         r2 = rodar(gdal(["gdal_translate", "-of", "AAIGrid", str(w), str(tmp)]), capture_output=True, text=True, timeout=1800)
         if getattr(r2, "returncode", 1) != 0 or not tmp.is_file():
             raise ValueError("gdal_translate falhou: " + (getattr(r2, "stderr", "") or "")[-300:])
         tmp.replace(destino)
-        _fonte(destino, url=url, camada=camada, oficial=True, janela=[o, s, l, n], leitura="direto do endereço (GDAL /vsicurl/)")
+        _fonte(destino, url=url, camada=camada, oficial=True, janela=[o, s, l, n], leitura="direto do endereço (GDAL /vsicurl/)" if remoto else "arquivo local (janela recortada, sem copiar)")
         return str(destino)
     if zipfile.is_zipfile(arq):
         base = d / ("extraido-" + arq.stem)[:80]

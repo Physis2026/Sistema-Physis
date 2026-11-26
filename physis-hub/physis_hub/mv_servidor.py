@@ -227,6 +227,8 @@ def fabricar(mv: MV):
                              "/api/mv/editais": lambda: ed.listar(),
                              "/api/mv/ia": lambda: _ia().perguntar(q.get("q", "")),            # IA Physis (só documentos da Physis)
                              "/api/mv/integracoes": lambda: mv_integracoes.estado(mv),         # mapa da aba Monitoramento
+                             # indicadores de TODAS as plataformas (hub, Casa, site/Gestão, InovaSTEM, GSA...), 26/11/2026
+                             "/api/mv/indicadores": lambda: __import__("physis_hub.mv_indicadores", fromlist=["painel"]).painel(mv),
                              "/api/mv/arquivos": lambda: arq.listar(q.get("destino") or None, q.get("ref") or None),
                              "/api/mv/arquivo/previa": lambda: arq.previa(q.get("id", "")),
                              "/api/mv/fila": lambda: cmd.fila(q.get("estado") or None),

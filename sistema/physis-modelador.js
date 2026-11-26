@@ -133,7 +133,7 @@
       var perfil = e("IFCRECTANGLEPROFILEDEF(.AREA.,$," + e("IFCAXIS2PLACEMENT2D(" + e("IFCCARTESIANPOINT((0.,0.))") + ",$)") + "," + el.dx.toFixed(1) + "," + el.dy.toFixed(1) + ")");
       var solido = e("IFCEXTRUDEDAREASOLID(" + perfil + "," + eixo + "," + e("IFCDIRECTION((0.,0.,1.))") + "," + el.comp.toFixed(1) + ")");
       var forma = e("IFCPRODUCTDEFINITIONSHAPE($,$,(" + e("IFCSHAPEREPRESENTATION(" + ctx + ",'Body','SweptSolid',(" + solido + "))") + "))");
-      filhos.push(e(el.tipo + "(" + g() + "," + dono + ",'" + el.nome.replace(/'/g, "") + "',$,$," + pl + "," + forma + ",$,$)"));
+      filhos.push(e(el.tipo + "(" + g() + "," + dono + ",'" + el.nome.replace(/'/g, "") + "',$,$," + pl + "," + forma + (el.attrs || ",$,$") + ")"));
     });
     if (filhos.length) e("IFCRELCONTAINEDINSPATIALSTRUCTURE(" + g() + "," + dono + ",$,$,(" + filhos.join(",") + ")," + sto + ")");
     var cab = "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION(('ViewDefinition [ReferenceView]'),'2;1');\nFILE_NAME('" + nome.replace(/'/g, "") + ".ifc','" + new Date().toISOString().slice(0, 19) + "',('Physis'),('Physis Engineering'),'physis-modelador','Physis','');\nFILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n";
@@ -257,12 +257,14 @@
   // Escala: "largura 12 m" no pedido (padrão 10 m, a conferir). Pé-direito: "pé-direito 3 m" (padrão 2,8 m, a conferir).
   // Saída: malha (STL/OBJ) e IFC com uma IfcWall por trecho; é modelo PRELIMINAR para conferir com o projeto.
   function gPlanta(txt, L, img) {
+    // 26/11/2026 (dona: "planta 3D deve gerar modelo completo"): paredes, portas (vãos brancos entre paredes alinhadas, 0,6 a
+    // 1,3 m), janelas (vãos com traço cinza/fino), vergas e peitoris, piso, laje de cobertura e ambientes com área.
     var lm = txt.match(/largura\s*(?:de\s*)?(\d+[.,]?\d*)\s*m\b|(\d+[.,]?\d*)\s*m\s*de\s*largura|width\s*(\d+[.,]?\d*)\s*m/i);
     var larg = lm ? num(lm[1] || lm[2] || lm[3]) * 1000 : 10000, pm = txt.match(/p[eé][- ]direito\s*(?:de\s*)?(\d+[.,]?\d*)\s*m|ceiling\s*(\d+[.,]?\d*)\s*m/i);
-    var h = pm ? num(pm[1] || pm[2]) * 1000 : 2800, n = 200, r = img.height / img.width, nx = n, ny = Math.max(2, Math.round(n * r));
+    var h = pm ? num(pm[1] || pm[2]) * 1000 : 2800, hp = 2100, peit = 1000, hj = 2200, n = 200, r = img.height / img.width, nx = n, ny = Math.max(2, Math.round(n * r));
     var cv = d.createElement("canvas"); cv.width = nx; cv.height = ny; var c = cv.getContext("2d"); c.fillStyle = "#fff"; c.fillRect(0, 0, nx, ny); c.drawImage(img, 0, 0, nx, ny);
-    var px = c.getImageData(0, 0, nx, ny).data, s = larg / nx, esc = [], i, j, k;
-    for (j = 0; j < ny; j++) { esc.push([]); for (i = 0; i < nx; i++) { k = 4 * (j * nx + i); esc[j].push((0.3 * px[k] + 0.59 * px[k + 1] + 0.11 * px[k + 2]) / 255 < 0.45); } }
+    var px = c.getImageData(0, 0, nx, ny).data, s = larg / nx, esc = [], cin = [], i, j, k;
+    for (j = 0; j < ny; j++) { esc.push([]); cin.push([]); for (i = 0; i < nx; i++) { k = 4 * (j * nx + i); var lu = (0.3 * px[k] + 0.59 * px[k + 1] + 0.11 * px[k + 2]) / 255; esc[j].push(lu < 0.45); cin[j].push(lu >= 0.45 && lu < 0.85); } }
     var abertos = {}, ret = [];
     for (j = 0; j <= ny; j++) {
       var runs = {}; if (j < ny) for (i = 0; i < nx; i++) if (esc[j][i]) { var i0 = i; while (i < nx && esc[j][i]) i++; runs[i0 + ":" + i] = [i0, i]; }
@@ -271,19 +273,49 @@
     }
     ret = ret.filter(function (q) { return (q[2] - q[0]) * (q[3] - q[1]) >= 3; });
     if (!ret.length) return { erro: L === "en" ? "No walls found: use a plan with dark walls on a light background." : "Não achei paredes: use uma planta com paredes escuras sobre fundo claro." };
-    var M = new Malha(), els = [], area = 0, vol = 0;
-    ret.forEach(function (q, ix) { var x0 = q[0] * s, x1 = q[2] * s, y0 = (ny - q[3]) * s, y1 = (ny - q[1]) * s; M.caixa(x0, y0, 0, x1, y1, h);
+    var X = function (ci) { return ci * s; }, Y = function (cj) { return (ny - cj) * s; };
+    var M = new Malha(), els = [], area = 0, vol = 0, vaos = [], bar = esc.map(function (l) { return l.slice(); });
+    ret.forEach(function (q, ix) { var x0 = X(q[0]), x1 = X(q[2]), y0 = Y(q[3]), y1 = Y(q[1]); M.caixa(x0, y0, 0, x1, y1, h);
       var dx = x1 - x0, dy = y1 - y0; area += Math.max(dx, dy) * h / 1e6; vol += dx * dy * h / 1e9;
       els.push({ tipo: "IFCWALL", nome: "Parede " + (ix + 1), x: (x0 + x1) / 2, y: (y0 + y1) / 2, z: 0, dx: dx, dy: dy, comp: h, dir: [0, 0, 1] }); });
-    M.caixa(0, 0, -150, larg, ny * s, 0);   // laje/piso de referência, 15 cm
-    var en = L === "en";
+    // vãos: pares de paredes alinhadas (mesma faixa) com intervalo de 0,6 a 1,3 m (porta) ou com traço cinza (janela)
+    var mn = Math.round(600 / s), mx = Math.round(1300 / s), mxj = Math.round(2600 / s);
+    for (var a = 0; a < ret.length; a++) for (var b = 0; b < ret.length; b++) { if (a === b) continue; var A = ret[a], B = ret[b], g, jan, cj, ci2;
+      if (Math.abs(A[1] - B[1]) <= 1 && Math.abs(A[3] - B[3]) <= 1 && B[0] > A[2]) { g = B[0] - A[2]; cj = Math.round((A[1] + A[3]) / 2);
+        jan = cin[cj] && cin[cj].slice(A[2], B[0]).filter(Boolean).length > g / 2;
+        if ((g >= mn && g <= mx) || (jan && g >= mn && g <= mxj)) { vaos.push({ h: true, i0: A[2], i1: B[0], j0: A[1], j1: A[3], jan: jan }); for (var yy = A[1]; yy < A[3]; yy++) for (var xx = A[2]; xx < B[0]; xx++) bar[yy][xx] = true; } }
+      if (Math.abs(A[0] - B[0]) <= 1 && Math.abs(A[2] - B[2]) <= 1 && B[1] > A[3]) { g = B[1] - A[3]; ci2 = Math.round((A[0] + A[2]) / 2);
+        jan = cin.slice(A[3], B[1]).filter(function (l) { return l[ci2]; }).length > g / 2;
+        if ((g >= mn && g <= mx) || (jan && g >= mn && g <= mxj)) { vaos.push({ h: false, i0: A[0], i1: A[2], j0: A[3], j1: B[1], jan: jan }); for (var y2 = A[3]; y2 < B[1]; y2++) for (var x2 = A[0]; x2 < A[2]; x2++) bar[y2][x2] = true; } } }
+    var np = 0, nj = 0;
+    vaos.forEach(function (v) { var x0 = X(v.i0), x1 = X(v.i1), y0 = Y(v.j1), y1 = Y(v.j0), dx = x1 - x0, dy = y1 - y0, w = Math.max(dx, dy), cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      if (v.jan) { nj++; M.caixa(x0, y0, 0, x1, y1, peit); M.caixa(x0, y0, hj, x1, y1, h);
+        els.push({ tipo: "IFCWINDOW", nome: "Janela " + nj, x: cx, y: cy, z: peit, dx: dx, dy: dy, comp: hj - peit, dir: [0, 0, 1], attrs: ",$," + (hj - peit).toFixed(1) + "," + w.toFixed(1) + ",.WINDOW.,.SINGLE_PANEL.,$" }); }
+      else { np++; M.caixa(x0, y0, hp, x1, y1, h);
+        els.push({ tipo: "IFCDOOR", nome: "Porta " + np, x: cx, y: cy, z: 0, dx: dx, dy: dy, comp: hp, dir: [0, 0, 1], attrs: ",$," + hp.toFixed(1) + "," + w.toFixed(1) + ",.DOOR.,.SINGLE_SWING_LEFT.,$" }); }
+      els.push({ tipo: "IFCWALL", nome: (v.jan ? "Verga e peitoril " + nj : "Verga " + np), x: cx, y: cy, z: v.jan ? hj : hp, dx: dx, dy: dy, comp: h - (v.jan ? hj : hp), dir: [0, 0, 1] }); });
+    // ambientes: regiões claras fechadas pelas paredes e vãos (não encostam na borda)
+    var vis = bar.map(function (l) { return l.map(function () { return false; }); }), amb = [];
+    for (j = 0; j < ny; j++) for (i = 0; i < nx; i++) { if (bar[j][i] || vis[j][i]) continue; var pilha = [[i, j]], cel = 0, borda = false; vis[j][i] = true;
+      while (pilha.length) { var p = pilha.pop(); cel++; if (p[0] === 0 || p[1] === 0 || p[0] === nx - 1 || p[1] === ny - 1) borda = true;
+        [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (dd) { var u = p[0] + dd[0], v = p[1] + dd[1]; if (u >= 0 && v >= 0 && u < nx && v < ny && !bar[v][u] && !vis[v][u]) { vis[v][u] = true; pilha.push([u, v]); } }); }
+      var m2 = cel * s * s / 1e6; if (!borda && m2 >= 1) amb.push(m2); }
+    var w0 = 1e12, w1 = -1e12, v0 = 1e12, v1 = -1e12; M.t.forEach(function (tr) { tr.forEach(function (q) { w0 = Math.min(w0, q[0]); w1 = Math.max(w1, q[0]); v0 = Math.min(v0, q[1]); v1 = Math.max(v1, q[1]); }); });
+    M.caixa(w0, v0, -150, w1, v1, 0); M.caixa(w0, v0, h, w1, v1, h + 120);
+    els.push({ tipo: "IFCSLAB", nome: "Piso", x: (w0 + w1) / 2, y: (v0 + v1) / 2, z: -150, dx: w1 - w0, dy: v1 - v0, comp: 150, dir: [0, 0, 1], attrs: ",$,.FLOOR." });
+    els.push({ tipo: "IFCSLAB", nome: "Laje de cobertura", x: (w0 + w1) / 2, y: (v0 + v1) / 2, z: h, dx: w1 - w0, dy: v1 - v0, comp: 120, dir: [0, 0, 1], attrs: ",$,.ROOF." });
+    var en = L === "en", tot = amb.reduce(function (x, y) { return x + y; }, 0);
     var calc = [[en ? "Footprint" : "Dimensões", fmt(larg / 1000, 2) + " × " + fmt(ny * s / 1000, 2) + " m" + (lm ? "" : en ? " (width assumed 10 m: write \"width 12 m\")" : " (largura suposta 10 m: escreva \"largura 12 m\")")],
       [en ? "Ceiling height" : "Pé-direito", fmt(h / 1000, 2) + " m" + (pm ? "" : en ? " (assumed: confirm)" : " (suposto: conferir)")],
-      [en ? "Wall segments" : "Trechos de parede", String(ret.length)], [en ? "Wall area (one face, approx.)" : "Área de parede (uma face, aprox.)", fmt(area, 1) + " m²"],
-      [en ? "Wall volume (approx.)" : "Volume de parede (aprox.)", fmt(vol, 2) + " m³"], [en ? "Wall thickness" : "Espessura", en ? "as drawn (scale)" : "a do desenho (pela escala)"]];
+      [en ? "Wall segments" : "Trechos de parede", String(ret.length)], [en ? "Doors (2.10 m)" : "Portas (2,10 m)", String(np)],
+      [en ? "Windows (sill 1.00 m, top 2.20 m)" : "Janelas (peitoril 1,00 m, verga 2,20 m)", String(nj)],
+      [en ? "Rooms" : "Ambientes", amb.length + (amb.length ? " · " + amb.map(function (x) { return fmt(x, 1) + " m²"; }).join(", ") : "")],
+      [en ? "Useful area (approx.)" : "Área útil (aprox.)", fmt(tot, 1) + " m²"], [en ? "Wall area (one face, approx.)" : "Área de parede (uma face, aprox.)", fmt(area, 1) + " m²"],
+      [en ? "Wall volume (approx.)" : "Volume de parede (aprox.)", fmt(vol, 2) + " m³"],
+      [en ? "Check" : "Conferir", en ? "door/window heights and openings are standard values: confirm with the architectural project" : "alturas de porta e janela e os vãos são valores padrão: conferir com o projeto de arquitetura"]];
     return { nome: "edificacao_da_planta", malha: M, ifc: els, calc: calc, formatos: ["ifc", "stl", "obj", "csv"],
-      sugestoes: en ? ["Open the IFC in Mapping › BIM or in FreeCAD/Bonsai to add doors, windows and slabs.", "Place it on the site with the GIS layers (site/Mapping)."]
-        : ["Abra o IFC no Mapeamento › BIM ou no FreeCAD/Bonsai para pôr portas, janelas e lajes.", "Ponha no terreno com as camadas do lugar (GIS)."] };
+      sugestoes: en ? ["Open the IFC in Mapping › BIM or in FreeCAD/Bonsai to refine doors, windows and slabs.", "Place it on the site with the GIS layers (site/Mapping)."]
+        : ["Abra o IFC no Mapeamento › BIM ou no FreeCAD/Bonsai para refinar portas, janelas e lajes.", "Ponha no terreno com as camadas do lugar (GIS)."] };
   }
   // ------------------------------------------------------------------ v2 (22/11/2026): net zero, água, estufa, caixa, terreno real, AVAC NBR 16401
   function pr(id, d) { try { var v = w.PhysisCalc && w.PhysisCalc.premissa(id); return typeof v === "number" ? v : d; } catch (e) { return d; } }

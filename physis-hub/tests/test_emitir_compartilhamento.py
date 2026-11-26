@@ -34,6 +34,19 @@ class Comp(unittest.TestCase):
         ec.conferir_zip(z, {"arquivos": {"x.txt": "0" * 64}})
         self.assertEqual(ec.F[0], 1)
 
+    def test_documentos_primeira_versao(self):
+        import sqlite3
+        d = self.d / "clientes" / "physis-casa"; d.mkdir(parents=True)
+        con = sqlite3.connect(d / "physis-hub.db")
+        con.execute("CREATE TABLE docauto(id TEXT, tipo TEXT, titulo TEXT, estado TEXT, texto TEXT, arquivo BLOB, versao INT, criado_em REAL)")
+        con.execute("CREATE TABLE docauto_v1(doc_id TEXT PRIMARY KEY, titulo TEXT, texto TEXT, arquivo BLOB, guardado_em REAL)")
+        con.execute("INSERT INTO docauto VALUES('a','memorial','Memorial','em_revisao','texto editado',NULL,3,1)")
+        con.execute("INSERT INTO docauto_v1 VALUES('a','Memorial','texto do sistema',NULL,2)"); con.commit(); con.close()
+        z, n = ec.documentos_gerados(self.d, self.d)
+        self.assertEqual(n, 1)
+        with zipfile.ZipFile(z) as zz:
+            self.assertEqual(zz.read("documentos/casa/Memorial_v1.txt").decode(), "texto do sistema")
+
 
 if __name__ == "__main__":
     unittest.main()

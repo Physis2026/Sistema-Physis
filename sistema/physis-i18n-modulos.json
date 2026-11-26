@@ -6461,7 +6461,10 @@
     "Desenho ou modelo 3D": "Drawing or 3D model",
     "BIM (IFC), mapas (KML, GeoJSON, shapefile), plantas e imagens, PDF, Word e planilhas. Envie primeiro: cada arquivo vai para a parte certa (o IFC e os mapas para o Mapeamento, que alimenta o Planejador e os cálculos) e fica guardado no servidor (com backup) e neste aparelho, até 50 MB cada.": "BIM (IFC), maps (KML, GeoJSON, shapefile), plans and images, PDF, Word and spreadsheets. Send them first: each file goes to the right place (IFC and maps to Mapping, which feeds the Planner and the calculations) and is kept on the server (with backup) and on this device, up to 50 MB each.",
     "Gerar modelo 3D": "Generate 3D model",
-    "Planta → edificação 3D": "Plan → 3D building"
+    "Planta → edificação 3D": "Plan → 3D building",
+    "Água e solo no terreno": "Water and soil on the site",
+    "Caminho da água (D8), enxurrada do evento de chuva (SCS-CN) e perda de solo (USLE) são calculados uma vez só, no Mapeamento, com o terreno do lugar; os resultados valem para esta aba.": "Water path (D8), storm runoff (SCS-CN) and soil loss (USLE) are calculated once, in Mapping, with the site terrain; the results apply to this tab.",
+    "Abrir no Mapeamento": "Open in Mapping"
   },
   "I18N_RX": [
     [
