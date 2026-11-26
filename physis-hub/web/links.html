@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Links do servidor local · Physis</title>
+<style>
+:root{color-scheme:light;--fundo:#F4F1EA;--sup:#FFFFFF;--texto:#1B1F23;--t2:#4A4F44;--titulo:#33512F;--acao:#0B3D2E;--linha:#D9D3C2}
+html[data-tema="escuro"]{color-scheme:dark;--fundo:#0B3D2E;--sup:#0F4535;--texto:#F4F1EA;--t2:#C3D0BD;--titulo:#F4F1EA;--acao:#F4F1EA;--linha:#2F5E4E}
+*{box-sizing:border-box}body{margin:0;background:var(--fundo);color:var(--texto);font:16px/1.5 Georgia,serif}main{max-width:900px;margin:0 auto;padding:16px}
+h1{font-family:Fraunces,Georgia,serif;color:var(--titulo);font-size:1.6rem}.t2{color:var(--t2)}
+ul{list-style:none;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+li a{display:block;min-height:44px;padding:12px 14px;background:var(--sup);border:1px solid var(--linha);border-radius:12px;color:var(--texto);text-decoration:none}
+li a strong{color:var(--titulo);display:block}li a span{color:var(--t2);font-size:.92rem;overflow-wrap:anywhere}
+:focus-visible{outline:3px solid #C2410C;outline-offset:2px}
+</style>
+<script>(function(){try{var p=JSON.parse(localStorage.getItem("physis-pref")||"{}"),t=p.tema;if(t!=="claro"&&t!=="escuro")t=matchMedia("(prefers-color-scheme: dark)").matches?"escuro":"claro";document.documentElement.setAttribute("data-tema",t);}catch(e){}})();</script>
+</head>
+<body><main id="principal">
+<h1>Links do servidor local</h1>
+<p class="t2">Todos os sistemas da Physis neste servidor, pelo endereço da rede local (o mesmo deste link). Cada um pede a sua conta.</p>
+<ul id="lista"></ul>
+<p class="t2">O M&amp;A (gestão da direção) só abre no próprio servidor. Guarde esta página: <span id="aqui"></span></p>
+</main>
+<script>
+"use strict";
+var h = location.hostname, pr = location.protocol, L = [
+  [8700, "/", "Hub Physis", "plataforma principal"], [8700, "/programas", "Programas do servidor", "FreeCAD, QGIS, Blender, Whisper e outros"],
+  [8700, "/editor-imagem/", "Editor de imagem", "miniPaint, sem internet"], [8701, "/", "Casa Physis", "plataforma de pesquisa"],
+  [8702, "/", "InovaSTEM", "site e Delas"], [8702, "/laboratorio", "Modelagem 3D (InovaSTEM)", "gráfica, mecânica e impressão 3D"],
+  [8703, "/", "Site Physis", "loja e consultoria"], [8703, "/gestao/", "Gestão interna", "equipe"], [8704, "/", "Estermic", "AVAC"],
+  [8705, "/", "GSA · Global South Alliance", "só com convite"], [8720, "/", "OpenSEO", "auditoria de SEO dos sites"]];
+document.getElementById("lista").innerHTML = L.map(function (x) { var u = pr + "//" + h + ":" + x[0] + x[1];
+  return '<li><a href="' + u + '"><strong>' + x[2] + "</strong><span>" + x[3] + " · " + u + "</span></a></li>"; }).join("");
+document.getElementById("aqui").textContent = location.href;
+</script>
+</body></html>

@@ -1153,6 +1153,10 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 else:
                     self._arquivo(arq, tipos[Path(rel).suffix.lower()])
                 return True
+            if p in ("/links", "/links/"):      # links de todos os sistemas pelo endereço da rede local (26/11/2026)
+                if self._exigir(seg.CLIENTE):
+                    self._arquivo(WEB / "links.html", "text/html; charset=utf-8")
+                return True
             if p in ("/programas", "/programas/"):
                 if self._exigir(seg.EQUIPE):
                     self._arquivo(WEB / "programas.html", "text/html; charset=utf-8")
