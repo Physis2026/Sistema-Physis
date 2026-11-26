@@ -22949,8 +22949,8 @@ const entradaTipo = nome => ENTRADA_TIPOS.find(x => x[0].test(nome)) || null;
 function entradaProjeto(p){ const l = p.entrada || [];
   return `<section class="cartao" aria-labelledby="h-entrada"><h2 id="h-entrada">Comece aqui: arquivos do projeto</h2>
     <p class="t2 apoio" id="aj-entrada">BIM (IFC), mapas (KML, GeoJSON, shapefile), plantas e imagens, PDF, Word e planilhas. Envie primeiro: cada arquivo vai para a parte certa (o IFC e os mapas para o Mapeamento, que alimenta o Planejador e os cálculos) e fica guardado neste aparelho, até 50 MB cada.</p>
-    ${l.length ? `<ul class="limpa" aria-labelledby="h-entrada">${l.map((a, k) => `<li><span style="flex:1 1 220px;min-width:0;overflow-wrap:anywhere"><strong>${esc(a.nome)}</strong> <span class="t2 pq">· ${esc(a.tipo)}${a.aba ? " · " + (a.levado ? "já no Mapeamento" : "vai para o Mapeamento") : " · guardado"}</span></span>${a.aba ? `<button type="button" data-entrada-levar="${k}">Levar ao Mapeamento</button>` : ""}<button type="button" data-entrada-tirar="${k}" aria-label="Tirar ${esc(a.nome)}">Tirar</button></li>`).join("")}</ul>` : ""}
-    <div><button type="button" id="b-entrada" data-entrada-add="1" aria-describedby="aj-entrada">Enviar arquivos do projeto</button><input type="file" id="in-entrada" multiple accept=".ifc,.kml,.kmz,.geojson,.json,.zip,image/*,.tif,.tiff,.pdf,.doc,.docx,.odt,.rtf,.txt,.md,.dwg,.dxf,.skp,.obj,.stl,.3dm,.step,.stp,.xlsx,.xls,.ods,.csv" tabindex="-1" aria-hidden="true" hidden></div></section>`; }
+    ${l.length ? `<ul class="limpa" aria-labelledby="h-entrada">${l.map((a, k) => `<li><span style="flex:1 1 220px;min-width:0;overflow-wrap:anywhere"><strong>${esc(a.nome)}</strong> <span class="t2 pq">· ${esc(a.tipo)}${a.aba ? " · " + (a.levado ? "já no Mapeamento" : "vai para o Mapeamento") : " · guardado"}</span></span>${a.aba ? `<button type="button" data-entrada-levar="${k}">Levar ao Mapeamento</button>` : ""}${/\.(png|jpe?g|webp|kml|kmz|geojson|gpx|asc|xyz)$/i.test(a.nome) ? `<button type="button" data-entrada-modelo="${k}">Gerar modelo 3D</button>` : ""}<button type="button" data-entrada-tirar="${k}" aria-label="Tirar ${esc(a.nome)}">Tirar</button></li>`).join("")}</ul>` : ""}
+    <div><button type="button" id="b-entrada" data-entrada-add="1" aria-describedby="aj-entrada">Enviar arquivos do projeto</button><input type="file" id="in-entrada" multiple accept=".ifc,.kml,.kmz,.geojson,.json,.zip,image/*,.tif,.tiff,.pdf,.doc,.docx,.odt,.rtf,.txt,.md,.dwg,.dxf,.skp,.obj,.stl,.3dm,.step,.stp,.xlsx,.xls,.ods,.csv" tabindex="-1" aria-hidden="true" hidden></div>${l.some(a => /\.(png|jpe?g|webp|kml|kmz|geojson|gpx|asc|xyz)$/i.test(a.nome)) ? `<div id="entrada-modelador" data-physis-modelador="planejador"></div>` : ""}</section>`; }
 /* Leva o arquivo guardado à aba de destino: abre a aba e a parte certa e entrega o arquivo ao campo que já existe lá
    (o mesmo caminho de quem escolhe o arquivo à mão; nenhuma conta nova). */
 function entradaLevar(k){ const p = perfilLer(), a = (p.entrada || [])[k]; if (!a || !a.aba) return;
@@ -22963,6 +22963,19 @@ function entradaLevar(k){ const p = perfilLer(), a = (p.entrada || [])[k]; if (!
           const q = perfilLer(); if (q.entrada && q.entrada[k]) { q.entrada[k].levado = true; perfilGravar(q); } anunciar(a.nome + " entregue ao Mapeamento."); } catch (e) { anunciar("Não deu para entregar sozinho: no Mapeamento, escolha o arquivo " + a.nome + "."); } return; }
       if (++n < 40) setTimeout(passo, 100); else anunciar("O Mapeamento não abriu a parte do arquivo: escolha " + a.nome + " à mão."); };
     setTimeout(passo, 50); }); }
+/* 26/11/2026: imagem, planta ou mapa do Início gera o modelo 3D preliminar no bot de modelagem (o mesmo do Planejador):
+   entrega o arquivo ao campo do bot e aperta "Gerar"; STL/OBJ/IFC saem pelos botões do próprio bot. */
+function entradaModelo3d(k){ const a = (perfilLer().entrada || [])[k]; if (!a) return;
+  arqLer(a.id, f => { if (!f) { anunciar("Arquivo não encontrado neste aparelho: envie de novo."); return; }
+    const arq = f instanceof File ? f : new File([f], a.nome); let n = 0;
+    const passo = () => { const box = document.getElementById("entrada-modelador"), inp = box && box.querySelector(".pmd-f"), g = box && box.querySelector(".pmd-g");
+      if (inp && g) { try { const dt = new DataTransfer(); dt.items.add(arq); inp.files = dt.files; inp.dispatchEvent(new Event("change", { bubbles: true }));
+          let m = 0; const apertar = () => { const fn = box.querySelector(".pmd-fn"); if ((!fn || !fn.textContent) && ++m < 30) return setTimeout(apertar, 150);
+            setTimeout(() => { const antes = window.PhysisModelador && PhysisModelador.ultimo; g.click(); box.scrollIntoView({ block: "start" });
+              setTimeout(() => { const r = window.PhysisModelador && PhysisModelador.ultimo; anunciar(r && r !== antes ? "Modelo 3D de " + a.nome + " gerado: confira e baixe STL, OBJ ou IFC." : "O bot pediu mais dados: responda na caixa do bot de modelagem e clique em Gerar."); }, 300); }, 600); };
+          apertar(); } catch (e) { anunciar("Não deu para gerar sozinho: use o bot de modelagem abaixo com " + a.nome + "."); } return; }
+      if (++n < 40) setTimeout(passo, 100); else anunciar("O bot de modelagem não abriu nesta tela."); };
+    passo(); }); }
 function telaPerfil(d){ const p = perfilLer(), s = ui.subPerfil || "perfil", fal = faltamPerfil(p), niv = NIVEIS[p.tipo] || [];
   const escolha = `<fieldset><legend>Quem é o cliente</legend>
       <div><label for="pf-tipo">Tipo de cliente</label><select id="pf-tipo" data-pf-tipo="1" style="width:100%;max-width:420px"><option value="">Escolha</option><option value="pf" ${p.tipo === "pf" ? "selected" : ""}>Pessoa física: uma pessoa ou família</option><option value="pj" ${p.tipo === "pj" ? "selected" : ""}>Pessoa jurídica: empresa, instituição ou órgão público</option></select></div>
@@ -23714,11 +23727,13 @@ const simCampo = (ch, k, rot, ph) => `<div><label for="simc-${ch}-${k}">${esc(ro
 const simLista = (ch, k, rot, ops) => { const a = simT(ch, k) || (ops[0] || [""])[0];
   return `<div><label for="simc-${ch}-${k}">${esc(rot)}</label><select id="simc-${ch}-${k}" data-simc="${ch}:${k}" style="width:100%">${ops.map(([v, n]) => `<option value="${esc(v)}" ${String(a) === String(v) ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>`; };
 function simCartao(ch, tipo, titulo, campos, montar, depois){ if (!window.SIMULACAO || !SIMULACAO.painel) return "";
+  /* 26/11/2026: o aviso longo sai só no 1º cartão de cada tela (antes repetia 2 a 4 vezes na mesma aba); os outros levam só o selo */
+  if (!simCartao.n) { simCartao.n = 0; queueMicrotask(() => { simCartao.n = 0; }); } const primeiro = simCartao.n++ === 0;
   const aberto = !!(ui.simAberto || {})[ch]; let corpo = "";
   if (aberto){ let e = null; try { e = montar(); } catch (x){ e = { erro: String(x && x.message || x) }; }
     if (e && e.erro) corpo = `<p class="faixa in" role="status">${esc(e.erro)}</p>`;
     else { corpo = String(SIMULACAO.painel(tipo, e, "simc-" + ch)).replace(/^<section[^>]*>\s*<h2[^>]*>[\s\S]*?<\/h2>/, "").replace(/<\/section>\s*$/, ""); if (depois) { try { depois(e); } catch (x){} } } }
-  return `<section class="cartao" aria-labelledby="h-simc-${ch}"><h2 id="h-simc-${ch}">${esc(titulo)}</h2><p><span class="selo at">Em desenvolvimento</span> <span class="t2 pq">Simulação de pré-dimensionamento (Fase 1): revisão do engenheiro; não aprova projeto.</span></p>
+  return `<section class="cartao" aria-labelledby="h-simc-${ch}"><h2 id="h-simc-${ch}">${esc(titulo)}</h2><p><span class="selo at">Em desenvolvimento</span>${primeiro ? ' <span class="t2 pq">Simulação de pré-dimensionamento (Fase 1): revisão do engenheiro; não aprova projeto.</span>' : ""}</p>
     ${campos ? `<div class="precos">${campos}</div>` : ""}<p><button type="button" id="simc-b-${ch}" data-simc-rodar="${ch}">${aberto ? "Rodar de novo" : "Rodar a simulação"}</button></p><div aria-live="polite">${corpo}</div></section>`; }
 const simComposicoes = () => { try { return (JSON.parse(document.getElementById("base-materiais").textContent).composicoes || []).map(c => [c.id, c.nome || c.id]); } catch (e){ return []; } };
 /* temperatura média mensal do local da instalação (a mesma camada da aba Solar); sem local, null */
@@ -24873,6 +24888,7 @@ document.addEventListener("click", async ev => {
   if (b.dataset.histCsv){ el("in-hist").click(); return; }
   if (b.dataset.contaAdd){ el("in-contas").click(); return; }
   if (b.dataset.entradaAdd){ el("in-entrada").click(); return; }
+  if (b.dataset.entradaModelo != null){ entradaModelo3d(Number(b.dataset.entradaModelo)); return; }
   if (b.dataset.entradaLevar != null){ entradaLevar(Number(b.dataset.entradaLevar)); return; }
   if (b.dataset.entradaTirar != null){ const p = perfilLer(); (p.entrada || []).splice(Number(b.dataset.entradaTirar), 1); perfilGravar(p); desenhar(false); anunciar("Arquivo tirado da lista."); return; }
   if (b.dataset.contaDel != null){ const p = perfilLer(); p.contas.splice(Number(b.dataset.contaDel), 1); perfilGravar(p); desenhar(false); const x = el("b-contas"); if (x) x.focus(); return; }
