@@ -203,6 +203,17 @@ relaxationFactors { equations { U 0.9; ".*" 0.9; } }
     campo("volScalarField", "nut", "[0 2 -1 0 0 0 0]", "0", "type calculated; value uniform 0;", "type calculated; value uniform 0;", "type nutkWallFunction; value uniform 0;")
 
 
+def _wsl_tem_openfoam() -> bool:
+    """WSL ligado não basta (PC-PHYSIS, 25/11/2026: sem distribuição, "execvpe(bash) failed"): precisa de Linux com OpenFOAM."""
+    import subprocess
+    try:
+        r = subprocess.run(["wsl", "-e", "bash", "-lc", "ls /usr/share/openfoam/etc/bashrc /usr/lib/openfoam/openfoam*/etc/bashrc /opt/openfoam*/etc/bashrc 2>/dev/null | head -1"],
+                           capture_output=True, timeout=30)
+        return r.returncode == 0 and bool(r.stdout.strip())
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
 def cfd_duto(pedido: dict, executar=None) -> dict:
     """{"comprimento_m","largura_m","altura_m","vazao_m3h","temp_C"} → perda de pressão no duto pelo OpenFOAM, com Darcy-Weisbach ao lado."""
     try:
@@ -218,7 +229,7 @@ def cfd_duto(pedido: dict, executar=None) -> dict:
     f = 0.25 / math.log10(0.00009 / (3.7 * Dh) + 5.74 / Re ** 0.9) ** 2          # aço galvanizado 0,09 mm (mesma rugosidade padrão do AVAC)
     ref = {"velocidade_m_s": v, "reynolds": Re, "dp_darcy_Pa": f * L / Dh * rho * v * v / 2}
     linux = shutil.which("simpleFoam") and shutil.which("blockMesh")
-    wsl = os.name == "nt" and shutil.which("wsl")
+    wsl = os.name == "nt" and shutil.which("wsl") and _wsl_tem_openfoam()
     if not (linux or wsl):
         return {"ok": True, "programa": None, "referencia": ref, "aviso": "OpenFOAM não encontrado (Windows: instale o WSL e, no Ubuntu do WSL, sudo apt install openfoam): só a conta de referência"}
     with tempfile.TemporaryDirectory() as d:

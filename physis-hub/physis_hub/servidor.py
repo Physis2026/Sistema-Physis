@@ -68,6 +68,7 @@ from . import vento as vento_mod
 from . import residuos_gis as residuos_mod
 from . import aprendizado as aprendizado_mod
 from . import gemeo_painel as gemeo_painel_mod
+from . import projeto_arquivos as projeto_arquivos_mod
 from . import robos as robos_mod
 from . import alertas_clima as alertas_mod
 from . import app_pwa
@@ -835,6 +836,9 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                                        # programas do PC ligados à plataforma (FreeCAD, QGIS, Blender...): só a equipe
                                        "programas": lambda: programas_mod.Programas(os.environ.get("PHYSIS_PROGRAMAS_PASTA")
                                                                                     or Path(arquivo_do_hub(hub) if arquivo_do_hub(hub) != ":memory:" else tempfile.gettempdir()).resolve().parent / "programas-trabalhos"),
+                                       # arquivos do projeto enviados no Início (26/11/2026): pasta da instalação, entra no backup
+                                       "projeto_arquivos": lambda: projeto_arquivos_mod.ProjetoArquivos(os.environ.get("PHYSIS_PROJETO_ARQUIVOS")
+                                                                                    or Path(arquivo_do_hub(hub) if arquivo_do_hub(hub) != ":memory:" else tempfile.mkdtemp()).resolve().parent / "projeto-arquivos"),
                                        "catalogo": lambda: catalogo_mod.Catalogo(catalogo_mod.caminho_padrao(arquivo_do_hub(hub)), hub=hub),
                                        # intercâmbio com plataformas parceiras (docs/INTERCAMBIO.md): chave só no arquivo do servidor
                                        "intercambio": lambda: intercambio_mod.Intercambio(
@@ -1137,6 +1141,20 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 if self._exigir(seg.EQUIPE):
                     self._arquivo(WEB / "programas.html", "text/html; charset=utf-8")
                 return True
+            if p == "/api/projeto/arquivos" or p.startswith("/api/projeto/arquivo/"):
+                if not self._exigir(seg.CLIENTE):
+                    return True
+                pa = modulo("projeto_arquivos")
+                if p == "/api/projeto/arquivos":
+                    self._json(200, {"ok": True, "arquivos": pa.listar()})
+                    return True
+                a = pa.ler(p.rsplit("/", 1)[1])
+                if not a:
+                    self._json(404, {"ok": False, "erro": "arquivo não encontrado"})
+                else:
+                    self._enviar_bytes(a[1], "application/octet-stream", {"Content-Disposition": "attachment; filename*=UTF-8''" + quote(a[0]),
+                                                                          "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+                return True
             if p == "/api/programas" or p.startswith("/api/programas/trabalho/"):
                 if not self._exigir(seg.EQUIPE):
                     return True
@@ -1285,6 +1303,21 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                 if p.endswith("/apagar") and not self._sensivel(qf):
                     return True
                 self._json(*modulo("fornecedores").rota("POST", p, qf, corpo, parse_qs(u.query)))
+                return True
+            # Arquivos do projeto (Início): POST /api/projeto/arquivo?nome=<nome> (corpo = arquivo); POST /api/projeto/arquivo/<id>/apagar
+            if p == "/api/projeto/arquivo" or (p.startswith("/api/projeto/arquivo/") and p.endswith("/apagar")):
+                qa = self._exigir(seg.CLIENTE)
+                if not qa or self._limitado("arquivo"):
+                    return True
+                if p.endswith("/apagar"):
+                    self._json(200, {"ok": modulo("projeto_arquivos").apagar(p.split("/")[4])})
+                    return True
+                corpo = self._corpo_grande(projeto_arquivos_mod.MAX + 1024)
+                if corpo is None:
+                    self._recusar_corpo("arquivo grande demais (máximo 50 MB)")
+                    return True
+                r = modulo("projeto_arquivos").salvar((parse_qs(u.query).get("nome") or [""])[0], corpo, qa.get("usuario", ""))
+                self._json(r.pop("codigo", 200), r)
                 return True
             # Programas do PC: POST /api/programas/<receita>?nome=<arquivo>&p=<json dos parâmetros>; corpo = o arquivo (até 200 MB)
             if p.startswith("/api/programas/") and not p.startswith("/api/programas/trabalho/"):

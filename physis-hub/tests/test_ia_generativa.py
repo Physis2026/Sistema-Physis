@@ -86,8 +86,11 @@ class Fluxo(unittest.TestCase):
 
     def test_caixa_de_comandos_usa_o_fluxo(self):
         c = mv_comandos.Comandos(self.mv)
-        with mock.patch.object(g, "chamar_modelo", lambda m: "A missão é engenharia sustentável [1]."):
-            from physis_hub import mv_autonomo
+        import threading
+        from physis_hub import mv_autonomo
+        # trava própria: no PC com Ollama, threads de testes anteriores podem segurar a trava global esperando o modelo real
+        with mock.patch.object(g, "chamar_modelo", lambda m: "A missão é engenharia sustentável [1]."), \
+             mock.patch.object(mv_autonomo, "_TRAVA", threading.Lock()):
             r = mv_autonomo.responder(c, "qual é a missão da Physis", ia=self.ia)
             self.assertEqual(r["estado"], "rascunho")
             self.assertIn("modo extrativa", r["resultado"])          # resposta na hora, sem esperar o modelo

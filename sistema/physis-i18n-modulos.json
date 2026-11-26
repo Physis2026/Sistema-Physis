@@ -6451,7 +6451,6 @@
     "Abrir no Planejador (modelo e IFC)": "Open in Planner (model and IFC)",
     "QGIS e FreeCAD no servidor": "QGIS and FreeCAD on the server",
     "Comece aqui: arquivos do projeto": "Start here: project files",
-    "BIM (IFC), mapas (KML, GeoJSON, shapefile), plantas e imagens, PDF, Word e planilhas. Envie primeiro: cada arquivo vai para a parte certa (o IFC e os mapas para o Mapeamento, que alimenta o Planejador e os cálculos) e fica guardado neste aparelho, até 50 MB cada.": "BIM (IFC), maps (KML, GeoJSON, shapefile), plans and images, PDF, Word and spreadsheets. Send them first: each file goes to the right place (IFC and maps to Mapping, which feeds the Planner and the calculations) and is kept on this device, up to 50 MB each.",
     "Enviar arquivos do projeto": "Send project files",
     "Levar ao Mapeamento": "Take to Mapping",
     "Tirar": "Remove",
@@ -6459,7 +6458,10 @@
     "Imagem ou planta (base para o modelo e as imagens)": "Image or plan (base for the model and images)",
     "PDF (planta, memorial ou conta)": "PDF (plan, report or bill)",
     "Texto (memorial, briefing)": "Text (report, brief)",
-    "Desenho ou modelo 3D": "Drawing or 3D model"
+    "Desenho ou modelo 3D": "Drawing or 3D model",
+    "BIM (IFC), mapas (KML, GeoJSON, shapefile), plantas e imagens, PDF, Word e planilhas. Envie primeiro: cada arquivo vai para a parte certa (o IFC e os mapas para o Mapeamento, que alimenta o Planejador e os cálculos) e fica guardado no servidor (com backup) e neste aparelho, até 50 MB cada.": "BIM (IFC), maps (KML, GeoJSON, shapefile), plans and images, PDF, Word and spreadsheets. Send them first: each file goes to the right place (IFC and maps to Mapping, which feeds the Planner and the calculations) and is kept on the server (with backup) and on this device, up to 50 MB each.",
+    "Gerar modelo 3D": "Generate 3D model",
+    "Planta → edificação 3D": "Plan → 3D building"
   },
   "I18N_RX": [
     [

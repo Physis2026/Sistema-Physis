@@ -252,6 +252,39 @@
     return { nome: "relevo_imagem", malha: M, calc: calc, formatos: ["stl", "obj"],
       sugestoes: L === "en" ? ["Photo → full 3D object (several photos around it): use Physis 3D on the InovaSTEM platform or a 3D scanning app."] : ["Foto → objeto 3D completo (várias fotos ao redor): usar a Physis 3D da plataforma InovaSTEM ou um aplicativo de escaneamento 3D."] };
   }
+  // ------------------------------------------------------------------ planta baixa → edificação 3D (26/11/2026)
+  // Imagem da planta (paredes escuras sobre fundo claro): cada trecho escuro vira parede extrudada até o pé-direito.
+  // Escala: "largura 12 m" no pedido (padrão 10 m, a conferir). Pé-direito: "pé-direito 3 m" (padrão 2,8 m, a conferir).
+  // Saída: malha (STL/OBJ) e IFC com uma IfcWall por trecho; é modelo PRELIMINAR para conferir com o projeto.
+  function gPlanta(txt, L, img) {
+    var lm = txt.match(/largura\s*(?:de\s*)?(\d+[.,]?\d*)\s*m\b|(\d+[.,]?\d*)\s*m\s*de\s*largura|width\s*(\d+[.,]?\d*)\s*m/i);
+    var larg = lm ? num(lm[1] || lm[2] || lm[3]) * 1000 : 10000, pm = txt.match(/p[eé][- ]direito\s*(?:de\s*)?(\d+[.,]?\d*)\s*m|ceiling\s*(\d+[.,]?\d*)\s*m/i);
+    var h = pm ? num(pm[1] || pm[2]) * 1000 : 2800, n = 200, r = img.height / img.width, nx = n, ny = Math.max(2, Math.round(n * r));
+    var cv = d.createElement("canvas"); cv.width = nx; cv.height = ny; var c = cv.getContext("2d"); c.fillStyle = "#fff"; c.fillRect(0, 0, nx, ny); c.drawImage(img, 0, 0, nx, ny);
+    var px = c.getImageData(0, 0, nx, ny).data, s = larg / nx, esc = [], i, j, k;
+    for (j = 0; j < ny; j++) { esc.push([]); for (i = 0; i < nx; i++) { k = 4 * (j * nx + i); esc[j].push((0.3 * px[k] + 0.59 * px[k + 1] + 0.11 * px[k + 2]) / 255 < 0.45); } }
+    var abertos = {}, ret = [];
+    for (j = 0; j <= ny; j++) {
+      var runs = {}; if (j < ny) for (i = 0; i < nx; i++) if (esc[j][i]) { var i0 = i; while (i < nx && esc[j][i]) i++; runs[i0 + ":" + i] = [i0, i]; }
+      Object.keys(abertos).forEach(function (kk) { if (!runs[kk]) { var a = abertos[kk]; ret.push([a[0], a[2], a[1], j]); delete abertos[kk]; } });
+      Object.keys(runs).forEach(function (kk) { if (!abertos[kk]) abertos[kk] = [runs[kk][0], runs[kk][1], j]; });
+    }
+    ret = ret.filter(function (q) { return (q[2] - q[0]) * (q[3] - q[1]) >= 3; });
+    if (!ret.length) return { erro: L === "en" ? "No walls found: use a plan with dark walls on a light background." : "Não achei paredes: use uma planta com paredes escuras sobre fundo claro." };
+    var M = new Malha(), els = [], area = 0, vol = 0;
+    ret.forEach(function (q, ix) { var x0 = q[0] * s, x1 = q[2] * s, y0 = (ny - q[3]) * s, y1 = (ny - q[1]) * s; M.caixa(x0, y0, 0, x1, y1, h);
+      var dx = x1 - x0, dy = y1 - y0; area += Math.max(dx, dy) * h / 1e6; vol += dx * dy * h / 1e9;
+      els.push({ tipo: "IFCWALL", nome: "Parede " + (ix + 1), x: (x0 + x1) / 2, y: (y0 + y1) / 2, z: 0, dx: dx, dy: dy, comp: h, dir: [0, 0, 1] }); });
+    M.caixa(0, 0, -150, larg, ny * s, 0);   // laje/piso de referência, 15 cm
+    var en = L === "en";
+    var calc = [[en ? "Footprint" : "Dimensões", fmt(larg / 1000, 2) + " × " + fmt(ny * s / 1000, 2) + " m" + (lm ? "" : en ? " (width assumed 10 m: write \"width 12 m\")" : " (largura suposta 10 m: escreva \"largura 12 m\")")],
+      [en ? "Ceiling height" : "Pé-direito", fmt(h / 1000, 2) + " m" + (pm ? "" : en ? " (assumed: confirm)" : " (suposto: conferir)")],
+      [en ? "Wall segments" : "Trechos de parede", String(ret.length)], [en ? "Wall area (one face, approx.)" : "Área de parede (uma face, aprox.)", fmt(area, 1) + " m²"],
+      [en ? "Wall volume (approx.)" : "Volume de parede (aprox.)", fmt(vol, 2) + " m³"], [en ? "Wall thickness" : "Espessura", en ? "as drawn (scale)" : "a do desenho (pela escala)"]];
+    return { nome: "edificacao_da_planta", malha: M, ifc: els, calc: calc, formatos: ["ifc", "stl", "obj", "csv"],
+      sugestoes: en ? ["Open the IFC in Mapping › BIM or in FreeCAD/Bonsai to add doors, windows and slabs.", "Place it on the site with the GIS layers (site/Mapping)."]
+        : ["Abra o IFC no Mapeamento › BIM ou no FreeCAD/Bonsai para pôr portas, janelas e lajes.", "Ponha no terreno com as camadas do lugar (GIS)."] };
+  }
   // ------------------------------------------------------------------ v2 (22/11/2026): net zero, água, estufa, caixa, terreno real, AVAC NBR 16401
   function pr(id, d) { try { var v = w.PhysisCalc && w.PhysisCalc.premissa(id); return typeof v === "number" ? v : d; } catch (e) { return d; } }
   function centro(geo) { if (!geo || !geo.pts.length) return null; var x = 0, y = 0; geo.pts.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / geo.pts.length, y / geo.pts.length]; }
@@ -445,6 +478,7 @@
     if (/turbina|aerogerador|rotor e[oó]lic|wind turbine|turbine/i.test(txt)) return "turbina";
     if (/ar[- ]condicionado|\bduto|\bAVAC\b|\bHVAC\b|climatiza|air[- ]condition|\bduct/i.test(txt)) return "dutos";
     if (/chuva|pluvi|precipita|rain/i.test(txt)) return "chuva";
+    if (temImg && /planta|edifica[cç]|pr[eé]dio|\bcasa\b|floor ?plan|building|parede/i.test(txt)) return "planta";
     if (temImg || /relevo|litofan|heightmap|relief/i.test(txt)) return "relevo";
     return "";
   }
@@ -518,7 +552,7 @@
     function gerarAgora() {
       var txt = ta.value.trim(), qual = grade ? "terreno" : (entender(txt, !!img) || (geo ? "chuva" : "")), r;
       r = qual === "turbina" ? gTurbina(txt, L) : qual === "dutos" ? gDutos(txt, L) : qual === "avac" ? gAvac(txt, L) : qual === "chuva" ? gChuva(txt, L, geo) : qual === "netzero" ? gNetZero(txt, L, geo)
-        : qual === "agua" ? gAgua(txt, L) : qual === "estufa" ? gEstufa(txt, L) : qual === "caixa" ? gCaixa(txt, L) : qual === "peca" ? gPeca(txt, L) : qual === "terreno" ? gTerreno(txt, L, grade) : img ? gRelevo(txt, L, img) : { erro: L === "en" ? "Upload an image for the relief." : "Envie uma imagem para o relevo." };
+        : qual === "agua" ? gAgua(txt, L) : qual === "estufa" ? gEstufa(txt, L) : qual === "caixa" ? gCaixa(txt, L) : qual === "peca" ? gPeca(txt, L) : qual === "terreno" ? gTerreno(txt, L, grade) : qual === "planta" && img ? gPlanta(txt, L, img) : img ? gRelevo(txt, L, img) : { erro: L === "en" ? "Upload an image for the relief." : "Envie uma imagem para o relevo." };
       if (fonteChuva && r.calc) { r.calc.push([L === "en" ? "Rainfall source" : "Fonte da chuva", fonteChuva]); fonteChuva = ""; }
       if (r.erro) { out.innerHTML = "<p>" + esc(r.erro) + "</p>"; vbox.innerHTML = ""; return; }
       var bt = r.formatos.map(function (f) { return '<button data-f="' + f + '">' + t.baixar + " ." + f + "</button>"; }).join(" ");
@@ -539,7 +573,7 @@
       w.PhysisModelador.ultimo = r; ver(vbox, r.malha);
     };
   }
-  w.PhysisModelador = { analises: analisesDe, perguntas: perguntasDe, checar: checar, montar: montar, entender: entender, gerar: { peca: gPeca,  turbina: gTurbina, dutos: gDutos, chuva: gChuva, netzero: gNetZero, agua: gAgua, estufa: gEstufa, caixa: gCaixa, avac: gAvac, terreno: gTerreno }, lerGrade: lerGrade, chuvaOnline: chuvaOnline, exportar: { stl: stl, obj: obj, ifc: ifc }, lerKML: lerKML, areaM2: areaM2, ultimo: null };
+  w.PhysisModelador = { analises: analisesDe, perguntas: perguntasDe, checar: checar, montar: montar, entender: entender, gerar: { planta: gPlanta, peca: gPeca,  turbina: gTurbina, dutos: gDutos, chuva: gChuva, netzero: gNetZero, agua: gAgua, estufa: gEstufa, caixa: gCaixa, avac: gAvac, terreno: gTerreno }, lerGrade: lerGrade, chuvaOnline: chuvaOnline, exportar: { stl: stl, obj: obj, ifc: ifc }, lerKML: lerKML, areaM2: areaM2, ultimo: null };
   function tudo() { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]"), montar); }
   if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", tudo); else tudo();
   if (w.MutationObserver) new MutationObserver(function () { Array.prototype.forEach.call(d.querySelectorAll("[data-physis-modelador]:not([data-pmd-ok])"), montar); }).observe(d.documentElement, { childList: true, subtree: true });

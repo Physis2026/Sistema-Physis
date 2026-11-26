@@ -140,10 +140,10 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
   <button class="aba" role="tab" data-v="saude" aria-selected="true">Visão geral</button>
   <button class="aba" role="tab" data-v="aprovacoes" aria-selected="false">Aprovações</button>
   <button class="aba" role="tab" data-v="contas" aria-selected="false">Clientes e projetos</button>
-  <button class="aba" role="tab" data-v="projetos" aria-selected="false">Projetos</button>
-  <button class="aba" role="tab" data-v="gantt" aria-selected="false">Cronograma</button>
-  <button class="aba" role="tab" data-v="kanban" aria-selected="false">Tarefas</button>
-  <button class="aba" role="tab" data-v="matriz" aria-selected="false">Pendências por pessoa</button>
+  <button class="aba" role="tab" data-v="projetos" aria-selected="false">Projetos e cronograma</button>
+  <button class="aba" role="tab" data-v="gantt" aria-selected="false" hidden>Cronograma</button>
+  <button class="aba" role="tab" data-v="kanban" aria-selected="false">Tarefas e pendências</button>
+  <button class="aba" role="tab" data-v="matriz" aria-selected="false" hidden>Pendências por pessoa</button>
   <button class="aba" role="tab" data-v="roadmap" aria-selected="false">Metas 2027–2031</button>
   <button class="aba" role="tab" data-v="alertas" aria-selected="false">Alertas e ações</button>
   <button class="aba" role="tab" data-v="documentos" aria-selected="false">Documentos</button>
@@ -195,14 +195,14 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
     <div class="cards" id="desenv"></div>
   </section>
   <section id="v-saude" role="tabpanel"></section>
-  <section id="v-projetos" role="tabpanel" hidden>
+  <section id="v-projetos" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="projetos">Lista</button> <button type="button" class="btn" data-ir-v="gantt">Cronograma</button></div>
     <p class="muted">Um cartão por projeto: andamento, prazos, riscos e confiança das datas. "Ver cronograma" filtra todas as abas por esse projeto (o filtro "Projeto" fica no topo).</p>
     <div class="ferr"><label>Buscar <input type="text" id="pjBusca" placeholder="nome do projeto"></label>
       <label>Ordenar <select id="pjOrdem"><option value="risco">Mais atrasos e riscos primeiro</option><option value="prazo">Prazo final</option><option value="tamanho">Mais tarefas</option><option value="nome">Nome</option></select></label>
       <span class="muted" id="pjResumo"></span></div>
     <div class="cards" id="projetos"></div>
   </section>
-  <section id="v-gantt" role="tabpanel" hidden>
+  <section id="v-gantt" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="projetos">Lista</button> <button type="button" class="btn" data-ir-v="gantt">Cronograma</button></div>
     <div class="ferr">
       <label>Origem <select id="origem"><option value="semente">Plano Fase 0 + M&amp;A</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2 (577)</option><option value="">Todas</option></select></label>
       <label><input type="checkbox" id="soCrit"> Só críticas, atrasadas ou em risco</label>
@@ -212,12 +212,12 @@ h2::before{content:"";display:block;width:36px;height:3px;border-radius:2px;back
     <p class="legenda"><span><i class="leg" style="background:var(--barra)"></i>Planejada</span><span><i class="leg" style="background:var(--crit)"></i>Caminho crítico</span><span><i class="leg" style="background:var(--risco)"></i>Prazo em risco</span><span><i class="leg" style="background:var(--al)"></i>Atrasada</span><span><i class="leg" style="background:var(--feita)"></i>Feita</span><span>◆ marco · linha terracota = hoje · tracejado = data [CONFERIR]</span></p>
     <div class="gantt" id="gantt"></div>
   </section>
-  <section id="v-kanban" role="tabpanel" hidden>
+  <section id="v-kanban" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="kanban">Quadro</button> <button type="button" class="btn" data-ir-v="matriz">Por pessoa</button></div>
     <div class="ferr"><label>Origem <select id="origemK"><option value="semente">Plano Fase 0 + M&amp;A</option><option value="bot">Correções (bots)</option><option value="gestao">Gestão Fase 2</option><option value="">Todas</option></select></label>
       <label>Buscar <input type="text" id="busca" placeholder="título ou pessoa"></label></div>
     <div class="kanban" id="kanban"></div>
   </section>
-  <section id="v-matriz" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="tarefas"></span></div><div class="tabwrap" id="matriz"></div></section>
+  <section id="v-matriz" role="tabpanel" hidden><div class="chips-vista" role="group" aria-label="Vista"><button type="button" class="btn" data-ir-v="kanban">Quadro</button> <button type="button" class="btn" data-ir-v="matriz">Por pessoa</button></div><div class="ferr"><span class="exp" data-vista="tarefas"></span></div><div class="tabwrap" id="matriz"></div></section>
   <section id="v-roadmap" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="saude"></span></div><div id="roadmap" class="roadmap"></div></section>
   <section id="v-alertas" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="alertas"></span></div><div class="tabwrap" id="alertas"></div></section>
   <section id="v-documentos" role="tabpanel" hidden><div class="ferr"><span class="exp" data-vista="documentos"></span></div><div id="upDocumentos"></div>
@@ -299,7 +299,7 @@ const EN={"Marketing · aprovação":"Marketing · approval","Os conteúdos nasc
 "Todas as frentes":"All fronts","versão de teste":"test version","Physis Engineering · gestão e monitoramento integrados":"Physis Engineering · integrated management and monitoring",
 "Saúde":"Health","Gantt e caminho crítico":"Gantt and critical path","Kanban":"Kanban","Matriz de pendências":"Pending matrix","Roadmap 2027–2031":"Roadmap 2027–2031",
 "Alertas e intervenções":"Alerts and interventions","Documentos":"Documents","Financeiro":"Finance","Editais e propostas":"Calls and proposals","Carregando…":"Loading…",
-"Visão geral":"Overview","Cronograma":"Schedule","Tarefas":"Tasks","Pendências por pessoa":"Pending by person","Metas 2027–2031":"Goals 2027–2031","Alertas e ações":"Alerts and actions","Finanças por entidade":"Finance by entity","Editais e captação":"Calls and fundraising",
+"Visão geral":"Overview","Cronograma":"Schedule","Projetos e cronograma":"Projects and schedule","Tarefas e pendências":"Tasks and pending","Por pessoa":"By person","Quadro":"Board","Lista":"List","Vista":"View","Tarefas":"Tasks","Pendências por pessoa":"Pending by person","Metas 2027–2031":"Goals 2027–2031","Alertas e ações":"Alerts and actions","Finanças por entidade":"Finance by entity","Editais e captação":"Calls and fundraising",
 "Origem":"Source","Plano Fase 0 + M&V":"Phase 0 plan + M&V","Correções (bots)":"Fixes (bots)","Gestão Fase 2 (577)":"Phase 2 management","Gestão Fase 2":"Phase 2 management","Todas":"All",
 "Só críticas, atrasadas ou em risco":"Only critical, late or at risk","Escala":"Scale","Dia (6 px)":"Day (6 px)","Dia (14 px)":"Day (14 px)","Mês (2 px/dia)":"Month (2 px/day)",
 "Planejada":"Planned","Caminho crítico":"Critical path","Prazo em risco":"Deadline at risk","Atrasada":"Late","Feita":"Done","Buscar":"Search",
@@ -396,9 +396,11 @@ EN["Enviar editais (CSV do banco) ou o arquivo do edital"]="Upload calls (bank C
 traduz(document.body);
 let atual="saude";
 document.querySelectorAll(".aba").forEach(b=>b.onclick=()=>abrir(b.dataset.v));
-document.querySelector("[role=tablist]").addEventListener("keydown",e=>{const a=[...document.querySelectorAll(".aba")],i=a.indexOf(document.activeElement);
+// 26/11/2026: Projetos+Cronograma e Tarefas+Pendências viraram UMA aba cada, com duas vistas (nada sumiu)
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ir-v]");if(b)abrir(b.dataset.irV);});
+document.querySelector("[role=tablist]").addEventListener("keydown",e=>{const a=[...document.querySelectorAll(".aba:not([hidden])")],i=a.indexOf(document.activeElement);
   if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();const n=a[(i+(e.key==="ArrowRight"?1:-1)+a.length)%a.length];n.focus();abrir(n.dataset.v);}});
-function abrir(v){atual=v;document.querySelectorAll(".aba").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
+function abrir(v){atual=v;const pai={gantt:"projetos",matriz:"kanban"}[v]||v;document.querySelectorAll(".aba").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===pai));document.querySelectorAll("[data-ir-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.irV===v));
   document.querySelectorAll("[role=tabpanel]").forEach(s=>s.hidden=s.id!=="v-"+v);render(v);montarUploads(v);}
 const fr=()=>$("#frente").value;
 function origemDe(t){return t.origem==="semente"?"semente":(t.origem||"").startsWith("bot")?"bot":t.origem;}
