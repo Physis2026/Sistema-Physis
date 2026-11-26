@@ -6442,7 +6442,24 @@
     "hora": "hour",
     "Inspeção periódica da medida Iluminação LED (SIMULADO): confirmar que continua operando.": "Periodic inspection of the measure LED lighting (SIMULATED): confirm it is still operating.",
     "lugar01-no86: calibração vencida.": "lugar01-no86: calibration overdue.",
-    "lugar01-no85: sem data da próxima calibração [CONFERIR].": "lugar01-no85: no next calibration date [CONFERIR]."
+    "lugar01-no85: sem data da próxima calibração [CONFERIR].": "lugar01-no85: no next calibration date [CONFERIR].",
+    "Lugar e modelo (GIS e BIM)": "Site and model (GIS and BIM)",
+    "Queda e vazão vêm do relevo e da hidrografia do lugar": "Head and flow come from the site's terrain and hydrography",
+    "O vento vem da camada de vento do lugar": "Wind comes from the site's wind layer",
+    "A posição da turbina e da tubulação entra no modelo 3D do Planejador (IFC).": "The turbine and pipe position go into the Planner 3D model (IFC).",
+    "Abrir no Mapeamento (camadas)": "Open in Mapping (layers)",
+    "Abrir no Planejador (modelo e IFC)": "Open in Planner (model and IFC)",
+    "QGIS e FreeCAD no servidor": "QGIS and FreeCAD on the server",
+    "Comece aqui: arquivos do projeto": "Start here: project files",
+    "BIM (IFC), mapas (KML, GeoJSON, shapefile), plantas e imagens, PDF, Word e planilhas. Envie primeiro: cada arquivo vai para a parte certa (o IFC e os mapas para o Mapeamento, que alimenta o Planejador e os cálculos) e fica guardado neste aparelho, até 50 MB cada.": "BIM (IFC), maps (KML, GeoJSON, shapefile), plans and images, PDF, Word and spreadsheets. Send them first: each file goes to the right place (IFC and maps to Mapping, which feeds the Planner and the calculations) and is kept on this device, up to 50 MB each.",
+    "Enviar arquivos do projeto": "Send project files",
+    "Levar ao Mapeamento": "Take to Mapping",
+    "Tirar": "Remove",
+    "Mapa (camadas do lugar)": "Map (site layers)",
+    "Imagem ou planta (base para o modelo e as imagens)": "Image or plan (base for the model and images)",
+    "PDF (planta, memorial ou conta)": "PDF (plan, report or bill)",
+    "Texto (memorial, briefing)": "Text (report, brief)",
+    "Desenho ou modelo 3D": "Drawing or 3D model"
   },
   "I18N_RX": [
     [
@@ -9280,6 +9297,14 @@
     [
       "^deriva (acima|abaixo)$",
       "drift $1"
+    ],
+    [
+      "^(.+) entregue ao Mapeamento\\.$",
+      "$1 delivered to Mapping."
+    ],
+    [
+      "^(\\d+) arquivo\\(s\\) do projeto guardado\\(s\\)\\.$",
+      "$1 project file(s) saved."
     ],
     [
       "^· (.+)$",

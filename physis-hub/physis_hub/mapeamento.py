@@ -1734,4 +1734,6 @@ def rota(metodo: str, caminho: str, q: dict, corpo: bytes | None, *, hub=None, u
             return 200, {"ok": True, "resumo": ifc_mod.ler(corpo or b"")}
         except ValueError as e:
             return 400, {"ok": False, "erro": str(e)}
+        except (AttributeError, IndexError, KeyError, TypeError) as e:   # IFC fora do padrão STEP: avisa, não derruba (26/11/2026)
+            return 400, {"ok": False, "erro": "IFC fora do padrão (não deu para ler): " + type(e).__name__}
     return 404, {"ok": False, "erro": "rota do mapeamento desconhecida"}

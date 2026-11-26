@@ -298,7 +298,12 @@ function telaTurbinas() { const sub = ui.turbSub === "eolica" ? "eolica" : "hidr
   const chips = `<div class="chips" role="group" aria-label="Tipo de turbina">${SUBS.map(([k, n]) => `<button type="button" id="turb-sub-${k}" data-turb-sub="${k}" aria-pressed="${k === sub}">${n}</button>`).join("")}</div>`;
   const apoio = sub === "hidraulica" ? "Energia das descidas de água: tipo de turbina, perdas na tubulação, potência, energia mês a mês e retorno."
     : "Energia do vento: vento do lugar na altura do cubo, curva de potência, energia por ano, fator de capacidade e se vale a pena.";
-  return `<h1>Turbinas</h1><p class="t2 apoio">${apoio}</p>${chips}<div id="turb-corpo">${sub === "hidraulica" ? parteHidraulica() : parteEolica()}</div>`; }
+  /* 26/11/2026: o lugar (GIS) e o modelo (BIM) da turbina ficam nas abas que já fazem isso, sem repetir: Mapeamento (camadas
+     hidrografia, relevo e vento), Planejador (modelo e IFC) e Programas do servidor (QGIS e FreeCAD). */
+  const lugar = `<section aria-labelledby="h-turb-gis"><h2 id="h-turb-gis">Lugar e modelo (GIS e BIM)</h2>
+    <p class="t2">${sub === "hidraulica" ? "Queda e vazão vêm do relevo e da hidrografia do lugar" : "O vento vem da camada de vento do lugar"}. A posição da turbina e da tubulação entra no modelo 3D do Planejador (IFC).</p>
+    <div class="chips"><button type="button" data-ir="mapeamento">Abrir no Mapeamento (camadas)</button><button type="button" data-ir="planejador">Abrir no Planejador (modelo e IFC)</button><a href="/programas">QGIS e FreeCAD no servidor</a></div></section>`;
+  return `<h1>Turbinas</h1><p class="t2 apoio">${apoio}</p>${chips}<div id="turb-corpo">${sub === "hidraulica" ? parteHidraulica() : parteEolica()}</div>${lugar}`; }
 
 /* ════════ Eventos (atributos data-turb-…) ════════ */
 function refocar(id) { const x = el(id); if (x) x.focus(); }

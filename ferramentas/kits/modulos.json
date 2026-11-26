@@ -220,7 +220,7 @@
    ],
    "metodologia": "avac",
    "doc17_secao": "AVAC e térmico",
-   "o_que_revisar": "Carga térmica (NBR 16401), correção do motor, pressurização (NBR 14880), quadro (NBR 5410).",
+   "o_que_revisar": "Carga térmica (NBR 16401), correção do motor, pressurização (NBR 14880), quadro (NBR 5410). Aba Quadros elétricos (QGBT e quadros por módulo) e seleção de multi-split pelo catálogo técnico.",
    "editaveis": [
     {
      "arquivo": "sistema/physis-avac-casos.json"
@@ -249,7 +249,10 @@
     "physis-hub/docs/CARGA_TERMICA.md",
     "physis-hub/docs/METODOLOGIA.md",
     "physis-hub/tests/test_cargatermica.py",
-    "physis-hub/tests/test_materiais.py"
+    "physis-hub/tests/test_materiais.py",
+    "sistema/physis-quadros.js",
+    "physis-hub/physis_hub/catalogo_modelos.py",
+    "physis-hub/tests/test_catalogo_modelos.py"
    ],
    "conferir": [
     {

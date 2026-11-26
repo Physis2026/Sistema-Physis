@@ -570,7 +570,7 @@ def plataforma_previa(raiz: Path, avisos: list) -> str | None:
             spec.loader.exec_module(gd)
             gd.PAINEL = painel
             gd.MODULOS_DEMO = list(MODULOS_PREVIA)
-            texto = gd.plataforma("resumo", "physis-demo-cliente.html")
+            texto = gd.plataforma("physis-demo-cliente.html", "resumo", gd.MODULOS_DEMO, "{ campo:6, zonas:1, col:0, com:0 }", "plataforma")
         except (SystemExit, Exception) as e:  # o original mudou e um ajuste não cabe mais
             proprios.append(f"prévia: não deu para preparar a plataforma a partir do painel ({e}); usei a demo pronta")
             texto = None
