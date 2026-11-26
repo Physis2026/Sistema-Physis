@@ -95,6 +95,8 @@ BLOCOS = {
     "planejador-netzero": RAIZ / "sistema" / "planejador-netzero.js",
     # edição manual de textos e ordem dos blocos (24/11/2026), só com conta; grava a direção
     "physis-edicao": RAIZ / "sistema" / "physis-edicao.js",
+    # páginas de 20 itens no lugar de rolagem longa (26/11/2026)
+    "physis-paginas": RAIZ / "sistema" / "physis-paginas.js",
 }
 # Nome antigo do bloco de preferências (px-preferencias v1, a segunda implementação que existia até 15/11/2026):
 # vira o bloco do módulo único na primeira rodada.
