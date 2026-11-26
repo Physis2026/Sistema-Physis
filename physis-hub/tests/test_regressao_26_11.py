@@ -25,8 +25,9 @@ class Regressao(unittest.TestCase):
 
     def test_kits_tem_responsaveis_e_quadros(self):
         mods = json.loads((RAIZ / "ferramentas" / "kits" / "modulos.json").read_text(encoding="utf-8"))["modulos"]
-        avac = next(m for m in mods if m["id"] == "avac")
-        self.assertIn("sistema/physis-quadros.js", avac["referencia"])
+        q = next(m for m in mods if m["id"] == "quadros")
+        self.assertEqual(q["responsaveis"], ["Erick Lopes"])                 # decisão da dona, 26/11/2026
+        self.assertIn("sistema/physis-quadros.js", q["referencia"])
         self.assertTrue((RAIZ / "ferramentas" / "kits_por_pessoa.py").is_file())
 
     def test_arquivos_do_projeto_no_inicio(self):

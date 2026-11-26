@@ -220,7 +220,7 @@
    ],
    "metodologia": "avac",
    "doc17_secao": "AVAC e térmico",
-   "o_que_revisar": "Carga térmica (NBR 16401), correção do motor, pressurização (NBR 14880), quadro (NBR 5410). Aba Quadros elétricos (QGBT e quadros por módulo) e seleção de multi-split pelo catálogo técnico.",
+   "o_que_revisar": "Carga térmica (NBR 16401), correção do motor, pressurização (NBR 14880), quadro (NBR 5410).",
    "editaveis": [
     {
      "arquivo": "sistema/physis-avac-casos.json"
@@ -249,10 +249,7 @@
     "physis-hub/docs/CARGA_TERMICA.md",
     "physis-hub/docs/METODOLOGIA.md",
     "physis-hub/tests/test_cargatermica.py",
-    "physis-hub/tests/test_materiais.py",
-    "sistema/physis-quadros.js",
-    "physis-hub/physis_hub/catalogo_modelos.py",
-    "physis-hub/tests/test_catalogo_modelos.py"
+    "physis-hub/tests/test_materiais.py"
    ],
    "conferir": [
     {
@@ -270,6 +267,40 @@
     "test_metodologia"
    ],
    "aba": "avac"
+  },
+  {
+   "id": "quadros",
+   "nome": "Quadros elétricos e multi-split",
+   "tipo": "modulo",
+   "responsaveis": [
+    "Erick Lopes"
+   ],
+   "metodologia": "quadros",
+   "doc17_secao": "Quadros elétricos",
+   "o_que_revisar": "Quadros por função e QGBT (NBR 5410): circuitos, disjuntores, fator de demanda [MARCADOR], seletividade; seleção de multi-split pelo catálogo técnico (só modelos conferidos).",
+   "editaveis": [
+    {
+     "arquivo": "sistema/physis-i18n-modulos.json",
+     "i18n_de": "referencia"
+    }
+   ],
+   "referencia": [
+    "sistema/physis-quadros.js",
+    "physis-hub/physis_hub/catalogo_modelos.py",
+    "physis-hub/tests/test_catalogo_modelos.py",
+    "physis-hub/docs/METODOLOGIA.md"
+   ],
+   "conferir": [
+    {
+     "arquivo": "demos/physis-demo-casa-physis-inicial.html",
+     "como": "Abra no navegador e vá à aba Quadros elétricos."
+    }
+   ],
+   "testes": [
+    "test_regressao_26_11",
+    "test_catalogo_modelos"
+   ],
+   "aba": "quadros"
   },
   {
    "id": "turbinas",

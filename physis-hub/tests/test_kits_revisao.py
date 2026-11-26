@@ -32,7 +32,7 @@ if NO_REPO:
 RESPONSAVEIS = {
     "planejador": ["Rafaella", "Eric Oliveira", "Erick Lopes", "Arthur", "Rafael", "Emerson", "Ryan", "Laura", "Marzia",
                    "Leonardo Macedo"],
-    "sustainkit": ["Erick Lopes"], "solar": ["Erick Lopes"], "avac": ["Ryan"], "turbinas": ["Emerson", "Ryan"],
+    "sustainkit": ["Erick Lopes"], "solar": ["Erick Lopes"], "avac": ["Ryan"], "quadros": ["Erick Lopes"], "turbinas": ["Emerson", "Ryan"],
     "agua": ["Erick Lopes", "Rafael"], "sbn": ["Erick Lopes", "Rafaella"], "circular": ["Rafael", "Rafaella"],
     "carbono": ["Marzia", "Laura"], "resiliencia": ["Arthur", "Rafaella"],
     "certificacoes": ["Erick Lopes", "Ryan", "Laura", "Rafaella"], "equipamentos": ["Ryan", "Erick Lopes"],

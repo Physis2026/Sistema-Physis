@@ -7166,7 +7166,7 @@ html.gp #physis-adm[data-grupo="org"] [data-aba]:not([data-aba="tar"]):not([data
     if (!equipe.length) Array.prototype.forEach.call(document.querySelectorAll("#app select option"), function (o) { equipe.push({ id: o.value, nome: o.textContent }); });
     var opPessoa = function (sel) { return "<option value=''>" + esc(L("(nenhuma)", "(none)")) + "</option>" + equipe.map(function (p) { return "<option value='" + esc(p.id) + "'" + (sel === p.id ? " selected" : "") + ">" + esc(p.nome) + "</option>"; }).join(""); };
     var msg = "<p role='status' style='font-weight:600;min-height:1.4em;color:" + (estC.erro ? "#7A2214" : "#1F4A1C") + "'>" + esc(estC.msg) + "</p>";
-    var h = "<h1 id='gp-h-contas'>" + esc(estC.modo === "contas" && admin ? L("Contas da equipe", "Team accounts") : estC.modo === "chaves" && admin ? L("Chaves dos dispositivos", "Device keys") : L("Minha conta", "My account")) + "</h1>" + msg;
+    var h = "<h2 id='gp-h-contas' style='font-family:Fraunces,Georgia,serif'>" + esc(estC.modo === "contas" && admin ? L("Contas da equipe", "Team accounts") : estC.modo === "chaves" && admin ? L("Chaves dos dispositivos", "Device keys") : L("Minha conta", "My account")) + "</h2>" + msg;
     var PC = window.PhysisConta;   // módulo physis-conta: senha, 2FA, meus dados, convites e chaves (15/11/2026)
     if (estC.modo === "chaves" && admin && PC) { s.innerHTML = h + PC.telaChaves(); PC.ligar(s); return; }
     if ((estC.modo === "senha" || !admin) && PC) { s.innerHTML = h + PC.telaMinhaConta(); PC.ligar(s); return; }
