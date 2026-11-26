@@ -334,9 +334,9 @@ class Programas:
             if not exe:
                 t.update(estado="erro", erro=f"{r['programa']} não está instalado neste servidor"); return
             argv, scripts = r["montar"](exe, str(ent) if ent else "", str(sai), p)
-            env_o4w = Path(exe).parent / "o4w_env.bat"
-            if r["programa"] == "gdal" and os.name == "nt" and env_o4w.is_file():      # GDAL do QGIS precisa do ambiente dele (PROJ)
-                argv = ["cmd", "/c", f'call "{env_o4w}" >nul && ' + subprocess.list2cmdline(argv)]
+            if r["programa"] == "gdal" and os.name == "nt":      # GDAL do QGIS: PATH, GDAL_DATA e PROJ do próprio QGIS (sem cmd /c)
+                from .camadas_bot import ambiente_qgis
+                ambiente_qgis(exe)
             for nome, texto in scripts.items():
                 (sai / nome).write_text(texto, encoding="utf-8")
             env = dict(os.environ, PHYSIS_ENTRADA=str(ent or ""), PHYSIS_SAIDA=str(sai), PHYSIS_TAMANHO=str(p.get("tamanho", 5)))

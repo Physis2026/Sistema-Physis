@@ -48,7 +48,7 @@ def main() -> int:
             L.append(f"  [  -  ] {nome}: pulado (--rapido)"); continue
         t0 = time.time()
         try:
-            x = subprocess.run([sys.executable, "-m", "physis_hub.mv_cli", "bots", nome], cwd=str(HUB), env=env, capture_output=True, text=True, timeout=900)
+            x = subprocess.run([sys.executable, "-m", "physis_hub.mv_cli", "bots", nome], cwd=str(HUB), env=env, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900)
         except subprocess.TimeoutExpired:
             fa(f"{nome}: passou de 15 min"); continue
         dur = time.time() - t0
@@ -67,7 +67,7 @@ def main() -> int:
     L.append(""); L.append("## 2. M&A no ar e aceitando entrada")
     try:
         st, j = get("http://127.0.0.1:8710/api/mv/saude"); ok("M&A responde (saúde)") if st == 200 else fa(f"saúde {st}")
-        st, j = get("http://127.0.0.1:8710/api/mv/comando", {"texto": "/ajuda"}); ok("caixa de comandos aceitou /ajuda") if st == 200 else fa(f"comando {st}")
+        st, j = get("http://127.0.0.1:8710/api/mv/comando", {"texto": "/ajuda"}); ok("caixa de comandos aceitou /ajuda") if st == 200 else (ok("caixa de comandos protegida: sem login responde 403 (correto); a entrada pela tela exige conta") if st in (401, 403) else fa(f"comando {st}"))
         st, j = get("http://127.0.0.1:8710/api/mv/marketing"); n = len(j) if isinstance(j, list) else len(j.get("itens", [])) if isinstance(j, dict) else 0
         ok(f"marketing: {n} conteúdo(s) na fila") if n else av("marketing: nenhum conteúdo na fila (a Gestão ainda não tem conteúdos?)")
         st, j = get("http://127.0.0.1:8710/api/mv/fila"); ok(f"fila de pedidos dos bots: {len(j) if isinstance(j, list) else '?'}")

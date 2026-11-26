@@ -382,10 +382,24 @@ def gdal(args: list[str]) -> list[str]:
     exe = achar_gdal(args[0])
     if not exe:
         raise ValueError(f"{args[0]} não encontrado (vem com o QGIS)")
-    env = Path(exe).parent / "o4w_env.bat"
-    if os.name == "nt" and env.is_file():
-        return ["cmd", "/c", f'call "{env}" >nul && ' + subprocess.list2cmdline([exe] + args[1:])]
+    if os.name == "nt":
+        ambiente_qgis(exe)
     return [exe] + args[1:]
+
+
+def ambiente_qgis(exe: str) -> None:
+    """O que o o4w_env.bat faria, sem passar pelo cmd (as aspas do cmd /c quebravam com 'Program Files', 25/11/2026):
+    bin do QGIS no PATH e GDAL_DATA / PROJ_LIB apontando para o share do próprio QGIS."""
+    b = Path(exe).parent; raiz = b.parent
+    if str(b).lower() not in os.environ.get("PATH", "").lower():
+        os.environ["PATH"] = str(b) + os.pathsep + os.environ.get("PATH", "")
+    for var, cands in (("GDAL_DATA", ("share/gdal", "apps/gdal/share/gdal")), ("PROJ_LIB", ("share/proj", "apps/proj/share/proj"))):
+        for c in cands:
+            if (raiz / c).is_dir():
+                os.environ.setdefault(var, str(raiz / c))
+                if var == "PROJ_LIB":
+                    os.environ.setdefault("PROJ_DATA", str(raiz / c))
+                break
 
 
 def _bbox_gj(gj: dict) -> list[float]:
