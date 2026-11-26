@@ -187,7 +187,8 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
         local = Path(url)
         if not local.is_file():
             raise ValueError(f"arquivo não encontrado neste PC: {url}")
-        shutil.copy2(local, arq)
+        if local.resolve() != arq.resolve():       # já está na pasta de brutos: não copia sobre si mesmo (WinError 32)
+            shutil.copy2(local, arq)
     elif pegar is buscar:
         baixar_para(url, arq)
     else:
@@ -207,9 +208,9 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
         _fonte(destino, url=url, camada=camada, oficial=True, janela=[o, s, l, n], leitura="direto do endereço (GDAL /vsicurl/)")
         return str(destino)
     if zipfile.is_zipfile(arq):
+        base = d / ("extraido-" + arq.stem)[:80]
         with zipfile.ZipFile(arq) as z:
-            z.extractall(d / "extraido")
-        base = d / "extraido"
+            z.extractall(base)
     else:
         base = d
     o, s, l, n = uniao(js)
