@@ -16,7 +16,14 @@ ap.add_argument("--pasta", default=os.environ.get("PHYSIS_CAMADAS") or r"C:\phys
 ap.add_argument("--so", default="")
 ap.add_argument("--forcar", action="store_true")
 ap.add_argument("--brasil", action="store_true")
+ap.add_argument("--extras", action="store_true", help="só as camadas extras (linhas extra: de fontes-camadas.txt)")
 a = ap.parse_args()
+if a.extras:
+    r = camadas_bot.rodar_extras(Path(a.pasta), mv_ecossistema.cidades(), forcar=a.forcar)
+    for c, v in r.items():
+        print(f"{c:28} {v['situacao']:10} {v.get('motivo') or v.get('arquivo') or ''}")
+    print("\nExtras instaladas:", sum(1 for v in r.values() if v["situacao"] != "falta"), "de", len(r))
+    sys.exit(0)
 if a.brasil:
     r = camadas_bot.brasil(Path(a.pasta), [x for x in a.so.split(",") if x] or None)
     for c, x in r["camadas"].items():

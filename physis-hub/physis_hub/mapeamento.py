@@ -170,6 +170,41 @@ def _instalada(c: dict, pasta: Path | None) -> bool:
     return a.is_file() or bool(_mosaico(c, pasta))
 
 
+def _meta_fonte(arquivo) -> dict:
+    """<arquivo>.fonte.json gravado pelo bot de camadas (endereço, data, provisória, licença)."""
+    try:
+        m = Path(str(arquivo) + ".fonte.json")
+        return json.loads(m.read_text(encoding="utf-8")) if m.is_file() and m.stat().st_size < 1_000_000 else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def extras(pasta: Path | None) -> list[dict]:
+    """Camadas extras instaladas pelo bot (extras/indice.json, 27/11/2026): APP/CAR, biodiversidade, energia, vegetação..."""
+    if not pasta:
+        return []
+    ind = pasta / "extras" / "indice.json"
+    try:
+        lista = _ler_json_cache(ind) if ind.is_file() else []
+    except (OSError, ValueError):
+        return []
+    out = []
+    for x in lista if isinstance(lista, list) else []:
+        if not (isinstance(x, dict) and re.match(r"^x_[a-z0-9_]{1,40}$", str(x.get("id", ""))) and x.get("formato") in ("vetor", "raster")
+                and str(x.get("arquivo", "")).startswith("extras/") and ".." not in str(x.get("arquivo"))):
+            continue
+        d = dict(x)
+        nome = d.get("nome") if isinstance(d.get("nome"), dict) else {"pt": str(d.get("nome") or d["id"]), "en": str(d.get("nome") or d["id"])}
+        d["nome"] = nome
+        d.setdefault("grupo", "extras")
+        d["fonte"] = {"nome": "[CONFERIR]", "produto": nome["pt"], "licenca": "[CONFERIR]", **(d.get("fonte") if isinstance(d.get("fonte"), dict) else {})}
+        d.setdefault("finalidade", {"pt": "camada extra (" + str(d["grupo"]) + ")", "en": "extra layer"})
+        d.setdefault("consumidores", ["mapeamento"])
+        d.setdefault("chave_config", "fontes-camadas.txt (extra:" + d["id"] + ")")
+        out.append(d)
+    return out
+
+
 def catalogo(pasta=None) -> list[dict]:
     """Catálogo com o estado de cada camada nesta instalação ('instalada' ou 'nao_instalada')."""
     p = pasta_camadas(pasta)
@@ -177,6 +212,9 @@ def catalogo(pasta=None) -> list[dict]:
     for c in CAMADAS:
         d = json.loads(json.dumps(c))
         d["status"] = "instalada" if _instalada(c, p) else "nao_instalada"
+        out.append(d)
+    for c in extras(p):
+        d = dict(c, extra=True); d["status"] = "instalada" if (p / c["arquivo"]).is_file() else "nao_instalada"
         out.append(d)
     return out
 
@@ -454,7 +492,7 @@ def classes_raster(j: dict, poligono=None, legenda: dict | None = None) -> list[
 
 def camada(id_: str, bbox, pasta=None, poligono=None) -> dict:
     """Uma camada recortada na janela: vetor (GeoJSON) ou raster (resumo)."""
-    c = POR_ID.get(id_)
+    c = POR_ID.get(id_) or {x["id"]: x for x in extras(pasta_camadas(pasta))}.get(id_)
     if not c:
         return {"ok": False, "erro": "camada desconhecida"}
     try:
@@ -478,9 +516,14 @@ def camada(id_: str, bbox, pasta=None, poligono=None) -> dict:
                 r["declividade"] = declividade_raster(j, poligono)
             if id_ == "uso_solo":
                 leg = None
-                if p and (p / c["legenda"]).is_file():
+                meta = _meta_fonte(a)
+                if meta.get("provisoria"):          # GLAD/OpenGeoHub no lugar do MapBiomas: nunca aplicar a legenda do MapBiomas
+                    r["provisoria"] = str(meta.get("produto") or "fonte provisória") + " · " + str(meta.get("legenda") or "")
+                elif p and (p / c["legenda"]).is_file():
                     leg = json.loads((p / c["legenda"]).read_text(encoding="utf-8"))
                 r["classes"] = classes_raster(j, poligono, leg)
+            if c.get("extra") or str(id_).startswith("x_"):
+                r["banda"] = c.get("banda") or {}
             if id_ == "irradiacao" and p:
                 meses = []
                 for m in range(1, 13):
@@ -1166,8 +1209,9 @@ def construir_contexto(local: dict | None, lote: dict | None = None, pasta=None,
     # uso do solo
     r, bruto = pega("uso_solo")
     if r:
-        campos["uso_solo"] = _campo(r["classes"], "fração da área", _fonte_txt(POR_ID["uso_solo"]), "uso_solo",
-                                    nota="" if any(c["nome"] for c in r["classes"]) else "sem legenda instalada: só o código da classe")
+        campos["uso_solo"] = _campo(r["classes"], "fração da área", (r["provisoria"].split(" · ")[0] + " (provisória)") if r.get("provisoria") else _fonte_txt(POR_ID["uso_solo"]), "uso_solo",
+                                    nota=("PROVISÓRIA: " + r["provisoria"]) if r.get("provisoria") else
+                                    ("" if any(c["nome"] for c in r["classes"]) else "sem legenda instalada: só o código da classe"))
     else:
         falta("uso_solo", "uso_solo", "camada não instalada" if bruto.get("sem_camada") else bruto.get("erro", ""))
     # vetores com "o que contém o centro" ou "o que toca o lote"
@@ -1233,6 +1277,30 @@ def construir_contexto(local: dict | None, lote: dict | None = None, pasta=None,
         campos["vento"] = _campo({"media_m_s": r["resumo"]["media"]}, "m/s", _fonte_txt(POR_ID["vento"]), "vento")
     else:
         falta("vento", "vento", "camada não instalada" if (bruto.get("sem_camada") or r) else bruto.get("erro", ""))
+    # camadas EXTRAS instaladas (27/11/2026): o que cada uma diz deste lugar, com a fonte; valor bruto da base (sem conversão inventada)
+    ex_out = []
+    for c in extras(p):
+        if not (p / c["arquivo"]).is_file():
+            continue
+        r = camada(c["id"], b, p, poly)
+        item = {"id": c["id"], "nome": c["nome"]["pt"], "grupo": c.get("grupo"), "fonte": _fonte_txt(c), "formato": c["formato"]}
+        if not r.get("ok"):
+            item.update(situacao="sem_dado", motivo=r.get("erro", ""))
+        elif r["tipo"] == "vetor":
+            fs = r["geojson"]["features"]
+            no_lugar = [f for f in fs if dentro_geometria(centro, f["geometry"]) or (poly and any(dentro_geometria(q, f["geometry"]) for q in poly))]
+            ds = [d for d in (distancia_geometria_m(centro, f["geometry"]) for f in fs) if d is not None]
+            item.update(situacao="ok", valor={"feicoes_na_janela": len(fs), "no_lote": len(no_lugar), "mais_proxima_m": round(min(ds), 1) if ds else None,
+                                              "atributos_no_lote": [f["properties"] for f in no_lugar][:5]}, unidade="contagem; m")
+        else:
+            rs = r.get("resumo") or {}
+            bd = r.get("banda") or {}
+            item.update(situacao="ok" if rs.get("n") else "sem_dado", valor=rs, unidade=bd.get("unit") or "valor da base",
+                        nota=("escala da base: x" + str(bd.get("scale")) + (" + " + str(bd.get("offset")) if bd.get("offset") else "")) if bd.get("scale") not in (None, 1, 1.0)
+                        else "valor bruto da base: conferir a unidade na documentação da fonte [CONFERIR]")
+        ex_out.append(item)
+    if ex_out:
+        doc["extras"] = ex_out
     doc["janela"] = b
     doc["poligono_lote"] = poly
     doc["uploads"] = [{k: u.get(k) for k in ("id", "nome", "formato", "crs", "feicoes", "sha256")} for u in (uploads or [])]

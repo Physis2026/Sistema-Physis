@@ -176,6 +176,8 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
     GDAL direto do endereço (/vsicurl/), só a janela das cidades: não baixa o Brasil inteiro. Erro = ValueError."""
     d = brutos / camada
     d.mkdir(parents=True, exist_ok=True)
+    if eh_arcgis(url):
+        return oficial_arcgis(camada, url, pasta, js, pegar)
     if camada in VETOR_OFICIAL and eh_wfs(url):
         return oficial_wfs(camada, url, pasta, js, rodar)
     remoto = url.startswith(("http://", "https://"))
@@ -207,7 +209,12 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
         if getattr(r2, "returncode", 1) != 0 or not tmp.is_file():
             raise ValueError("gdal_translate falhou: " + (getattr(r2, "stderr", "") or "")[-300:])
         tmp.replace(destino)
-        _fonte(destino, url=url, camada=camada, oficial=True, janela=[o, s, l, n], leitura="direto do endereço (GDAL /vsicurl/)" if remoto else "arquivo local (janela recortada, sem copiar)")
+        extra = {}
+        if camada == "uso_solo" and re.search(r"opengeohub|glad", url, re.I):
+            # 27/11/2026: cobertura GLAD (OpenGeoHub) é SUBSTITUTA do MapBiomas: provisória, com a legenda dela (nunca a do MapBiomas)
+            extra = {"provisoria": True, "produto": "GLAD GLCLUC (UMD) via OpenGeoHub/OpenLandMap", "licenca": "CC-BY-4.0",
+                     "legenda": "GLAD GLCLUC: códigos próprios, não são classes do MapBiomas [CONFERIR na documentação da GLAD]"}
+        _fonte(destino, url=url, camada=camada, oficial=not extra, janela=[o, s, l, n], leitura="direto do endereço (GDAL /vsicurl/)" if remoto else "arquivo local (janela recortada, sem copiar)", **extra)
         return str(destino)
     if zipfile.is_zipfile(arq):
         base = d / ("extraido-" + arq.stem)[:80]
@@ -263,6 +270,50 @@ def oficial(camada: str, url: str, pasta: Path, brutos: Path, js, pegar=buscar, 
     return str(destino)
 
 
+# Risco geológico (27/11/2026): setorização do SGB/CPRM no serviço ArcGIS REST oficial (catálogo do projeto BELUGA, verificado em
+# 21/11/2026). Fonte PADRÃO da camada risco: entra sozinha, sem download manual; uma linha risco; em fontes-camadas.txt a substitui.
+SGB_RISCO = "https://geoportal.sgb.gov.br/server/rest/services/gestaoterritorial/risco/FeatureServer/0"
+FONTE_PADRAO = {"risco": SGB_RISCO}
+
+
+def eh_arcgis(url: str) -> bool:
+    u = url.lower().split("?")[0].rstrip("/")
+    return u.startswith(("http://", "https://")) and bool(re.search(r"/(featureserver|mapserver)/\d+$", u))
+
+
+def oficial_arcgis(camada: str, url: str, pasta: Path, js, pegar=buscar, lote: int = 1000) -> str:
+    """Só os polígonos que tocam a janela das cidades, em páginas (o ArcGIS do SGB corta consultas longas)."""
+    base = url.split("?")[0].rstrip("/")
+    o, s, l, n = uniao(js)
+    feats, off = [], 0
+    while True:
+        q = base + "/query?" + urllib.parse.urlencode({
+            "where": "1=1", "geometry": f"{o},{s},{l},{n}", "geometryType": "esriGeometryEnvelope", "inSR": 4326,
+            "spatialRel": "esriSpatialRelIntersects", "outFields": "*", "outSR": 4326, "f": "geojson",
+            "resultOffset": off, "resultRecordCount": lote})
+        try:
+            d = json.loads(pegar(q))
+        except ValueError as e:
+            raise ValueError("o serviço ArcGIS não devolveu GeoJSON: " + str(e)[:120])
+        if not isinstance(d, dict) or "error" in d:
+            raise ValueError("o serviço ArcGIS respondeu erro: " + json.dumps(d.get("error") if isinstance(d, dict) else d, ensure_ascii=False)[:200])
+        fs = [f for f in d.get("features") or [] if isinstance(f, dict) and f.get("geometry")]
+        feats += fs
+        mais = d.get("exceededTransferLimit") or (d.get("properties") or {}).get("exceededTransferLimit")
+        if not fs or (len(fs) < lote and not mais) or off > 200_000:
+            break
+        off += len(fs)
+    destino = pasta / ARQUIVO[camada]
+    tmp = destino.with_suffix(".novo.geojson")
+    tmp.write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(destino)
+    _fonte(destino, url=base, camada=camada, oficial=True, janela=[o, s, l, n], feicoes=len(feats), leitura="serviço ArcGIS REST (só a janela, em páginas)",
+           produto="Setorização de risco geológico (SGB/CPRM)" if base == SGB_RISCO else "",
+           licenca="não declarada no serviço (dado público federal) [CONFERIR]",
+           nota="" if feats else "nenhum setor mapeado pelo SGB na janela das cidades (não quer dizer que não há risco)")
+    return str(destino)
+
+
 def eh_wfs(url: str) -> bool:
     """Serviço WFS (ex.: CAR/SICAR https://geoserver.car.gov.br/geoserver/sicar/wfs): o GDAL lê só a janela, sem baixar o país."""
     u = url.lower()
@@ -314,7 +365,7 @@ def rodar_bot(pasta: Path, cids: list[dict], quais: list[str] | None = None, for
         (pasta / "fontes-camadas.txt").write_text(modelo_fontes(), encoding="utf-8")
     brutos = brutos or (pasta.parent / "dados-brutos" / "camadas")
     js = janelas(cids)
-    fontes = ler_fontes(pasta)
+    fontes = {**FONTE_PADRAO, **ler_fontes(pasta)}
     dias = float(os.environ.get("PHYSIS_CAMADAS_DIAS") or 0)
     res = {}
 
@@ -323,8 +374,10 @@ def rodar_bot(pasta: Path, cids: list[dict], quais: list[str] | None = None, for
         if forcar or not p.exists() or (c == "clima" and not any(p.glob("*.epw"))):   # pasta do clima vazia não conta
             return True
         meta = Path(str(p) + ".fonte.json")
-        provisoria = meta.is_file() and json.loads(meta.read_text(encoding="utf-8")).get("provisoria")
-        if provisoria and c in fontes:
+        m = json.loads(meta.read_text(encoding="utf-8")) if meta.is_file() else {}
+        if c == "uso_solo" and re.search(r"opengeohub|glad", str(m.get("url") or ""), re.I) and not m.get("provisoria"):
+            return True                                    # GLAD gravada como oficial por versão antiga do bot: refaz e marca provisória
+        if m.get("provisoria") and c in fontes and fontes[c] != m.get("url"):
             return True                                    # chegou o endereço oficial: troca a provisória
         return bool(dias) and (time.time() - p.stat().st_mtime) > dias * 86400
 
@@ -335,7 +388,10 @@ def rodar_bot(pasta: Path, cids: list[dict], quais: list[str] | None = None, for
             continue
         try:
             if c in fontes:
-                res[c] = {"situacao": "baixada (oficial)", "arquivo": oficial(c, fontes[c], pasta, brutos, js, pegar, rodar), "fonte": fontes[c]}
+                arq_of = oficial(c, fontes[c], pasta, brutos, js, pegar, rodar)
+                mt = Path(arq_of + ".fonte.json")
+                prov = mt.is_file() and json.loads(mt.read_text(encoding="utf-8")).get("provisoria")
+                res[c] = {"situacao": "baixada (provisória: GLAD/OpenGeoHub)" if prov else "baixada (oficial)", "arquivo": arq_of, "fonte": fontes[c]}
             elif c in CONSULTAS:
                 gj = osm_camada(c, js, pegar)
                 gj["_fonte"] = {"url": URL_OVERPASS, "licenca": "© colaboradores do OpenStreetMap, ODbL 1.0", "janelas": js}
@@ -543,3 +599,78 @@ def bot_camadas(mv, pasta: Path | None = None) -> dict:
                                                  + " (camada;https://...); o bot baixa e converte na próxima rodada.", str(alvo), origem="camadas")
     mv.registrar_execucao("camadas", inicio, json.dumps(r, ensure_ascii=False, default=str))
     return r
+
+
+# ── camadas EXTRAS (27/11/2026): tudo o que a Physis já tem em C:\physis e não é uma das 12 camadas básicas (APP e reserva do
+# CAR, biodiversidade, energia, estradas, barragens, vegetação e Mata Atlântica, pastagem, curvas de nível...). Linha em
+# fontes-camadas.txt:  extra:<id>;<arquivo ou endereço>;<nome>;<grupo>   → extras/<id>.geojson (vetor) ou extras/<id>.asc (raster),
+# recortada na janela das cidades, com extras/indice.json para o Mapeamento listar. Nada inventado: fonte = o arquivo.
+EXTRA_ID = re.compile(r"^x_[a-z0-9_]{1,40}$")
+
+
+def ler_extras(pasta: Path) -> list[dict]:
+    f = pasta / "fontes-camadas.txt"
+    out = []
+    if f.is_file():
+        for l in f.read_text(encoding="utf-8-sig").splitlines():
+            if not l.startswith("extra:"):
+                continue
+            p = [x.strip() for x in l[6:].split(";")]
+            if len(p) >= 2 and EXTRA_ID.match(p[0]):
+                out.append({"id": p[0], "origem": p[1], "nome": p[2] if len(p) > 2 and p[2] else p[0][2:].replace("_", " "),
+                            "grupo": p[3] if len(p) > 3 else "extras"})
+    return out
+
+
+def rodar_extras(pasta: Path, cids: list[dict], rodar=subprocess.run, forcar: bool = False) -> dict:
+    ex = ler_extras(pasta)
+    d = pasta / "extras"; d.mkdir(parents=True, exist_ok=True)
+    indice_arq = d / "indice.json"
+    indice = {x["id"]: x for x in (json.loads(indice_arq.read_text(encoding="utf-8")) if indice_arq.is_file() else [])}
+    o, s, l, n = uniao(janelas(cids)); res = {}
+    for e in ex:
+        src = e["origem"]; raster = src.lower().endswith((".tif", ".tiff", ".asc", ".img"))
+        destino = d / (e["id"] + (".asc" if raster else ".geojson"))
+        if destino.is_file() and not forcar:
+            res[e["id"]] = {"situacao": "ok", "arquivo": str(destino)}; continue
+        try:
+            if not achar_gdal("ogr2ogr"):
+                raise ValueError("GDAL do QGIS não encontrado")
+            fonte = ("/vsicurl/" + src) if src.startswith(("http://", "https://")) else (("/vsizip/" + src) if src.lower().endswith(".zip") else src)
+            tmp = destino.with_suffix(".novo" + destino.suffix); tmp.unlink(missing_ok=True)
+            if raster:
+                w = d / (e["id"] + ".janela.tif")
+                r1 = rodar(gdal(["gdalwarp", "-overwrite", "-t_srs", "EPSG:4326", "-te", str(o), str(s), str(l), str(n), fonte, str(w)]), capture_output=True, text=True, timeout=3600)
+                r = rodar(gdal(["gdal_translate", "-of", "AAIGrid", str(w), str(tmp)]), capture_output=True, text=True, timeout=1800) if w.is_file() else r1
+            else:
+                r = rodar(gdal(["ogr2ogr", "-f", "GeoJSON", "-t_srs", "EPSG:4326", "-spat", str(o), str(s), str(l), str(n), "-spat_srs", "EPSG:4326",
+                                "-lco", "RFC7946=YES", "-nlt", "PROMOTE_TO_MULTI", str(tmp), fonte]), capture_output=True, text=True, timeout=3600)
+            if getattr(r, "returncode", 1) != 0 or not tmp.is_file():
+                raise ValueError("conversão falhou: " + (getattr(r, "stderr", "") or "")[-200:])
+            tmp.replace(destino)
+            banda = {}
+            if raster and achar_gdal("gdalinfo"):
+                try:
+                    gi = rodar(gdal(["gdalinfo", "-json", str(d / (e["id"] + ".janela.tif"))]), capture_output=True, text=True, timeout=300)
+                    bd = (json.loads(getattr(gi, "stdout", "") or "{}").get("bands") or [{}])[0]
+                    banda = {k: bd.get(k) for k in ("type", "noDataValue", "scale", "offset", "description", "unit") if bd.get(k) not in (None, "")}
+                except (ValueError, OSError, subprocess.TimeoutExpired):
+                    banda = {}
+            meta = {}
+            mj = Path(re.sub(r"\.tiff?$", ".json", src, flags=re.I)) if not src.startswith(("http://", "https://")) else None
+            if mj and mj.is_file() and mj.suffix == ".json":      # baixar_opengeohub.ps1 grava fonte e licença ao lado do .tif
+                try:
+                    meta = json.loads(mj.read_text(encoding="utf-8-sig"))
+                except ValueError:
+                    meta = {}
+            _fonte(destino, url=meta.get("fonte") or src, camada=e["id"], extra=True, janela=[o, s, l, n], licenca=meta.get("licenca"), banda=banda)
+            indice[e["id"]] = {"id": e["id"], "nome": {"pt": e["nome"], "en": e["nome"]}, "grupo": e["grupo"],
+                               "formato": "raster" if raster else "vetor", "arquivo": "extras/" + destino.name,
+                               "fonte": {"nome": meta.get("fonte") or src, "produto": e["nome"], "licenca": meta.get("licenca") or "conforme o arquivo de origem [CONFERIR]"},
+                               "chave_config": "fontes-camadas.txt (extra:" + e["id"] + ")", "banda": banda,
+                               "finalidade": {"pt": "camada extra (" + e["grupo"] + ")", "en": "extra layer"}, "consumidores": ["mapeamento"]}
+            res[e["id"]] = {"situacao": "instalada", "arquivo": str(destino)}
+        except (ValueError, OSError, subprocess.TimeoutExpired) as x:
+            res[e["id"]] = {"situacao": "falta", "motivo": str(x)[:220]}
+    indice_arq.write_text(json.dumps(list(indice.values()), ensure_ascii=False, indent=1), encoding="utf-8")
+    return res
