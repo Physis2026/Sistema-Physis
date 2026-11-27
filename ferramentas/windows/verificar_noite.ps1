@@ -1,7 +1,8 @@
 # verificar_noite.ps1 · a rodada das 02:30 funcionou? versão em uso, portas, M&A e fila dos bots (27/11/2026)
 #   pwsh -ExecutionPolicy Bypass -File C:\physis\verificar_noite.ps1
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
-$P = "C:\physis"; $Int = "$P\physis-integracao-2026-11-25"; $esperado = "80b9d2f"
+$P = "C:\physis"; $Int = "$P\physis-integracao-2026-11-25"; $ult = Get-ChildItem "$P\pacote-*.zip", "$P\entrada-pacotes\pacote-*.zip", "$P\entrada-pacotes\aplicados\pacote-*.zip" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1
+$esperado = if ($ult -and $ult.Name -match "pacote-([0-9a-f]{7})") { $Matches[1] } else { "?" }
 function L($t, $cor = "Gray") { Write-Host $t -ForegroundColor $cor }
 L "== 1. Tarefa da noite (\Physis\noturno)" Cyan
 $t = schtasks /Query /TN "\Physis\noturno" /V /FO LIST 2>$null | Out-String

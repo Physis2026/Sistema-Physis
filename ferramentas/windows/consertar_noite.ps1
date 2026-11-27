@@ -8,7 +8,7 @@ Write-Host "== Arquivos que a noite precisa"
 foreach ($f in "physis_noite.ps1", "atualizar_physis.ps1", "teste_final.ps1", "backup_diario.ps1", "emitir_camadas.ps1", "inventariar_camadas.ps1", "baixar_opengeohub.ps1") {
   if (Test-Path "$P\$f") { Unblock-File "$P\$f"; Write-Host ("  ok    " + $f) } else { Write-Host ("  FALTA " + $f + " (copie de outputs para C:\physis)") -ForegroundColor Red; if ($f -eq "physis_noite.ps1") { $ok = $false } } }
 $pac = Get-ChildItem "$P\pacote-*.zip", "$P\entrada-pacotes\pacote-*.zip" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1
-Write-Host ("  pacote esperando: " + $(if ($pac) { $pac.Name } else { "nenhum (copie pacote-80b9d2f.zip para C:\physis)" }))
+Write-Host ("  pacote esperando: " + $(if ($pac) { $pac.Name } else { "nenhum (copie o pacote-XXXXXXX.zip mais novo para C:\physis)" }))
 Write-Host "== Tarefa atual"
 $x = schtasks /Query /TN "\Physis\noturno" /V /FO LIST 2>$null | Out-String
 ($x -split "\r?\n") | Where-Object { $_ -match '^(Tarefa a ser executada|Task To Run|Executar como usuário|Run As User)' } | ForEach-Object { Write-Host ("  " + $_.Trim()) }
