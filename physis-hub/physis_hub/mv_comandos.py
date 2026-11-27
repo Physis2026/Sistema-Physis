@@ -112,7 +112,18 @@ class Comandos:
         self.mv.db.execute("UPDATE mv_pedido_bot SET estado=?, resultado=?, arquivo=?, atualizado=? WHERE id=?",
                            (estado, p["resultado"] if resultado is None else str(resultado)[:20000], arquivo, time.time(), int(pid)))
         self.mv.db.commit()
-        if estado in ("aprovado", "ajustar") and p["estado"] != estado and p["tipo"] != "inovacao":
+        if p["tipo"] == "acao" and estado == "aprovado" and p["estado"] != "aprovado":
+            # ação do sistema pedida em texto livre (mv_autonomo): só executa depois da aprovação
+            from . import mv_autonomo
+            m = re.search(r"^ACAO (\{.*\})\s*$", p["resultado"], re.M)
+            try:
+                feito = mv_autonomo.executar_acao(self, pid, json.loads(m.group(1))) if m else "Ação sem dados: nada executado."
+            except (ErroMV, ValueError, KeyError) as e:
+                feito = f"Não executei: {e}"
+            self.mv.db.execute("UPDATE mv_pedido_bot SET resultado=? WHERE id=?", ((p["resultado"] + "\n\n" + feito)[:20000], int(pid)))
+            self.mv.db.commit()
+            return self.pedido(pid)
+        if estado in ("aprovado", "ajustar") and p["estado"] != estado and p["tipo"] not in ("inovacao", "acao", "acao_nao_reconhecida"):
             self._tarefa_da_decisao(f"ped{int(pid)}", p["comando"][:180], estado, resultado or "", arquivo)
         if p["tipo"] == "inovacao" and estado == "aprovado" and p["estado"] != "aprovado":
             # descoberta aprovada → entra como atividade em seguida (diretriz de 20/11/2026)

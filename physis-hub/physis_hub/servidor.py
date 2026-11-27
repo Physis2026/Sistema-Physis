@@ -1054,7 +1054,7 @@ def criar_manipulador(hub: Hub, token: str | None, instancia: dict | None = None
                     return True
                 if p == "/api/ia/consumo":           # tela de consumo da IA: nunca leva a chave nem texto enviado
                     cl = robos_mod.claude_da_cadeia(robos["suporte"].ia)
-                    self._json(200, {"ok": True, "consumo": cl.estado() if cl else None})
+                    self._json(200, {"ok": True, "consumo": cl.estado() if cl else {"configurada": False, "ativa": False, "nota": "Claude desligado no sistema (decisão de 27/11/2026); só a IA local"}})
                     return True
                 r = docauto.rota("GET", p, qe, None, consulta=q)
                 if r and "_bytes" in r[1]:

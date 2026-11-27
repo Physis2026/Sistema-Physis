@@ -17,7 +17,7 @@ class Fila(unittest.TestCase):
         d = Path(tempfile.mkdtemp())
         r = mv_vigia.exportar_fila(mv, d)
         self.assertEqual(r["fila"], 1)
-        self.assertIn("Ler os anexos", (d / "fila-claude.md").read_text(encoding="utf-8"))
+        self.assertIn("Ler os anexos", (d / "fila-pedidos.md").read_text(encoding="utf-8"))
         self.assertTrue(any(a["tipo"] == "fila_parada" for a in mv.alertas()))
         from physis_hub import mv_autonomo
         self.assertEqual(mv_autonomo.processar_fila(mv)["respondidos"], 1)     # o bot responde sozinho, sem Claude

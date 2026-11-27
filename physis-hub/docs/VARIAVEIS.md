@@ -25,9 +25,10 @@ quando existe, está no trecho). Segredos (senhas, chaves) nunca vão no código
 | `PHYSIS_CERT_AVISO_DIAS` | mv_bots_extra.py:501 (+1) | `aviso = _limite("PHYSIS_CERT_AVISO_DIAS")` |
 | `PHYSIS_CHAMADAS` | servidor.py:801 (+1) | `csp = politica(os.environ.get("PHYSIS_CHAMADAS") or instancia.get("chamadas"))` |
 | `PHYSIS_CLAUDE_AVISOS` | ia_claude.py:140 | `v = tuple(sorted({float(x) for x in (os.environ.get("PHYSIS_CLAUDE_AVISOS") or "0.8,1").split(",") if x.strip()}))` |
-| `PHYSIS_CLAUDE_AVISO_EMAIL` | robos.py:1005 | `para = os.environ.get("PHYSIS_CLAUDE_AVISO_EMAIL") or ctx.get("suporte_email") or ""` |
+| `PHYSIS_CLAUDE_AVISO_EMAIL` | robos.py:1011 | `para = os.environ.get("PHYSIS_CLAUDE_AVISO_EMAIL") or ctx.get("suporte_email") or ""` |
 | `PHYSIS_CLAUDE_CHAVE` | ia_claude.py:120 | `return (os.environ.get("PHYSIS_CLAUDE_CHAVE") or os.environ.get("ANTHROPIC_API_KEY") or "").strip()` |
 | `PHYSIS_CLAUDE_CHAVE_ARQUIVO` | ia_claude.py:113 | `arq = (os.environ.get("PHYSIS_CLAUDE_CHAVE_ARQUIVO") or "").strip()` |
+| `PHYSIS_CLAUDE_PERMITIDO` | robos.py:256 | `if os.environ.get("PHYSIS_CLAUDE_PERMITIDO") == "1":` |
 | `PHYSIS_CLAUDE_TETOS_ROBO` | ia_claude.py:126 | `extra = json.loads(os.environ.get("PHYSIS_CLAUDE_TETOS_ROBO") or "{}")` |
 | `PHYSIS_CLAUDE_TETO_ROBO_USD` | ia_claude.py:132 | `outro = float(os.environ.get("PHYSIS_CLAUDE_TETO_ROBO_USD") or 3)` |
 | `PHYSIS_CLIMA` | servidor.py:2967 (+1) | `if os.environ.get("PHYSIS_CLIMA", "1") != "0":     # PHYSIS_CLIMA=0 desliga as consultas (sem internet de propósito)` |

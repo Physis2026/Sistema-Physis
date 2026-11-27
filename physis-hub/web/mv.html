@@ -511,7 +511,7 @@ function kanban(){const o=$("#origemK").value,b=$("#busca").value.toLowerCase();
     <div class="muted"><span class="fr fr-${esc(t.frente)}">${esc(FR[t.frente])}</span> ${esc(t.responsavel||"sem responsável")} · prazo ${esc(t.fim||"—")}${t.data_estimada?" [CONFERIR]":""}</div>
     ${t.atrasada?'<span class="pill g-alerta">atrasada</span>':""}${t.bloqueio?`<div class="muted">Bloqueio: ${esc(t.bloqueio)}</div>`:""}
     <label class="muted">Estado <select data-id="${esc(t.id)}">${META.estados.map(x=>`<option value="${x.id}"${x.id===t.estado?" selected":""}>${esc(x.nome)}</option>`).join("")}</select></label>
-    <label class="muted">Bot <select data-bot="${esc(t.id)}" aria-label="Bot para a tarefa ${esc(t.titulo)}"><option value="">Escolher…</option><option value="/modelo contrato">Modelo de contrato</option><option value="/modelo oficio">Modelo de ofício</option><option value="/modelo ata">Modelo de ata</option><option value="/modelo termo">Modelo de termo</option><option value="/modelo proposta">Modelo de proposta</option><option value="/email">Rascunho de e-mail</option><option value="/checklist">Checklist e passos</option><option value="claude">Pedir ao bot autônomo</option></select></label>
+    <label class="muted">Bot <select data-bot="${esc(t.id)}" aria-label="Bot para a tarefa ${esc(t.titulo)}"><option value="">Escolher…</option><option value="/modelo contrato">Modelo de contrato</option><option value="/modelo oficio">Modelo de ofício</option><option value="/modelo ata">Modelo de ata</option><option value="/modelo termo">Modelo de termo</option><option value="/modelo proposta">Modelo de proposta</option><option value="/email">Rascunho de e-mail</option><option value="/checklist">Checklist e passos</option><option value="autonomo">Pedir ao bot autônomo</option></select></label>
     <button class="btn" type="button" data-enc="${esc(t.id)}" aria-label="Encaminhar a tarefa ${esc(t.titulo)} para outra pessoa">Encaminhar</button></div>`).join("")+(ts.length>150?`<p class="muted">+${ts.length-150} (use a busca)</p>`:"")+`</div>`}).join("");
   $("#kanban").querySelectorAll("select[data-bot]").forEach(s=>s.onchange=()=>botTarefa(s));
   $("#kanban").querySelectorAll("[data-enc]").forEach(b=>b.onclick=async()=>{const n=(prompt("Encaminhar para quem? (nome da pessoa)")||"").trim();if(!n)return;
@@ -881,7 +881,7 @@ async function modelos3d(){if(MOCK){$("#desenv").innerHTML=semServidor("Modelage
     ${m.aprovacoes.length?`<p class="muted">Aprovações: ${m.aprovacoes.map(a=>`${esc(a.item.slice(0,60))} (${esc(EST[a.estado]||a.estado)})`).join(" · ")}</p>`:""}</div>`;}).join("")
     +`<p class="muted" style="grid-column:1/-1">Última regressão: ${esc(D.regressao.quando)} · ${esc(String(D.regressao.resultado).slice(0,160))} · dados de ${esc(D.gerado)}</p>`;}
 function botTarefa(sel){const id=sel.dataset.bot,v=sel.value;sel.value="";if(!v)return;
-  const cmd=v==="claude"?`Ajude na tarefa #${id}: ${(sel.closest(".tc").querySelector("strong")||{}).textContent||""}`:`${v} ${id}`;
+  const cmd=v==="autonomo"?`Ajude na tarefa #${id}: ${(sel.closest(".tc").querySelector("strong")||{}).textContent||""}`:`${v} ${id}`;
   let out=sel.closest(".tc").querySelector(".botsaida");if(!out){out=document.createElement("div");out.className="botsaida";sel.closest(".tc").appendChild(out);}enviarComando(cmd,out);}
 // ---------------------------------------------------------------- clientes, projetos e parceiros (20/11/2026)
 let CONTAS=[],CONTA_SEL="";

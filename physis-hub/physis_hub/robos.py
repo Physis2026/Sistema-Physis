@@ -14,8 +14,8 @@ Mesmo ligada:
   * tem tempo máximo (PHYSIS_IA_TEMPO, 30 s) e, se falhar, a resposta por regras continua valendo;
   * o registro guarda só metadados (robô, tamanho, tempo, ok) — nunca o texto.
 
-Ordem de quem melhora o texto (ia_do_ambiente): Claude com a conta da Physis, se configurado (ia_claude.py) →
-IA local acima (Fase 2) → respostas prontas por regras. O texto da resposta não leva aviso visível (decisão de
+Ordem de quem melhora o texto (ia_do_ambiente): IA local acima (modelo aberto no próprio servidor) → respostas prontas
+por regras. O Claude NÃO entra (decisão da dona, 24/11 e 27/11/2026); só com PHYSIS_CLAUDE_PERMITIDO=1 ligado à mão. O texto da resposta não leva aviso visível (decisão de
 15/11/2026); o protocolo fica: "ia" na resposta (provedor, modelo, quando) e uma entrada "ia" no registro encadeado
 do hub (ia.protocolo = id do registro), e revisao_humana=True. Ver docs/IA_CLAUDE.md.
 
@@ -250,8 +250,14 @@ class CadeiaIA:
 
 
 def ia_do_ambiente(avisar=None) -> CadeiaIA:
-    """Claude (se houver chave) → IA local (PHYSIS_IA_URL, Fase 2) → regras. avisar(assunto, corpo): aviso de teto."""
-    return CadeiaIA([claude_mod.IAClaude(avisar=avisar), IALocal()])
+    """IA local (modelo aberto no próprio servidor, PHYSIS_IA_URL) → regras. Decisão da dona (24/11 e 27/11/2026): o sistema
+    NÃO usa o Claude. Uma chave do Claude no ambiente é IGNORADA; só PHYSIS_CLAUDE_PERMITIDO=1, ligado à mão por quem
+    administra, coloca o Claude na frente (opção, nunca caminho único: regra 11)."""
+    if os.environ.get("PHYSIS_CLAUDE_PERMITIDO") == "1":
+        return CadeiaIA([claude_mod.IAClaude(avisar=avisar), IALocal()])
+    if any(os.environ.get(k) for k in ("PHYSIS_CLAUDE_CHAVE", "PHYSIS_CLAUDE_CHAVE_ARQUIVO", "ANTHROPIC_API_KEY")):
+        log.warning("chave do Claude no ambiente IGNORADA: o sistema usa só a IA local (PHYSIS_CLAUDE_PERMITIDO não está ligado)")
+    return CadeiaIA([IALocal()])
 
 
 def claude_da_cadeia(ia) -> "claude_mod.IAClaude | None":

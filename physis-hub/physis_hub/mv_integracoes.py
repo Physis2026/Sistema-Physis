@@ -56,7 +56,7 @@ NOS = [
     ("r_pluviometro", "Robô pluviômetro", "robo", "YAML ESPHome e cadastro de pluviômetro."),
     ("ia_physis", "IA Physis (própria)", "ia", "Índice próprio dos textos da Physis; respostas com fonte, sem terceiros."),
     ("vllm", "Modelo aberto local (vLLM)", "opc", "Opcional (PHYSIS_IA_URL): só reescreve, mantendo as fontes."),
-    ("claude", "Claude (externo)", "opc", "Opcional nos robôs do Hub (ia_claude.py); regra 11: nunca único caminho."),
+    ("claude", "Claude (externo)", "opc", "DESLIGADO (decisão da dona, 27/11/2026): chave no ambiente é ignorada; só PHYSIS_CLAUDE_PERMITIDO=1 liga."),
     ("b_atrasos", "bot atrasos", "bot", "Prazos, dependências e marcos."), ("b_documentos", "bot documentos", "bot", "Validade e regras dos documentos."),
     ("b_resumo", "bot resumo", "bot", "Resumo diário MD + ODT."), ("b_backup", "bot backup", "bot", "Cópia diária do banco do M&A."),
     ("b_paginas", "bot páginas", "bot", "Checklist base das telas."), ("b_links", "bot links", "bot", "Links externos das telas."),

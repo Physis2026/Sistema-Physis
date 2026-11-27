@@ -26,9 +26,9 @@ SOB_DEMANDA = {"mercado"}
 
 
 def exportar_fila(mv: MV, saida: Path | None = None, agora: float | None = None) -> dict:
-    """Fila do Claude em arquivo (decisão de 23/11/2026: nenhum pedido fica parado). 28_Physis_MV/fila-claude.md lista
-    os pedidos de texto livre ainda não feitos; numa sessão do Claude Code basta pedir "faça a fila". Pedido com mais
-    de 24 h vira alerta. Também resume os rascunhos que esperam aprovação."""
+    """Pedidos sem resposta em arquivo (28_Physis_MV/fila-pedidos.md). Desde 24/11/2026 o sistema NÃO usa o Claude: o bot
+    autônomo responde a fila antes (processar_fila); o que ainda restar aqui é pedido que nem a IA local conseguiu
+    responder (IA desligada, índice quebrado) e vira alerta com mais de 24 h. Também resume os rascunhos à espera."""
     from . import mv_bots
     agora = agora or time.time()
     try:
@@ -37,11 +37,11 @@ def exportar_fila(mv: MV, saida: Path | None = None, agora: float | None = None)
     except Exception:  # noqa: BLE001 — banco sem a tabela da fila (instalação nova)
         return {"fila": 0, "rascunhos": 0}
     pasta = Path(saida or mv_bots.SAIDA)
-    linhas = ["# Fila do Claude Code · pedidos ainda não feitos", "",
+    linhas = ["# Pedidos sem resposta · IA Physis (local)", "",
               f"Atualizado em {time.strftime('%d/%m/%Y %H:%M', time.localtime(agora))} pelo bot vigia (de hora em hora).", "",
-              "Numa sessão do Claude Code: \"faça a fila do M&A\". Cada pedido feito volta como **rascunho** para a Rafaella aprovar",
-              "(aba Bots e comandos); aprovado, vira tarefa \"Executar\".", "",
-              f"Rascunhos esperando aprovação: **{rasc}**.", ""]
+              "O bot autônomo responde estes pedidos no próprio computador (sem serviço externo). Se algum continua aqui, a IA",
+              "local está desligada ou o índice precisa ser refeito: py -m physis_hub.mv_cli ia --refazer.", "",
+              f"Rascunhos esperando aprovação (aba Bots e comandos): **{rasc}**.", ""]
     if not fila:
         linhas.append("Nenhum pedido parado. ✅")
     for r in fila:
@@ -49,13 +49,14 @@ def exportar_fila(mv: MV, saida: Path | None = None, agora: float | None = None)
         linhas += [f"## #{r[0]} · {time.strftime('%d/%m/%Y %H:%M', time.localtime(r[5]))} · há {h:.0f} h",
                    f"- Origem: {r[4] or '—'}" + (f" · tarefa #{r[3]}" if r[3] else ""), "", r[2], ""]
         if h > 24:
-            mv.alertar("vigia", "fila_parada", str(r[0]), "atencao", f"Pedido #{r[0]} parado na fila do Claude há {h:.0f} h: {r[2][:120]}",
-                       f"Abrir {pasta / 'fila-claude.md'} numa sessão do Claude Code (\"faça a fila\")")
+            mv.alertar("vigia", "fila_parada", str(r[0]), "atencao", f"Pedido #{r[0]} sem resposta há {h:.0f} h: {r[2][:120]}",
+                       "Ligar a IA Physis local (Ollama) ou refazer o índice: py -m physis_hub.mv_cli ia --refazer")
     if saida is None and getattr(mv, "caminho", "") == ":memory:":
         return {"fila": len(fila), "rascunhos": rasc}        # banco de teste: não escreve na pasta real
     try:
         pasta.mkdir(parents=True, exist_ok=True)
-        (pasta / "fila-claude.md").write_text("\n".join(linhas) + "\n", encoding="utf-8")
+        (pasta / "fila-pedidos.md").write_text("\n".join(linhas) + "\n", encoding="utf-8")
+        (pasta / "fila-claude.md").unlink(missing_ok=True)      # nome antigo (de quando ia para o Claude)
     except OSError:
         pass
     return {"fila": len(fila), "rascunhos": rasc}
@@ -87,7 +88,7 @@ def bot_vigia(mv: MV, agora: float | None = None, limites: dict | None = None) -
         out[bot] = {"estado": estado, "idade_h": idade, "limite_h": lim}
     from . import mv_autonomo
     out["_autonomo"] = mv_autonomo.processar_fila(mv)      # 24/11/2026: sem Claude; o bot responde o que ficou na fila
-    out["_fila_claude"] = exportar_fila(mv, agora=agora)
+    out["_fila"] = exportar_fila(mv, agora=agora)
     mv.fechar_alertas_nao_vistos("vigia", inicio)
     mv.registrar_execucao("vigia", inicio, json.dumps(out))
     return out

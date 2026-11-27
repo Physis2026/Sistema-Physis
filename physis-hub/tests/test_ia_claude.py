@@ -259,10 +259,19 @@ class TestOrdemNosRobos(Base):
 
     def test_ordem_padrao_do_ambiente(self):
         with mock.patch.dict(os.environ, {"PHYSIS_CLAUDE_CHAVE": CHAVE, "PHYSIS_IA_URL": "http://localhost:8000",
-                                          "PHYSIS_CLAUDE_CONSUMO": str(self.consumo)}):
+                                          "PHYSIS_CLAUDE_CONSUMO": str(self.consumo), "PHYSIS_CLAUDE_PERMITIDO": "1"}):
             c = robos.ia_do_ambiente()
         self.assertEqual(c.tipo, "claude → openai → regras")
         self.assertNotIn(CHAVE, repr(c.provedores[0]))
+
+    def test_sem_permissao_a_chave_e_ignorada(self):
+        """Decisão da dona (27/11/2026): o sistema não usa o Claude, mesmo com chave no ambiente."""
+        with mock.patch.dict(os.environ, {"PHYSIS_CLAUDE_CHAVE": CHAVE, "PHYSIS_IA_URL": "http://localhost:8000",
+                                          "PHYSIS_CLAUDE_CONSUMO": str(self.consumo)}):
+            os.environ.pop("PHYSIS_CLAUDE_PERMITIDO", None)
+            c = robos.ia_do_ambiente()
+        self.assertEqual(c.tipo, "openai → regras")
+        self.assertFalse(any(isinstance(x, robos.claude_mod.IAClaude) for x in c.provedores))
 
 
 if __name__ == "__main__":
