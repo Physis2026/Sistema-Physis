@@ -214,7 +214,8 @@ RECEITAS = {
                        "montar": lambda exe, ent, sai, p: ([exe, "run", "-w", ent], {})},
     "elmer.sif": {"programa": "elmer", "nome": "Elmer FEM · roda o caso (.zip com o .sif e a malha)", "entrada": [".zip", ".sif"], "params": {},
                   "procura": "*.sif", "cwd_entrada": True, "montar": lambda exe, ent, sai, p: ([exe, os.path.basename(ent)], {})},
-    "lammps.in": {"programa": "lammps", "nome": "LAMMPS · roda o script (.in, ou .zip com o script e os dados)", "entrada": [".in", ".lammps", ".zip"],
+    "lammps.in": {"programa": "lammps", "citar": "LAMMPS: Thompson et al., Comp. Phys. Comm. 271 (2022) 108171, https://doi.org/10.1016/j.cpc.2021.108171; LAMMPS-GUI: https://doi.org/10.21105/joss.11185",
+                  "nome": "LAMMPS · roda o script (.in, ou .zip com o script e os dados)", "entrada": [".in", ".lammps", ".zip"],
                   "params": {}, "procura": "in.*", "cwd_entrada": True, "montar": lambda exe, ent, sai, p: ([exe, "-in", os.path.basename(ent)], {})},
     "copasi.cps": {"programa": "copasi", "nome": "COPASI · roda as tarefas marcadas do modelo (.cps)", "entrada": [".cps"], "params": {},
                    "cwd_entrada": True, "montar": lambda exe, ent, sai, p: ([exe, ent], {})},
@@ -240,7 +241,7 @@ def disponiveis() -> list[dict]:
             mod = {"gmsh.malha": "gmsh", "rdkit.descritores": "rdkit", "whisper.transcrever": "faster_whisper"}.get(rid)
             import importlib.util
             ok = importlib.util.find_spec(mod) is not None if mod else True
-        out.append({"id": rid, "nome": r["nome"], "programa": r["programa"], "disponivel": ok, "entrada": r["entrada"],
+        out.append({"id": rid, "nome": r["nome"], "programa": r["programa"], "disponivel": ok, "entrada": r["entrada"], "citar": r.get("citar", ""),
                     "params": {k: (v if isinstance(v, list) else {"min": v[0], "max": v[1]}) for k, v in r["params"].items()}})
     return out
 

@@ -41,7 +41,7 @@ let REC = [], csrf = null;
 async function api(u, op) { const r = await fetch(u, Object.assign({ credentials: "same-origin" }, op || {})); let j = {}; try { j = await r.json(); } catch (e) {} return j; }
 function desenharRec() {
   const r = REC.find(x => x.id === $("rec").value); if (!r) return;
-  $("rec-info").textContent = (r.disponivel ? "" : "Programa NÃO instalado neste servidor. ") + (r.entrada ? "Entrada: " + r.entrada.join(", ") : "Sem arquivo de entrada.");
+  $("rec-info").textContent = (r.disponivel ? "" : "Programa NÃO instalado neste servidor. ") + (r.entrada ? "Entrada: " + r.entrada.join(", ") : "Sem arquivo de entrada.") + (r.citar ? " · Ao publicar, cite: " + r.citar : "");
   $("arq").disabled = !r.entrada; $("arq").accept = (r.entrada || []).join(",");
   $("ps").innerHTML = Object.entries(r.params).map(([k, v]) => Array.isArray(v)
     ? '<label for="p-' + k + '">' + esc(k) + '</label><select id="p-' + k + '" data-p="' + k + '">' + v.map(o => "<option>" + esc(o) + "</option>").join("") + "</select>"
@@ -985,7 +985,7 @@ carregar();
 PhysisPreferencias.iniciar({ chave:"physis-pref", ondeColocar:"#pp-lugar", conteudo:"#principal", tela:"programas", excecoes:["Physis"],
   dicionario:{"Programas do servidor": "Server programs", "Envie o arquivo: o programa roda no servidor, sem abrir janela, e devolve o resumo e os arquivos gerados. Só programas abertos instalados neste PC.": "Send the file: the program runs on the server, with no window, and returns the summary and generated files. Only open-source programs installed on this PC.", "Rodar": "Run", "Receita": "Recipe", "Arquivo": "File", "Trabalhos": "Jobs", "Carregando…": "Loading…", "Trabalho": "Job", "Situação": "Status", "Nenhum trabalho ainda.": "No jobs yet.", "Resumo": "Summary", "Arquivos": "Files", "Escolha o arquivo.": "Choose the file.", "Enviando…": "Sending…", "Não rodou.": "Did not run.", "Sem arquivo de entrada.": "No input file.", "sem acesso": "no access", "Pular para o conteúdo": "Skip to content"},
   padroes:[[/^Rodando: (.+)$/,"Running: $1"],[/^Trabalho (\S+) · (.*)$/,"Job $1 · $2"]],
-  fragmentos:{"Programa NÃO instalado neste servidor. ":"Program NOT installed on this server. ","Entrada: ":"Input: "," (não instalado)":" (not installed)"} });
+  fragmentos:{"Programa NÃO instalado neste servidor. ":"Program NOT installed on this server. ","Entrada: ":"Input: "," · Ao publicar, cite: ":" · When publishing, cite: "," (não instalado)":" (not installed)"} });
 </script>
 <script id="physis-edicao">
 /* physis-edicao.js v2 (26/11/2026: cor de destaque da paleta, "Baixar como app" e revisão das mudanças) · v1 (24/11/2026): edição manual de textos e da ordem dos blocos das páginas servidas pelo hub (site da Physis,
