@@ -15,6 +15,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -26,8 +27,11 @@ DEMORADOS = {"ia", "camadas", "mercado", "semanal", "backup", "documentos", "aud
 def get(url, corpo=None, tempo=30):
     req = urllib.request.Request(url, data=json.dumps(corpo).encode() if corpo is not None else None,
                                  headers={"Content-Type": "application/json"} if corpo is not None else {})
-    with urllib.request.urlopen(req, timeout=tempo) as r:
-        return r.status, json.loads(r.read() or b"{}")
+    try:
+        with urllib.request.urlopen(req, timeout=tempo) as r:
+            return r.status, json.loads(r.read() or b"{}")
+    except urllib.error.HTTPError as e:          # 401/403/404: responde com o código (403 sem login é proteção correta)
+        return e.code, {}
 
 
 def main() -> int:
@@ -86,9 +90,9 @@ def main() -> int:
         av(f"IA Physis: {e}")
     L.append(""); L.append("## 4. Marketing e sincronização")
     if os.name == "nt":
-        x = subprocess.run(["schtasks", "/Query", "/FO", "CSV", "/V", "/TN", r"\Physis\Marketing KPIs"], capture_output=True, text=True)
+        x = subprocess.run(["schtasks", "/Query", "/FO", "CSV", "/V", "/TN", r"\Physis\Marketing KPIs"], capture_output=True, text=True, encoding="utf-8", errors="replace")
         for tn in ("Marketing Aprovacoes", "Marketing KPIs", "Marketing Lembretes"):
-            y = subprocess.run(["powershell", "-NoProfile", "-Command", f"(Get-ScheduledTask -TaskPath '\\Physis\\' -TaskName '{tn}' | Get-ScheduledTaskInfo).LastTaskResult"], capture_output=True, text=True)
+            y = subprocess.run(["powershell", "-NoProfile", "-Command", f"(Get-ScheduledTask -TaskPath '\\Physis\\' -TaskName '{tn}' | Get-ScheduledTaskInfo).LastTaskResult"], capture_output=True, text=True, encoding="utf-8", errors="replace")
             r = (y.stdout or "").strip()
             ok(f"tarefa {tn}: última execução sem erro") if r == "0" else av(f"tarefa {tn}: resultado {r or 'desconhecido'}")
     try:
